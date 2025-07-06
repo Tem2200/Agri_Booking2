@@ -1,0 +1,160 @@
+import 'dart:convert';
+import 'package:agri_booking_app2/pages/contactor/DetailWork.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+class NontiPage extends StatefulWidget {
+  final int mid;
+
+  const NontiPage({super.key, required this.mid});
+
+  @override
+  State<NontiPage> createState() => _NontiPageState();
+}
+
+class _NontiPageState extends State<NontiPage> {
+  Future<List<dynamic>>? _scheduleFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _scheduleFuture = fetchSchedule(widget.mid); // ✅ แก้ตรงนี้
+      // ✅ ไม่ใช้ month/year แล้ว
+    });
+  }
+
+  Future<List<dynamic>> fetchSchedule(int mid) async {
+    final url = Uri.parse(
+        'http://projectnodejs.thammadalok.com/AGribooking/get_ConReservingNonti/$mid'); // ✅ เปลี่ยนเป็น URL ที่โหลดทั้งหมด
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        if (response.body.isNotEmpty) {
+          print("สถานะ NULLLLLLLLLLLL + ${response.body}");
+          return jsonDecode(response.body);
+        } else {
+          return [];
+        }
+      } else {
+        throw Exception('Failed to load schedule: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Connection error: $e');
+    }
+  }
+
+  String _formatDateRange(String? startDate, String? endDate) {
+    if (startDate == null || endDate == null) return 'ไม่ระบุวันที่';
+    try {
+      final start = DateTime.parse(startDate);
+      final end = DateTime.parse(endDate);
+      final formatter = DateFormat('dd/MM/yyyy');
+      return '${formatter.format(start)} - ${formatter.format(end)}';
+    } catch (e) {
+      return 'รูปแบบวันที่ไม่ถูกต้อง';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('ตารางงานทั้งหมด')),
+      body: FutureBuilder<List<dynamic>>(
+        future: _scheduleFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('ไม่มีคิวงาน'));
+          }
+
+          final scheduleList = snapshot.data!
+              .where((item) => item['progress_status'] != 4)
+              .toList();
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(8.0),
+            itemCount: scheduleList.length,
+            itemBuilder: (context, index) {
+              final item = scheduleList[index];
+              return GestureDetector(
+                // 👈 เปลี่ยนตรงนี้
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailWorkPage(rsid: item['rsid']),
+                    ),
+                  );
+                },
+                child: Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  elevation: 2.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
+                          style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueAccent),
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          'วันที่: ${_formatDateRange(item['date_start'], item['date_end'])}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          'ฟาร์ม: ${item['name_farm'] ?? '-'}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          'พื้นที่: ${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          'รายละเอียดงาน: ${item['detail'] ?? '-'}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          'สถานะความคืบหน้า: ${item['progress_status'] ?? 'ยังไม่ระบุ'}',
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.deepOrange),
+                        ),
+                        if (item['employee_username'] != null)
+                          Text(
+                            'ผู้รับจ้าง: ${item['employee_username']} (${item['employee_phone'] ?? '-'})',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        // ลบปุ่มออก
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
