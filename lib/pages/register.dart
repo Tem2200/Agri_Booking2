@@ -1,13 +1,13 @@
 import 'dart:convert';
-import 'package:agri_booking_app2/pages/contactor/home.dart';
-import 'package:agri_booking_app2/pages/employer/homeEmp.dart';
-import 'package:agri_booking_app2/pages/login.dart';
-import 'package:agri_booking_app2/pages/map_register.dart';
+import 'package:agri_booking2/pages/contactor/home.dart';
+import 'package:agri_booking2/pages/employer/homeEmp.dart';
+import 'package:agri_booking2/pages/login.dart';
+import 'package:agri_booking2/pages/map_register.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
-import 'package:agri_booking_app2/pages/assets/location_data.dart';
+import 'package:agri_booking2/pages/assets/location_data.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});

@@ -253,6 +253,7 @@ class _MapRegisterState extends State<MapRegister> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color(0xFFFFCC99),
         title: const Text('เลือกตำแหน่งบนแผนที่'),
         actions: [
           IconButton(
@@ -279,9 +280,14 @@ class _MapRegisterState extends State<MapRegister> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      ElevatedButton(
+                      ElevatedButton.icon(
                         onPressed: () => _searchPlace(searchController.text),
-                        child: const Text('ค้นหา'),
+                        label: const Text('ค้นหา'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color(0xFFFFCC99), // สีพื้นหลัง
+                          foregroundColor: Colors.black, // สีข้อความและไอคอน
+                        ),
                       )
                     ],
                   ),

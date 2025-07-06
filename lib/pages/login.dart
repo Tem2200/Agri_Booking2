@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'package:agri_booking_app2/pages/contactor/home.dart';
-import 'package:agri_booking_app2/pages/employer/homeEmp.dart';
-import 'package:agri_booking_app2/pages/register.dart';
+
+import 'package:agri_booking2/pages/contactor/home.dart';
+import 'package:agri_booking2/pages/employer/homeEmp.dart';
+import 'package:agri_booking2/pages/register.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -58,30 +59,66 @@ class _LoginState extends State<Login> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: const Text('เลือกหน้าที่ต้องการ'),
-                content: const Text('กรุณาเลือกหน้าที่ต้องการไป'),
+                title:
+                    const Text('ประเภทผู้ใช้งาน', textAlign: TextAlign.center),
+                content: const Text(
+                  'กรุณาเลือกประเภทผู้ใช้งานที่ต้องการเข้าสู่ระบบ',
+                  textAlign: TextAlign.center,
+                ),
+                actionsPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context); // ปิด dialog
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomeEmpPage(mid: mid)),
-                      );
-                    },
-                    child: const Text('ผู้จ้าง'),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            minimumSize: Size.fromHeight(48),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomeEmpPage(mid: mid),
+                              ),
+                            );
+                          },
+                          child: const Text('ผู้จ้าง'),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            minimumSize: Size.fromHeight(48),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomePage(mid: mid),
+                              ),
+                            );
+                          },
+                          child: const Text('ผู้รับจ้าง'),
+                        ),
+                      ),
+                    ],
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomePage(mid: mid)),
-                      );
-                    },
-                    child: const Text('ผู้รับจ้าง'),
+                  const SizedBox(height: 12),
+                  Center(
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('ปิด'),
+                    ),
                   ),
                 ],
               );
@@ -130,61 +167,134 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('เข้าสู่ระบบ')),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const Text('สวัสดี', style: TextStyle(fontSize: 24)),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'อีเมลหรือชื่อผู้ใช้',
-                    border: OutlineInputBorder(),
+      backgroundColor: const Color(0xFFFFCC99), // สีพื้นหลังส้มอ่อน
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // โลโก้
+              Image.asset('images/logo.png', height: 230),
+              const SizedBox(height: 30),
+              const Text(
+                'เข้าสู่ระบบ',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF3B3B3B),
+                  fontFamily: 'Roboto',
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  hintText: 'ชื่อผู้ใช้ / อีเมล',
+                  hintStyle: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 16,
+                    fontFamily: 'Roboto',
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
                   ),
                 ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'รหัสผ่าน',
-                    border: OutlineInputBorder(),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: 'รหัสผ่าน',
+                  hintStyle: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 16,
+                    fontFamily: 'Roboto',
                   ),
-                  obscureText: true,
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
-                const SizedBox(height: 30),
-                isLoading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        onPressed: isFormValid && !isLoading ? login : null,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Register()),
+                      );
+                    },
+                    child: const Text(
+                      'สมัครสมาชิก',
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Roboto',
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // เพิ่มฟังก์ชันลืมรหัสผ่าน
+                    },
+                    child: const Text(
+                      'ลืมรหัสผ่าน',
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Roboto',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Roboto',
+                          ),
+                        ),
+                        onPressed: isFormValid ? login : null,
                         child: const Text('เข้าสู่ระบบ'),
                       ),
-                const SizedBox(height: 20),
-                Text(message, style: const TextStyle(color: Colors.green)),
-                const SizedBox(height: 30),
-                isLoading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const Register(),
-                            ),
-                          );
-                        },
-                        child: const Text('สมัครสมาชิก'),
-                      ),
-                const SizedBox(height: 20),
-                Text(message,
-                    style: const TextStyle(
-                        color: Color.fromARGB(255, 255, 255, 255))),
-              ],
-            ),
+                    ),
+              const SizedBox(height: 20),
+              if (message.isNotEmpty)
+                Text(
+                  message,
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 16,
+                    fontFamily: 'Roboto',
+                  ),
+                ),
+            ],
           ),
         ),
       ),

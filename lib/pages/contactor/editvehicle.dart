@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:agri_booking_app2/pages/contactor/home.dart'; // Used for navigating to the Home page
-import 'package:agri_booking_app2/pages/contactor/DetailVehicle.dart'; // Used for navigating to DetailVehicle after update
+import 'package:agri_booking2/pages/contactor/home.dart'; // Used for navigating to the Home page
+import 'package:agri_booking2/pages/contactor/DetailVehicle.dart'; // Used for navigating to DetailVehicle after update
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;

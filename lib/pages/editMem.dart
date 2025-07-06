@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:agri_booking_app2/pages/map_edit.dart';
+
+import 'package:agri_booking2/pages/assets/location_data.dart';
+import 'package:agri_booking2/pages/map_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart'; // Assuming you have a file with location data
-import 'package:agri_booking_app2/pages/assets/location_data.dart';
 
 class EditMemberPage extends StatefulWidget {
   final Map<String, dynamic> memberData;
@@ -335,6 +336,11 @@ class _EditMemberPageState extends State<EditMemberPage> {
 
             ElevatedButton(
               onPressed: _selectLocationOnMap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(
+                    255, 255, 238, 50), // สีพื้นหลังปุ่มเป็นสีเขียว
+                foregroundColor: Colors.black, // สีตัวหนังสือเป็นสีขาว
+              ),
               child: const Text('เลือกตำแหน่งแผนที่'),
             ),
 
@@ -368,6 +374,11 @@ class _EditMemberPageState extends State<EditMemberPage> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _imageUploaded ? _submit : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Colors.green, // สีพื้นหลังปุ่มเป็นสีเขียว
+                      foregroundColor: Colors.white, // สีตัวหนังสือเป็นสีขาว
+                    ),
                     child: const Text('ตกลง'),
                   ),
                 ),

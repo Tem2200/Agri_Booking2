@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:agri_booking_app2/pages/contactor/DetailWork.dart';
+import 'package:agri_booking2/pages/contactor/DetailWork.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';

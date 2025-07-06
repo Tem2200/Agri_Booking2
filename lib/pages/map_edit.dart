@@ -195,6 +195,7 @@ class _MapEditState extends State<MapEdit> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color(0xFFFFCC99),
         title: const Text('เลือกตำแหน่งบนแผนที่'),
         actions: [
           IconButton(
@@ -223,6 +224,10 @@ class _MapEditState extends State<MapEdit> {
                 ElevatedButton(
                   onPressed: () => _searchPlace(searchController.text),
                   child: const Text('ค้นหา'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFCC99), // สีพื้นหลัง
+                    foregroundColor: Colors.black, // สีข้อความและไอคอน
+                  ),
                 )
               ],
             ),

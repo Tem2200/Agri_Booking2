@@ -1,13 +1,13 @@
 import 'dart:convert';
-import 'package:agri_booking_app2/pages/contactor/DetailVehicle.dart';
-import 'package:agri_booking_app2/pages/contactor/DetailWork.dart';
-import 'package:agri_booking_app2/pages/contactor/PlanAndHistory.dart';
-import 'package:agri_booking_app2/pages/contactor/addvehcle.dart';
-import 'package:agri_booking_app2/pages/contactor/con_plan.dart';
-import 'package:agri_booking_app2/pages/contactor/nonti.dart';
-import 'package:agri_booking_app2/pages/editMem.dart';
-import 'package:agri_booking_app2/pages/employer/homeEmp.dart';
-import 'package:agri_booking_app2/pages/login.dart';
+import 'package:agri_booking2/pages/contactor/DetailVehicle.dart';
+import 'package:agri_booking2/pages/contactor/DetailWork.dart';
+import 'package:agri_booking2/pages/contactor/PlanAndHistory.dart';
+import 'package:agri_booking2/pages/contactor/addvehcle.dart';
+import 'package:agri_booking2/pages/contactor/con_plan.dart';
+import 'package:agri_booking2/pages/contactor/nonti.dart';
+import 'package:agri_booking2/pages/editMem.dart';
+import 'package:agri_booking2/pages/employer/homeEmp.dart';
+import 'package:agri_booking2/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -255,108 +255,87 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 2, // มี 2 แท็บ: รายการรถ และ รีวิว
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('หน้าหลัก'),
-            bottom: const TabBar(
-              tabs: [
-                Tab(text: 'รายการรถ'),
-                Tab(text: 'รีวิว'),
-              ],
+      length: 2, // มี 2 แท็บ: รายการรถ และ รีวิว
+      child: Scaffold(
+        backgroundColor: const Color(0xFFFFCC99),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFFFFCC99),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'รายการรถ'),
+              Tab(text: 'รีวิว'),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Login()),
+                  (route) => false,
+                );
+              },
+            )
+          ],
+        ),
+        body: TabBarView(
+          children: [
+            _buildVehicleTab(),
+            _buildReviewTab(),
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          onTap: (index) {
+            final now = DateTime.now();
+            switch (index) {
+              case 0:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PlanAndHistory(
+                      mid: widget.mid,
+                      month: now.month,
+                      year: now.year,
+                    ),
+                  ),
+                );
+                break;
+              case 1:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NontiPage(mid: widget.mid),
+                  ),
+                );
+                break;
+              case 2:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(mid: widget.mid),
+                  ),
+                );
+                break;
+            }
+          },
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_today),
+              label: 'งานทั้งหมด',
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.logout),
-                onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Login()),
-                    (route) => false,
-                  );
-                },
-              )
-            ],
-          ),
-          body: Column(
-            children: [
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    _buildVehicleTab(),
-                    _buildReviewTab(),
-                  ],
-                ),
-              ),
-
-              // 🔽 ปุ่มที่ 1: ไปยังหน้า PlanPage พร้อมส่ง mid, month, year
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    final now = DateTime.now();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PlanAndHistory(
-                          mid: widget.mid,
-                          month: now.month,
-                          year: now.year,
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.calendar_today),
-                  label: const Text("งานทั้งหมด"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                ),
-              ),
-
-              // 🔽 ปุ่มที่ 2: ไปยังหน้า NontiPage พร้อมส่ง mid
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => NontiPage(mid: widget.mid),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.notifications),
-                  label: const Text("ดูการแจ้งเตือน"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomePage(mid: widget.mid),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.calendar_today),
-                  label: const Text("ฉัน"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ));
+            BottomNavigationBarItem(
+              icon: Icon(Icons.notifications),
+              label: 'แจ้งเตือน',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'ฉัน',
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildVehicleTab() {
@@ -408,53 +387,121 @@ class _HomePageState extends State<HomePage> {
               return Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
-                  border: Border.all(color: Colors.blue),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.center, // ให้รูปอยู่กลางแนวตั้ง
                   children: [
-                    member['image'] != null &&
-                            member['image'].toString().isNotEmpty
-                        ? ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(8)),
-                            child: Image.network(
-                              member['image'],
-                              height: 180,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                height: 180,
-                                color: Colors.grey[300],
+                    // รูปภาพ
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        member['image'] != null &&
+                                member['image'].toString().isNotEmpty
+                            ? ClipOval(
+                                child: Image.network(
+                                  member['image'],
+                                  height: 100,
+                                  width: 100,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Container(
+                                    height: 100,
+                                    width: 100,
+                                    color: Colors.grey[300],
+                                    alignment: Alignment.center,
+                                    child: const Icon(Icons.broken_image,
+                                        size: 48),
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                height: 100,
+                                width: 100,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFE0E0E0),
+                                  shape: BoxShape.circle,
+                                ),
                                 alignment: Alignment.center,
-                                child: const Icon(Icons.broken_image, size: 48),
+                                child: const Icon(Icons.image_not_supported,
+                                    size: 48),
+                              ),
+                      ],
+                    ),
+                    const SizedBox(width: 16),
+
+                    // ข้อมูลทางขวา
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Center(
+                            child: Text(
+                              'ข้อมูลผู้รับจ้าง',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          )
-                        : Container(
-                            height: 180,
-                            color: Colors.grey[200],
-                            alignment: Alignment.center,
-                            child:
-                                const Icon(Icons.image_not_supported, size: 48),
                           ),
-                    const Text('ข้อมูลเจ้าของ',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Text('ชื่อผู้ใช้: ${member['username'] ?? '-'}'),
-                    Text('โทรศัพท์: ${member['phone'] ?? '-'}'),
-                    Text('อีเมล: ${member['email'] ?? '-'}'),
-                    Text(
-                        'ที่อยู่: ${member['detail_address'] ?? '-'} ต.${member['subdistrict']} อ.${member['district']} จ.${member['province']}'),
+                          const SizedBox(height: 12),
+                          Text(
+                            'ชื่อผู้ใช้: ${member['username'] ?? '-'}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'โทรศัพท์: ${member['phone'] ?? '-'}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'อีเมล: ${member['email'] ?? '-'}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'ที่อยู่: ${member['detail_address'] ?? '-'} '
+                            'ต.${member['subdistrict'] ?? '-'} '
+                            'อ.${member['district'] ?? '-'} '
+                            'จ.${member['province'] ?? '-'}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               );
             },
           ),
+
           // ปุ่มเพิ่มรถ
           FloatingActionButton.extended(
             onPressed: () {
@@ -467,9 +514,11 @@ class _HomePageState extends State<HomePage> {
             },
             icon: const Icon(Icons.add),
             label: const Text('เพิ่มรถ'),
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
             tooltip: 'เพิ่มรถ',
           ),
-
+          const SizedBox(height: 16),
           FloatingActionButton.extended(
             onPressed: () async {
               try {
@@ -494,7 +543,7 @@ class _HomePageState extends State<HomePage> {
             label: const Text('แก้ไขข้อมูลส่วนตัว'),
             tooltip: 'แก้ไขข้อมูลส่วนตัว',
           ),
-
+          const SizedBox(height: 16),
           FloatingActionButton.extended(
             onPressed: () async {
               try {
@@ -550,9 +599,8 @@ class _HomePageState extends State<HomePage> {
               final vehicles = snapshot.data!;
               return Column(
                 children: vehicles.map<Widget>((vehicle) {
-                  // ดึงค่าสถานะปัจจุบันของรถ
                   bool currentStatus = (vehicle['status_vehicle'] == 1);
-                  int vid = vehicle['vid']; // ดึง vid ของรถ
+                  int vid = vehicle['vid'];
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
@@ -560,84 +608,125 @@ class _HomePageState extends State<HomePage> {
                       decoration: BoxDecoration(
                         color: Colors.orange[50],
                         border: Border.all(color: Colors.orange),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Column(
-                        // ใช้ Column เพื่อใส่ SwitchListTile และ ListTile
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          vehicle['image'] != null &&
-                                  vehicle['image'].toString().isNotEmpty
-                              ? ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(8)),
-                                  child: Image.network(
+                          // ✅ รูปภาพทางซ้าย
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: vehicle['image'] != null &&
+                                    vehicle['image'].toString().isNotEmpty
+                                ? Image.network(
                                     vehicle['image'],
                                     height: 180,
-                                    width: double.infinity,
+                                    width: 140,
                                     fit: BoxFit.cover,
                                     errorBuilder:
                                         (context, error, stackTrace) =>
                                             Container(
                                       height: 180,
+                                      width: 140,
                                       color: Colors.grey[300],
                                       alignment: Alignment.center,
                                       child: const Icon(Icons.broken_image,
                                           size: 48),
                                     ),
+                                  )
+                                : Container(
+                                    height: 180,
+                                    width: 140,
+                                    color: Colors.grey[200],
+                                    alignment: Alignment.center,
+                                    child: const Icon(Icons.image_not_supported,
+                                        size: 48),
                                   ),
-                                )
-                              : Container(
-                                  height: 180,
-                                  color: Colors.grey[200],
-                                  alignment: Alignment.center,
-                                  child: const Icon(Icons.image_not_supported,
-                                      size: 48),
-                                ),
-                          ListTile(
-                            title:
-                                Text(vehicle['name_vehicle'] ?? 'ไม่มีชื่อรถ'),
-                            subtitle: Column(
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          // ✅ ข้อมูลทางขวา
+                          Expanded(
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize:
+                                  MainAxisSize.min, // ขนาดพอดีกับเนื้อหา
                               children: [
+                                Text(
+                                  vehicle['name_vehicle'] ?? 'ไม่มีชื่อรถ',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
                                 Text(
                                     'ราคา: ${vehicle['price']} / ${vehicle['unit_price']}'),
                                 Text('รายละเอียด: ${vehicle['detail']}'),
                                 Text(
                                     'ทะเบียน: ${vehicle['plate_number'] ?? 'ไม่มีข้อมูล'}'),
+                                const SizedBox(height: 12),
+
+                                // ✅ สถานะรถ
+                                Row(
+                                  children: [
+                                    const Text('สถานะรถ:'),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      currentStatus
+                                          ? 'พร้อมใช้งาน'
+                                          : 'ไม่พร้อม',
+                                      style: TextStyle(
+                                        color: currentStatus
+                                            ? Colors.green
+                                            : Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Switch(
+                                  value: currentStatus,
+                                  onChanged: (bool newValue) {
+                                    int newStatus = newValue ? 1 : 0;
+                                    updateVehicleStatus(vid, newStatus);
+                                  },
+                                ),
+
+                                const SizedBox(height: 12),
+
+                                // ✅ ปุ่มอยู่ล่าง
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 12),
+                                      textStyle: const TextStyle(fontSize: 14),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text('รายละเอียดเพิ่มเติม'),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              Detailvehicle(vid: vid),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
                               ],
                             ),
-                            trailing: ElevatedButton(
-                              child: const Text('รายละเอียดเพิ่มเติม'),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        Detailvehicle(vid: vid),
-                                  ),
-                                );
-                              },
-                            ),
                           ),
-                          // --- เพิ่ม SwitchListTile ที่นี่ ---
-                          SwitchListTile(
-                            title: const Text('สถานะรถ'),
-                            subtitle: Text(
-                              currentStatus ? 'พร้อมใช้งาน' : 'ไม่พร้อม',
-                              style: TextStyle(
-                                color:
-                                    currentStatus ? Colors.green : Colors.red,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            value: currentStatus,
-                            onChanged: (bool newValue) {
-                              // เมื่อสวิตช์ถูกเปลี่ยน ให้เรียกฟังก์ชันอัปเดตสถานะ
-                              int newStatus = newValue ? 1 : 0;
-                              updateVehicleStatus(vid, newStatus);
-                            },
-                          ),
-                          // ------------------------------------
                         ],
                       ),
                     ),
@@ -715,254 +804,4 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-
-  // return Scaffold(
-  //   appBar: AppBar(
-  //     title: const Text('หน้าหลัก'),
-  //     actions: [
-  //       IconButton(
-  //         icon: const Icon(Icons.logout),
-  //         onPressed: () {
-  //           Navigator.pushAndRemoveUntil(
-  //             context,
-  //             MaterialPageRoute(builder: (context) => const Login()),
-  //             (route) => false,
-  //           );
-  //         },
-  //       )
-  //     ],
-  //   ),
-  //   body: SingleChildScrollView(
-  //     padding: const EdgeInsets.all(8),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         // 🔶 กล่องข้อมูลเจ้าของรถ (FutureBuilder สำหรับข้อมูลสมาชิก)
-  //         FutureBuilder<Map<String, dynamic>>(
-  //           future: _memberDataFuture,
-  //           builder: (context, snapshot) {
-  //             if (snapshot.connectionState == ConnectionState.waiting) {
-  //               return Container(
-  //                 padding: const EdgeInsets.all(12),
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.blue[50],
-  //                   border: Border.all(color: Colors.blue),
-  //                   borderRadius: BorderRadius.circular(8),
-  //                 ),
-  //                 child: const Center(child: CircularProgressIndicator()),
-  //               );
-  //             } else if (snapshot.hasError) {
-  //               return Container(
-  //                 padding: const EdgeInsets.all(12),
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.blue[50],
-  //                   border: Border.all(color: Colors.blue),
-  //                   borderRadius: BorderRadius.circular(8),
-  //                 ),
-  //                 child: Center(
-  //                     child: Text(
-  //                         'ไม่สามารถโหลดข้อมูลสมาชิกได้: ${snapshot.error}')),
-  //               );
-  //             } else if (!snapshot.hasData || snapshot.data == null) {
-  //               return Container(
-  //                 padding: const EdgeInsets.all(12),
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.blue[50],
-  //                   border: Border.all(color: Colors.blue),
-  //                   borderRadius: BorderRadius.circular(8),
-  //                 ),
-  //                 child: const Center(child: Text('ไม่พบข้อมูลสมาชิก')),
-  //               );
-  //             }
-
-  //             final member = snapshot.data!;
-  //             return Container(
-  //               padding: const EdgeInsets.all(12),
-  //               decoration: BoxDecoration(
-  //                 color: Colors.blue[50],
-  //                 border: Border.all(color: Colors.blue),
-  //                 borderRadius: BorderRadius.circular(8),
-  //               ),
-  //               child: Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   member['image'] != null &&
-  //                           member['image'].toString().isNotEmpty
-  //                       ? ClipRRect(
-  //                           borderRadius: const BorderRadius.vertical(
-  //                               top: Radius.circular(8)),
-  //                           child: Image.network(
-  //                             member['image'],
-  //                             height: 180,
-  //                             width: double.infinity,
-  //                             fit: BoxFit.cover,
-  //                             errorBuilder: (context, error, stackTrace) =>
-  //                                 Container(
-  //                               height: 180,
-  //                               color: Colors.grey[300],
-  //                               alignment: Alignment.center,
-  //                               child:
-  //                                   const Icon(Icons.broken_image, size: 48),
-  //                             ),
-  //                           ),
-  //                         )
-  //                       : Container(
-  //                           height: 180,
-  //                           color: Colors.grey[200],
-  //                           alignment: Alignment.center,
-  //                           child: const Icon(Icons.image_not_supported,
-  //                               size: 48),
-  //                         ),
-  //                   const Text('ข้อมูลเจ้าของ',
-  //                       style: TextStyle(
-  //                           fontSize: 18, fontWeight: FontWeight.bold)),
-  //                   const SizedBox(height: 8),
-  //                   Text('ชื่อผู้ใช้: ${member['username'] ?? '-'}'),
-  //                   Text('โทรศัพท์: ${member['phone'] ?? '-'}'),
-  //                   Text('อีเมล: ${member['email'] ?? '-'}'),
-  //                   Text(
-  //                       'ที่อยู่: ${member['detail_address'] ?? '-'} ต.${member['subdistrict']} อ.${member['district']} จ.${member['province']}'),
-  //                 ],
-  //               ),
-  //             );
-  //           },
-  //         ),
-  //         FloatingActionButton.extended(
-  //           onPressed: () {
-  //             Navigator.push(
-  //               context,
-  //               MaterialPageRoute(
-  //                 builder: (context) => AddVehicle(mid: widget.mid),
-  //               ),
-  //             );
-  //           },
-  //           icon: const Icon(Icons.add), // ถ้าไม่อยากได้ icon ก็ลบออกได้
-  //           label: const Text('เพิ่มรถ'),
-  //           tooltip: 'เพิ่มรถ',
-  //         ),
-  //         const SizedBox(height: 16),
-
-  //         // 🔶 รายการรถ (FutureBuilder สำหรับข้อมูลรถ)
-  //         FutureBuilder<List<dynamic>>(
-  //           future:
-  //               _vehicleListFuture, // ใช้ _vehicleListFuture ที่ประกาศไว้ใน State
-  //           builder: (context, snapshot) {
-  //             if (snapshot.connectionState == ConnectionState.waiting) {
-  //               return const Center(child: CircularProgressIndicator());
-  //             } else if (snapshot.hasError) {
-  //               return const Center(
-  //                   child: Text('เกิดข้อผิดพลาดในการโหลดข้อมูลรถ'));
-  //             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-  //               return const Center(
-  //                   child: Padding(
-  //                 padding: EdgeInsets.all(20.0),
-  //                 child:
-  //                     Text('ไม่พบข้อมูลรถ', style: TextStyle(fontSize: 16)),
-  //               ));
-  //             }
-
-  //             final vehicles = snapshot.data!;
-  //             return Column(
-  //               children: vehicles.map<Widget>((vehicle) {
-  //                 // ดึงค่าสถานะปัจจุบันของรถ
-  //                 bool currentStatus = (vehicle['status_vehicle'] == 1);
-  //                 int vid = vehicle['vid']; // ดึง vid ของรถ
-
-  //                 return Padding(
-  //                   padding: const EdgeInsets.only(bottom: 12),
-  //                   child: Container(
-  //                     decoration: BoxDecoration(
-  //                       color: Colors.orange[50],
-  //                       border: Border.all(color: Colors.orange),
-  //                       borderRadius: BorderRadius.circular(8),
-  //                     ),
-  //                     child: Column(
-  //                       // ใช้ Column เพื่อใส่ SwitchListTile และ ListTile
-  //                       children: [
-  //                         vehicle['image'] != null &&
-  //                                 vehicle['image'].toString().isNotEmpty
-  //                             ? ClipRRect(
-  //                                 borderRadius: const BorderRadius.vertical(
-  //                                     top: Radius.circular(8)),
-  //                                 child: Image.network(
-  //                                   vehicle['image'],
-  //                                   height: 180,
-  //                                   width: double.infinity,
-  //                                   fit: BoxFit.cover,
-  //                                   errorBuilder:
-  //                                       (context, error, stackTrace) =>
-  //                                           Container(
-  //                                     height: 180,
-  //                                     color: Colors.grey[300],
-  //                                     alignment: Alignment.center,
-  //                                     child: const Icon(Icons.broken_image,
-  //                                         size: 48),
-  //                                   ),
-  //                                 ),
-  //                               )
-  //                             : Container(
-  //                                 height: 180,
-  //                                 color: Colors.grey[200],
-  //                                 alignment: Alignment.center,
-  //                                 child: const Icon(Icons.image_not_supported,
-  //                                     size: 48),
-  //                               ),
-  //                         ListTile(
-  //                           title: Text(
-  //                               vehicle['name_vehicle'] ?? 'ไม่มีชื่อรถ'),
-  //                           subtitle: Column(
-  //                             crossAxisAlignment: CrossAxisAlignment.start,
-  //                             children: [
-  //                               Text(
-  //                                   'ราคา: ${vehicle['price']} / ${vehicle['unit_price']}'),
-  //                               Text('รายละเอียด: ${vehicle['detail']}'),
-  //                               Text(
-  //                                   'ทะเบียน: ${vehicle['plate_number'] ?? 'ไม่มีข้อมูล'}'),
-  //                             ],
-  //                           ),
-  //                           trailing: ElevatedButton(
-  //                             child: const Text('รายละเอียดเพิ่มเติม'),
-  //                             onPressed: () {
-  //                               Navigator.push(
-  //                                 context,
-  //                                 MaterialPageRoute(
-  //                                   builder: (context) =>
-  //                                       Detailvehicle(vid: vid),
-  //                                 ),
-  //                               );
-  //                             },
-  //                           ),
-  //                         ),
-  //                         // --- เพิ่ม SwitchListTile ที่นี่ ---
-  //                         SwitchListTile(
-  //                           title: const Text('สถานะรถ'),
-  //                           subtitle: Text(
-  //                             currentStatus ? 'พร้อมใช้งาน' : 'ไม่พร้อม',
-  //                             style: TextStyle(
-  //                               color:
-  //                                   currentStatus ? Colors.green : Colors.red,
-  //                               fontWeight: FontWeight.bold,
-  //                             ),
-  //                           ),
-  //                           value: currentStatus,
-  //                           onChanged: (bool newValue) {
-  //                             // เมื่อสวิตช์ถูกเปลี่ยน ให้เรียกฟังก์ชันอัปเดตสถานะ
-  //                             int newStatus = newValue ? 1 : 0;
-  //                             updateVehicleStatus(vid, newStatus);
-  //                           },
-  //                         ),
-  //                         // ------------------------------------
-  //                       ],
-  //                     ),
-  //                   ),
-  //                 );
-  //               }).toList(),
-  //             );
-  //           },
-  //         ),
-  //       ],
-  //     ),
-  //   ),
-  // );
-  // }
 }
