@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'package:agri_booking_app2/pages/contactor/home.dart';
+import 'package:agri_booking_app2/pages/employer/homeEmp.dart';
 import 'package:agri_booking_app2/pages/login.dart';
 import 'package:agri_booking_app2/pages/map_register.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:agri_booking_app2/pages/assets/location_data.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -21,23 +24,40 @@ class _RegisterState extends State<Register> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
-  final TextEditingController subdistrictController = TextEditingController();
-  final TextEditingController districtController = TextEditingController();
-  final TextEditingController provinceController = TextEditingController();
 
   String? imageUrl; // URL รูปภาพจาก imagebb
   double? latitude;
   double? longitude;
   bool isLoading = false;
   int? typeMember;
+  int? mid; // รหัสสมาชิก (MID) ที่จะใช้ในการเช็คประเภทสมาชิก
+  int phoneLength = 0;
+
+  List<String> provinces = [];
+  List<String> amphoes = [];
+  List<String> districts = [];
+
+  String? selectedProvince;
+  String? selectedAmphoe;
+  String? selectedDistrict;
+
+  @override
+  void initState() {
+    super.initState();
+
+    provinces = locationData
+        .map((e) => e['province'] as String)
+        .toSet()
+        .toList()
+      ..sort();
+  }
 
   Future<void> register() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // ตรวจสอบอีเมลจริงก่อนส่งข้อมูล
     setState(() => isLoading = true);
-    final email = emailController.text;
 
+    final email = emailController.text;
     final emailIsValid = await isRealEmail(email);
 
     if (!emailIsValid) {
@@ -59,7 +79,6 @@ class _RegisterState extends State<Register> {
       return;
     }
 
-    // ตรวจสอบประเภทสมาชิกก่อน
     if (typeMember == null) {
       setState(() => isLoading = false);
       showDialog(
@@ -84,7 +103,6 @@ class _RegisterState extends State<Register> {
       return;
     }
 
-    // ถ้าเช็คผ่านทั้งหมดแล้ว ส่งข้อมูลได้เลย
     final url =
         Uri.parse('http://projectnodejs.thammadalok.com/AGribooking/register');
     final data = {
@@ -95,9 +113,9 @@ class _RegisterState extends State<Register> {
       "image": imageUrl ?? null,
       "detail_address":
           addressController.text.isEmpty ? null : addressController.text,
-      "subdistrict": subdistrictController.text,
-      "district": districtController.text,
-      "province": provinceController.text,
+      "province": selectedProvince,
+      "district": selectedAmphoe,
+      "subdistrict": selectedDistrict,
       "latitude": latitude,
       "longitude": longitude,
       "type_member": typeMember,
@@ -109,44 +127,88 @@ class _RegisterState extends State<Register> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data),
       );
+
       final res = jsonDecode(response.body);
 
-      if (res.containsKey('mid')) {
-        final int mid = res['mid'];
+      if (response.statusCode == 201 && res['mid'] != null) {
+        final mid = res['mid'];
 
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('สำเร็จ'),
-            content: Text('สมัครสมาชิกสำเร็จ MID: $mid'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
-                child: const Text('ตกลง'),
-              ),
-            ],
-          ),
-        );
+        // โหลดข้อมูลสมาชิกจาก mid
+        final urlCon = Uri.parse(
+            'http://projectnodejs.thammadalok.com/AGribooking/members/$mid');
+        final response2 = await http.get(urlCon);
+
+        if (response2.statusCode == 200) {
+          final data = jsonDecode(response2.body);
+
+          setState(() => isLoading = false);
+
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text('สำเร็จ'),
+              content: Text('สมัครสมาชิกสำเร็จ MID: $mid'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // ปิด AlertDialog
+
+                    if (data['type_member'] == 1) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomeEmpPage(mid: data['mid']),
+                        ),
+                      );
+                    } else if (data['type_member'] == 2) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomePage(mid: data['mid']),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('ตกลง'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          setState(() => isLoading = false);
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text('ข้อผิดพลาด'),
+              content: Text(
+                  'ไม่สามารถโหลดข้อมูลสมาชิกได้ (status ${response2.statusCode})'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('ตกลง'),
+                ),
+              ],
+            ),
+          );
+        }
       } else {
-        // กรณี response 200 แต่ไม่มี mid
+        setState(() => isLoading = false);
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            title: const Text('ผิดพลาด'),
-            content: const Text('การสมัครสมาชิกไม่สำเร็จ โปรดตรวจสอบอีกครั้ง'),
+            title: const Text('ข้อผิดพลาด'),
+            content: Text(res['message'] ?? 'สมัครสมาชิกไม่สำเร็จ'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('ปิด'),
+                child: const Text('ตกลง'),
               ),
             ],
           ),
         );
       }
     } catch (e) {
+      setState(() => isLoading = false);
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -222,7 +284,7 @@ class _RegisterState extends State<Register> {
         body: {'image': base64Image},
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         final uploadedUrl = data['data']['url'];
 
@@ -317,12 +379,20 @@ class _RegisterState extends State<Register> {
                   validator: (v) => v!.isEmpty ? 'กรุณากรอก password' : null),
               TextFormField(
                 controller: phoneController,
-                decoration: const InputDecoration(labelText: 'เบอร์โทรศัพท์'),
+                decoration: InputDecoration(
+                  labelText: 'เบอร์โทรศัพท์',
+                  counterText: '$phoneLength/10',
+                ),
                 keyboardType: TextInputType.phone,
                 inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly, // ใส่ได้เฉพาะตัวเลข
-                  LengthLimitingTextInputFormatter(10), // จำกัดความยาวสูงสุด
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
                 ],
+                onChanged: (value) {
+                  setState(() {
+                    phoneLength = value.length;
+                  });
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'กรุณากรอกเบอร์โทรศัพท์';
@@ -337,18 +407,75 @@ class _RegisterState extends State<Register> {
                   controller: addressController,
                   decoration:
                       const InputDecoration(labelText: 'ที่อยู่ (ไม่บังคับ)')),
-              TextFormField(
-                  controller: subdistrictController,
-                  decoration: const InputDecoration(labelText: 'ตำบล'),
-                  validator: (v) => v!.isEmpty ? 'กรุณากรอกตำบล' : null),
-              TextFormField(
-                  controller: districtController,
-                  decoration: const InputDecoration(labelText: 'อำเภอ'),
-                  validator: (v) => v!.isEmpty ? 'กรุณากรอกอำเภอ' : null),
-              TextFormField(
-                  controller: provinceController,
-                  decoration: const InputDecoration(labelText: 'จังหวัด'),
-                  validator: (v) => v!.isEmpty ? 'กรุณากรอกจังหวัด' : null),
+              DropdownButtonFormField<String>(
+                value: selectedProvince,
+                decoration: const InputDecoration(labelText: 'จังหวัด'),
+                items: provinces
+                    .map((e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(e),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedProvince = value;
+                    selectedAmphoe = null;
+                    selectedDistrict = null;
+
+                    amphoes = locationData
+                        .where((e) => e['province'] == value)
+                        .map((e) => e['amphoe'] as String)
+                        .toSet()
+                        .toList()
+                      ..sort();
+
+                    districts = [];
+                  });
+                },
+                validator: (v) => v == null ? 'กรุณาเลือกจังหวัด' : null,
+              ),
+              DropdownButtonFormField<String>(
+                value: selectedAmphoe,
+                decoration: const InputDecoration(labelText: 'อำเภอ'),
+                items: amphoes
+                    .map((e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(e),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedAmphoe = value;
+                    selectedDistrict = null;
+
+                    districts = locationData
+                        .where((e) =>
+                            e['province'] == selectedProvince &&
+                            e['amphoe'] == value)
+                        .map((e) => e['district'] as String)
+                        .toSet()
+                        .toList()
+                      ..sort();
+                  });
+                },
+                validator: (v) => v == null ? 'กรุณาเลือกอำเภอ' : null,
+              ),
+              DropdownButtonFormField<String>(
+                value: selectedDistrict,
+                decoration: const InputDecoration(labelText: 'ตำบล'),
+                items: districts
+                    .map((e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(e),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedDistrict = value;
+                  });
+                },
+                validator: (v) => v == null ? 'กรุณาเลือกตำบล' : null,
+              ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: uploadImageFromImageBB,
@@ -366,7 +493,7 @@ class _RegisterState extends State<Register> {
                 label: const Text('เลือกตำแหน่งจากแผนที่'),
               ),
               if (latitude != null && longitude != null)
-                Text('Lat: $latitude, Lng: $longitude'),
+                Text('ปักหมุดแผนที่เรียบร้อยแล้ว'),
               const SizedBox(height: 20),
               isLoading
                   ? const CircularProgressIndicator()

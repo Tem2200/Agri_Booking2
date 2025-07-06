@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:agri_booking_app2/pages/map_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart'; // Assuming you have a file with location data
+import 'package:agri_booking_app2/pages/assets/location_data.dart';
 
 class EditMemberPage extends StatefulWidget {
   final Map<String, dynamic> memberData;
@@ -26,6 +27,14 @@ class _EditMemberPageState extends State<EditMemberPage> {
   double? _selectedLng;
   bool _imageUploaded = false;
   String? _imageUrl;
+
+  List<String> provinces = [];
+  List<String> amphoes = [];
+  List<String> districts = [];
+
+  String? selectedProvince;
+  String? selectedAmphoe;
+  String? selectedDistrict;
 
   @override
   void initState() {
@@ -50,6 +59,38 @@ class _EditMemberPageState extends State<EditMemberPage> {
 
     _imageUrl = widget.memberData['image'];
     _imageUploaded = _imageUrl != null && _imageUrl!.isNotEmpty;
+
+    // ดึง province ทั้งหมด
+    provinces = locationData
+        .map((e) => e['province'] as String)
+        .toSet()
+        .toList()
+      ..sort();
+
+    // Set ค่า province/district/subdistrict จาก memberData
+    selectedProvince = widget.memberData['province'];
+    if (selectedProvince != null) {
+      amphoes = locationData
+          .where((e) => e['province'] == selectedProvince)
+          .map((e) => e['amphoe'] as String)
+          .toSet()
+          .toList()
+        ..sort();
+    }
+
+    selectedAmphoe = widget.memberData['district'];
+    if (selectedProvince != null && selectedAmphoe != null) {
+      districts = locationData
+          .where((e) =>
+              e['province'] == selectedProvince &&
+              e['amphoe'] == selectedAmphoe)
+          .map((e) => e['district'] as String)
+          .toSet()
+          .toList()
+        ..sort();
+    }
+
+    selectedDistrict = widget.memberData['subdistrict'];
   }
 
   @override
@@ -138,9 +179,9 @@ class _EditMemberPageState extends State<EditMemberPage> {
       "username": usernameController.text,
       "phone": phoneController.text,
       "image": widget.memberData['image'],
-      "province": provinceController.text,
-      "district": districtController.text,
-      "subdistrict": subdistrictController.text,
+      "province": selectedProvince,
+      "district": selectedAmphoe,
+      "subdistrict": selectedDistrict,
       "detail_address": addressController.text,
       "latitude": _selectedLat,
       "longitude": _selectedLng,
@@ -216,10 +257,80 @@ class _EditMemberPageState extends State<EditMemberPage> {
             // Input fields
             buildInput(usernameController, 'ชื่อผู้ใช้'),
             buildInput(phoneController, 'เบอร์โทร', readOnly: true),
-            buildInput(provinceController, 'จังหวัด'),
-            buildInput(districtController, 'อำเภอ'),
-            buildInput(subdistrictController, 'ตำบล'),
+            DropdownButtonFormField<String>(
+              value: selectedProvince,
+              decoration: const InputDecoration(
+                labelText: 'จังหวัด',
+                filled: true,
+                fillColor: Color(0xFFE0E0E0),
+                border: OutlineInputBorder(borderSide: BorderSide.none),
+              ),
+              items: provinces
+                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedProvince = value;
+                  selectedAmphoe = null;
+                  selectedDistrict = null;
 
+                  amphoes = locationData
+                      .where((e) => e['province'] == value)
+                      .map((e) => e['amphoe'] as String)
+                      .toSet()
+                      .toList()
+                    ..sort();
+
+                  districts = [];
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              value: selectedAmphoe,
+              decoration: const InputDecoration(
+                labelText: 'อำเภอ',
+                filled: true,
+                fillColor: Color(0xFFE0E0E0),
+                border: OutlineInputBorder(borderSide: BorderSide.none),
+              ),
+              items: amphoes
+                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedAmphoe = value;
+                  selectedDistrict = null;
+
+                  districts = locationData
+                      .where((e) =>
+                          e['province'] == selectedProvince &&
+                          e['amphoe'] == value)
+                      .map((e) => e['district'] as String)
+                      .toSet()
+                      .toList()
+                    ..sort();
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              value: selectedDistrict,
+              decoration: const InputDecoration(
+                labelText: 'ตำบล',
+                filled: true,
+                fillColor: Color(0xFFE0E0E0),
+                border: OutlineInputBorder(borderSide: BorderSide.none),
+              ),
+              items: districts
+                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedDistrict = value;
+                });
+              },
+            ),
             const SizedBox(height: 12),
 
             ElevatedButton(
