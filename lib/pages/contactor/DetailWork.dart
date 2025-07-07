@@ -201,6 +201,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color(0xFFFFCC99),
         title: const Text('รายละเอียดงาน'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
