@@ -361,136 +361,176 @@ class _DetailvehicleState extends State<Detailvehicle> {
                       ),
                       const Divider(height: 32),
 
-                      // --- ส่วนแสดงรีวิว ---
-                      const Text('รีวิว',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      FutureBuilder<List<dynamic>>(
-                        future: _reviewFuture,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return Center(
-                                child: Text(
-                                    'เกิดข้อผิดพลาดในการโหลดรีวิว: ${snapshot.error}'));
-                          } else if (!snapshot.hasData ||
-                              snapshot.data!.isEmpty) {
-                            return const Center(child: Text('ไม่มีรีวิว'));
-                          }
-
-                          final reviewList = snapshot.data!;
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: reviewList.length,
-                            itemBuilder: (context, index) {
-                              final review = reviewList[index];
-                              List<int> reporters = [];
-                              // ตรวจสอบและแปลง 'reporters' จาก String JSON เป็น List<int>
-                              if (review['reporters'] != null &&
-                                  review['reporters'] is String) {
-                                try {
-                                  reporters = List<int>.from(
-                                      jsonDecode(review['reporters']));
-                                } catch (e) {
-                                  print(
-                                      'Error parsing reporters JSON for review ${review['rid']}: $e');
-                                }
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          FutureBuilder<List<dynamic>>(
+                            future: _reviewFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                  child: Text(
+                                      'เกิดข้อผิดพลาดในการโหลดรีวิว: ${snapshot.error}'),
+                                );
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data!.isEmpty) {
+                                return const Text(
+                                  'รีวิว (ไม่มีข้อมูล)',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                );
                               }
 
-                              // ตรวจสอบว่าผู้ใช้ปัจจุบันได้รายงานรีวิวนี้ไปแล้วหรือยัง
-                              bool hasReported =
-                                  reporters.contains(_currentMid);
+                              final reviewList = snapshot.data!;
 
-                              return Card(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 4.0),
-                                elevation: 1.0,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'คะแนน: ${review['point'] ?? '-'} / 5',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: review['point'] == 5
-                                              ? Colors.amber[700]
-                                              : Colors.orange,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text('ข้อความ: ${review['text'] ?? '-'}'),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'วันที่รีวิว: ${_formatReviewDate(review['date'])}',
-                                        style: const TextStyle(
-                                            fontSize: 12, color: Colors.grey),
-                                      ),
-                                      if (review['image'] != null &&
-                                          review['image'].isNotEmpty)
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
-                                          child: Image.network(
-                                            review['image'],
-                                            height: 100,
-                                            width: 100,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error,
-                                                    stackTrace) =>
-                                                const Icon(
-                                                    Icons.image_not_supported),
-                                          ),
-                                        ),
-                                      // แสดงปุ่มรายงานรีวิวไม่เหมาะสม
-                                      // ถ้าผู้ใช้ปัจจุบันยังไม่ได้รายงาน และ mid ของผู้ใช้ถูกต้อง (ไม่เป็น 0)
-                                      if (!hasReported && _currentMid != 0)
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
-                                          child: Align(
-                                            alignment: Alignment.bottomRight,
-                                            child: ElevatedButton(
-                                              onPressed: isLoading
-                                                  ? null
-                                                  : () => _reportReview(
-                                                      review['rid']),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    Colors.red, // สีปุ่มรายงาน
-                                                foregroundColor: Colors.white,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 6),
-                                                textStyle: const TextStyle(
-                                                    fontSize: 14),
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8)),
-                                              ),
-                                              child: const Text(
-                                                  'รายงานรีวิวไม่เหมาะสม'),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
+                              final totalPoints = reviewList.fold<num>(
+                                0,
+                                (sum, review) =>
+                                    sum + ((review['point'] ?? 0) as num),
+                              );
+                              final average = (reviewList.isNotEmpty)
+                                  ? (totalPoints / reviewList.length)
+                                      .toStringAsFixed(2)
+                                  : '0.00';
+                              final totalReviews = reviewList.length;
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'รีวิว $average / 5 ($totalReviews รีวิว)',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(height: 8),
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: reviewList.length,
+                                    itemBuilder: (context, index) {
+                                      final review = reviewList[index];
+                                      List<int> reporters = [];
+                                      if (review['reporters'] != null &&
+                                          review['reporters'] is String) {
+                                        try {
+                                          reporters = List<int>.from(
+                                              jsonDecode(review['reporters']));
+                                        } catch (e) {
+                                          print(
+                                              'Error parsing reporters JSON for review ${review['rid']}: $e');
+                                        }
+                                      }
+                                      bool hasReported =
+                                          reporters.contains(_currentMid);
+
+                                      return Card(
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 4.0),
+                                        elevation: 1.0,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(12.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'คะแนน: ${review['point'] ?? '-'} / 5',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: review['point'] == 5
+                                                      ? Colors.amber[700]
+                                                      : Colors.orange,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                  'ข้อความ: ${review['text'] ?? '-'}'),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'วันที่รีวิว: ${_formatReviewDate(review['date'])}',
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey),
+                                              ),
+                                              if (review['image'] != null &&
+                                                  review['image'].isNotEmpty)
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 8.0),
+                                                  child: Image.network(
+                                                    review['image'],
+                                                    height: 100,
+                                                    width: 100,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context,
+                                                            error,
+                                                            stackTrace) =>
+                                                        const Icon(Icons
+                                                            .image_not_supported),
+                                                  ),
+                                                ),
+                                              if (!hasReported &&
+                                                  _currentMid != 0)
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 8.0),
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.bottomRight,
+                                                    child: ElevatedButton(
+                                                      onPressed: isLoading
+                                                          ? null
+                                                          : () => _reportReview(
+                                                              review['rid']),
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        backgroundColor:
+                                                            Colors.red,
+                                                        foregroundColor:
+                                                            Colors.white,
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 12,
+                                                                vertical: 6),
+                                                        textStyle:
+                                                            const TextStyle(
+                                                                fontSize: 14),
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                        ),
+                                                      ),
+                                                      child: const Text(
+                                                          'รายงานรีวิวไม่เหมาะสม'),
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               );
                             },
-                          );
-                        },
-                      ),
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),

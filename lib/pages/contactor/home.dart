@@ -751,55 +751,95 @@ class _HomePageState extends State<HomePage> {
         }
 
         final reviews = snapshot.data!;
-        return ListView.builder(
-          padding: const EdgeInsets.all(8),
-          itemCount: reviews.length,
-          itemBuilder: (context, index) {
-            final review = reviews[index];
-            final reportedList =
-                jsonDecode(review['reporters']) as List<dynamic>;
-            final isReported = reportedList.contains(_currentMid);
+        final points = reviews.map((r) => (r['point'] ?? 0) as num).toList();
+        final avg = points.isNotEmpty
+            ? (points.reduce((a, b) => a + b) / points.length)
+                .toStringAsFixed(2)
+            : '0.00';
 
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      review['text'],
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('คะแนน: ${review['point']}'),
-                        Text(
-                            'วันที่: ${review['date'].toString().substring(0, 10)}'),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    if (!isReported)
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () => _reportReview(review['rid']),
-                          child: const Text('รายงานรีวิว'),
-                        ),
-                      )
-                    else
-                      const Align(
-                        alignment: Alignment.centerRight,
-                        child: Text('รายงานแล้ว',
-                            style: TextStyle(color: Colors.grey)),
-                      ),
-                  ],
-                ),
+        final reviewCount = reviews.length;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'คะแนนรีวิว: $avg ($reviewCount รีวิว)',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
               ),
-            );
-          },
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(8),
+                itemCount: reviews.length,
+                itemBuilder: (context, index) {
+                  final review = reviews[index];
+                  final reportedList =
+                      jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
+                  final isReported = reportedList.contains(_currentMid);
+
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (review['image_url'] != null &&
+                              review['image_url'].toString().isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Image.network(
+                                review['image_url'],
+                                height: 150,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Text('โหลดรูปไม่สำเร็จ'),
+                              ),
+                            ),
+                          Text(
+                            review['text'] ?? '-',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('คะแนน: ${review['point'] ?? '-'}'),
+                              Text(
+                                'วันที่: ${review['date'].toString().substring(0, 10)}',
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          if (!isReported)
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: () => _reportReview(review['rid']),
+                                child: const Text('รายงานรีวิว'),
+                              ),
+                            )
+                          else
+                            const Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                'รายงานแล้ว',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );
