@@ -128,6 +128,7 @@ class _AddVehicleState extends State<AddVehicle> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('เพิ่มรถ'),
+        backgroundColor: const Color(0xFFFFCC99),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -135,7 +136,7 @@ class _AddVehicleState extends State<AddVehicle> {
               context,
               MaterialPageRoute(
                 builder: (context) => HomePage(mid: widget.mid),
-              ), // ← ไปหน้า Login
+              ),
             );
           },
         ),
@@ -145,56 +146,188 @@ class _AddVehicleState extends State<AddVehicle> {
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // ✅ รูปรถ + ปุ่มแก้ไข
+              Center(
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.grey[300],
+                          backgroundImage:
+                              imageUrl != null && imageUrl!.isNotEmpty
+                                  ? NetworkImage(imageUrl!)
+                                  : null,
+                          child: imageUrl == null || imageUrl!.isEmpty
+                              ? Icon(Icons.directions_car,
+                                  size: 60, color: Colors.grey[600])
+                              : null,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: CircleAvatar(
+                            backgroundColor: Colors.green[700],
+                            radius: 18,
+                            child: IconButton(
+                              icon: const Icon(Icons.edit,
+                                  color: Colors.white, size: 20),
+                              onPressed: isLoading ? null : pickAndUploadImage,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text('เพิ่มรูปรถ',
+                        style:
+                            TextStyle(fontSize: 14, color: Colors.grey[700])),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // ✅ ชื่อรถ
+              Text('ชื่อรถ', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'ชื่อรถ'),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'ชื่อรถ',
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
                 validator: (v) =>
                     v == null || v.isEmpty ? 'กรุณากรอกชื่อรถ' : null,
               ),
-              TextFormField(
-                controller: priceController,
-                decoration: const InputDecoration(labelText: 'ราคา'),
-                keyboardType: TextInputType.number,
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'กรุณากรอกราคา' : null,
+
+              const SizedBox(height: 16),
+
+              // ✅ ราคาต่อหน่วย
+              Text('ราคาต่อพื้นที่ที่จ้างงาน (เช่น 100 ต่อ ไร่)',
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: priceController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: '500',
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'กรุณากรอกราคา' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Text('ต่อ', style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextFormField(
+                      controller: unitPriceController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'ชั่วโมง',
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'กรุณากรอกหน่วยราคา' : null,
+                    ),
+                  ),
+                ],
               ),
-              TextFormField(
-                controller: unitPriceController,
-                decoration: const InputDecoration(
-                    labelText: 'หน่วยราคา (เช่น ชั่วโมง, ไร่)'),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'กรุณากรอกหน่วยราคา' : null,
-              ),
+
+              const SizedBox(height: 16),
+
+              // ✅ รายละเอียด
+              Text('รายละเอียดรถ',
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: detailController,
-                decoration: const InputDecoration(labelText: 'รายละเอียด'),
                 maxLines: 3,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'อธิบายการใช้งานรถ เช่น ขุดดิน ไถนา',
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
                 validator: (v) =>
                     v == null || v.isEmpty ? 'กรุณากรอกรายละเอียด' : null,
               ),
+
+              const SizedBox(height: 16),
+
+              // ✅ ทะเบียน (ไม่บังคับ)
+              Text('ป้ายทะเบียนรถ',
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: plateController,
-                decoration:
-                    const InputDecoration(labelText: 'ทะเบียนรถ (ไม่บังคับ)'),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'ไม่บังคับ',
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
               ),
-              const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: isLoading ? null : pickAndUploadImage,
-                icon: const Icon(Icons.image),
-                label: const Text('เลือกรูปภาพ (อัปโหลดไป imgbb)'),
-              ),
-              if (imageUrl != null) ...[
-                const SizedBox(height: 12),
-                Image.network(imageUrl!, height: 150),
-              ],
-              const SizedBox(height: 20),
-              isLoading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: submitVehicle,
-                      child: const Text('เพิ่มรถ'),
+
+              const SizedBox(height: 32),
+
+              // ✅ ปุ่มยกเลิก/เพิ่มรถ
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              Navigator.pop(context, false);
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[300],
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text('ยกเลิก',
+                          style: TextStyle(color: Colors.grey[800])),
                     ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: isLoading ? null : submitVehicle,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('เพิ่มรถ',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                ],
+              ),
+
+              if (isLoading)
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
             ],
           ),
         ),

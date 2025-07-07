@@ -204,7 +204,9 @@ class _DetailvehicleState extends State<Detailvehicle> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(vehicleData?['name_vehicle'] ?? 'รายละเอียดรถ'),
+        //title: Text(vehicleData?['name_vehicle'] ?? 'รายละเอียดรถ'),
+        backgroundColor: Color(0xFFFFCC99),
+        title: Text('รายละเอียดรถ'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
