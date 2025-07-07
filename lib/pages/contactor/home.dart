@@ -250,87 +250,235 @@ class _HomePageState extends State<HomePage> {
       throw Exception('Failed to connect to review server: $e');
     }
   }
-  // ------------------------------------
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2, // มี 2 แท็บ: รายการรถ และ รีวิว
+      length: 2, // 2 แท็บ: รายการรถ และ รีวิว
       child: Scaffold(
         backgroundColor: const Color(0xFFFFCC99),
         appBar: AppBar(
           backgroundColor: const Color(0xFFFFCC99),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'รายการรถ'),
-              Tab(text: 'รีวิว'),
-            ],
-          ),
+          centerTitle: true,
+          automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
           actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Login()),
-                  (route) => false,
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.menu, color: Colors.black87),
+              onSelected: (value) async {
+                if (value == 'edit') {
+                  try {
+                    final data = await fetchCon(widget.mid);
+                    if (!context.mounted) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditMemberPage(memberData: data),
+                      ),
+                    );
+                  } catch (e) {
+                    print('เกิดข้อผิดพลาดในการโหลดข้อมูลสมาชิก: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('ไม่สามารถโหลดข้อมูลสมาชิกได้')),
+                    );
+                  }
+                } else if (value == 'mode') {
+                  try {
+                    final response = await updateTypeMember(widget.mid, 3);
+                    if (response['type_member'] == 3) {
+                      if (!context.mounted) return;
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomeEmpPage(mid: widget.mid),
+                        ),
+                      );
+                    } else {
+                      throw Exception('อัปเดตไม่สำเร็จ');
+                    }
+                  } catch (e) {
+                    print('เกิดข้อผิดพลาดในการอัปเดต: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('ไม่สามารถอัปเดตโหมดผู้รับจ้างได้')),
+                    );
+                  }
+                } else if (value == 'logout') {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Login()),
+                    (route) => false,
+                  );
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, color: Colors.blue),
+                      SizedBox(width: 8),
+                      Text('แก้ไขข้อมูลส่วนตัว'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'mode',
+                  child: Row(
+                    children: [
+                      Icon(Icons.work, color: Colors.green),
+                      SizedBox(width: 8),
+                      Text('โหมดผู้รับจ้าง'),
+                    ],
+                  ),
+                ),
+                const PopupMenuDivider(),
+                const PopupMenuItem(
+                  value: 'logout',
+                  child: Row(
+                    children: [
+                      Icon(Icons.logout, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('ออกจากระบบ'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            // 🔹 FutureBuilder: แสดงข้อมูลผู้รับจ้าง
+            FutureBuilder<Map<String, dynamic>>(
+              future: _memberDataFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.all(12),
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'),
+                  );
+                } else if (!snapshot.hasData || snapshot.data == null) {
+                  return const Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Text('ไม่พบข้อมูลสมาชิก'),
+                  );
+                }
+
+                final member = snapshot.data!;
+                return Container(
+                  margin: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: ExpansionTile(
+                    tilePadding: const EdgeInsets.all(12),
+                    title: Row(
+                      mainAxisAlignment:
+                          MainAxisAlignment.center, // ✅ จัดให้อยู่ตรงกลางแนวนอน
+                      children: [
+                        ClipOval(
+                          child: Image.network(
+                            member['image'] ?? '',
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.person, size: 48),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          member['username'] ?? '-',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.phone,
+                                    size: 20, color: Colors.green),
+                                const SizedBox(width: 6),
+                                Text(member['phone'] ?? '-'),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.email,
+                                    size: 20, color: Colors.redAccent),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(member['email'] ?? '-',
+                                      softWrap: true),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.location_on,
+                                    size: 20, color: Colors.orange),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    'ที่อยู่: ${member['detail_address'] ?? '-'} ต.${member['subdistrict'] ?? '-'} อ.${member['district'] ?? '-'} จ.${member['province'] ?? '-'}',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
-            )
-          ],
-        ),
-        body: TabBarView(
-          children: [
-            _buildVehicleTab(),
-            _buildReviewTab(),
-          ],
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          onTap: (index) {
-            final now = DateTime.now();
-            switch (index) {
-              case 0:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PlanAndHistory(
-                      mid: widget.mid,
-                      month: now.month,
-                      year: now.year,
-                    ),
-                  ),
-                );
-                break;
-              case 1:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NontiPage(mid: widget.mid),
-                  ),
-                );
-                break;
-              case 2:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomePage(mid: widget.mid),
-                  ),
-                );
-                break;
-            }
-          },
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today),
-              label: 'งานทั้งหมด',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.notifications),
-              label: 'แจ้งเตือน',
+
+            // 🔹 TabBar ใต้ข้อมูลผู้รับจ้าง
+            const TabBar(
+              labelColor: Colors.black,
+              indicatorColor: Colors.orange,
+              tabs: [
+                Tab(text: 'รายการรถ'),
+                Tab(text: 'รีวิว'),
+              ],
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'ฉัน',
+
+            // 🔹 TabBarView อยู่ใน Expanded เพื่อให้ scroll ได้
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _buildVehicleTab(), // รายการรถ
+                  _buildReviewTab(), // รีวิว
+                ],
+              ),
             ),
           ],
         ),
@@ -344,164 +492,6 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ส่วนแสดงข้อมูลเจ้าของ
-          FutureBuilder<Map<String, dynamic>>(
-            future: _memberDataFuture,
-            builder: (context, snapshot) {
-              // ... โค้ดของข้อมูลสมาชิกตามเดิม ...
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    border: Border.all(color: Colors.blue),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Center(child: CircularProgressIndicator()),
-                );
-              } else if (snapshot.hasError) {
-                return Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    border: Border.all(color: Colors.blue),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                      child: Text(
-                          'ไม่สามารถโหลดข้อมูลสมาชิกได้: ${snapshot.error}')),
-                );
-              } else if (!snapshot.hasData || snapshot.data == null) {
-                return Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    border: Border.all(color: Colors.blue),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Center(child: Text('ไม่พบข้อมูลสมาชิก')),
-                );
-              }
-
-              final member = snapshot.data!;
-              return Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.center, // ให้รูปอยู่กลางแนวตั้ง
-                  children: [
-                    // รูปภาพ
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        member['image'] != null &&
-                                member['image'].toString().isNotEmpty
-                            ? ClipOval(
-                                child: Image.network(
-                                  member['image'],
-                                  height: 100,
-                                  width: 100,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                    height: 100,
-                                    width: 100,
-                                    color: Colors.grey[300],
-                                    alignment: Alignment.center,
-                                    child: const Icon(Icons.broken_image,
-                                        size: 48),
-                                  ),
-                                ),
-                              )
-                            : Container(
-                                height: 100,
-                                width: 100,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFE0E0E0),
-                                  shape: BoxShape.circle,
-                                ),
-                                alignment: Alignment.center,
-                                child: const Icon(Icons.image_not_supported,
-                                    size: 48),
-                              ),
-                      ],
-                    ),
-                    const SizedBox(width: 16),
-
-                    // ข้อมูลทางขวา
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Center(
-                            child: Text(
-                              'ข้อมูลผู้รับจ้าง',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'ชื่อผู้ใช้: ${member['username'] ?? '-'}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'โทรศัพท์: ${member['phone'] ?? '-'}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'อีเมล: ${member['email'] ?? '-'}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'ที่อยู่: ${member['detail_address'] ?? '-'} '
-                            'ต.${member['subdistrict'] ?? '-'} '
-                            'อ.${member['district'] ?? '-'} '
-                            'จ.${member['province'] ?? '-'}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-
           // ปุ่มเพิ่มรถ
           FloatingActionButton.extended(
             onPressed: () {
@@ -519,62 +509,6 @@ class _HomePageState extends State<HomePage> {
             tooltip: 'เพิ่มรถ',
           ),
           const SizedBox(height: 16),
-          FloatingActionButton.extended(
-            onPressed: () async {
-              try {
-                final data = await fetchCon(widget.mid); // ✅ รอข้อมูลเสร็จ
-                if (!mounted) return;
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        EditMemberPage(memberData: data), // ✅ ส่งข้อมูลจริง
-                  ),
-                );
-              } catch (e) {
-                print('เกิดข้อผิดพลาดในการโหลดข้อมูลสมาชิก: $e');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('ไม่สามารถโหลดข้อมูลสมาชิกได้')),
-                );
-              }
-            },
-            icon: const Icon(Icons.edit),
-            label: const Text('แก้ไขข้อมูลส่วนตัว'),
-            tooltip: 'แก้ไขข้อมูลส่วนตัว',
-          ),
-          const SizedBox(height: 16),
-          FloatingActionButton.extended(
-            onPressed: () async {
-              try {
-                // เรียก API เพื่ออัปเดต type_member
-                final response = await updateTypeMember(widget.mid, 3);
-
-                if (response['type_member'] == 3) {
-                  if (!mounted) return;
-
-                  // ไปหน้า HomeEmpPage ถ้าอัปเดตสำเร็จ
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HomeEmpPage(mid: widget.mid),
-                    ),
-                  );
-                } else {
-                  throw Exception('อัปเดตไม่สำเร็จ');
-                }
-              } catch (e) {
-                print('เกิดข้อผิดพลาดในการอัปเดต: $e');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('ไม่สามารถอัปเดตโหมดผู้รับจ้างได้')),
-                );
-              }
-            },
-            icon: const Icon(Icons.edit),
-            label: const Text('โหมดผู้รับจ้าง'),
-            tooltip: 'โหมดผู้รับจ้าง',
-          ),
 
           const SizedBox(height: 16),
           // รายการรถ
@@ -762,15 +696,18 @@ class _HomePageState extends State<HomePage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'คะแนนรีวิว: $avg ($reviewCount รีวิว)',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
+            const SizedBox(height: 10),
+            Center(
+              child: Text(
+                'คะแนนรีวิว: $avg ($reviewCount รีวิว)',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2E7D32),
+                  letterSpacing: 0.5,
+                ),
               ),
             ),
-            const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(8),
@@ -788,6 +725,7 @@ class _HomePageState extends State<HomePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // รูปภาพรีวิว (ถ้ามี)
                           if (review['image_url'] != null &&
                               review['image_url'].toString().isNotEmpty)
                             Padding(
@@ -801,37 +739,92 @@ class _HomePageState extends State<HomePage> {
                                     const Text('โหลดรูปไม่สำเร็จ'),
                               ),
                             ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.person, // ไอคอนไม่ระบุตัวตน
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                              const SizedBox(
+                                  width: 6), // ช่องว่างระหว่างไอคอนกับดาว
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: List.generate(5, (index) {
+                                  return Icon(
+                                    index < (review['point'] ?? 0)
+                                        ? Icons.star
+                                        : Icons.star_border,
+                                    color: Colors.amber,
+                                    size: 20,
+                                  );
+                                }),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${review['point'] ?? '-'} / 5',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                          // ข้อความรีวิว
                           Text(
                             review['text'] ?? '-',
                             style: const TextStyle(fontSize: 16),
                           ),
+
                           const SizedBox(height: 6),
+                          if (review['image'] != null &&
+                              review['image'].isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Image.network(
+                                review['image'],
+                                height: 100,
+                                width: 100,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.image_not_supported),
+                              ),
+                            ),
+                          // คะแนน และ วันที่
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('คะแนน: ${review['point'] ?? '-'}'),
+                              //Text('คะแนน: ${review['point'] ?? '-'}'),
                               Text(
-                                'วันที่: ${review['date'].toString().substring(0, 10)}',
-                              ),
+                                  'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}'),
                             ],
                           ),
-                          const SizedBox(height: 8),
-                          if (!isReported)
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: () => _reportReview(review['rid']),
-                                child: const Text('รายงานรีวิว'),
+
+                          // ปุ่มรายงาน (หรือปุ่มถูกปิด)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton(
+                              onPressed: isReported
+                                  ? null
+                                  : () => _reportReview(review['rid']),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isReported
+                                    ? Colors.grey
+                                    : Colors.red, // สีตามสถานะ
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                textStyle: const TextStyle(fontSize: 10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
-                            )
-                          else
-                            const Align(
-                              alignment: Alignment.centerRight,
                               child: Text(
-                                'รายงานแล้ว',
-                                style: TextStyle(color: Colors.grey),
-                              ),
+                                  isReported ? 'รายงานแล้ว' : 'รายงานรีวิว'),
                             ),
+                          ),
                         ],
                       ),
                     ),

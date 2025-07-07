@@ -192,7 +192,7 @@ class _DetailvehicleState extends State<Detailvehicle> {
 
   @override
   Widget build(BuildContext context) {
-    // สร้าง URL รูปภาพพร้อม cache-buster
+    // ✅ URL รูปภาพรถ
     String? displayImageUrl;
     if (vehicleData?['image_vehicle'] != null &&
         vehicleData!['image_vehicle'] is String &&
@@ -202,48 +202,21 @@ class _DetailvehicleState extends State<Detailvehicle> {
           '$imageUrlString?t=${DateTime.now().millisecondsSinceEpoch}';
     }
 
+    // ✅ URL รูปภาพสมาชิก (โปรไฟล์)
+    String? memberImageUrl;
+    if (vehicleData?['image_member'] != null &&
+        vehicleData!['image_member'] is String &&
+        (vehicleData!['image_member'] as String).isNotEmpty) {
+      final String imageUrlString = vehicleData!['image_member'] as String;
+      memberImageUrl =
+          '$imageUrlString?t=${DateTime.now().millisecondsSinceEpoch}';
+    }
+
     return Scaffold(
       appBar: AppBar(
         //title: Text(vehicleData?['name_vehicle'] ?? 'รายละเอียดรถ'),
         backgroundColor: Color(0xFFFFCC99),
         title: Text('รายละเอียดรถ'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (vehicleData != null && _currentMid != 0) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomePage(mid: _currentMid),
-                ),
-              );
-            } else {
-              Navigator.pop(context);
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            tooltip: 'แก้ไขรถ',
-            onPressed: () async {
-              if (vehicleData != null) {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditVehicle(
-                      initialVehicleData: vehicleData,
-                    ),
-                  ),
-                );
-
-                if (result == true || result == null) {
-                  fetchVehicleDetail(); // เรียก fetchVehicleDetail อีกครั้งเพื่อรีเฟรชข้อมูล
-                }
-              }
-            },
-          ),
-        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -284,9 +257,16 @@ class _DetailvehicleState extends State<Detailvehicle> {
                         ),
                       // --- รายละเอียดรถ ---
                       const SizedBox(height: 16),
-                      Text('ชื่อรถ: ${vehicleData?['name_vehicle'] ?? '-'}',
+                      Center(
+                        child: Text(
+                          'ชื่อรถ: ${vehicleData?['name_vehicle'] ?? '-'}',
                           style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+
                       const SizedBox(height: 8),
                       Text(
                           'ราคา: ${vehicleData?['price'] ?? '-'} / ${vehicleData?['unit_price'] ?? '-'}',
@@ -306,59 +286,172 @@ class _DetailvehicleState extends State<Detailvehicle> {
                         ),
                       ),
                       const Divider(height: 32),
-                      // --- ข้อมูลเจ้าของรถ ---
-                      const Text('ข้อมูลเจ้าของรถ',
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      Text('ชื่อผู้ใช้: ${vehicleData?['username'] ?? '-'}'),
-                      const SizedBox(height: 4),
-                      Text('อีเมล: ${vehicleData?['email'] ?? '-'}'),
-                      const SizedBox(height: 4),
-                      Text('โทรศัพท์: ${vehicleData?['phone'] ?? '-'}'),
-                      const SizedBox(height: 4),
-                      Text(
-                          'ที่อยู่: ${vehicleData?['detail_address'] ?? '-'} ต.${vehicleData?['subdistrict'] ?? '-'} อ.${vehicleData?['district'] ?? '-'} จ.${vehicleData?['province'] ?? '-'}'),
-                      const SizedBox(height: 24),
 
-                      // --- ปุ่มตารางงาน ---
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (vehicleData != null && _currentMid != 0) {
-                              final now = DateTime.now();
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PlanPage(
-                                    mid: _currentMid,
-                                    month: now.month,
-                                    year: now.year,
+                      // --- ข้อมูลเจ้าของรถ ---
+                      const Text(
+                        'ข้อมูลเจ้าของรถ',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 12),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // รูปโปรไฟล์ (ด้านซ้าย)
+                          if (memberImageUrl != null)
+                            CircleAvatar(
+                              radius: 20, // ลดขนาดลงเล็กน้อย
+                              backgroundImage: NetworkImage(memberImageUrl),
+                              backgroundColor: Colors.grey[300],
+                            )
+                          else
+                            CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Colors.grey[300],
+                              child: const Icon(Icons.person,
+                                  size: 32, color: Colors.white),
+                            ),
+
+                          const SizedBox(
+                              width: 12), // ระยะห่างระหว่างรูปกับชื่อ
+
+                          // ชื่อผู้ใช้ (ขยายเต็มพื้นที่ที่เหลือ)
+                          Expanded(
+                            child: Text(
+                              '${vehicleData?['username'] ?? '-'}',
+                              style: const TextStyle(
+                                  fontSize: 14), // ลดขนาดตัวหนังสือ
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+
+                          const SizedBox(width: 12), // ช่องว่างก่อนปุ่ม
+
+                          // ปุ่มตารางงาน
+                          ElevatedButton(
+                            onPressed: () {
+                              if (vehicleData != null && _currentMid != 0) {
+                                final now = DateTime.now();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PlanPage(
+                                      mid: _currentMid,
+                                      month: now.month,
+                                      year: now.year,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'ไม่สามารถเข้าถึงตารางงานได้ เนื่องจากข้อมูลยังไม่พร้อม'),
+                                  ),
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              textStyle: const TextStyle(
+                                  fontSize: 12), // ลดขนาดตัวหนังสือ
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              minimumSize:
+                                  const Size(80, 36), // กำหนดขนาดปุ่มให้เล็กลง
+                            ),
+                            child: const Text('ตารางงาน'),
+                          ),
+
+                          const SizedBox(width: 8), // ช่องว่างระหว่างปุ่ม
+
+                          // ปุ่มแก้ไขรถ
+                          ElevatedButton(
+                            onPressed: () async {
+                              if (vehicleData != null) {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EditVehicle(
+                                      initialVehicleData: vehicleData,
+                                    ),
+                                  ),
+                                );
+
+                                if (result == true || result == null) {
+                                  fetchVehicleDetail(); // รีเฟรชข้อมูล
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              textStyle: const TextStyle(
+                                  fontSize: 12), // ลดขนาดตัวหนังสือ
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(80, 36),
+                            ),
+                            child: const Text('แก้ไขรถ'),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      //Text('ชื่อผู้ใช้: ${vehicleData?['username'] ?? '-'}'),
+                      const SizedBox(height: 4),
+                      // Text('อีเมล: ${vehicleData?['email'] ?? '-'}'),
+                      // const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color:
+                              Color.fromARGB(255, 255, 208, 19), // สีเหลืองอ่อน
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: const Color.fromARGB(
+                                  255, 255, 196, 20)), // เส้นขอบสีส้ม
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.phone, color: Colors.black54),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'โทรศัพท์: ${vehicleData?['phone'] ?? '-'}',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.location_on,
+                                    color: Colors.redAccent),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'ที่อยู่: ${vehicleData?['detail_address'] ?? '-'} ต.${vehicleData?['subdistrict'] ?? '-'} อ.${vehicleData?['district'] ?? '-'} จ.${vehicleData?['province'] ?? '-'}',
+                                    style: const TextStyle(fontSize: 16),
                                   ),
                                 ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'ไม่สามารถเข้าถึงตารางงานได้ เนื่องจากข้อมูลยังไม่พร้อม'),
-                                ),
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 15),
-                            textStyle: const TextStyle(fontSize: 18),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            backgroundColor: Colors.green,
-                            foregroundColor: Colors.white,
-                            elevation: 5,
-                          ),
-                          child: const Text('ตารางงาน'),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
+
+                      const SizedBox(height: 16),
                       const Divider(height: 32),
 
                       Column(
@@ -403,7 +496,7 @@ class _DetailvehicleState extends State<Detailvehicle> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'รีวิว $average / 5 ($totalReviews รีวิว)',
+                                    'รีวิว $average ($totalReviews รีวิว)',
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -441,26 +534,49 @@ class _DetailvehicleState extends State<Detailvehicle> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                'คะแนน: ${review['point'] ?? '-'} / 5',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: review['point'] == 5
-                                                      ? Colors.amber[700]
-                                                      : Colors.orange,
-                                                ),
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                    Icons
+                                                        .person, // ไอคอนไม่ระบุตัวตน
+                                                    color: Colors.grey,
+                                                    size: 20,
+                                                  ),
+                                                  const SizedBox(
+                                                      width:
+                                                          6), // ช่องว่างระหว่างไอคอนกับดาว
+                                                  Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: List.generate(5,
+                                                        (index) {
+                                                      return Icon(
+                                                        index <
+                                                                (review['point'] ??
+                                                                    0)
+                                                            ? Icons.star
+                                                            : Icons.star_border,
+                                                        color: Colors.amber,
+                                                        size: 20,
+                                                      );
+                                                    }),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    '${review['point'] ?? '-'} / 5',
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.black87,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
                                                   'ข้อความ: ${review['text'] ?? '-'}'),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                'วันที่รีวิว: ${_formatReviewDate(review['date'])}',
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey),
-                                              ),
                                               if (review['image'] != null &&
                                                   review['image'].isNotEmpty)
                                                 Padding(
@@ -479,6 +595,13 @@ class _DetailvehicleState extends State<Detailvehicle> {
                                                             .image_not_supported),
                                                   ),
                                                 ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'วันที่รีวิว: ${_formatReviewDate(review['date'])}',
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey),
+                                              ),
                                               if (!hasReported &&
                                                   _currentMid != 0)
                                                 Padding(
@@ -506,7 +629,7 @@ class _DetailvehicleState extends State<Detailvehicle> {
                                                                 vertical: 6),
                                                         textStyle:
                                                             const TextStyle(
-                                                                fontSize: 14),
+                                                                fontSize: 10),
                                                         shape:
                                                             RoundedRectangleBorder(
                                                           borderRadius:
