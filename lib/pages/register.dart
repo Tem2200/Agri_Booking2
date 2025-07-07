@@ -284,7 +284,7 @@ class _RegisterState extends State<Register> {
         body: {'image': base64Image},
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final uploadedUrl = data['data']['url'];
 
