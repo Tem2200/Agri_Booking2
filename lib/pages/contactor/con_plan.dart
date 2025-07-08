@@ -18,10 +18,10 @@ class PlanPage extends StatefulWidget {
   });
 
   @override
-  State<PlanPage> createState() => _PlanPageState();
+  State<PlanPage> createState() => _PlanAndHistoryState();
 }
 
-class _PlanPageState extends State<PlanPage> {
+class _PlanAndHistoryState extends State<PlanPage> {
   Future<List<dynamic>>? _scheduleFuture;
   late int _displayMonth;
   late int _displayYear;
@@ -79,13 +79,19 @@ class _PlanPageState extends State<PlanPage> {
     }
   }
 
+  //วันที่และเวลา
   String _formatDateRange(String? startDate, String? endDate) {
     if (startDate == null || endDate == null) return 'ไม่ระบุวันที่';
     try {
-      final start = DateTime.parse(startDate);
-      final end = DateTime.parse(endDate);
-      final formatter = DateFormat('dd/MM/yyyy');
-      return '${formatter.format(start)} - ${formatter.format(end)}';
+      final startUtc = DateTime.parse(startDate);
+      final endUtc = DateTime.parse(endDate);
+
+      final startThai = startUtc.add(const Duration(hours: 7));
+      final endThai = endUtc.add(const Duration(hours: 7));
+
+      final formatter = DateFormat('dd/MM/yyyy \t\tเวลา HH:mm น.');
+
+      return 'เริ่มงาน: ${formatter.format(startThai)}\nสิ้นสุด: ${formatter.format(endThai)}';
     } catch (e) {
       return 'รูปแบบวันที่ไม่ถูกต้อง';
     }
@@ -106,146 +112,266 @@ class _PlanPageState extends State<PlanPage> {
     });
   }
 
+  Widget _buildPlanTab() {
+    final String currentMonthName =
+        DateFormat.MMMM('th').format(DateTime(_displayYear, _displayMonth));
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios),
+                onPressed: () => _changeMonth(-1),
+              ),
+              Text(
+                '$currentMonthName $_displayYear',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.arrow_forward_ios),
+                onPressed: () => _changeMonth(1),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _buildScheduleTab(includeHistory: false),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildScheduleTab({required bool includeHistory}) {
+    return FutureBuilder<List<dynamic>>(
+      future: _scheduleFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            // child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'),
+            child: Text('ขออภัยค่ะ ขณะนี้ยังไม่มีการจองคิวรถในเดือนนี้'),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('ไม่มีคิวงาน'));
+        }
+
+        final scheduleList = snapshot.data!
+            .where((item) => includeHistory
+                ? item['progress_status'] == 4
+                : item['progress_status'] != 4)
+            .toList();
+
+        if (scheduleList.isEmpty) {
+          return const Center(child: Text('ไม่พบงานในหมวดนี้'));
+        }
+
+        //test ui
+        return ListView.builder(
+          padding: const EdgeInsets.all(8.0),
+          itemCount: scheduleList.length,
+          itemBuilder: (context, index) {
+            final item = scheduleList[index];
+
+            // แปลง progress_status เป็นข้อความ
+            String getStatusText(dynamic status) {
+              switch (status.toString()) {
+                case '0':
+                  return 'ยกเลิก';
+                case '1':
+                  return 'ยืนยัน';
+                case '2':
+                  return 'กำลังเดินทาง';
+                case '3':
+                  return 'กำลังทำงาน';
+                case '4':
+                  return 'เสร็จสิ้น';
+                default:
+                  return 'ยังไม่ระบุ';
+              }
+            }
+
+            // กำหนดสีตามสถานะ
+            Color getStatusColor(dynamic status) {
+              switch (status.toString()) {
+                case '0':
+                  return Colors.red;
+                case '1':
+                  return Colors.blueGrey;
+                case '2':
+                  return Colors.pinkAccent;
+                case '3':
+                  return Colors.amber;
+                case '4':
+                  return Colors.green;
+                default:
+                  return Colors.black45;
+              }
+            }
+
+            return Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF3E0),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ชื่อ + สถานะ
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          item['name_rs'] ?? '-',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Icon(Icons.circle,
+                                color: getStatusColor(item['progress_status']),
+                                size: 10),
+                            const SizedBox(width: 4),
+                            Text(
+                              getStatusText(item['progress_status']),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: getStatusColor(item['progress_status']),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // รุ่นรถ
+                    Row(
+                      children: [
+                        const Icon(Icons.directions_car,
+                            size: 16, color: Colors.blueGrey),
+                        const SizedBox(width: 4),
+                        Text(
+                          'รถ: ${item['name_vehicle'] ?? '-'}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // ฟาร์ม
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on,
+                            size: 16, color: Colors.orange),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            item['name_farm'] ?? '-',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.access_time, size: 16),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            _formatDateRange(
+                                item['date_start'], item['date_end']),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    //รายละเอียด
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 8),
+                            textStyle: const TextStyle(fontSize: 13),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    DetailWorkPage(rsid: item['rsid']),
+                              ),
+                            );
+                          },
+                          child: const Text('รายละเอียด'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // ป้องกันการแสดงผลก่อน initialize เสร็จ
     if (!_isLocaleInitialized) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    final String currentMonthName =
-        DateFormat.MMMM('th').format(DateTime(_displayYear, _displayMonth));
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('ตารางงาน')),
-      body: Column(
-        children: [
-          // ส่วนหัวปฏิทิน
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: () => _changeMonth(-1),
-                ),
-                Text(
-                  '$currentMonthName $_displayYear',
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.arrow_forward_ios),
-                  onPressed: () => _changeMonth(1),
-                ),
-              ],
-            ),
-          ),
-
-          // ตารางงาน
-          Expanded(
-            child: FutureBuilder<List<dynamic>>(
-              future: _scheduleFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'),
-                  );
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('ไม่มีคิวงาน'));
-                }
-
-                final scheduleList = snapshot.data!
-                    .where((item) => item['progress_status'] != 4)
-                    .toList();
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(8.0),
-                  itemCount: scheduleList.length,
-                  itemBuilder: (context, index) {
-                    final item = scheduleList[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 8.0),
-                      elevation: 2.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
-                              style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blueAccent),
-                            ),
-                            const SizedBox(height: 8.0),
-                            Text(
-                              'วันที่: ${_formatDateRange(item['date_start'], item['date_end'])}',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            Text(
-                              'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            Text(
-                              'ฟาร์ม: ${item['name_farm'] ?? '-'}',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            Text(
-                              'พื้นที่: ${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            Text(
-                              'รายละเอียดงาน: ${item['detail'] ?? '-'}',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            Text(
-                              'สถานะความคืบหน้า: ${item['progress_status'] ?? 'ยังไม่ระบุ'}',
-                              style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.deepOrange),
-                            ),
-                            if (item['employee_username'] != null)
-                              Text(
-                                'ผู้รับจ้าง: ${item['employee_username']} (${item['employee_phone'] ?? '-'})',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            const SizedBox(height: 12),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          DetailWorkPage(rsid: item['rsid']),
-                                    ),
-                                  );
-                                },
-                                child: const Text('รายละเอียดเพิ่มเติม'),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFFFCC99),
+        appBar: AppBar(
+          backgroundColor: const Color.fromARGB(255, 255, 187, 119),
+          title: const Text('ตารางงาน'),
+          centerTitle: true,
+        ),
+        body: TabBarView(
+          children: [
+            _buildPlanTab(), // แสดงปฏิทิน + งานที่ไม่ใช่ประวัติ
+          ],
+        ),
       ),
     );
   }
