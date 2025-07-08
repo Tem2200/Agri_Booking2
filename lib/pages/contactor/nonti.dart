@@ -28,7 +28,7 @@ class _NontiPageState extends State<NontiPage> {
 
   Future<List<dynamic>> fetchSchedule(int mid) async {
     final url = Uri.parse(
-        'http://projectnodejs.thammadalok.com/AGribooking/get_ConReservingNonti/$mid'); // ✅ เปลี่ยนเป็น URL ที่โหลดทั้งหมด
+        'http://projectnodejs.thammadalok.com/AGribooking/get_ConReservingNonti/:mid'); // ✅ เปลี่ยนเป็น URL ที่โหลดทั้งหมด
 
     try {
       final response = await http.get(url);
@@ -63,14 +63,21 @@ class _NontiPageState extends State<NontiPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ตารางงานทั้งหมด')),
+      backgroundColor: const Color(0xFFFFCC99),
+      appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 255, 187, 119),
+        title: const Text('การแจ้งเตือน'),
+        centerTitle: true, // ให้ title อยู่ตรงกลาง
+        automaticallyImplyLeading: false, // ปิดปุ่มย้อนกลับ
+      ),
       body: FutureBuilder<List<dynamic>>(
         future: _scheduleFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'));
+            //return Center(child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'));
+            return Center(child: Text('ขณะนี้ยังไม่มีการแจ้งเตือนค่ะ'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('ไม่มีคิวงาน'));
           }

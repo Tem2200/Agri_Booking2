@@ -258,7 +258,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         backgroundColor: const Color(0xFFFFCC99),
         appBar: AppBar(
-          backgroundColor: const Color(0xFFFFCC99),
+          backgroundColor: const Color.fromARGB(255, 255, 187, 119),
           centerTitle: true,
           automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
           actions: [
@@ -493,6 +493,7 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ปุ่มเพิ่มรถ
+          const SizedBox(height: 16),
           FloatingActionButton.extended(
             onPressed: () {
               Navigator.push(
@@ -502,15 +503,20 @@ class _HomePageState extends State<HomePage> {
                 ),
               );
             },
-            icon: const Icon(Icons.add),
-            label: const Text('เพิ่มรถ'),
+            icon: const Icon(Icons.add, size: 14), // ไอคอนเล็กลง
+            label: const Text(
+              'เพิ่มรถ',
+              style: TextStyle(fontSize: 14), // ตัวหนังสือเล็กลง
+            ),
             backgroundColor: Colors.green,
             foregroundColor: Colors.white,
             tooltip: 'เพิ่มรถ',
+            materialTapTargetSize:
+                MaterialTapTargetSize.shrinkWrap, // ลดพื้นที่รอบปุ่ม
           ),
-          const SizedBox(height: 16),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
+
           // รายการรถ
           FutureBuilder<List<dynamic>>(
             future: _vehicleListFuture,
@@ -641,7 +647,7 @@ class _HomePageState extends State<HomePage> {
                                       foregroundColor: Colors.white,
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 16, vertical: 12),
-                                      textStyle: const TextStyle(fontSize: 14),
+                                      textStyle: const TextStyle(fontSize: 10),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),

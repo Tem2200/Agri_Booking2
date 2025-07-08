@@ -278,6 +278,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                   Text(
                       'ระยะทางโดยประมาณ: ${_distanceInKm!.toStringAsFixed(2)} กม.'),
 
+//ข้อมูลการจอง
                 DraggableScrollableSheet(
                   initialChildSize: 0.4,
                   minChildSize: 0.2,
