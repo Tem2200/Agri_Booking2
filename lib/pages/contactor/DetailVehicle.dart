@@ -134,19 +134,49 @@ class _DetailvehicleState extends State<Detailvehicle> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('ยืนยันการรายงาน'),
+          title: const Center(
+            child: Text(
+              'ยืนยันการรายงาน',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: Colors.deepOrange,
+              ),
+            ),
+          ),
           content: const Text(
-              'คุณแน่ใจหรือไม่ว่าต้องการรายงานรีวิวนี้ว่าไม่เหมาะสม?'),
+            'คุณแน่ใจหรือไม่ว่าต้องการรายงานรีวิวนี้ว่าไม่เหมาะสม?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
+              height: 1.4,
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
           actions: <Widget>[
             TextButton(
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(false), // ผู้ใช้ยกเลิก
-              child: const Text('ยกเลิก'),
+              onPressed: () => Navigator.of(dialogContext).pop(false), // ยกเลิก
+              child: const Text(
+                'ยกเลิก',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey,
+                ),
+              ),
             ),
+            const SizedBox(width: 16),
             TextButton(
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(true), // ผู้ใช้ยืนยัน
-              child: const Text('รายงาน'),
+              onPressed: () => Navigator.of(dialogContext).pop(true), // ยืนยัน
+              child: const Text(
+                'รายงาน',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.redAccent,
+                ),
+              ),
             ),
           ],
         );

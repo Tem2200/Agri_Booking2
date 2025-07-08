@@ -8,6 +8,7 @@ import 'package:agri_booking2/pages/contactor/nonti.dart';
 import 'package:agri_booking2/pages/editMem.dart';
 import 'package:agri_booking2/pages/employer/homeEmp.dart';
 import 'package:agri_booking2/pages/login.dart';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -87,28 +88,111 @@ class _HomePageState extends State<HomePage> {
       if (response.statusCode == 200) {
         print('อัปเดตสถานะรถ VID: $vid เป็นสถานะ: $status สำเร็จ');
 
-        await showDialog(
+        final confirm = await showDialog<bool>(
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text('สำเร็จ'),
-              content: Text(
-                'อัปเดตสถานะรถสำเร็จ: ${status == 1 ? 'พร้อมใช้งาน' : 'ไม่พร้อม'}',
+              title: const Center(
+                child: Text(
+                  'ยืนยันการเปลี่ยนสถานะ',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
               ),
+              content: Text(
+                'คุณต้องการอัปเดตสถานะรถเป็น\n"${status == 1 ? 'ให้บริการ' : 'งดให้บริการ'}"\nสำหรับรถคันนี้ใช่หรือไม่?',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16),
+              ),
+              actionsAlignment: MainAxisAlignment.center,
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('ตกลง'),
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text(
+                    'ยกเลิก',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text(
+                    'ยืนยัน',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.green,
+                    ),
+                  ),
                 ),
               ],
             );
           },
         );
 
-        // โหลดข้อมูลรถใหม่
-        setState(() {
-          _vehicleListFuture = fetchVehicles(widget.mid);
-        });
+        if (confirm == true) {
+          // await showDialog(
+          //   context: context,
+          //   builder: (context) {
+          //     return AlertDialog(
+          //       title: const Center(
+          //         child: Text(
+          //           'สำเร็จ',
+          //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          //         ),
+          //       ),
+          //       content: Text(
+          //         'อัปเดตสถานะรถสำเร็จ:\n${status == 1 ? 'ให้บริการ' : 'งดให้บริการ'}',
+          //         textAlign: TextAlign.center,
+          //         style: const TextStyle(fontSize: 16),
+          //       ),
+          //       actionsAlignment: MainAxisAlignment.center,
+          //       actions: [
+          //         TextButton(
+          //           onPressed: () => Navigator.of(context).pop(),
+          //           child: const Text(
+          //             'ตกลง',
+          //             style: TextStyle(
+          //               fontWeight: FontWeight.w600,
+          //               color: Colors.green,
+          //             ),
+          //           ),
+          //         ),
+          //       ],
+          //     );
+          //   },
+          Flushbar(
+            title: 'สำเร็จ',
+            message: status == 1 ? 'สถานะ: ให้บริการ' : 'สถานะ: งดให้บริการ',
+            duration: const Duration(seconds: 3),
+            backgroundColor: Colors.green.shade600,
+            flushbarPosition: FlushbarPosition.TOP,
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            shouldIconPulse: false,
+            titleText: const Text(
+              'สำเร็จ',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
+            messageText: Text(
+              status == 1 ? 'สถานะ:ให้บริการ' : 'สถานะ: งดให้บริการ',
+              style: const TextStyle(color: Colors.white, fontSize: 15),
+            ),
+          ).show(context);
+
+          // โหลดข้อมูลรถใหม่
+          setState(() {
+            _vehicleListFuture = fetchVehicles(widget.mid);
+          });
+        }
       } else {
         print(
           'Error updating status for VID: $vid. Status: ${response.statusCode}, Body: ${response.body}',
@@ -118,12 +202,47 @@ class _HomePageState extends State<HomePage> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text('เกิดข้อผิดพลาด'),
-              content: Text('อัปเดตสถานะไม่สำเร็จ: ${response.body}'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'ไม่สามารถปิดให้บริการได้',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Image.network(
+                    'https://symbl-cdn.com/i/webp/c1/d9d88630432cf61ad335df98ce37d6.webp', // << เปลี่ยนลิงก์ตรงนี้
+                    height: 50,
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'รถคันนี้ยังมีงานที่รอดำเนินการอยู่',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'กรุณาจัดการคิวงานให้เรียบร้อยก่อนจึงจะสามารถ "ปิดสถานะให้บริการ"ได้',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+              actionsAlignment: MainAxisAlignment.center,
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('ปิด'),
+                  child: const Text(
+                    'ตกลง',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
                 ),
               ],
             );
@@ -167,19 +286,49 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('ยืนยันการรายงาน'),
+          title: const Center(
+            child: Text(
+              'ยืนยันการรายงาน',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.deepOrange,
+              ),
+            ),
+          ),
           content: const Text(
-              'คุณแน่ใจหรือไม่ว่าต้องการรายงานรีวิวนี้ว่าไม่เหมาะสม?'),
+            'คุณแน่ใจหรือไม่ว่าต้องการรายงานรีวิวนี้ว่าไม่เหมาะสม?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
+              height: 1.4,
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
           actions: <Widget>[
             TextButton(
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(false), // ผู้ใช้ยกเลิก
-              child: const Text('ยกเลิก'),
+              onPressed: () => Navigator.of(dialogContext).pop(false), // ยกเลิก
+              child: const Text(
+                'ยกเลิก',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey,
+                ),
+              ),
             ),
+            const SizedBox(width: 16),
             TextButton(
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(true), // ผู้ใช้ยืนยัน
-              child: const Text('รายงาน'),
+              onPressed: () => Navigator.of(dialogContext).pop(true), // ยืนยัน
+              child: const Text(
+                'รายงาน',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.redAccent,
+                ),
+              ),
             ),
           ],
         );
@@ -616,8 +765,8 @@ class _HomePageState extends State<HomePage> {
                                     const SizedBox(width: 8),
                                     Text(
                                       currentStatus
-                                          ? 'พร้อมใช้งาน'
-                                          : 'ไม่พร้อม',
+                                          ? 'ให้บริการ'
+                                          : 'งดให้บริการ',
                                       style: TextStyle(
                                         color: currentStatus
                                             ? Colors.green

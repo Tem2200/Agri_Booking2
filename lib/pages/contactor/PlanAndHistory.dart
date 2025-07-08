@@ -79,17 +79,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
     }
   }
 
-  // String _formatDateRange(String? startDate, String? endDate) {
-  //   if (startDate == null || endDate == null) return 'ไม่ระบุวันที่';
-  //   try {
-  //     final start = DateTime.parse(startDate);
-  //     final end = DateTime.parse(endDate);
-  //     final formatter = DateFormat('dd/MM/yyyy');
-  //     return '${formatter.format(start)} - ${formatter.format(end)}';
-  //   } catch (e) {
-  //     return 'รูปแบบวันที่ไม่ถูกต้อง';
-  //   }
-  // }
+  //วันที่และเวลา
   String _formatDateRange(String? startDate, String? endDate) {
     if (startDate == null || endDate == null) return 'ไม่ระบุวันที่';
     try {

@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -54,52 +56,121 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
     }
   }
 
+  // Widget buildButtons() {
+  //   if (progress_status == null) {
+  //     // progress_status == null ให้แสดงปุ่มยกเลิกและยืนยัน
+  //     return Row(
+  //       mainAxisAlignment: MainAxisAlignment.center,
+  //       children: [
+  //         ElevatedButton(
+  //           onPressed: () => _updateProgress(0), // ยกเลิก
+  //           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+  //           child: const Text('ยกเลิก'),
+  //         ),
+  //         const SizedBox(width: 20),
+  //         ElevatedButton(
+  //           onPressed: () => _updateProgress(1), // ยืนยัน
+  //           style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+  //           child: const Text('ยืนยัน'),
+  //         ),
+  //       ],
+  //     );
+  //   }
+  //   // กรณีอื่นๆ เช่น status อื่นๆ คุณสามารถเพิ่มปุ่มอื่นๆได้ที่นี่
+  //   else if (progress_status == 1 ||
+  //       progress_status == 2 ||
+  //       progress_status == 3) {
+  //     // แสดงปุ่มสถานะขั้นตอนถัดไป
+  //     return Wrap(
+  //       spacing: 8,
+  //       children: [
+  //         ElevatedButton(
+  //           onPressed: () => _updateProgress(2),
+  //           child: const Text('กำลังเดินทาง'),
+  //         ),
+  //         ElevatedButton(
+  //           onPressed: () => _updateProgress(3),
+  //           child: const Text('กำลังทำงาน'),
+  //         ),
+  //         ElevatedButton(
+  //           onPressed: () => _updateProgress(4),
+  //           child: const Text('ทำงานเสร็จเรียบร้อย'),
+  //         ),
+  //       ],
+  //     );
+  //   } else {
+  //     // กรณีอื่นๆ ถ้ามี สามารถปรับเพิ่มได้
+  //     return const Text('ทำงานเสร็จเรียบร้อย');
+  //   }
+  // }
+
+//สถานะของปุ่ม
   Widget buildButtons() {
     if (progress_status == null) {
-      // progress_status == null ให้แสดงปุ่มยกเลิกและยืนยัน
+      // ยังไม่มีสถานะ → แสดงปุ่มยกเลิก และ ยืนยัน
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ElevatedButton(
-            onPressed: () => _updateProgress(0), // ยกเลิก
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => _updateProgress(0),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('ยกเลิก'),
           ),
           const SizedBox(width: 20),
           ElevatedButton(
-            onPressed: () => _updateProgress(1), // ยืนยัน
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            onPressed: () => _updateProgress(1),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('ยืนยัน'),
           ),
         ],
       );
     }
-    // กรณีอื่นๆ เช่น status อื่นๆ คุณสามารถเพิ่มปุ่มอื่นๆได้ที่นี่
+
+    // ถ้ามีสถานะแล้ว (1-3) → แสดงปุ่มต่อเนื่อง
     else if (progress_status == 1 ||
         progress_status == 2 ||
         progress_status == 3) {
-      // แสดงปุ่มสถานะขั้นตอนถัดไป
-      return Wrap(
-        spacing: 8,
-        children: [
-          ElevatedButton(
-            onPressed: () => _updateProgress(2),
-            child: const Text('กำลังเดินทาง'),
-          ),
-          ElevatedButton(
-            onPressed: () => _updateProgress(3),
-            child: const Text('กำลังทำงาน'),
-          ),
-          ElevatedButton(
-            onPressed: () => _updateProgress(4),
-            child: const Text('ทำงานเสร็จเรียบร้อย'),
-          ),
-        ],
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _statusButton(2, 'กำลังเดินทาง'),
+            const SizedBox(width: 8),
+            _statusButton(3, 'กำลังทำงาน'),
+            const SizedBox(width: 8),
+            _statusButton(4, 'เสร็จสิ้น'),
+          ],
+        ),
       );
     } else {
-      // กรณีอื่นๆ ถ้ามี สามารถปรับเพิ่มได้
-      return const Text('ทำงานเสร็จเรียบร้อย');
+      // กรณีสถานะเป็น 0 (ยกเลิก) หรือ 4 (เสร็จ)
+      return Text(
+        progress_status == 0
+            ? 'สถานะ: ยกเลิกแล้ว'
+            : 'สถานะ: ทำงานเสร็จเรียบร้อย',
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      );
     }
+  }
+
+  //สีของสถานะล่าสุดที่เลือก
+  Widget _statusButton(int statusValue, String label) {
+    final bool isSelected = progress_status == statusValue;
+
+    return ElevatedButton(
+      onPressed: () => _updateProgress(statusValue),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected ? Colors.green : Colors.grey[300],
+        foregroundColor: isSelected ? Colors.white : Colors.black87,
+      ),
+      child: Text(label),
+    );
   }
 
   Future<void> _updateProgress(int newStatus) async {
@@ -107,17 +178,61 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
+        // แปลงสถานะตัวเลขเป็นข้อความ
+        String getStatusText(int status) {
+          switch (status) {
+            case 2:
+              return 'กำลังเดินทางมา';
+            case 3:
+              return 'กำลังทำงาน';
+            case 4:
+              return 'ทำงานเสร็จเรียบร้อย';
+            default:
+              return 'สถานะไม่รู้จัก ($status)';
+          }
+        }
+
         return AlertDialog(
-          title: const Text('ยืนยันการเปลี่ยนสถานะ'),
-          content: Text('คุณต้องการเปลี่ยนสถานะเป็น $newStatus ใช่หรือไม่?'),
+          title: const Center(
+            child: Text(
+              'ยืนยันการเปลี่ยนสถานะ',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.indigo, // สีหัวข้อสวยๆ
+                letterSpacing: 1, // ระยะห่างตัวอักษร
+              ),
+            ),
+          ),
+          content: Text(
+            'คุณต้องการเปลี่ยนสถานะเป็น "${getStatusText(newStatus)}" ใช่หรือไม่?',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('ยกเลิก'),
+              child: const Text(
+                'ยกเลิก',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.redAccent,
+                ),
+              ),
             ),
+            SizedBox(width: 50),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('ยืนยัน'),
+              child: const Text(
+                'ยืนยัน',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.green,
+                ),
+              ),
             ),
           ],
         );
@@ -137,9 +252,19 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['message'] ?? 'อัปเดตสถานะสำเร็จ')),
-        );
+
+        Flushbar(
+          message: data['message'] ?? 'อัปเดตสถานะสำเร็จ',
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+          duration: const Duration(seconds: 3),
+          backgroundColor: Colors.green,
+          margin: const EdgeInsets.all(16),
+          borderRadius: BorderRadius.circular(12),
+          flushbarPosition: FlushbarPosition.TOP, // ⭐ แสดงด้านบน
+          animationDuration: const Duration(milliseconds: 500),
+          messageSize: 16,
+        ).show(context);
+
         // รีโหลดข้อมูล หรือรีเฟรชหน้า
         await fetchDetail(); // เรียกโหลดข้อมูลใหม่
       } else {
@@ -194,6 +319,24 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('ไม่สามารถเปิด Google Maps ได้')),
       );
+    }
+  }
+
+  //วันที่และเวลา
+  String _formatDateRange(String? startDate, String? endDate) {
+    if (startDate == null || endDate == null) return 'ไม่ระบุวันที่';
+    try {
+      final startUtc = DateTime.parse(startDate);
+      final endUtc = DateTime.parse(endDate);
+
+      final startThai = startUtc.add(const Duration(hours: 7));
+      final endThai = endUtc.add(const Duration(hours: 7));
+
+      final formatter = DateFormat('dd/MM/yyyy \t\tเวลา HH:mm น.');
+
+      return 'เริ่มงาน: ${formatter.format(startThai)}\nสิ้นสุด: ${formatter.format(endThai)}';
+    } catch (e) {
+      return 'รูปแบบวันที่ไม่ถูกต้อง';
     }
   }
 
@@ -278,12 +421,48 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                   Text(
                       'ระยะทางโดยประมาณ: ${_distanceInKm!.toStringAsFixed(2)} กม.'),
 
-//ข้อมูลการจอง
+                //ข้อมูลการจอง
                 DraggableScrollableSheet(
                   initialChildSize: 0.4,
                   minChildSize: 0.2,
                   maxChildSize: 0.85,
                   builder: (context, scrollController) {
+                    // แปลง progress_status เป็นข้อความ
+                    String getStatusText(dynamic status) {
+                      switch (status.toString()) {
+                        case '0':
+                          return 'ยกเลิก';
+                        case '1':
+                          return 'ยืนยัน';
+                        case '2':
+                          return 'กำลังเดินทาง';
+                        case '3':
+                          return 'กำลังทำงาน';
+                        case '4':
+                          return 'เสร็จสิ้น';
+                        default:
+                          return 'ยังไม่ระบุ';
+                      }
+                    }
+
+                    // กำหนดสีตามสถานะ
+                    Color getStatusColor(dynamic status) {
+                      switch (status.toString()) {
+                        case '0':
+                          return Colors.red;
+                        case '1':
+                          return Colors.blueGrey;
+                        case '2':
+                          return Colors.pinkAccent;
+                        case '3':
+                          return Colors.amber;
+                        case '4':
+                          return Colors.green;
+                        default:
+                          return Colors.black45;
+                      }
+                    }
+
                     return Container(
                       decoration: const BoxDecoration(
                         color: Colors.white,
@@ -314,52 +493,286 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                 ),
                               ),
                             ),
-                            Text(
-                              data!['name_rs'] ?? 'ไม่ระบุชื่อการจอง',
-                              style: const TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            //สถานะการดำเนินงาน
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.circle,
+                                    color: getStatusColor(
+                                        data!['progress_status']),
+                                    size: 10,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    getStatusText(data!['progress_status']),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: getStatusColor(
+                                          data!['progress_status']),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
+
+                            // ส่วน Center -> Column
+                            Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // ชื่องาน + สถานะรถ (แสดงในแถวเดียว)
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      // ชื่องาน
+                                      Text(
+                                        data!['name_rs'] ?? 'ไม่ระบุชื่อการจอง',
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                    ],
+                                  ),
+
+                                  const SizedBox(height: 10),
+
+                                  // รูปรถ
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: data!['image'] != null &&
+                                            data!['image'].toString().isNotEmpty
+                                        ? Image.network(
+                                            data!['image'],
+                                            height: 140,
+                                            width: 140,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Container(
+                                              height: 140,
+                                              width: 140,
+                                              color: Colors.grey[300],
+                                              alignment: Alignment.center,
+                                              child: const Icon(
+                                                  Icons.broken_image,
+                                                  size: 48),
+                                            ),
+                                          )
+                                        : Container(
+                                            height: 140,
+                                            width: 140,
+                                            color: Colors.grey[200],
+                                            alignment: Alignment.center,
+                                            child: const Icon(
+                                                Icons.image_not_supported,
+                                                size: 48),
+                                          ),
+                                  ),
+                                  Text(
+                                    'รถ: ${data!['name_vehicle']}',
+                                  ),
+                                  Text(
+                                    'ทะเบียนรถ: ${data!['plate_number'] != null && data!['plate_number'].toString().isNotEmpty ? data!['plate_number'] : 'ไม่มี'}',
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            //ผู้จ้าง
                             const SizedBox(height: 10),
                             Row(
                               children: [
-                                const Icon(Icons.person),
-                                const SizedBox(width: 5),
+                                // รูปผู้จ้างหรือไอคอน
+                                data!['employee_image'] != null &&
+                                        data!['employee_image'] != ''
+                                    ? CircleAvatar(
+                                        radius: 25,
+                                        backgroundImage: NetworkImage(
+                                            data!['employee_image']),
+                                        backgroundColor:
+                                            Color.fromARGB(255, 238, 238, 238),
+                                      )
+                                    : const CircleAvatar(
+                                        radius: 25,
+                                        backgroundColor:
+                                            Colors.amber, // พื้นหลังสีเหลือง
+                                        child: Icon(
+                                          Icons.person,
+                                          size: 30,
+                                          color: Colors.white, // สีของไอคอน
+                                        ),
+                                      ),
+
+                                const SizedBox(width: 8),
+
+                                // ชื่อผู้จ้าง
                                 Text(
                                   data!['employee_username'] ?? '-',
                                   style: const TextStyle(fontSize: 16),
                                 ),
                                 const Spacer(),
+
+                                // ปุ่มข้อมูลผู้จ้าง
                                 ElevatedButton(
                                   onPressed: () {
                                     // TODO: show more info
                                   },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.amber, // สีเหลือง
+                                    foregroundColor:
+                                        Colors.black87, // สีตัวหนังสือ
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          20), // มุมโค้ง (ไม่ใส่ก็ได้)
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 8),
+                                    textStyle: const TextStyle(fontSize: 14),
+                                  ),
                                   child: const Text('ข้อมูลผู้จ้าง'),
                                 ),
                               ],
                             ),
+
+                            //วันที่และเวลาจ้างงาน
+                            const SizedBox(height: 16),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.access_time, size: 16),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    _formatDateRange(
+                                      data!['date_start'],
+                                      data!['date_end'],
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 10),
+
+                                // พื้นที่
+                                Row(
+                                  children: [
+                                    const Icon(Icons.landscape,
+                                        size: 18, color: Colors.green),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'พื้นที่: ${data!['area_amount']} ${data!['unit_area']}',
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+
+                                // ฟาร์ม
+                                Row(
+                                  children: [
+                                    const Icon(Icons.agriculture,
+                                        size: 18, color: Colors.brown),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'ฟาร์ม: ${data!['name_farm']} (${data!['village']}, ${data!['subdistrict']})',
+                                        style: const TextStyle(fontSize: 15),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+
+                                // ที่อยู่
+                                Row(
+                                  children: [
+                                    const Icon(Icons.location_on,
+                                        size: 18, color: Colors.redAccent),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'ที่อยู่: ${data!['district']} จ.${data!['province']}',
+                                        style: const TextStyle(fontSize: 15),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+
+                                // เบอร์โทร
+                                Row(
+                                  children: [
+                                    const Icon(Icons.phone,
+                                        size: 18, color: Colors.blue),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'เบอร์โทร: ${data!['employee_phone']}',
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+
+                                // ราคา
+                                Row(
+                                  children: [
+                                    const Icon(Icons.attach_money,
+                                        size: 18, color: Colors.orange),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'ราคา: ${data!['price']} ${data!['unit_price']}',
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+
+                                // รายละเอียด
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.notes,
+                                        size: 18, color: Colors.deepPurple),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'รายละเอียด: ${data!['detail']}',
+                                        style: const TextStyle(fontSize: 15),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const Divider(
+                              color: Colors.grey, // สีของเส้น
+                              thickness: 1, // ความหนา
+                              height: 20, // ความสูงของพื้นที่รอบเส้น
+                            ),
+
                             const SizedBox(height: 10),
-                            Text(
-                              'วันที่: ${data!['date_start']?.split("T").first ?? "-"} ถึง ${data!['date_end']?.split("T").first ?? "-"}',
-                            ),
-                            Text(
-                              'พื้นที่: ${data!['area_amount']} ${data!['unit_area']}',
-                            ),
-                            Text(
-                              'ฟาร์ม: ${data!['name_farm']} (${data!['village']}, ${data!['subdistrict']})',
-                            ),
-                            Text(
-                              'ที่อยู่: ${data!['district']} จ.${data!['province']}',
-                            ),
-                            Text(
-                                'ราคา: ${data!['price']} ${data!['unit_price']}'),
-                            const SizedBox(height: 10),
-                            Text('รายละเอียด: ${data!['detail']}'),
-                            const SizedBox(height: 20),
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
                               alignment: WrapAlignment.center,
                               children: [
+                                Text('กดปุ่มเพื่อเปลี่ยนสถานะการดำเนินงาน'),
                                 buildButtons(),
                               ],
                             )
