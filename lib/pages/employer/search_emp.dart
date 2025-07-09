@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:agri_booking2/pages/employer/DetailVehc_emp.dart';
+import 'package:agri_booking2/pages/employer/searchEnter.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -168,13 +169,31 @@ class _SearchEmpState extends State<SearchEmp> {
   }
 
   void _onSearch() {
-    final query = searchController.text.trim().toLowerCase();
+    final query = searchController.text.trim();
+
     if (query.isEmpty) {
-      setState(() {
-        filteredVehicles = allVehicles;
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('กรุณากรอกคำค้นหา')),
+      );
       return;
     }
+
+    final Map<String, dynamic> payload = {
+      "keyword": query,
+      "order": "desc", // หรือ "asc"/"desc" ได้ตามต้องการ
+      "latitude": selectedFarmLat,
+      "longitude": selectedFarmLng,
+    };
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SearchEnter(
+          mid: widget.mid,
+          payload: payload,
+        ),
+      ),
+    );
 
     setState(() {
       filteredVehicles = allVehicles.where((v) {
@@ -198,6 +217,19 @@ class _SearchEmpState extends State<SearchEmp> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
+                  TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      labelText: 'ค้นหา',
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: _onSearch,
+                      ),
+                    ),
+                    onSubmitted: (_) => _onSearch(),
+                  ),
+                  const SizedBox(height: 16),
                   if (hasFarm) ...[
                     DropdownButtonFormField<dynamic>(
                       value: selectedFarm,
@@ -222,18 +254,6 @@ class _SearchEmpState extends State<SearchEmp> {
                     ),
                     const SizedBox(height: 16),
                   ],
-                  TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      labelText: 'ค้นหา',
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.search),
-                        onPressed: _onSearch,
-                      ),
-                    ),
-                    onSubmitted: (_) => _onSearch(),
-                  ),
                   const SizedBox(height: 16),
                   Expanded(
                     child: filteredVehicles.isEmpty
@@ -268,6 +288,7 @@ class _SearchEmpState extends State<SearchEmp> {
                                     children: [
                                       Text(
                                           'ผู้รับจ้าง: ${v['username_contractor'] ?? '-'}'),
+                                      Text('ราคา: ${v['price'] ?? '-'}'),
                                       Text(
                                           'คะแนนเฉลี่ยรีวิว: ${v['avg_review_point'] ?? '-'}'),
                                       if (hasFarm)
@@ -277,6 +298,12 @@ class _SearchEmpState extends State<SearchEmp> {
                                       const SizedBox(height: 8),
                                       OutlinedButton(
                                         onPressed: () {
+                                          print('selectedFarm: $selectedFarm');
+                                          print(
+                                              'selectedFarm keys: ${selectedFarm.keys.toList()}');
+                                          print(
+                                              'fid: ${selectedFarm['fid']}'); // ดูค่าของ fid ว่ามีไหม
+
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -284,13 +311,15 @@ class _SearchEmpState extends State<SearchEmp> {
                                                   DetailvehcEmp(
                                                 vid: v['vid'] ?? 0,
                                                 mid: widget.mid,
+                                                fid: selectedFarm[
+                                                    'fid'], // อันนี้ถ้ายัง error แสดงว่าไม่มี key นี้
                                               ),
                                             ),
                                           );
                                         },
                                         child:
                                             const Text('รายละเอียดเพิ่มเติม'),
-                                      )
+                                      ),
                                     ],
                                   ),
                                   isThreeLine: true,
