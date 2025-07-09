@@ -4,15 +4,15 @@ import 'package:agri_booking2/pages/employer/DetailVehc_emp.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class SearchEmp extends StatefulWidget {
+class SearchEnter extends StatefulWidget {
   final int mid;
-  const SearchEmp({super.key, required this.mid});
+  const SearchEnter({super.key, required this.mid});
 
   @override
-  State<SearchEmp> createState() => _SearchEmpState();
+  State<SearchEnter> createState() => _SearchEnterState();
 }
 
-class _SearchEmpState extends State<SearchEmp> {
+class _SearchEnterState extends State<SearchEnter> {
   TextEditingController searchController = TextEditingController();
 
   List<dynamic> farmList = [];

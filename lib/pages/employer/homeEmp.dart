@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:agri_booking2/pages/contactor/home.dart';
 import 'package:agri_booking2/pages/editMem.dart';
 import 'package:agri_booking2/pages/employer/farms.dart';
+import 'package:agri_booking2/pages/employer/search_emp.dart';
 import 'package:agri_booking2/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -54,18 +55,6 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home Employee'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const Login()),
-                (route) => false,
-              );
-            },
-          )
-        ],
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: fetchCon(widget.mid),
@@ -98,15 +87,15 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                 const SizedBox(height: 8),
                 Text("โทร: ${member['phone'] ?? '-'}"),
                 const SizedBox(height: 8),
-                Text("ที่อยู่: ${member['detail_address'] ?? '-'}"),
-                const SizedBox(height: 8),
-                Text(
-                  "จังหวัด: ${member['province'] ?? '-'} อำเภอ: ${member['district'] ?? '-'} ตำบล: ${member['subdistrict'] ?? '-'}",
-                ),
-                const SizedBox(height: 8),
-                Text("Lat: ${member['latitude']}, Lng: ${member['longitude']}"),
-                const SizedBox(height: 8),
-                Text("ประเภทสมาชิก: ${member['type_member']}"),
+                // Text("ที่อยู่: ${member['detail_address'] ?? '-'}"),
+                // const SizedBox(height: 8),
+                // Text(
+                //   "จังหวัด: ${member['province'] ?? '-'} อำเภอ: ${member['district'] ?? '-'} ตำบล: ${member['subdistrict'] ?? '-'}",
+                // ),
+                // const SizedBox(height: 8),
+                // Text("Lat: ${member['latitude']}, Lng: ${member['longitude']}"),
+                // const SizedBox(height: 8),
+                // Text("ประเภทสมาชิก: ${member['type_member']}"),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
@@ -175,6 +164,18 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                   icon: const Icon(Icons.edit),
                   label: const Text('โหมดผู้รับจ้าง'),
                   tooltip: 'โหมดผู้รับจ้าง',
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SearchEmp(mid: widget.mid),
+                      ),
+                    );
+                  },
+                  child: const Text('หน้าแรก'),
                 ),
               ],
             ),
