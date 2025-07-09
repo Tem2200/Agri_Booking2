@@ -6,6 +6,7 @@ import 'package:agri_booking2/pages/contactor/addvehcle.dart';
 import 'package:agri_booking2/pages/contactor/con_plan.dart';
 import 'package:agri_booking2/pages/contactor/nonti.dart';
 import 'package:agri_booking2/pages/editMem.dart';
+import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/homeEmp.dart';
 import 'package:agri_booking2/pages/login.dart';
 import 'package:another_flushbar/flushbar.dart';
@@ -410,10 +411,29 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: const Color.fromARGB(255, 255, 187, 119),
           centerTitle: true,
           automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
+          title: const Text(
+            'ผู้รับจ้าง',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 32, 18, 3),
+              //letterSpacing: 1,
+              shadows: [
+                Shadow(
+                  color: Color.fromARGB(115, 253, 237, 237),
+                  blurRadius: 3,
+                  offset: Offset(1.5, 1.5),
+                ),
+              ],
+            ),
+          ),
+
           actions: [
             PopupMenuButton<String>(
               icon: const Icon(Icons.menu, color: Colors.black87),
               onSelected: (value) async {
+                int currentMonth = DateTime.now().month;
+                int currentYear = DateTime.now().year;
                 if (value == 'edit') {
                   try {
                     final data = await fetchCon(widget.mid);
@@ -439,7 +459,12 @@ class _HomePageState extends State<HomePage> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HomeEmpPage(mid: widget.mid),
+                          builder: (context) => Tabbar(
+                            mid: widget.mid,
+                            value: 0,
+                            month: currentMonth,
+                            year: currentYear,
+                          ),
                         ),
                       );
                     } else {
@@ -477,7 +502,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Icon(Icons.work, color: Colors.green),
                       SizedBox(width: 8),
-                      Text('โหมดผู้รับจ้าง'),
+                      Text('โหมดผู้จ้าง'),
                     ],
                   ),
                 ),

@@ -586,7 +586,6 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                               ),
                             ),
 
-                            //ผู้จ้าง
                             const SizedBox(height: 10),
                             Row(
                               children: [
@@ -597,17 +596,16 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                         radius: 25,
                                         backgroundImage: NetworkImage(
                                             data!['employee_image']),
-                                        backgroundColor:
-                                            Color.fromARGB(255, 238, 238, 238),
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 238, 238, 238),
                                       )
                                     : const CircleAvatar(
                                         radius: 25,
-                                        backgroundColor:
-                                            Colors.amber, // พื้นหลังสีเหลือง
+                                        backgroundColor: Colors.amber,
                                         child: Icon(
                                           Icons.person,
                                           size: 30,
-                                          color: Colors.white, // สีของไอคอน
+                                          color: Colors.white,
                                         ),
                                       ),
 
@@ -623,15 +621,94 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                 // ปุ่มข้อมูลผู้จ้าง
                                 ElevatedButton(
                                   onPressed: () {
-                                    // TODO: show more info
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              // รูปภาพในกรอบวงกลม
+                                              CircleAvatar(
+                                                radius: 50,
+                                                backgroundImage: (data![
+                                                                'employee_image'] !=
+                                                            null &&
+                                                        data!['employee_image'] !=
+                                                            '')
+                                                    ? NetworkImage(
+                                                        data!['employee_image'])
+                                                    : null,
+                                                backgroundColor:
+                                                    Colors.grey[300],
+                                                child: (data!['employee_image'] ==
+                                                            null ||
+                                                        data!['employee_image'] ==
+                                                            '')
+                                                    ? const Icon(Icons.person,
+                                                        size: 50,
+                                                        color: Colors.white)
+                                                    : null,
+                                              ),
+                                              const SizedBox(height: 16),
+
+                                              // ชื่อ
+                                              Text(
+                                                data!['employee_username'] ??
+                                                    'ไม่พบชื่อ',
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+
+                                              // เบอร์โทร
+                                              Text(
+                                                data!['employee_phone'] ??
+                                                    'ไม่พบเบอร์โทร',
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.black54,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 20),
+
+                                              // ปุ่มปิด
+                                              ElevatedButton.icon(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                //icon: const Icon(Icons.close),
+                                                label: const Text("ปิด"),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      Color.fromARGB(
+                                                          255, 255, 203, 82),
+                                                  foregroundColor: Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.amber, // สีเหลือง
-                                    foregroundColor:
-                                        Colors.black87, // สีตัวหนังสือ
+                                    backgroundColor: Colors.amber,
+                                    foregroundColor: Colors.black87,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          20), // มุมโค้ง (ไม่ใส่ก็ได้)
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 16, vertical: 8),
