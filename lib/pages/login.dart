@@ -143,15 +143,33 @@ class _LoginState extends State<Login> {
           );
         } else if (type == 1) {
           // ไปหน้า home_emp พร้อมส่ง mid
+          int currentMonth = DateTime.now().month;
+          int currentYear = DateTime.now().year;
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomeEmpPage(mid: mid)),
+            MaterialPageRoute(
+              builder: (context) => Tabbar(
+                mid: mid,
+                value: 0,
+                month: currentMonth,
+                year: currentYear,
+              ),
+            ),
           );
         } else if (type == 2) {
           // ไปหน้า home พร้อมส่ง mid
+          int currentMonth = DateTime.now().month;
+          int currentYear = DateTime.now().year;
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomePage(mid: mid)),
+            MaterialPageRoute(
+              builder: (context) => TabbarCar(
+                mid: mid,
+                value: 0,
+                month: currentMonth,
+                year: currentYear,
+              ),
+            ),
           );
         }
 
