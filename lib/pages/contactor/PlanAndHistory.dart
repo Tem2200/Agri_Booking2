@@ -231,12 +231,16 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          item['name_rs'] ?? '-',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                        Flexible(
+                          child: Text(
+                            item['name_rs'] ?? '-',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                            overflow: TextOverflow.ellipsis, // ✅ ตัดด้วย ...
+                            maxLines: 1, // ✅ แสดงแค่บรรทัดเดียว
                           ),
                         ),
                         Row(

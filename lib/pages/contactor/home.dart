@@ -778,7 +778,17 @@ class _HomePageState extends State<HomePage> {
                                 const SizedBox(height: 4),
                                 Text(
                                     'ราคา: ${vehicle['price']} / ${vehicle['unit_price']}'),
-                                Text('รายละเอียด: ${vehicle['detail']}'),
+                                Text(
+                                  'รายละเอียด: ${vehicle['detail']}',
+                                  maxLines: 2, // ✅ จำกัดที่ 3 บรรทัด
+                                  overflow: TextOverflow
+                                      .ellipsis, // ✅ ตัดข้อความที่เกินด้วย ...
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+
                                 Text(
                                     'ทะเบียน: ${vehicle['plate_number'] ?? 'ไม่มีข้อมูล'}'),
                                 const SizedBox(height: 12),

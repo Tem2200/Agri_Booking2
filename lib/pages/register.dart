@@ -1,6 +1,7 @@
 import 'dart:convert';
-import 'package:agri_booking2/pages/contactor/home.dart';
-import 'package:agri_booking2/pages/employer/homeEmp.dart';
+
+import 'package:agri_booking2/pages/contactor/Tabbar.dart';
+import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/login.dart';
 import 'package:agri_booking2/pages/map_register.dart';
 import 'package:flutter/material.dart';
@@ -154,17 +155,31 @@ class _RegisterState extends State<Register> {
                     Navigator.pop(context); // ปิด AlertDialog
 
                     if (data['type_member'] == 1) {
+                      int currentMonth = DateTime.now().month;
+                      int currentYear = DateTime.now().year;
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HomeEmpPage(mid: data['mid']),
+                          builder: (context) => TabbarCar(
+                            mid: mid,
+                            value: 0,
+                            month: currentMonth,
+                            year: currentYear,
+                          ),
                         ),
                       );
                     } else if (data['type_member'] == 2) {
+                      int currentMonth = DateTime.now().month;
+                      int currentYear = DateTime.now().year;
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HomePage(mid: data['mid']),
+                          builder: (context) => Tabbar(
+                            mid: mid,
+                            value: 0,
+                            month: currentMonth,
+                            year: currentYear,
+                          ),
                         ),
                       );
                     }
@@ -407,7 +422,7 @@ class _RegisterState extends State<Register> {
                         ElevatedButton(
                           onPressed: () {
                             setState(() {
-                              typeMember = 1; // ผู้จ้าง
+                              typeMember = 1; // ผู้รับจ้าง
                             });
                           },
                           style: ElevatedButton.styleFrom(
@@ -422,13 +437,13 @@ class _RegisterState extends State<Register> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 30, vertical: 12),
                           ),
-                          child: const Text('ผู้จ้าง'),
+                          child: const Text('ผู้รับจ้าง'),
                         ),
                         const SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
                             setState(() {
-                              typeMember = 2; // ผู้รับจ้าง
+                              typeMember = 2; // ผู้รจ้าง
                             });
                           },
                           style: ElevatedButton.styleFrom(
@@ -443,7 +458,7 @@ class _RegisterState extends State<Register> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 30, vertical: 12),
                           ),
-                          child: const Text('ผู้รับจ้าง'),
+                          child: const Text('ผู้จ้าง'),
                         ),
                       ],
                     ),

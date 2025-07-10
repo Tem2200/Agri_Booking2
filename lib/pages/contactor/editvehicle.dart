@@ -291,7 +291,7 @@ class _EditVehicleState extends State<EditVehicle> {
                   ),
                   const SizedBox(width: 16),
                   Text(
-                    'ต่อ',
+                    'บาท',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(width: 16),
