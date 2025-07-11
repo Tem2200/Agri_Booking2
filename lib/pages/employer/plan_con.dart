@@ -313,33 +313,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
 
                     //รายละเอียด
                     const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 8),
-                            textStyle: const TextStyle(fontSize: 13),
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    DetailWorkPage(rsid: item['rsid']),
-                              ),
-                            );
-                          },
-                          child: const Text('รายละเอียด'),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),

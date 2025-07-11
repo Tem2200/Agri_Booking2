@@ -6,12 +6,14 @@ class ReservingEmp extends StatefulWidget {
   final int mid;
   final int vid;
   final int fid;
+  final dynamic farm;
 
   const ReservingEmp({
     super.key,
     required this.mid,
     required this.vid,
     required this.fid,
+    this.farm,
   });
 
   @override
@@ -20,17 +22,35 @@ class ReservingEmp extends StatefulWidget {
 
 class _ReservingEmpState extends State<ReservingEmp> {
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController nameController = TextEditingController();
   final TextEditingController areaAmountController = TextEditingController();
-  final TextEditingController unitAreaController =
-      TextEditingController(text: "ตารางวา");
   final TextEditingController detailController = TextEditingController();
+  final TextEditingController customUnitController = TextEditingController();
 
   DateTime? dateStart;
   DateTime? dateEnd;
 
   bool isLoading = false;
+  bool isFarmLoading = false;
+  List<dynamic> farmList = [];
+  dynamic selectedFarm;
+
+  final List<String> unitOptions = [
+    'ตารางวา',
+    'ไร่',
+    'งาน',
+    'ตารางเมตร',
+    'อื่นๆ'
+  ];
+  String? selectedUnit = 'ตารางวา';
+  bool isCustomUnit = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    print('Initializing ReservingEmp with farm: ${widget.farm}');
+  }
 
   Future<void> _selectDateStart(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -87,10 +107,13 @@ class _ReservingEmpState extends State<ReservingEmp> {
       isLoading = true;
     });
 
+    final String finalUnit =
+        isCustomUnit ? customUnitController.text.trim() : selectedUnit ?? '';
+
     final Map<String, dynamic> body = {
       "name_rs": nameController.text.trim(),
       "area_amount": int.tryParse(areaAmountController.text.trim()) ?? 0,
-      "unit_area": unitAreaController.text.trim(),
+      "unit_area": finalUnit,
       "detail": detailController.text.trim(),
       "date_start":
           dateStart!.toIso8601String().replaceFirst('T', ' ').substring(0, 19),
@@ -130,8 +153,70 @@ class _ReservingEmpState extends State<ReservingEmp> {
     }
   }
 
+  Widget _buildFarmDropdown() {
+    return isFarmLoading
+        ? const Center(child: CircularProgressIndicator())
+        : farmList.isEmpty
+            ? const Center(child: Text('ไม่พบฟาร์มของคุณ'))
+            : Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("เลือกฟาร์มของคุณ",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18)),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<dynamic>(
+                      value: selectedFarm,
+                      decoration: const InputDecoration(
+                        labelText: 'เลือกฟาร์ม',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: farmList.map<DropdownMenuItem<dynamic>>((farm) {
+                        return DropdownMenuItem<dynamic>(
+                          value: farm,
+                          child: Text(farm['name_farm'] ?? "-"),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedFarm = value;
+                        });
+                      },
+                      validator: (value) =>
+                          value == null ? 'กรุณาเลือกฟาร์ม' : null,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: selectedFarm == null
+                          ? null
+                          : () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ReservingEmp(
+                                    mid: widget.mid,
+                                    vid: widget.vid,
+                                    fid: selectedFarm['fid'] ?? 0,
+                                    farm: selectedFarm,
+                                  ),
+                                ),
+                              );
+                            },
+                      child: const Text('ถัดไป'),
+                    ),
+                  ],
+                ),
+              );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool shouldSelectFarm = widget.farm == null ||
+        widget.farm is! Map ||
+        (widget.farm is Map && widget.farm.isEmpty);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("จองคิวรถ"),
@@ -139,94 +224,139 @@ class _ReservingEmpState extends State<ReservingEmp> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'ชื่อการจอง',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'กรุณากรอกชื่อการจอง'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: areaAmountController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'จำนวนพื้นที่',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty)
-                          return 'กรุณากรอกจำนวนพื้นที่';
-                        if (int.tryParse(value) == null)
-                          return 'กรุณากรอกเป็นตัวเลข';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: unitAreaController,
-                      decoration: const InputDecoration(
-                        labelText: 'หน่วยพื้นที่',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'กรุณากรอกหน่วยพื้นที่'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: detailController,
-                      maxLines: 3,
-                      decoration: const InputDecoration(
-                        labelText: 'รายละเอียด',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'กรุณากรอกรายละเอียด'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
+          : shouldSelectFarm
+              ? _buildFarmDropdown()
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => _selectDateStart(context),
-                            child: Text(dateStart == null
-                                ? 'เลือกวันที่เริ่ม'
-                                : 'วันที่เริ่ม: ${dateStart!.toLocal()}'
-                                    .split('.')[0]),
+                        const SizedBox(height: 8),
+                        const Text("ข้อมูลฟาร์มที่เลือก",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        const SizedBox(height: 8),
+                        Text("ชื่อฟาร์ม: ${widget.farm['name_farm'] ?? '-'}"),
+                        Text("หมู่บ้าน: ${widget.farm['village'] ?? '-'}"),
+                        Text("ตำบล: ${widget.farm['subdistrict'] ?? '-'}"),
+                        Text("อำเภอ: ${widget.farm['district'] ?? '-'}"),
+                        Text("จังหวัด: ${widget.farm['province'] ?? '-'}"),
+                        Text(
+                            "ขนาดพื้นที่: ${widget.farm['area_amount'] ?? '-'} ${widget.farm['unit_area'] ?? ''}"),
+                        Text("รายละเอียด: ${widget.farm['detail'] ?? '-'}"),
+                        const Divider(height: 32, color: Colors.orange),
+                        TextFormField(
+                          controller: nameController,
+                          decoration: const InputDecoration(
+                            labelText: 'ชื่อการจอง',
+                            border: OutlineInputBorder(),
                           ),
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'กรุณากรอกชื่อการจอง'
+                              : null,
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => _selectDateEnd(context),
-                            child: Text(dateEnd == null
-                                ? 'เลือกวันที่สิ้นสุด'
-                                : 'วันที่สิ้นสุด: ${dateEnd!.toLocal()}'
-                                    .split('.')[0]),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: areaAmountController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'จำนวนพื้นที่',
+                            border: OutlineInputBorder(),
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'กรุณากรอกจำนวนพื้นที่';
+                            }
+                            if (int.tryParse(value) == null) {
+                              return 'กรุณากรอกเป็นตัวเลข';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: selectedUnit,
+                          items: unitOptions.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedUnit = value;
+                              isCustomUnit = value == 'อื่นๆ';
+                            });
+                          },
+                          decoration: const InputDecoration(
+                            labelText: 'หน่วยพื้นที่',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'กรุณาเลือกหน่วยพื้นที่'
+                              : null,
+                        ),
+                        if (isCustomUnit) ...[
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: customUnitController,
+                            decoration: const InputDecoration(
+                              labelText: 'ระบุหน่วยพื้นที่เอง',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) =>
+                                (value == null || value.isEmpty)
+                                    ? 'กรุณากรอกหน่วยพื้นที่เอง'
+                                    : null,
+                          ),
+                        ],
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: detailController,
+                          maxLines: 3,
+                          decoration: const InputDecoration(
+                            labelText: 'รายละเอียด',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'กรุณากรอกรายละเอียด'
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => _selectDateStart(context),
+                                child: Text(dateStart == null
+                                    ? 'เลือกวันที่เริ่ม'
+                                    : 'วันที่เริ่ม: ${dateStart!.toLocal()}'
+                                        .split('.')[0]),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => _selectDateEnd(context),
+                                child: Text(dateEnd == null
+                                    ? 'เลือกวันที่สิ้นสุด'
+                                    : 'วันที่สิ้นสุด: ${dateEnd!.toLocal()}'
+                                        .split('.')[0]),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: _submitReservation,
+                          child: const Text('ยืนยันจอง'),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: _submitReservation,
-                      child: const Text('ยืนยันจอง'),
-                    )
-                  ],
+                  ),
                 ),
-              ),
-            ),
     );
   }
 }

@@ -523,37 +523,25 @@ class _RegisterState extends State<Register> {
                     const SizedBox(height: 10),
                     TextFormField(
                       controller: phoneController,
-                      decoration: InputDecoration(
-                        labelText: 'เบอร์โทรศัพท์ *', // เพิ่ม *
-                        counterText: '$phoneLength/10',
-                        fillColor: Colors.white,
+                      keyboardType: TextInputType.number,
+                      maxLength: 10,
+                      decoration: const InputDecoration(
+                        labelText: 'เบอร์โทร',
                         filled: true,
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          borderSide: BorderSide.none,
-                        ),
+                        fillColor: Color(0xFFE0E0E0),
+                        border: OutlineInputBorder(borderSide: BorderSide.none),
                       ),
-                      keyboardType: TextInputType.phone,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(10),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          phoneLength = value.length;
-                        });
-                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'กรุณากรอกเบอร์โทรศัพท์';
+                          return 'กรุณากรอกเบอร์โทร';
                         }
-                        // ใช้ RegEx เพื่อตรวจสอบว่าขึ้นต้นด้วย 0 และมี 10 หลัก
-                        if (!RegExp(r'^0[0-9]{9}$').hasMatch(value)) {
-                          return 'เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก';
+                        if (!RegExp(r'^0\d{9}$').hasMatch(value)) {
+                          return 'เบอร์โทรต้องเป็นตัวเลข 10 หลัก และขึ้นต้นด้วย 0';
                         }
                         return null;
                       },
                     ),
+
                     const SizedBox(height: 20),
                     // Dropdown สำหรับ จังหวัด อำเภอ ตำบล (อยู่คนละบรรทัด)
                     DropdownButtonFormField<String>(

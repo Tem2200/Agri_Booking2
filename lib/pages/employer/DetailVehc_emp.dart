@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/employer/ProfileCon.dart';
 import 'package:agri_booking2/pages/employer/plan_con.dart';
+import 'package:agri_booking2/pages/employer/reservingForNF.dart';
 import 'package:agri_booking2/pages/employer/reserving_emp.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -10,8 +12,13 @@ class DetailvehcEmp extends StatefulWidget {
   final int vid;
   final int mid;
   final int fid;
+  final dynamic farm;
   const DetailvehcEmp(
-      {super.key, required this.vid, required this.mid, required this.fid});
+      {super.key,
+      required this.vid,
+      required this.mid,
+      required this.fid,
+      this.farm});
 
   @override
   State<DetailvehcEmp> createState() => _DetailvehcEmpState();
@@ -40,7 +47,7 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.clearLiveImages();
       // ----------------------------------------------------
-
+      print(widget.farm);
       final url = Uri.parse(
           'http://projectnodejs.thammadalok.com/AGribooking/get_vid/${widget.vid}');
       final response = await http.get(url);
@@ -299,7 +306,7 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
 
                       const SizedBox(height: 8),
                       Text(
-                          'ราคา: ${vehicleData?['price'] ?? '-'} / ${vehicleData?['unit_price'] ?? '-'}',
+                          'ราคา: ${vehicleData?['price'] ?? '-'} บาท/${vehicleData?['unit_price'] ?? '-'}',
                           style: const TextStyle(fontSize: 16)),
                       const SizedBox(height: 8),
                       Text('รายละเอียด: ${vehicleData?['detail'] ?? '-'}'),
@@ -397,7 +404,22 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                             child: const Text('ตารางงาน'),
                           ),
 
-                          const SizedBox(width: 8), // ช่องว่างระหว่างปุ่ม
+                          const SizedBox(width: 8),
+                          OutlinedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProfileCon(
+                                    mid_con: _currentMid,
+                                    mid_emp: widget.mid,
+                                    farm: widget.farm,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: const Text('โปรไฟล์ผู้รับจ้าง'),
+                          ), // ช่องว่างระหว่างปุ่ม
 
                           // ปุ่มแก้ไขรถ
                           // ElevatedButton(
@@ -686,7 +708,9 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          if (widget.fid != null) {
+                          if (widget.farm != null &&
+                              widget.farm is Map &&
+                              widget.farm.isNotEmpty) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -694,13 +718,19 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                                   mid: widget.mid,
                                   vid: widget.vid,
                                   fid: widget.fid,
+                                  farm: widget.farm,
                                 ),
                               ),
                             );
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('ไม่พบข้อมูลฟาร์ม (fid)')),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ReservingForNF(
+                                  mid: widget.mid,
+                                  vid: widget.vid,
+                                ),
+                              ),
                             );
                           }
                         },

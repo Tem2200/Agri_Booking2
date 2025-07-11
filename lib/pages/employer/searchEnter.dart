@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/employer/DetailVehc_emp.dart';
+import 'package:agri_booking2/pages/employer/search_emp.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -131,6 +133,19 @@ class _SearchEnterState extends State<SearchEnter> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('ผลการค้นหา'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SearchEmp(
+                  mid: widget.mid,
+                ),
+              ),
+            );
+          },
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -196,6 +211,30 @@ class _SearchEnterState extends State<SearchEnter> {
                                     Text('ราคา: ${v['price'] ?? '-'} บาท'),
                                     if (v['distance_text'] != null)
                                       Text('ระยะทาง: ${v['distance_text']}'),
+                                    const SizedBox(height: 8),
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => DetailvehcEmp(
+                                              vid: v['vid'] ?? 0,
+                                              mid: widget.mid,
+                                              fid: (widget.payload['farm'] !=
+                                                          null &&
+                                                      widget.payload['farm']
+                                                              ['fid'] !=
+                                                          null)
+                                                  ? widget.payload['farm']
+                                                      ['fid'] as int
+                                                  : 0,
+                                              farm: widget.payload["farm"],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: const Text('รายละเอียดเพิ่มเติม'),
+                                    ),
                                   ],
                                 ),
                               ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:agri_booking2/pages/employer/homeEmp.dart';
+import 'package:agri_booking2/pages/employer/plan_emp.dart';
 import 'package:agri_booking2/pages/employer/search_emp.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -44,7 +45,7 @@ class _TabbarCarState extends State<Tabbar> {
       if (index == 0) {
         currentPage = SearchEmp(mid: widget.mid);
       } else if (index == 1) {
-        currentPage = HomeEmpPage(mid: widget.mid);
+        currentPage = PlanEmp(mid: widget.mid);
       } else if (index == 2) {
         currentPage = HomeEmpPage(mid: widget.mid);
       } else if (index == 3) {

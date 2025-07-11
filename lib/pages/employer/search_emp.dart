@@ -4,6 +4,7 @@ import 'package:agri_booking2/pages/employer/DetailVehc_emp.dart';
 import 'package:agri_booking2/pages/employer/searchEnter.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:cached_network_image/cached_network_image.dart';
 
 class SearchEmp extends StatefulWidget {
   final int mid;
@@ -34,18 +35,24 @@ class _SearchEmpState extends State<SearchEmp> {
   }
 
   Future<void> _loadData() async {
-    await _loadFarms();
-    await _loadVehicles();
+    setState(() => isLoading = true);
+    try {
+      await Future.wait([
+        _loadFarms(),
+        _loadVehicles(),
+      ]);
 
-    if (farmList.isNotEmpty) {
-      selectedFarm = farmList[0];
-      selectedFarmLat = _parseLatLng(selectedFarm['latitude']);
-      selectedFarmLng = _parseLatLng(selectedFarm['longitude']);
-
-      await _calculateDistances();
-    } else {
-      hasFarm = false;
-      _sortByReview();
+      if (farmList.isNotEmpty) {
+        selectedFarm = farmList[0];
+        selectedFarmLat = _parseLatLng(selectedFarm['latitude']);
+        selectedFarmLng = _parseLatLng(selectedFarm['longitude']);
+        await _calculateDistances();
+      } else {
+        hasFarm = false;
+        _sortByReview();
+      }
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -63,9 +70,7 @@ class _SearchEmpState extends State<SearchEmp> {
       final res = await http.get(url);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        setState(() {
-          farmList = data;
-        });
+        farmList = data;
       }
     } catch (e) {
       print('Error loading farms: $e');
@@ -79,10 +84,8 @@ class _SearchEmpState extends State<SearchEmp> {
       final res = await http.get(url);
       if (res.statusCode == 200) {
         final vehicles = jsonDecode(res.body);
-        setState(() {
-          allVehicles = vehicles;
-          filteredVehicles = vehicles;
-        });
+        allVehicles = vehicles;
+        filteredVehicles = vehicles;
       }
     } catch (e) {
       print('Error loading vehicles: $e');
@@ -97,9 +100,7 @@ class _SearchEmpState extends State<SearchEmp> {
           num.tryParse(b['avg_review_point']?.toString() ?? "0") ?? 0;
       return bPoint.compareTo(aPoint);
     });
-    setState(() {
-      filteredVehicles = allVehicles;
-    });
+    filteredVehicles = allVehicles;
   }
 
   Future<void> _calculateDistances() async {
@@ -107,69 +108,74 @@ class _SearchEmpState extends State<SearchEmp> {
         selectedFarmLat == null ||
         selectedFarmLng == null) return;
 
-    setState(() {
-      isLoading = true;
-    });
+    setState(() => isLoading = true);
 
     try {
-      final destinationsVehicles = allVehicles.where((v) {
-        final lat = _parseLatLng(v['latitude']);
-        final lng = _parseLatLng(v['longitude']);
-        return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
-      }).toList();
+      var destinationsVehicles = allVehicles
+          .where((v) {
+            final lat = _parseLatLng(v['latitude']);
+            final lng = _parseLatLng(v['longitude']);
+            return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+          })
+          .take(20)
+          .toList();
 
       if (destinationsVehicles.isEmpty) {
-        setState(() {
-          isLoading = false;
-          filteredVehicles = [];
-        });
+        filteredVehicles = [];
         return;
       }
 
       const apiKey =
           'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImMyOWE5ZDkxMmUyZDQzMDc4ODNlZWQ0MjQzZDQ2NTk1IiwiaCI6Im11cm11cjY0In0=';
 
-      for (var v in destinationsVehicles) {
+      await Future.wait(destinationsVehicles.map((v) async {
+        if (v['distance_cache'] != null) {
+          v['distance_text'] = v['distance_cache']['text'];
+          v['distance_value'] = v['distance_cache']['value'];
+          return;
+        }
+
         final endLat = _parseLatLng(v['latitude']);
         final endLng = _parseLatLng(v['longitude']);
 
         final url = Uri.parse(
             'https://api.openrouteservice.org/v2/directions/driving-car?api_key=$apiKey&start=$selectedFarmLng,$selectedFarmLat&end=$endLng,$endLat');
 
-        final res = await http.get(url);
-
-        if (res.statusCode == 200) {
-          final data = jsonDecode(res.body);
-          final meters =
-              data['features'][0]['properties']['segments'][0]['distance'];
-          final km = meters / 1000;
-
-          v['distance_text'] = '${km.toStringAsFixed(2)} กม.';
-          v['distance_value'] = km;
-        } else {
-          print('OpenRoute API error: ${res.body}');
+        try {
+          final res = await http.get(url);
+          if (res.statusCode == 200) {
+            final data = jsonDecode(res.body);
+            final meters =
+                data['features'][0]['properties']['segments'][0]['distance'];
+            final km = meters / 1000;
+            v['distance_text'] = '${km.toStringAsFixed(2)} กม.';
+            v['distance_value'] = km;
+            v['distance_cache'] = {
+              'text': v['distance_text'],
+              'value': km,
+            };
+          } else {
+            print('OpenRoute API error: ${res.body}');
+            v['distance_text'] = '-';
+            v['distance_value'] = double.infinity;
+          }
+        } catch (e) {
           v['distance_text'] = '-';
           v['distance_value'] = double.infinity;
         }
-      }
+      }));
 
-      destinationsVehicles
-          .sort((a, b) => a['distance_value'].compareTo(b['distance_value']));
+      destinationsVehicles.sort((a, b) =>
+          (a['distance_value'] ?? 0).compareTo(b['distance_value'] ?? 0));
 
-      setState(() {
-        filteredVehicles = destinationsVehicles;
-      });
-    } catch (e) {
-      print('Error calculating distance: $e');
+      filteredVehicles = destinationsVehicles;
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
   void _onSearch() {
-    final query = searchController.text.trim();
+    final query = searchController.text.trim().toLowerCase();
 
     if (query.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -180,9 +186,11 @@ class _SearchEmpState extends State<SearchEmp> {
 
     final Map<String, dynamic> payload = {
       "keyword": query,
-      "order": "desc", // หรือ "asc"/"desc" ได้ตามต้องการ
+      "order": "desc",
       "latitude": selectedFarmLat,
       "longitude": selectedFarmLng,
+      "mid": widget.mid,
+      "farm": selectedFarm,
     };
 
     Navigator.push(
@@ -209,37 +217,38 @@ class _SearchEmpState extends State<SearchEmp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ค้นหาผู้รับจ้าง'),
+        automaticallyImplyLeading: false,
+        title: const Text('ค้นหารถรับจ้าง'),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      labelText: 'ค้นหา',
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.search),
-                        onPressed: _onSearch,
-                      ),
-                    ),
-                    onSubmitted: (_) => _onSearch(),
-                  ),
-                  const SizedBox(height: 16),
-                  if (hasFarm) ...[
-                    DropdownButtonFormField<dynamic>(
-                      value: selectedFarm,
-                      items: farmList.map<DropdownMenuItem<dynamic>>((farm) {
-                        return DropdownMenuItem(
-                          value: farm,
-                          child: Text(farm['name_farm'] ?? '-'),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                labelText: 'ค้นหา',
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: _onSearch,
+                ),
+              ),
+              onSubmitted: (_) => _onSearch(),
+            ),
+            const SizedBox(height: 16),
+            if (hasFarm) ...[
+              DropdownButtonFormField<dynamic>(
+                value: selectedFarm,
+                items: farmList.map<DropdownMenuItem<dynamic>>((farm) {
+                  return DropdownMenuItem(
+                    value: farm,
+                    child: Text(farm['name_farm'] ?? '-'),
+                  );
+                }).toList(),
+                onChanged: farmList.isEmpty
+                    ? null
+                    : (value) {
                         setState(() {
                           selectedFarm = value;
                           selectedFarmLat = _parseLatLng(value['latitude']);
@@ -247,90 +256,85 @@ class _SearchEmpState extends State<SearchEmp> {
                         });
                         _calculateDistances();
                       },
-                      decoration: const InputDecoration(
-                        labelText: 'เลือกฟาร์ม',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: filteredVehicles.isEmpty
-                        ? Center(
-                            child: hasFarm
-                                ? const Text(
-                                    'ไม่พบรถที่สามารถคำนวณระยะทางได้ หรือพิกัดผิด')
-                                : const Text('ไม่พบข้อมูลรถที่ตรงกับการค้นหา'),
-                          )
-                        : ListView.builder(
-                            itemCount: filteredVehicles.length,
-                            itemBuilder: (context, index) {
-                              final v = filteredVehicles[index];
-                              return Card(
-                                margin: const EdgeInsets.symmetric(vertical: 8),
-                                child: ListTile(
-                                  leading: v['image'] != null
-                                      ? Image.network(
-                                          v['image'],
-                                          width: 60,
-                                          height: 60,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (_, __, ___) =>
-                                              const Icon(
-                                                  Icons.image_not_supported),
-                                        )
-                                      : const Icon(Icons.agriculture, size: 50),
-                                  title: Text(v['name_vehicle'] ?? '-'),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          'ผู้รับจ้าง: ${v['username_contractor'] ?? '-'}'),
-                                      Text('ราคา: ${v['price'] ?? '-'}'),
-                                      Text(
-                                          'คะแนนเฉลี่ยรีวิว: ${v['avg_review_point'] ?? '-'}'),
-                                      if (hasFarm)
-                                        Text(
-                                          'ระยะทาง: ${v['distance_text'] ?? '-'}',
-                                        ),
-                                      const SizedBox(height: 8),
-                                      OutlinedButton(
-                                        onPressed: () {
-                                          print('selectedFarm: $selectedFarm');
-                                          print(
-                                              'selectedFarm keys: ${selectedFarm.keys.toList()}');
-                                          print(
-                                              'fid: ${selectedFarm['fid']}'); // ดูค่าของ fid ว่ามีไหม
-
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  DetailvehcEmp(
-                                                vid: v['vid'] ?? 0,
-                                                mid: widget.mid,
-                                                fid: selectedFarm[
-                                                    'fid'], // อันนี้ถ้ายัง error แสดงว่าไม่มี key นี้
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        child:
-                                            const Text('รายละเอียดเพิ่มเติม'),
-                                      ),
-                                    ],
-                                  ),
-                                  isThreeLine: true,
-                                ),
-                              );
-                            },
-                          ),
-                  ),
-                ],
+                decoration: const InputDecoration(
+                  labelText: 'เลือกฟาร์ม',
+                  border: OutlineInputBorder(),
+                ),
               ),
+              const SizedBox(height: 16),
+            ],
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : filteredVehicles.isEmpty
+                      ? Center(
+                          child: hasFarm
+                              ? const Text(
+                                  'ไม่พบรถที่สามารถคำนวณระยะทางได้ หรือพิกัดผิด')
+                              : const Text('ไม่พบข้อมูลรถที่ตรงกับการค้นหา'),
+                        )
+                      : ListView.builder(
+                          itemCount: filteredVehicles.length,
+                          itemBuilder: (context, index) {
+                            final v = filteredVehicles[index];
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              child: ListTile(
+                                leading: v['image'] != null
+                                    ? CachedNetworkImage(
+                                        imageUrl: v['image'],
+                                        width: 60,
+                                        height: 60,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            const CircularProgressIndicator(),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(
+                                                Icons.image_not_supported),
+                                      )
+                                    : const Icon(Icons.agriculture, size: 50),
+                                title: Text(v['name_vehicle'] ?? '-'),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        'ผู้รับจ้าง: ${v['username_contractor'] ?? '-'}'),
+                                    Text(
+                                        'ราคา: ${v['price'] ?? '-'} บาท/${v['unit_price'] ?? '-'}'),
+                                    Text(
+                                        'คะแนนเฉลี่ยรีวิว: ${v['avg_review_point'] ?? '-'}'),
+                                    if (hasFarm)
+                                      Text(
+                                        'ระยะทาง: ${v['distance_text'] ?? '-'}',
+                                      ),
+                                    const SizedBox(height: 8),
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => DetailvehcEmp(
+                                              vid: v['vid'] ?? 0,
+                                              mid: widget.mid,
+                                              fid: selectedFarm?['fid'] ?? 0,
+                                              farm: selectedFarm,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: const Text('รายละเอียดเพิ่มเติม'),
+                                    ),
+                                  ],
+                                ),
+                                isThreeLine: true,
+                              ),
+                            );
+                          },
+                        ),
             ),
+          ],
+        ),
+      ),
     );
   }
 }

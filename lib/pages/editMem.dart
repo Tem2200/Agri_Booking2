@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:agri_booking2/pages/assets/location_data.dart';
 import 'package:agri_booking2/pages/map_edit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart'; // Assuming you have a file with location data
 
@@ -36,6 +37,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
   String? selectedProvince;
   String? selectedAmphoe;
   String? selectedDistrict;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -228,182 +230,226 @@ class _EditMemberPageState extends State<EditMemberPage> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Center(
-              child: Stack(
-                alignment: Alignment.bottomRight,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Center(
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage:
+                          _imageUrl != null && _imageUrl!.isNotEmpty
+                              ? NetworkImage(_imageUrl!)
+                              : const AssetImage('assets/profile.png')
+                                  as ImageProvider,
+                    ),
+                    CircleAvatar(
+                      radius: 16,
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: const Icon(Icons.edit, size: 16),
+                        onPressed: _pickAndUploadImage,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Input fields
+              buildInput(
+                usernameController,
+                'ชื่อผู้ใช้',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'กรุณากรอกชื่อผู้ใช้';
+                  }
+                  return null;
+                },
+              ),
+
+              TextFormField(
+                controller: phoneController,
+                keyboardType: TextInputType.number,
+                maxLength: 10,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                decoration: const InputDecoration(
+                  labelText: 'เบอร์โทร',
+                  filled: true,
+                  fillColor: Color(0xFFE0E0E0),
+                  border: OutlineInputBorder(borderSide: BorderSide.none),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'กรุณากรอกเบอร์โทร';
+                  }
+                  if (!RegExp(r'^0\d{9}$').hasMatch(value)) {
+                    return 'เบอร์โทรต้องเป็นตัวเลข 10 หลัก และขึ้นต้นด้วย 0';
+                  }
+                  return null;
+                },
+              ),
+
+              DropdownButtonFormField<String>(
+                value: selectedProvince,
+                decoration: const InputDecoration(
+                  labelText: 'จังหวัด',
+                  filled: true,
+                  fillColor: Color(0xFFE0E0E0),
+                  border: OutlineInputBorder(borderSide: BorderSide.none),
+                ),
+                items: provinces
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedProvince = value;
+                    selectedAmphoe = null;
+                    selectedDistrict = null;
+
+                    amphoes = locationData
+                        .where((e) => e['province'] == value)
+                        .map((e) => e['amphoe'] as String)
+                        .toSet()
+                        .toList()
+                      ..sort();
+
+                    districts = [];
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+
+              DropdownButtonFormField<String>(
+                value: selectedAmphoe,
+                decoration: const InputDecoration(
+                  labelText: 'อำเภอ',
+                  filled: true,
+                  fillColor: Color(0xFFE0E0E0),
+                  border: OutlineInputBorder(borderSide: BorderSide.none),
+                ),
+                items: amphoes
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedAmphoe = value;
+                    selectedDistrict = null;
+
+                    districts = locationData
+                        .where((e) =>
+                            e['province'] == selectedProvince &&
+                            e['amphoe'] == value)
+                        .map((e) => e['district'] as String)
+                        .toSet()
+                        .toList()
+                      ..sort();
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+
+              DropdownButtonFormField<String>(
+                value: selectedDistrict,
+                decoration: const InputDecoration(
+                  labelText: 'ตำบล',
+                  filled: true,
+                  fillColor: Color(0xFFE0E0E0),
+                  border: OutlineInputBorder(borderSide: BorderSide.none),
+                ),
+                items: districts
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedDistrict = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+
+              ElevatedButton(
+                onPressed: _selectLocationOnMap,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 255, 238, 50),
+                  foregroundColor: Colors.black,
+                ),
+                child: const Text('เลือกตำแหน่งแผนที่'),
+              ),
+
+              const SizedBox(height: 12),
+
+              buildInput(
+                addressController,
+                'รายละเอียดที่อยู่',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'กรุณากรอกรายละเอียดที่อยู่';
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 24),
+
+              Row(
                 children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: _imageUrl != null && _imageUrl!.isNotEmpty
-                        ? NetworkImage(_imageUrl!)
-                        : const AssetImage('assets/profile.png')
-                            as ImageProvider,
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('ยกเลิก'),
+                    ),
                   ),
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: Colors.white,
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.edit, size: 16),
-                      onPressed: _pickAndUploadImage,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _imageUploaded
+                          ? () {
+                              if (_formKey.currentState?.validate() ?? false) {
+                                _submit();
+                              }
+                            }
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('ตกลง'),
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 20),
 
-            // Input fields
-            buildInput(usernameController, 'ชื่อผู้ใช้'),
-            buildInput(phoneController, 'เบอร์โทร', readOnly: true),
-            DropdownButtonFormField<String>(
-              value: selectedProvince,
-              decoration: const InputDecoration(
-                labelText: 'จังหวัด',
-                filled: true,
-                fillColor: Color(0xFFE0E0E0),
-                border: OutlineInputBorder(borderSide: BorderSide.none),
-              ),
-              items: provinces
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedProvince = value;
-                  selectedAmphoe = null;
-                  selectedDistrict = null;
-
-                  amphoes = locationData
-                      .where((e) => e['province'] == value)
-                      .map((e) => e['amphoe'] as String)
-                      .toSet()
-                      .toList()
-                    ..sort();
-
-                  districts = [];
-                });
-              },
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              value: selectedAmphoe,
-              decoration: const InputDecoration(
-                labelText: 'อำเภอ',
-                filled: true,
-                fillColor: Color(0xFFE0E0E0),
-                border: OutlineInputBorder(borderSide: BorderSide.none),
-              ),
-              items: amphoes
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedAmphoe = value;
-                  selectedDistrict = null;
-
-                  districts = locationData
-                      .where((e) =>
-                          e['province'] == selectedProvince &&
-                          e['amphoe'] == value)
-                      .map((e) => e['district'] as String)
-                      .toSet()
-                      .toList()
-                    ..sort();
-                });
-              },
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              value: selectedDistrict,
-              decoration: const InputDecoration(
-                labelText: 'ตำบล',
-                filled: true,
-                fillColor: Color(0xFFE0E0E0),
-                border: OutlineInputBorder(borderSide: BorderSide.none),
-              ),
-              items: districts
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedDistrict = value;
-                });
-              },
-            ),
-            const SizedBox(height: 12),
-
-            ElevatedButton(
-              onPressed: _selectLocationOnMap,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(
-                    255, 255, 238, 50), // สีพื้นหลังปุ่มเป็นสีเขียว
-                foregroundColor: Colors.black, // สีตัวหนังสือเป็นสีขาว
-              ),
-              child: const Text('เลือกตำแหน่งแผนที่'),
-            ),
-
-            const SizedBox(height: 12),
-
-            TextField(
-              controller: addressController,
-              maxLines: 4,
-              maxLength: 255,
-              decoration: const InputDecoration(
-                labelText: 'รายละเอียดที่อยู่',
-                filled: true,
-                fillColor: Color(0xFFE0E0E0),
-                border: OutlineInputBorder(borderSide: BorderSide.none),
-                alignLabelWithHint: true,
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('ยกเลิก'),
+              if (!_imageUploaded)
+                const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    '* กรุณาอัปโหลดรูปภาพก่อนกดตกลง',
+                    style: TextStyle(color: Colors.red),
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _imageUploaded ? _submit : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Colors.green, // สีพื้นหลังปุ่มเป็นสีเขียว
-                      foregroundColor: Colors.white, // สีตัวหนังสือเป็นสีขาว
-                    ),
-                    child: const Text('ตกลง'),
-                  ),
-                ),
-              ],
-            ),
-
-            if (!_imageUploaded)
-              const Padding(
-                padding: EdgeInsets.only(top: 8.0),
-                child: Text(
-                  '* กรุณาอัปโหลดรูปภาพก่อนกดตกลง',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget buildInput(TextEditingController controller, String label,
-      {bool readOnly = false}) {
+  Widget buildInput(
+    TextEditingController controller,
+    String label, {
+    bool readOnly = false,
+    String? Function(String?)? validator,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         readOnly: readOnly,
         decoration: InputDecoration(
@@ -412,6 +458,9 @@ class _EditMemberPageState extends State<EditMemberPage> {
           fillColor: const Color(0xFFE0E0E0),
           border: const OutlineInputBorder(borderSide: BorderSide.none),
         ),
+        validator: validator,
+        maxLines: label == 'รายละเอียดที่อยู่' ? 4 : 1,
+        maxLength: label == 'รายละเอียดที่อยู่' ? 255 : null,
       ),
     );
   }

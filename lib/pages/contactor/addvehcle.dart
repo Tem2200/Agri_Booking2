@@ -29,6 +29,14 @@ class _AddVehicleState extends State<AddVehicle> {
   bool isLoading = false;
 
   final ImagePicker picker = ImagePicker();
+  String? selectedUnit;
+  final TextEditingController customUnitController = TextEditingController();
+
+  @override
+  void dispose() {
+    customUnitController.dispose();
+    super.dispose();
+  }
 
   Future<void> pickAndUploadImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -92,9 +100,9 @@ class _AddVehicleState extends State<AddVehicle> {
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         final res = jsonDecode(response.body);
-        final int vid = res['vid'];
+        final int vid = res['vehicleId'] ?? 0;
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
@@ -103,8 +111,14 @@ class _AddVehicleState extends State<AddVehicle> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context); // ปิด dialog
-                  Navigator.pop(context, true); // กลับหน้า Home
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(
+                        mid: widget.mid,
+                      ),
+                    ),
+                  );
                 },
                 child: const Text('ตกลง'),
               ),
@@ -217,9 +231,11 @@ class _AddVehicleState extends State<AddVehicle> {
               const SizedBox(height: 16),
 
               // ✅ ราคาต่อหน่วย
-              Text('ราคาต่อพื้นที่ที่จ้างงาน (เช่น 100 ต่อ ไร่)',
+              Text('ราคาต่อพื้นที่ที่จ้างงาน (เช่น 100 บาท/ไร่)',
                   style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
+              // เก็บค่า dropdown ที่เลือ
+
               Row(
                 children: [
                   Expanded(
@@ -237,23 +253,67 @@ class _AddVehicleState extends State<AddVehicle> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Text('ต่อ', style: Theme.of(context).textTheme.titleMedium),
+                  Text('บาท/', style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: TextFormField(
-                      controller: unitPriceController,
+                    child: DropdownButtonFormField<String>(
+                      value: selectedUnit = 'ไร่',
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: 'ชั่วโมง',
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
+                      items: [
+                        'ไร่',
+                        'วัน',
+                        'ชั่วโมง',
+                        'ตารางวา',
+                        'อื่นๆ',
+                      ].map((unit) {
+                        return DropdownMenuItem<String>(
+                          value: unit,
+                          child: Text(unit),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedUnit = value;
+                          if (value != 'อื่นๆ') {
+                            unitPriceController.text = value!;
+                          } else {
+                            unitPriceController.clear();
+                          }
+                        });
+                      },
                       validator: (v) =>
-                          v == null || v.isEmpty ? 'กรุณากรอกหน่วยราคา' : null,
+                          v == null || v.isEmpty ? 'กรุณาเลือกหน่วย' : null,
                     ),
                   ),
                 ],
               ),
+
+// แสดงช่องกรอกหน่วยเอง ถ้าเลือก "อื่นๆ"
+              if (selectedUnit == 'อื่นๆ') ...[
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: customUnitController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'กรอกหน่วยเอง เช่น เมตร',
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  validator: (v) {
+                    if (selectedUnit == 'อื่นๆ' && (v == null || v.isEmpty)) {
+                      return 'กรุณากรอกหน่วย';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    unitPriceController.text = value;
+                  },
+                ),
+              ],
 
               const SizedBox(height: 16),
 
