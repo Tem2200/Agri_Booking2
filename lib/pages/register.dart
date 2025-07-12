@@ -5,6 +5,7 @@ import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/login.dart';
 import 'package:agri_booking2/pages/map_register.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
@@ -342,13 +343,24 @@ class _RegisterState extends State<Register> {
     }
   }
 
+  // อย่าลืม import
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('สมัครสมาชิก'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'สมัครสมาชิก',
+          style: GoogleFonts.prompt(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -357,37 +369,41 @@ class _RegisterState extends State<Register> {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Column(
-                  children: [
-                    // Icon/Image for profile
-                    Stack(
+      body: Stack(
+        children: [
+          // รูปพื้นหลัง (ใส่ลิงก์ของคุณเอง)
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(
+                    "https://i.ibb.co/Q3q8kTG8/pexels-lucas-d-amico-2150246673-31717239.jpg"),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+
+          // Content หลัก
+          SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, kToolbarHeight + 32, 16, 16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  Center(
+                    child: Stack(
                       children: [
                         ClipOval(
                           child: imageUrl != null
                               ? Image.network(
                                   imageUrl!,
-                                  height: 120,
-                                  width: 120,
+                                  height: 100,
+                                  width: 100,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(
-                                    Icons.person_outline,
-                                    size: 120,
-                                    color: Color.fromARGB(255, 16, 191, 6),
-                                  ),
                                 )
                               : const Icon(
                                   Icons.person_outline,
-                                  size: 120,
-                                  color: Color.fromARGB(255, 3, 140, 53),
+                                  size: 100,
+                                  color: Colors.white,
                                 ),
                         ),
                         Positioned(
@@ -401,312 +417,152 @@ class _RegisterState extends State<Register> {
                             child: IconButton(
                               icon: const Icon(Icons.edit,
                                   color: Color.fromARGB(255, 5, 122, 40)),
-                              onPressed:
-                                  uploadImageFromImageBB, // เรียกใช้ฟังก์ชันเลือกรูป
+                              onPressed: uploadImageFromImageBB,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'โปรดกดปุ่มเลือกประเภทผู้ใช้ *', // เพิ่ม *
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+
+                  Text(
+                    'โปรดกดปุ่มเลือกประเภทผู้ใช้ *',
+                    style: GoogleFonts.prompt(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    const SizedBox(height: 10),
-                    // ปุ่มเลือกประเภทผู้ใช้ (ผู้จ้าง / ผู้รับจ้าง)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
+                  ),
+                  const SizedBox(height: 12),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildUserTypeButton("ผู้รับจ้าง", 1),
+                      const SizedBox(width: 10),
+                      _buildUserTypeButton("ผู้จ้าง", 2),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Card โปร่งใส
+                  Card(
+                    color: Color.fromARGB(255, 250, 250, 250).withOpacity(0.5),
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          _buildTextField("ชื่อผู้ใช้ *", usernameController,
+                              'กรุณากรอก username'),
+                          _buildTextField(
+                              "อีเมล *", emailController, 'กรุณากรอก email'),
+                          _buildTextField("รหัสผ่าน *", passwordController,
+                              'กรุณากรอก password',
+                              obscure: true),
+                          _buildTextField("เบอร์โทร *", phoneController,
+                              'กรุณากรอกเบอร์โทร',
+                              keyboardType: TextInputType.number,
+                              maxLength: 10),
+                          //const SizedBox(height: 12),
+                          _buildDropdown(
+                              "จังหวัด *", selectedProvince, provinces,
+                              (value) {
                             setState(() {
-                              typeMember = 1; // ผู้รับจ้าง
+                              selectedProvince = value;
+                              selectedAmphoe = null;
+                              selectedDistrict = null;
+
+                              amphoes = locationData
+                                  .where((e) => e['province'] == value)
+                                  .map((e) => e['amphoe'] as String)
+                                  .toSet()
+                                  .toList()
+                                ..sort();
+
+                              districts = [];
                             });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: typeMember == 1
-                                ? const Color(0xFF5D7B48)
-                                : Colors.grey[300],
-                            foregroundColor:
-                                typeMember == 1 ? Colors.white : Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 12),
-                          ),
-                          child: const Text('ผู้รับจ้าง'),
-                        ),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
+                          }),
+                          const SizedBox(height: 10),
+                          _buildDropdown("อำเภอ *", selectedAmphoe, amphoes,
+                              (value) {
                             setState(() {
-                              typeMember = 2; // ผู้รจ้าง
+                              selectedAmphoe = value;
+                              selectedDistrict = null;
+
+                              districts = locationData
+                                  .where((e) =>
+                                      e['province'] == selectedProvince &&
+                                      e['amphoe'] == value)
+                                  .map((e) => e['district'] as String)
+                                  .toSet()
+                                  .toList()
+                                ..sort();
                             });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: typeMember == 2
-                                ? const Color(0xFF90B083)
-                                : Colors.grey[300],
-                            foregroundColor:
-                                typeMember == 2 ? Colors.white : Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 12),
-                          ),
-                          child: const Text('ผู้จ้าง'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              // กรอบสีส้มสำหรับข้อมูล
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFD180), // สีส้มอ่อน
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: usernameController,
-                      decoration: const InputDecoration(
-                        labelText: 'ชื่อผู้ใช้ *', // เพิ่ม *
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      validator: (v) =>
-                          v!.isEmpty ? 'กรุณากรอก username' : null,
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'อีเมล *', // เพิ่ม *
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      validator: (v) => v!.isEmpty ? 'กรุณากรอก email' : null,
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: passwordController,
-                      decoration: const InputDecoration(
-                        labelText: 'รหัสผ่าน *', // เพิ่ม *
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      obscureText: true,
-                      validator: (v) =>
-                          v!.isEmpty ? 'กรุณากรอก password' : null,
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: phoneController,
-                      keyboardType: TextInputType.number,
-                      maxLength: 10,
-                      decoration: const InputDecoration(
-                        labelText: 'เบอร์โทร',
-                        filled: true,
-                        fillColor: Color(0xFFE0E0E0),
-                        border: OutlineInputBorder(borderSide: BorderSide.none),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'กรุณากรอกเบอร์โทร';
-                        }
-                        if (!RegExp(r'^0\d{9}$').hasMatch(value)) {
-                          return 'เบอร์โทรต้องเป็นตัวเลข 10 หลัก และขึ้นต้นด้วย 0';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 20),
-                    // Dropdown สำหรับ จังหวัด อำเภอ ตำบล (อยู่คนละบรรทัด)
-                    DropdownButtonFormField<String>(
-                      value: selectedProvince,
-                      decoration: const InputDecoration(
-                        labelText: 'จังหวัด *', // เพิ่ม *
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      items: provinces
-                          .map(
-                              (e) => DropdownMenuItem(value: e, child: Text(e)))
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedProvince = value;
-                          selectedAmphoe = null;
-                          selectedDistrict = null;
-
-                          amphoes = locationData
-                              .where((e) => e['province'] == value)
-                              .map((e) => e['amphoe'] as String)
-                              .toSet()
-                              .toList()
-                            ..sort();
-
-                          districts = [];
-                        });
-                      },
-                      validator: (v) => v == null ? 'กรุณาเลือกจังหวัด' : null,
-                    ),
-                    const SizedBox(height: 10), // เพิ่มระยะห่างระหว่าง Dropdown
-                    DropdownButtonFormField<String>(
-                      value: selectedAmphoe,
-                      decoration: const InputDecoration(
-                        labelText: 'อำเภอ *', // เพิ่ม *
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      items: amphoes
-                          .map(
-                              (e) => DropdownMenuItem(value: e, child: Text(e)))
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedAmphoe = value;
-                          selectedDistrict = null;
-
-                          districts = locationData
-                              .where((e) =>
-                                  e['province'] == selectedProvince &&
-                                  e['amphoe'] == value)
-                              .map((e) => e['district'] as String)
-                              .toSet()
-                              .toList()
-                            ..sort();
-                        });
-                      },
-                      validator: (v) => v == null ? 'กรุณาเลือกอำเภอ' : null,
-                    ),
-                    const SizedBox(height: 10), // เพิ่มระยะห่างระหว่าง Dropdown
-                    DropdownButtonFormField<String>(
-                      value: selectedDistrict,
-                      decoration: const InputDecoration(
-                        labelText: 'ตำบล *', // เพิ่ม *
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      items: districts
-                          .map(
-                              (e) => DropdownMenuItem(value: e, child: Text(e)))
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedDistrict = value;
-                        });
-                      },
-                      validator: (v) => v == null ? 'กรุณาเลือกตำบล' : null,
-                    ),
-                    const SizedBox(height: 20), // ระยะห่างก่อนปุ่มแผนที่
-                    // ปุ่มเลือกตำแหน่งจากแผนที่
-                    ElevatedButton(
-                      onPressed: goToMapPage,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 252, 185, 17),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'เลือกตำแหน่งจากแผนที่',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ),
-                    ),
-                    if (latitude != null && longitude != null)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          'ปักหมุดแผนที่เรียบร้อยแล้ว',
-                          style: TextStyle(color: Colors.black54),
-                        ),
-                      ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: addressController,
-                      decoration: const InputDecoration(
-                        labelText: 'ที่อยู่ *', // เพิ่ม *
-                        hintText:
-                            'เช่น บ้านเลขที่ หมู่บ้าน ซอย ถนน ตำบล อำเภอ จังหวัด',
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          borderSide: BorderSide.none,
-                        ),
-                        counterText: '0/300', // Counter ตามรูป
-                      ),
-                      maxLength: 300,
-                      maxLines: 3, // เพิ่ม maxLines เพื่อให้ดูเป็นกล่องใหญ่ขึ้น
-                      keyboardType: TextInputType.multiline,
-                      validator: (v) => v!.isEmpty ? 'กรุณากรอกที่อยู่' : null,
-                    ),
-                    const SizedBox(height: 20),
-                    // ปุ่ม ยกเลิก และ สมัครสมาชิก
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
+                          }),
+                          const SizedBox(height: 10),
+                          _buildDropdown("ตำบล *", selectedDistrict, districts,
+                              (value) {
+                            setState(() {
+                              selectedDistrict = value;
+                            });
+                          }),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: goToMapPage,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.orangeAccent,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: const Text('ยกเลิก'),
+                            child: const Center(
+                              child: Text(
+                                'เลือกตำแหน่งจากแผนที่ *',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : ElevatedButton(
-                                  onPressed: register,
+                          if (latitude != null && longitude != null)
+                            const Padding(
+                              padding: EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                'ปักหมุดแผนที่เรียบร้อยแล้ว',
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            ),
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            controller: addressController,
+                            maxLength: 300,
+                            maxLines: 1, //ขนาดช่องตามความสูงบันทัด
+                            keyboardType: TextInputType.multiline,
+                            decoration: const InputDecoration(
+                              labelText: 'ที่อยู่ *',
+                              hintText:
+                                  'เช่น บ้านเลขที่ หมู่บ้าน ซอย ถนน ตำบล อำเภอ จังหวัด',
+                              border: OutlineInputBorder(),
+                              filled: true,
+                              fillColor: Colors.white,
+                              counterText: '',
+                            ),
+                            validator: (v) =>
+                                v!.isEmpty ? 'กรุณากรอกที่อยู่' : null,
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () => Navigator.pop(context),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
+                                    backgroundColor: Colors.red,
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 12),
@@ -714,18 +570,103 @@ class _RegisterState extends State<Register> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  child: const Text('สมัครสมาชิก'),
+                                  child: const Text('ยกเลิก'),
                                 ),
-                        ),
-                      ],
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: isLoading
+                                    ? const Center(
+                                        child: CircularProgressIndicator())
+                                    : ElevatedButton(
+                                        onPressed: register,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: const Text('สมัครสมาชิก'),
+                                      ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildTextField(
+      String label, TextEditingController controller, String validatorText,
+      {bool obscure = false,
+      TextInputType keyboardType = TextInputType.text,
+      int? maxLength}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscure,
+        keyboardType: keyboardType,
+        maxLength: maxLength,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          counterText: '',
+        ),
+        validator: (v) => v!.isEmpty ? validatorText : null,
+      ),
+    );
+  }
+
+  Widget _buildDropdown(String label, String? value, List<String> items,
+      Function(String?) onChanged) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      items:
+          items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+      onChanged: onChanged,
+      validator: (v) => v == null ? 'กรุณาเลือก $label' : null,
+    );
+  }
+
+  Widget _buildUserTypeButton(String text, int type) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          typeMember = type;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: typeMember == type
+            ? const Color.fromARGB(255, 13, 161, 40)
+            : Colors.grey[300],
+        foregroundColor: typeMember == type ? Colors.white : Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+      ),
+      child: Text(text),
     );
   }
 }
