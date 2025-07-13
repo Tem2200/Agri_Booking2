@@ -361,11 +361,33 @@ class _PlanAndHistoryState extends State<PlanPage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFCC99),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 255, 187, 119),
-          title: const Text('ตารางงาน'),
+          backgroundColor: const Color(0xFF006000),
           centerTitle: true,
+          //automaticallyImplyLeading: false,
+          title: const Text(
+            'คิวงานทั้งหมด',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                  color: Color.fromARGB(115, 253, 237, 237),
+                  blurRadius: 3,
+                  offset: Offset(1.5, 1.5),
+                ),
+              ],
+            ),
+          ),
+          leading: IconButton(
+            color: Colors.white,
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context); // ✅ กลับหน้าก่อนหน้า
+            },
+          ),
         ),
         body: TabBarView(
           children: [

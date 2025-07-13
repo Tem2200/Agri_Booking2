@@ -642,55 +642,67 @@ class _HomePageState extends State<HomePage> {
               },
             ),
 
-            Container(
-              width: 330,
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color.fromARGB(255, 209, 209, 209),
-                    offset: Offset(-2, -2),
-                    blurRadius: 4,
-                    spreadRadius: 1,
-                  ),
-                ],
-              ),
-              child: TabBar(
-                isScrollable: true,
-                labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                indicator: BoxDecoration(
-                  color: Colors.green, // ✅ สีพื้นหลังปุ่มที่เลือก
-                  borderRadius: BorderRadius.circular(8),
-                  border: const Border(
-                    bottom: BorderSide(
-                      color: Colors.white, // ✅ เส้นแถบด้านล่างเป็นสีขาว
-                      width: 2,
+            Expanded(
+              child: Column(
+                children: [
+                  // ✅ แถบแท็บนูนด้วย Card
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 6,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 8),
+                        child: TabBar(
+                          indicator: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.green[900],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          labelColor: Colors.white,
+                          unselectedLabelColor: Colors.black87,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          labelStyle: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          tabs: const [
+                            Tab(
+                              child: SizedBox(
+                                width: 120,
+                                child: Center(child: Text('รายการรถ')),
+                              ),
+                            ),
+                            Tab(
+                              child: SizedBox(
+                                width: 120,
+                                child: Center(child: Text('รีวิว')),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                indicatorColor: Colors.transparent, // ✅ ซ่อนเส้น slide ดั้งเดิม
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.black,
-                labelStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                tabs: const [
-                  Tab(text: 'รายการรถ'),
-                  Tab(text: 'รีวิว'),
-                ],
-              ),
-            ),
 
-            // 🔹 TabBarView อยู่ใน Expanded เพื่อให้ scroll ได้
-            Expanded(
-              child: TabBarView(
-                children: [
-                  _buildVehicleTab(), // รายการรถ
-                  _buildReviewTab(), // รีวิว
+                  // ✅ เนื้อหาภายในแต่ละแท็บ
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        Center(child: _buildVehicleTab()),
+                        Center(child: _buildReviewTab()),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -707,7 +719,7 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ปุ่มเพิ่มรถ
-          const SizedBox(height: 16),
+          //const SizedBox(height: 16),
           FloatingActionButton.extended(
             onPressed: () {
               Navigator.push(
@@ -722,8 +734,8 @@ class _HomePageState extends State<HomePage> {
               'เพิ่มรถ',
               style: TextStyle(fontSize: 14), // ตัวหนังสือเล็กลง
             ),
-            backgroundColor: const Color(0xFF71D537),
-            foregroundColor: Colors.white,
+            backgroundColor: Color.fromARGB(255, 88, 196, 26),
+            foregroundColor: const Color.fromARGB(255, 24, 24, 24),
             tooltip: 'เพิ่มรถ',
             materialTapTargetSize:
                 MaterialTapTargetSize.shrinkWrap, // ลดพื้นที่รอบปุ่ม

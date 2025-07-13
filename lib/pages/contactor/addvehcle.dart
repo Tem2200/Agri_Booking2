@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:agri_booking2/pages/contactor/home.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,12 @@ class _AddVehicleState extends State<AddVehicle> {
   void dispose() {
     customUnitController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    selectedUnit = 'ไร่'; // กำหนดค่าเริ่มต้นที่นี่แทน
   }
 
   Future<void> pickAndUploadImage() async {
@@ -111,11 +118,16 @@ class _AddVehicleState extends State<AddVehicle> {
             actions: [
               TextButton(
                 onPressed: () {
+                  int currentMonth = DateTime.now().month;
+                  int currentYear = DateTime.now().year;
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => HomePage(
+                      builder: (context) => TabbarCar(
                         mid: widget.mid,
+                        value: 2,
+                        month: currentMonth,
+                        year: currentYear,
                       ),
                     ),
                   );
@@ -142,9 +154,26 @@ class _AddVehicleState extends State<AddVehicle> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('เพิ่มรถ'),
-        backgroundColor: const Color(0xFFFFCC99),
+        backgroundColor: const Color(0xFF006000),
+        centerTitle: true,
+        title: const Text(
+          'เพิ่มรถรับจ้าง',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            //letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
         leading: IconButton(
+          color: Colors.white,
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             int currentMonth = DateTime.now().month;
@@ -163,242 +192,251 @@ class _AddVehicleState extends State<AddVehicle> {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ✅ รูปรถ + ปุ่มแก้ไข
-              Center(
-                child: Column(
-                  children: [
-                    Stack(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ✅ รูปรถ + ปุ่มแก้ไข
+                  Center(
+                    child: Column(
                       children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.grey[300],
-                          backgroundImage:
-                              imageUrl != null && imageUrl!.isNotEmpty
-                                  ? NetworkImage(imageUrl!)
+                        Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 50,
+                              backgroundColor:
+                                  const Color.fromARGB(255, 255, 253, 253),
+                              backgroundImage:
+                                  imageUrl != null && imageUrl!.isNotEmpty
+                                      ? NetworkImage(imageUrl!)
+                                      : null,
+                              child: imageUrl == null || imageUrl!.isEmpty
+                                  ? Icon(Icons.directions_car,
+                                      size: 60, color: Colors.grey[600])
                                   : null,
-                          child: imageUrl == null || imageUrl!.isEmpty
-                              ? Icon(Icons.directions_car,
-                                  size: 60, color: Colors.grey[600])
-                              : null,
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: CircleAvatar(
-                            backgroundColor: Colors.green[700],
-                            radius: 18,
-                            child: IconButton(
-                              icon: const Icon(Icons.edit,
-                                  color: Colors.white, size: 20),
-                              onPressed: isLoading ? null : pickAndUploadImage,
                             ),
-                          ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: CircleAvatar(
+                                backgroundColor: Colors.green[700],
+                                radius: 18,
+                                child: IconButton(
+                                  icon: const Icon(Icons.edit,
+                                      color: Colors.white, size: 20),
+                                  onPressed:
+                                      isLoading ? null : pickAndUploadImage,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 8),
+                        Text('เพิ่มรูปรถ',
+                            style: TextStyle(
+                                fontSize: 14, color: Colors.grey[700])),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text('เพิ่มรูปรถ',
-                        style:
-                            TextStyle(fontSize: 14, color: Colors.grey[700])),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // ✅ ชื่อรถ
-              Text('ชื่อรถ', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'ชื่อรถ',
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                ),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'กรุณากรอกชื่อรถ' : null,
-              ),
-
-              const SizedBox(height: 16),
-
-              // ✅ ราคาต่อหน่วย
-              Text('ราคาต่อพื้นที่ที่จ้างงาน (เช่น 100 บาท/ไร่)',
-                  style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              // เก็บค่า dropdown ที่เลือ
-
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: priceController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: '500',
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
-                      validator: (v) =>
-                          v == null || v.isEmpty ? 'กรุณากรอกราคา' : null,
-                    ),
                   ),
-                  const SizedBox(width: 16),
-                  Text('บาท/', style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: selectedUnit = 'ไร่',
+
+                  const SizedBox(height: 24),
+
+                  // ✅ ชื่อรถ
+                  Text('ชื่อรถ',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'ชื่อรถ',
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    ),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'กรุณากรอกชื่อรถ' : null,
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // ✅ ราคาต่อหน่วย
+                  Text('ราคาต่อพื้นที่ที่จ้างงาน (เช่น 100 บาท/ไร่)',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  // เก็บค่า dropdown ที่เลือ
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: priceController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'จำนวนเงิน',
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                          ),
+                          validator: (v) =>
+                              v == null || v.isEmpty ? 'กรุณากรอกราคา' : null,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Text('บาท/',
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: selectedUnit,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                          ),
+                          items: [
+                            'ไร่',
+                            'วัน',
+                            'ชั่วโมง',
+                            'ตารางวา',
+                            'อื่นๆ',
+                          ].map((unit) {
+                            return DropdownMenuItem<String>(
+                              value: unit,
+                              child: Text(unit),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedUnit = value;
+                              if (value != 'อื่นๆ') {
+                                unitPriceController.text = value!;
+                              } else {
+                                unitPriceController.clear();
+                              }
+                            });
+                          },
+                          validator: (v) =>
+                              v == null || v.isEmpty ? 'กรุณาเลือกหน่วย' : null,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // แสดงช่องกรอกหน่วยเอง ถ้าเลือก "อื่นๆ"
+                  if (selectedUnit == 'อื่นๆ') ...[
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: customUnitController,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
+                        hintText: 'กรอกหน่วยเอง เช่น เมตร',
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
-                      items: [
-                        'ไร่',
-                        'วัน',
-                        'ชั่วโมง',
-                        'ตารางวา',
-                        'อื่นๆ',
-                      ].map((unit) {
-                        return DropdownMenuItem<String>(
-                          value: unit,
-                          child: Text(unit),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedUnit = value;
-                          if (value != 'อื่นๆ') {
-                            unitPriceController.text = value!;
-                          } else {
-                            unitPriceController.clear();
-                          }
-                        });
+                      validator: (v) {
+                        if (selectedUnit == 'อื่นๆ' &&
+                            (v == null || v.isEmpty)) {
+                          return 'กรุณากรอกหน่วย';
+                        }
+                        return null;
                       },
-                      validator: (v) =>
-                          v == null || v.isEmpty ? 'กรุณาเลือกหน่วย' : null,
+                      onChanged: (value) {
+                        unitPriceController.text = value;
+                      },
+                    ),
+                  ],
+
+                  const SizedBox(height: 16),
+
+                  // ✅ รายละเอียด
+                  Text('รายละเอียดรถ',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: detailController,
+                    maxLines: 1,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'อธิบายการใช้งานรถ เช่น ขุดดิน ไถนา',
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    ),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'กรุณากรอกรายละเอียด' : null,
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // ✅ ทะเบียน (ไม่บังคับ)
+                  Text('ป้ายทะเบียนรถ',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: plateController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'ไม่บังคับ',
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
                   ),
-                ],
-              ),
 
-// แสดงช่องกรอกหน่วยเอง ถ้าเลือก "อื่นๆ"
-              if (selectedUnit == 'อื่นๆ') ...[
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: customUnitController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'กรอกหน่วยเอง เช่น เมตร',
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  validator: (v) {
-                    if (selectedUnit == 'อื่นๆ' && (v == null || v.isEmpty)) {
-                      return 'กรุณากรอกหน่วย';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    unitPriceController.text = value;
-                  },
-                ),
-              ],
+                  const SizedBox(height: 32),
 
-              const SizedBox(height: 16),
-
-              // ✅ รายละเอียด
-              Text('รายละเอียดรถ',
-                  style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: detailController,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'อธิบายการใช้งานรถ เช่น ขุดดิน ไถนา',
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                ),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'กรุณากรอกรายละเอียด' : null,
-              ),
-
-              const SizedBox(height: 16),
-
-              // ✅ ทะเบียน (ไม่บังคับ)
-              Text('ป้ายทะเบียนรถ',
-                  style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: plateController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'ไม่บังคับ',
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                ),
-              ),
-
-              const SizedBox(height: 32),
-
-              // ✅ ปุ่มยกเลิก/เพิ่มรถ
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                              Navigator.pop(context, false);
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[300],
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                  // ✅ ปุ่มยกเลิก/เพิ่มรถ
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  Navigator.pop(context, false);
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey[300],
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text('ยกเลิก',
+                              style: TextStyle(color: Colors.grey[800])),
                         ),
                       ),
-                      child: Text('ยกเลิก',
-                          style: TextStyle(color: Colors.grey[800])),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: isLoading ? null : submitVehicle,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : submitVehicle,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text('เพิ่มรถ',
+                              style: TextStyle(color: Colors.white)),
                         ),
                       ),
-                      child: const Text('เพิ่มรถ',
-                          style: TextStyle(color: Colors.white)),
-                    ),
+                    ],
                   ),
+
+                  if (isLoading)
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
                 ],
               ),
-
-              if (isLoading)
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

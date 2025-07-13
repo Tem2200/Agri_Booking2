@@ -356,32 +356,96 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isLocaleInitialized) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFCC99),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 255, 187, 119),
-          automaticallyImplyLeading: false,
-          title: const Text('งานทั้งหมด'),
+          backgroundColor: const Color(0xFF006000),
           centerTitle: true,
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'คิวงาน'),
-              Tab(text: 'ประวัติ'),
-            ],
+          automaticallyImplyLeading: false,
+          title: const Text(
+            'คิวงานทั้งหมด',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                  color: Color.fromARGB(115, 253, 237, 237),
+                  blurRadius: 3,
+                  offset: Offset(1.5, 1.5),
+                ),
+              ],
+            ),
           ),
         ),
-        body: TabBarView(
+        body: Column(
           children: [
-            _buildPlanTab(), // แสดงปฏิทิน + งานที่ไม่ใช่ประวัติ
-            _buildScheduleTab(includeHistory: true), // งานที่จบแล้วเท่านั้น
+            // ✅ แถบแท็บนูนด้วย Card
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 6,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                  child: TabBar(
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.green[900],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.black87,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    labelStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    tabs: const [
+                      Tab(
+                        child: SizedBox(
+                          width: 120,
+                          child: Center(child: Text('ตารางงาน')),
+                        ),
+                      ),
+                      Tab(
+                        child: SizedBox(
+                          width: 120,
+                          child: Center(child: Text('ประวัติการรับงาน')),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            Expanded(
+              child: TabBarView(
+                children: [
+                  // ตารางงาน - จัดกลางจอ
+                  Center(
+                    child: _buildPlanTab(),
+                  ),
+
+                  // ประวัติการรับงาน - จัดกลางจอ
+                  Center(
+                    child: _buildScheduleTab(includeHistory: true),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

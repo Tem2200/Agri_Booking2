@@ -245,7 +245,7 @@ class _DetailvehicleState extends State<Detailvehicle> {
     return Scaffold(
       appBar: AppBar(
         //title: Text(vehicleData?['name_vehicle'] ?? 'รายละเอียดรถ'),
-        backgroundColor: Color(0xFFFFCC99),
+        backgroundColor: Color.fromARGB(255, 255, 158, 60),
         title: Text('รายละเอียดรถ'),
       ),
       body: isLoading
