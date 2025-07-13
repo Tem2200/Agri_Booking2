@@ -82,13 +82,17 @@ class _PlanEmpState extends State<PlanEmp> {
   String progressStatusText(int? status) {
     switch (status) {
       case 0:
-        return "รอดำเนินการ";
+        return "ผู้รับจ้างยกเลิกงาน";
       case 1:
-        return "กำลังดำเนินงาน";
+        return "ผู้รับจ้างยืนยันการจอง";
+      case 2:
+        return "กำลังเดินทางมา";
+      case 3:
+        return "กำลังทำงาน";
       case 4:
-        return "ดำเนินการเสร็จสิ้น";
+        return "ทำงานเสร็จสิ้น";
       default:
-        return "-";
+        return "รอผู้รับจ้างยืนยันการจอง";
     }
   }
 
@@ -96,6 +100,7 @@ class _PlanEmpState extends State<PlanEmp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text("แผนการจองรถของฉัน"),
         backgroundColor: Colors.orange,
       ),
