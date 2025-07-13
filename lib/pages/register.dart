@@ -449,7 +449,7 @@ class _RegisterState extends State<Register> {
 
                   // Card โปร่งใส
                   Card(
-                    color: Color.fromARGB(255, 250, 250, 250).withOpacity(0.5),
+                    color: Color.fromRGBO(255, 249, 249, 1).withOpacity(0.8),
                     elevation: 8,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -459,14 +459,14 @@ class _RegisterState extends State<Register> {
                       child: Column(
                         children: [
                           _buildTextField("ชื่อผู้ใช้ *", usernameController,
-                              'กรุณากรอก username'),
+                              'กรุณากรอก username *'),
                           _buildTextField(
-                              "อีเมล *", emailController, 'กรุณากรอก email'),
+                              "อีเมล *", emailController, 'กรุณากรอก email *'),
                           _buildTextField("รหัสผ่าน *", passwordController,
-                              'กรุณากรอก password',
+                              'กรุณากรอก password *',
                               obscure: true),
                           _buildTextField("เบอร์โทร *", phoneController,
-                              'กรุณากรอกเบอร์โทร',
+                              'กรุณากรอกเบอร์โทร *',
                               keyboardType: TextInputType.number,
                               maxLength: 10),
                           //const SizedBox(height: 12),
@@ -488,7 +488,7 @@ class _RegisterState extends State<Register> {
                               districts = [];
                             });
                           }),
-                          const SizedBox(height: 10),
+                          //const SizedBox(height: 10),
                           _buildDropdown("อำเภอ *", selectedAmphoe, amphoes,
                               (value) {
                             setState(() {
@@ -505,14 +505,14 @@ class _RegisterState extends State<Register> {
                                 ..sort();
                             });
                           }),
-                          const SizedBox(height: 10),
+                          //const SizedBox(height: 10),
                           _buildDropdown("ตำบล *", selectedDistrict, districts,
                               (value) {
                             setState(() {
                               selectedDistrict = value;
                             });
                           }),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
                           ElevatedButton(
                             onPressed: goToMapPage,
                             style: ElevatedButton.styleFrom(
@@ -538,23 +538,61 @@ class _RegisterState extends State<Register> {
                               ),
                             ),
                           const SizedBox(height: 20),
-                          TextFormField(
-                            controller: addressController,
-                            maxLength: 300,
-                            maxLines: 1, //ขนาดช่องตามความสูงบันทัด
-                            keyboardType: TextInputType.multiline,
-                            decoration: const InputDecoration(
-                              labelText: 'ที่อยู่ *',
-                              hintText:
-                                  'เช่น บ้านเลขที่ หมู่บ้าน ซอย ถนน ตำบล อำเภอ จังหวัด',
-                              border: OutlineInputBorder(),
-                              filled: true,
-                              fillColor: Colors.white,
-                              counterText: '',
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Stack(
+                              children: [
+                                // เงาจำลองให้ช่องดูลึก
+                                Container(
+                                  height:
+                                      80, // ปรับความสูงเพื่อรองรับเนื้อหาที่มากขึ้น
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.white,
+                                        offset: Offset(-2, -2),
+                                        blurRadius: 4,
+                                        spreadRadius: 1,
+                                      ),
+                                      BoxShadow(
+                                        color: Color.fromARGB(246, 69, 62, 62),
+                                        offset: Offset(2, 2),
+                                        blurRadius: 4,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // ช่องกรอก
+                                TextFormField(
+                                  controller: addressController,
+                                  maxLength: 300,
+                                  maxLines: 1,
+                                  keyboardType: TextInputType.multiline,
+                                  decoration: InputDecoration(
+                                    labelText: 'ที่อยู่ *',
+                                    hintText:
+                                        'เช่น บ้านเลขที่ หมู่บ้าน ซอย ถนน ตำบล อำเภอ จังหวัด',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[200],
+                                    counterText: '',
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 26),
+                                  ),
+                                  validator: (v) =>
+                                      v!.isEmpty ? 'กรุณากรอกที่อยู่ *' : null,
+                                ),
+                              ],
                             ),
-                            validator: (v) =>
-                                v!.isEmpty ? 'กรุณากรอกที่อยู่' : null,
                           ),
+
                           const SizedBox(height: 20),
                           Row(
                             children: [
@@ -609,64 +647,174 @@ class _RegisterState extends State<Register> {
   }
 
   Widget _buildTextField(
-      String label, TextEditingController controller, String validatorText,
-      {bool obscure = false,
-      TextInputType keyboardType = TextInputType.text,
-      int? maxLength}) {
+    String label,
+    TextEditingController controller,
+    String validatorText, {
+    bool obscure = false,
+    TextInputType keyboardType = TextInputType.text,
+    int? maxLength,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscure,
-        keyboardType: keyboardType,
-        maxLength: maxLength,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          counterText: '',
-        ),
-        validator: (v) => v!.isEmpty ? validatorText : null,
+      child: Stack(
+        children: [
+          // เงาด้านในจำลอง
+          Container(
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.white,
+                  offset: Offset(-2, -2),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+                BoxShadow(
+                  color: Color.fromARGB(246, 69, 62, 62),
+                  offset: Offset(2, 2),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+          ),
+          // TextFormField อยู่ชั้นบนสุด
+          TextFormField(
+            controller: controller,
+            obscureText: obscure,
+            keyboardType: keyboardType,
+            maxLength: maxLength,
+            decoration: InputDecoration(
+              labelText: label,
+              labelStyle: TextStyle(
+                color: Colors.grey[700],
+                fontSize: 16,
+                fontFamily: 'Roboto',
+              ),
+              filled: true,
+              fillColor: const Color.fromARGB(255, 255, 255, 255),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              counterText: '',
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            ),
+            validator: (v) => v!.isEmpty ? validatorText : null,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildDropdown(String label, String? value, List<String> items,
-      Function(String?) onChanged) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      decoration: InputDecoration(
-        labelText: label,
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+  Widget _buildDropdown(
+    String label,
+    String? value,
+    List<String> items,
+    Function(String?) onChanged,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Stack(
+        children: [
+          // เงาด้านใน
+          Container(
+            height: 60,
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 92, 85, 85),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.white,
+                  offset: Offset(-2, -2),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+                BoxShadow(
+                  color: Color.fromARGB(246, 69, 62, 62),
+                  offset: Offset(2, 2),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+          ),
+
+          // Dropdown วางทับ
+          DropdownButtonFormField<String>(
+            value: value,
+            decoration: InputDecoration(
+              labelText: label,
+              filled: true,
+              fillColor: const Color.fromARGB(255, 255, 252, 252),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            ),
+            items: items
+                .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                .toList(),
+            onChanged: onChanged,
+            validator: (v) => v == null ? 'กรุณาเลือก $label' : null,
+          ),
+        ],
       ),
-      items:
-          items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-      onChanged: onChanged,
-      validator: (v) => v == null ? 'กรุณาเลือก $label' : null,
     );
   }
 
   Widget _buildUserTypeButton(String text, int type) {
-    return ElevatedButton(
-      onPressed: () {
+    final isSelected = typeMember == type;
+
+    return GestureDetector(
+      onTap: () {
         setState(() {
           typeMember = type;
         });
       },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: typeMember == type
-            ? const Color.fromARGB(255, 13, 161, 40)
-            : Colors.grey[300],
-        foregroundColor: typeMember == type ? Colors.white : Colors.black,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color.fromARGB(255, 13, 161, 40)
+              : Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: isSelected
+              ? [
+                  const BoxShadow(
+                    color: Colors.black26,
+                    offset: Offset(0, 4),
+                    blurRadius: 8,
+                  ),
+                ]
+              : [
+                  const BoxShadow(
+                    color: Colors.white,
+                    offset: Offset(-2, -2),
+                    blurRadius: 4,
+                  ),
+                  const BoxShadow(
+                    color: Color.fromARGB(246, 69, 62, 62),
+                    offset: Offset(2, 2),
+                    blurRadius: 4,
+                  ),
+                ],
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black87,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
-      child: Text(text),
     );
   }
 }
