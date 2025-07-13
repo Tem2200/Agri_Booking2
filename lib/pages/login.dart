@@ -90,16 +90,7 @@ class _LoginState extends State<Login> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF0DA128),
                             foregroundColor: Colors.white,
-<<<<<<< HEAD
                             minimumSize: const Size.fromHeight(48),
-=======
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 5,
-                            shadowColor: Colors.greenAccent.withOpacity(0.6),
->>>>>>> Tem
                           ),
                           onPressed: () {
                             int currentMonth = DateTime.now().month;
@@ -130,16 +121,7 @@ class _LoginState extends State<Login> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF0DA128),
                             foregroundColor: Colors.white,
-<<<<<<< HEAD
                             minimumSize: const Size.fromHeight(48),
-=======
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 5,
-                            shadowColor: Colors.greenAccent.withOpacity(0.6),
->>>>>>> Tem
                           ),
                           onPressed: () {
                             int currentMonth = DateTime.now().month;

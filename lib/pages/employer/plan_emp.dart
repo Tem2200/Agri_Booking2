@@ -264,7 +264,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                     "รอผู้รับจ้างยืนยันการจอง")
                   ElevatedButton(
                     onPressed: () {
-                      final contractorMid = rs['contractor_mid'];
+                      final contractorMid = rs['mid_contractor'];
                       final rsid = rs['rsid'];
 
                       print("contractor_mid = $contractorMid");
