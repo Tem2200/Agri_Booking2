@@ -1,13 +1,8 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/contactor/DetailVehicle.dart';
-import 'package:agri_booking2/pages/contactor/DetailWork.dart';
-import 'package:agri_booking2/pages/contactor/PlanAndHistory.dart';
 import 'package:agri_booking2/pages/contactor/addvehcle.dart';
-import 'package:agri_booking2/pages/contactor/con_plan.dart';
-import 'package:agri_booking2/pages/contactor/nonti.dart';
 import 'package:agri_booking2/pages/editMem.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
-import 'package:agri_booking2/pages/employer/homeEmp.dart';
 import 'package:agri_booking2/pages/login.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
@@ -406,7 +401,7 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 2, // 2 แท็บ: รายการรถ และ รีวิว
       child: Scaffold(
-        backgroundColor: Color.fromARGB(255, 255, 158, 60),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         appBar: AppBar(
           backgroundColor: const Color(0xFF006000),
           centerTitle: true,
@@ -666,10 +661,16 @@ class _HomePageState extends State<HomePage> {
                 isScrollable: true,
                 labelPadding: const EdgeInsets.symmetric(horizontal: 16),
                 indicator: BoxDecoration(
-                  color: Colors.green, // สีพื้นหลังแท็บที่เลือก
+                  color: Colors.green, // ✅ สีพื้นหลังปุ่มที่เลือก
                   borderRadius: BorderRadius.circular(8),
+                  border: const Border(
+                    bottom: BorderSide(
+                      color: Colors.white, // ✅ เส้นแถบด้านล่างเป็นสีขาว
+                      width: 2,
+                    ),
+                  ),
                 ),
-                indicatorColor: Colors.transparent, // ซ่อนเส้นสไลด์
+                indicatorColor: Colors.transparent, // ✅ ซ่อนเส้น slide ดั้งเดิม
                 labelColor: Colors.white,
                 unselectedLabelColor: Colors.black,
                 labelStyle: const TextStyle(
