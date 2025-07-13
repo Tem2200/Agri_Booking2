@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "66778233764",
+    "project_id": "agribooking-9f958",
+    "storage_bucket": "agribooking-9f958.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:66778233764:android:95144df534fc077da3df31",
+        "android_client_info": {
+          "package_name": "com.example.agri_booking_app2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAbf3aZfqtnrHsj7DFJk_Mp2iaAAKRLLo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

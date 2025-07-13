@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class DetailWorkPage extends StatefulWidget {
   final int rsid;
@@ -24,6 +25,17 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
   void initState() {
     super.initState();
     fetchDetail();
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      final rsid = message.data["rsid"];
+      if (rsid != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DetailWorkPage(rsid: int.parse(rsid)),
+          ),
+        );
+      }
+    });
   }
 
   Future<void> fetchDetail() async {

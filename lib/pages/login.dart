@@ -6,6 +6,8 @@ import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/homeEmp.dart';
 import 'package:agri_booking2/pages/register.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:http/http.dart' as http;
 
 class Login extends StatefulWidget {
@@ -55,6 +57,10 @@ class _LoginState extends State<Login> {
         final int type = user['type_member'];
         final int mid = user['mid'];
 
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('mid', mid);
+        await prefs.setInt('type_member', type);
+
         if (type == 3) {
           // แสดง pop-up ให้เลือก
           showDialog(
@@ -77,13 +83,13 @@ class _LoginState extends State<Login> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
-                            minimumSize: Size.fromHeight(48),
+                            minimumSize: const Size.fromHeight(48),
                           ),
                           onPressed: () {
                             int currentMonth = DateTime.now().month;
                             int currentYear = DateTime.now().year;
                             Navigator.pop(context);
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => Tabbar(
@@ -104,14 +110,13 @@ class _LoginState extends State<Login> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
-                            minimumSize: Size.fromHeight(48),
+                            minimumSize: const Size.fromHeight(48),
                           ),
                           onPressed: () {
                             int currentMonth = DateTime.now().month;
                             int currentYear = DateTime.now().year;
-
                             Navigator.pop(context);
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => TabbarCar(
@@ -142,7 +147,6 @@ class _LoginState extends State<Login> {
             },
           );
         } else if (type == 1) {
-          // ไปหน้า home_emp พร้อมส่ง mid
           int currentMonth = DateTime.now().month;
           int currentYear = DateTime.now().year;
           Navigator.pushReplacement(
@@ -157,7 +161,6 @@ class _LoginState extends State<Login> {
             ),
           );
         } else if (type == 2) {
-          // ไปหน้า home พร้อมส่ง mid
           int currentMonth = DateTime.now().month;
           int currentYear = DateTime.now().year;
           Navigator.pushReplacement(

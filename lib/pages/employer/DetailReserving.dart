@@ -262,17 +262,22 @@ class _DetailReservingState extends State<DetailReserving> {
     }
   }
 
-  //วันที่และเวลา
   String _formatDateRange(String? startDate, String? endDate) {
-    if (startDate == null || endDate == null) return 'ไม่ระบุวันที่';
+    if (startDate == null ||
+        startDate.isEmpty ||
+        endDate == null ||
+        endDate.isEmpty) {
+      return 'ไม่ระบุวันที่';
+    }
+
     try {
       final startUtc = DateTime.parse(startDate);
       final endUtc = DateTime.parse(endDate);
 
-      final startThai = startUtc.add(const Duration(hours: 7));
-      final endThai = endUtc.add(const Duration(hours: 7));
+      final startThai = startUtc.toUtc().add(const Duration(hours: 7));
+      final endThai = endUtc.toUtc().add(const Duration(hours: 7));
 
-      final formatter = DateFormat('dd/MM/yyyy \t\tเวลา HH:mm น.');
+      final formatter = DateFormat('dd/MM/yyyy เวลา HH:mm น.');
 
       return 'เริ่มงาน: ${formatter.format(startThai)}\nสิ้นสุด: ${formatter.format(endThai)}';
     } catch (e) {
