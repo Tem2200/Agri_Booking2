@@ -406,9 +406,9 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 2, // 2 แท็บ: รายการรถ และ รีวิว
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFCC99),
+        backgroundColor: Color.fromARGB(255, 255, 158, 60),
         appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 255, 187, 119),
+          backgroundColor: const Color(0xFF006000),
           centerTitle: true,
           automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
           title: const Text(
@@ -416,7 +416,7 @@ class _HomePageState extends State<HomePage> {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 32, 18, 3),
+              color: Color.fromARGB(255, 255, 255, 255),
               //letterSpacing: 1,
               shadows: [
                 Shadow(
@@ -430,7 +430,7 @@ class _HomePageState extends State<HomePage> {
 
           actions: [
             PopupMenuButton<String>(
-              icon: const Icon(Icons.menu, color: Colors.black87),
+              icon: const Icon(Icons.menu, color: Colors.white),
               onSelected: (value) async {
                 int currentMonth = DateTime.now().month;
                 int currentYear = DateTime.now().year;
@@ -548,101 +548,140 @@ class _HomePageState extends State<HomePage> {
                 return Container(
                   margin: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
+                    color: const Color.fromARGB(255, 255, 255,
+                        255), // สีพื้นอ่อนๆ เพื่อให้เห็นความนูนชัดเจน
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      // เงาสว่างด้านบนซ้าย
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
+                        color: Color.fromARGB(209, 67, 66, 66),
+                        offset: Offset(-4, -4),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      ),
+                      // เงามืดด้านล่างขวา
+                      BoxShadow(
+                        color: Color.fromARGB(209, 67, 66, 66),
+                        offset: Offset(4, 4),
+                        blurRadius: 8,
+                        spreadRadius: 1,
                       ),
                     ],
                   ),
-                  child: ExpansionTile(
-                    tilePadding: const EdgeInsets.all(12),
-                    title: Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.center, // ✅ จัดให้อยู่ตรงกลางแนวนอน
-                      children: [
-                        ClipOval(
-                          child: Image.network(
-                            member['image'] ?? '',
-                            width: 60,
-                            height: 60,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.person, size: 48),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: ExpansionTile(
+                      tilePadding: const EdgeInsets.all(12),
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ClipOval(
+                            child: Image.network(
+                              member['image'] ?? '',
+                              width: 60,
+                              height: 60,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Icon(Icons.person, size: 48),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          member['username'] ?? '-',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                          const SizedBox(width: 12),
+                          Text(
+                            member['username'] ?? '-',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.phone,
+                                      size: 20, color: Colors.green),
+                                  const SizedBox(width: 6),
+                                  Text(member['phone'] ?? '-'),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.email,
+                                      size: 20, color: Colors.redAccent),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(member['email'] ?? '-',
+                                        softWrap: true),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.location_on,
+                                      size: 20, color: Colors.orange),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      'ที่อยู่: ${member['detail_address'] ?? '-'} ต.${member['subdistrict'] ?? '-'} อ.${member['district'] ?? '-'} จ.${member['province'] ?? '-'}',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.phone,
-                                    size: 20, color: Colors.green),
-                                const SizedBox(width: 6),
-                                Text(member['phone'] ?? '-'),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(Icons.email,
-                                    size: 20, color: Colors.redAccent),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(member['email'] ?? '-',
-                                      softWrap: true),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(Icons.location_on,
-                                    size: 20, color: Colors.orange),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    'ที่อยู่: ${member['detail_address'] ?? '-'} ต.${member['subdistrict'] ?? '-'} อ.${member['district'] ?? '-'} จ.${member['province'] ?? '-'}',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                   ),
                 );
               },
             ),
 
-            // 🔹 TabBar ใต้ข้อมูลผู้รับจ้าง
-            const TabBar(
-              labelColor: Colors.black,
-              indicatorColor: Colors.orange,
-              tabs: [
-                Tab(text: 'รายการรถ'),
-                Tab(text: 'รีวิว'),
-              ],
+            Container(
+              width: 330,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color.fromARGB(255, 209, 209, 209),
+                    offset: Offset(-2, -2),
+                    blurRadius: 4,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              child: TabBar(
+                isScrollable: true,
+                labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                indicator: BoxDecoration(
+                  color: Colors.green, // สีพื้นหลังแท็บที่เลือก
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                indicatorColor: Colors.transparent, // ซ่อนเส้นสไลด์
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.black,
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                tabs: const [
+                  Tab(text: 'รายการรถ'),
+                  Tab(text: 'รีวิว'),
+                ],
+              ),
             ),
 
             // 🔹 TabBarView อยู่ใน Expanded เพื่อให้ scroll ได้
@@ -682,7 +721,7 @@ class _HomePageState extends State<HomePage> {
               'เพิ่มรถ',
               style: TextStyle(fontSize: 14), // ตัวหนังสือเล็กลง
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: const Color(0xFF71D537),
             foregroundColor: Colors.white,
             tooltip: 'เพิ่มรถ',
             materialTapTargetSize:
@@ -777,74 +816,138 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(height: 4),
 
-                                Text(
-                                  '${vehicle['detail']}',
-                                  maxLines: 1, // ✅ จำกัดที่ 3 บรรทัด
-                                  overflow: TextOverflow
-                                      .ellipsis, // ✅ ตัดข้อความที่เกินด้วย ...
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 12),
-                                Text(
-                                    'ราคา: ${vehicle['price']} บาท/ ${vehicle['unit_price']}'),
-                                // ✅ สถานะรถ
+                                // 🔹 รายละเอียดพร้อมไอคอน
                                 Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('สถานะรถ:'),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      currentStatus
-                                          ? 'ให้บริการ'
-                                          : 'งดให้บริการ',
-                                      style: TextStyle(
-                                        color: currentStatus
-                                            ? Colors.green
-                                            : Colors.red,
-                                        fontWeight: FontWeight.bold,
+                                    const Icon(Icons.description,
+                                        size: 18, color: Colors.orange),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        '${vehicle['detail']}',
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
+
                                 const SizedBox(height: 4),
-                                Switch(
-                                  value: currentStatus,
-                                  onChanged: (bool newValue) {
-                                    int newStatus = newValue ? 1 : 0;
-                                    updateVehicleStatus(vid, newStatus);
-                                  },
+
+// 🔹 ราคา พร้อมไอคอน
+                                Row(
+                                  children: [
+                                    const Icon(Icons.attach_money,
+                                        size: 18, color: Colors.green),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '${vehicle['price']} บาท / ${vehicle['unit_price']}',
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
                                 ),
 
-                                const SizedBox(height: 12),
+                                // ✅ ปุ่ม + สวิตช์ + สถานะด้านล่าง
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // 🔹 ปุ่มรายละเอียดเพิ่มเติมแบบนูน
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        // color:
+                                        //     Color.fromARGB(255, 255, 244, 210),
+                                        borderRadius: BorderRadius.circular(12),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.white,
+                                            offset: Offset(-2, -2),
+                                            blurRadius: 4,
+                                            spreadRadius: 1,
+                                          ),
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            offset: Offset(2, 2),
+                                            blurRadius: 4,
+                                            spreadRadius: 1,
+                                          ),
+                                        ],
+                                      ),
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          elevation:
+                                              0, // ปิดเงา ElevatedButton เพื่อใช้เงาจาก Container แทน
+                                          backgroundColor:
+                                              const Color(0xFFF8A100),
 
-                                // ✅ ปุ่มอยู่ล่าง
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 12),
-                                      textStyle: const TextStyle(fontSize: 10),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 5, vertical: 5),
+                                          textStyle: const TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  Detailvehicle(vid: vid),
+                                            ),
+                                          );
+                                        },
+                                        child:
+                                            const Text('รายละเอียดเพิ่มเติม'),
                                       ),
                                     ),
-                                    child: const Text('รายละเอียดเพิ่มเติม'),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              Detailvehicle(vid: vid),
+
+                                    // 🔹 สวิตช์ + สถานะ (ไม่มีคำว่าเปิด/ปิดแล้ว)
+                                    Column(
+                                      children: [
+                                        Switch(
+                                          value: currentStatus,
+                                          onChanged: (bool newValue) {
+                                            int newStatus = newValue ? 1 : 0;
+                                            updateVehicleStatus(vid, newStatus);
+                                          },
+                                          activeColor: Colors
+                                              .white, // สีปุ่ม (หัว) ตอนเปิด
+                                          activeTrackColor:
+                                              Colors.green, // พื้นหลังตอนเปิด
+                                          inactiveThumbColor:
+                                              Colors.white, // สีปุ่มตอนปิด
+                                          inactiveTrackColor:
+                                              Colors.red.shade200, // พื้นตอนปิด
                                         ),
-                                      );
-                                    },
-                                  ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          currentStatus
+                                              ? 'ให้บริการ'
+                                              : 'งดให้บริการ',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                            color: currentStatus
+                                                ? Colors.green
+                                                : Colors.red,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
