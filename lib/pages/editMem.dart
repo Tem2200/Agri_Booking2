@@ -221,11 +221,32 @@ class _EditMemberPageState extends State<EditMemberPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFC074),
-        title: const Text('แก้ไขข้อมูลส่วนตัว'),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        centerTitle: true, // ✅ บังคับให้อยู่ตรงกลาง
+        title: const Text(
+          'แก้ไขข้อมูลส่วนตัว',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            //letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
         ),
       ),
       body: SingleChildScrollView(
@@ -377,7 +398,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
               ElevatedButton(
                 onPressed: _selectLocationOnMap,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 255, 238, 50),
+                  backgroundColor: const Color.fromARGB(255, 255, 238, 50),
                   foregroundColor: Colors.black,
                 ),
                 child: const Text('เลือกตำแหน่งแผนที่'),
@@ -395,8 +416,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
                   return null;
                 },
               ),
-
-              const SizedBox(height: 24),
 
               Row(
                 children: [

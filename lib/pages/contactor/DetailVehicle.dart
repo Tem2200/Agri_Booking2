@@ -246,7 +246,26 @@ class _DetailvehicleState extends State<Detailvehicle> {
       appBar: AppBar(
         //title: Text(vehicleData?['name_vehicle'] ?? 'รายละเอียดรถ'),
         backgroundColor: Color.fromARGB(255, 255, 158, 60),
-        title: Text('รายละเอียดรถ'),
+        centerTitle: true,
+        iconTheme: const IconThemeData(
+          color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว
+        ),
+        title: const Text(
+          'รายละเอียดรถ',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            //letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

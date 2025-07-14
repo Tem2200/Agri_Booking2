@@ -306,10 +306,10 @@ class _LoginState extends State<Login> {
                                   WidgetStateProperty.resolveWith<Color>(
                                       (states) {
                                 if (states.contains(MaterialState.disabled)) {
-                                  return Color.fromARGB(255, 7, 172,
+                                  return const Color.fromARGB(255, 7, 172,
                                       15); // สีเขียวอ่อนเวลาปุ่ม disable
                                 }
-                                return Color.fromARGB(
+                                return const Color.fromARGB(
                                     255, 7, 172, 15); // สีเขียวปกติ
                               }),
                               foregroundColor:
