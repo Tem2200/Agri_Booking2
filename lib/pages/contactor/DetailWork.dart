@@ -355,9 +355,10 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+      //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF006000),
+        //backgroundColor: const Color(0xFF006000),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         centerTitle: true,
         //automaticallyImplyLeading: false,
         title: const Text(
@@ -453,9 +454,9 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
 
                 //ข้อมูลการจอง
                 DraggableScrollableSheet(
-                  initialChildSize: 0.4,
-                  minChildSize: 0.2,
-                  maxChildSize: 0.9,
+                  initialChildSize: 0.2, //ขนาดจอเมื่อเปิดมาครั้งแรก
+                  minChildSize: 0.2, //ขนาดจอที่ย่อลงไปมากสุด
+                  maxChildSize: 0.9, //ขนาดจอที่ดึงขึ้นได้มากสุด
                   builder: (context, scrollController) {
                     // แปลง progress_status เป็นข้อความ
                     String getStatusText(dynamic status) {
@@ -499,9 +500,9 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Color.fromARGB(255, 255, 196, 20), // เหลืองเข้ม
-                            Color(0xFFFFF8E1), // เหลืองอ่อน
-                            Color.fromARGB(255, 245, 236, 207)
+                            Color.fromARGB(255, 255, 222, 122), // เหลืองเข้ม
+                            Color.fromARGB(255, 255, 251, 236), // เหลืองอ่อน
+                            Color.fromARGB(255, 253, 253, 252)
                           ],
                         ),
                         borderRadius: BorderRadius.vertical(
@@ -562,15 +563,22 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      // ✅ ชื่องาน
-                                      Text(
-                                        data!['name_rs'] ?? 'ไม่ระบุชื่อการจอง',
-                                        style: const TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(
-                                              0xFF006400), // เขียวเข้ม ดูสุขุม
-                                          letterSpacing: 0.5,
+                                      // ✅ ชื่องาน (แสดง 1 บรรทัด + ...)
+                                      Expanded(
+                                        child: Text(
+                                          data!['name_rs'] ??
+                                              'ไม่ระบุชื่อการจอง',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign
+                                              .center, // ✅ ข้อความอยู่กลางในตัวมันเอง
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(
+                                                0xFF006400), // เขียวเข้ม ดูสุขุม
+                                            letterSpacing: 0.5,
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(width: 10),

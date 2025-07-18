@@ -175,7 +175,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
 
         //test ui
         return ListView.builder(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20), // ซ้าย-ขวา-ล่าง
           itemCount: scheduleList.length,
           itemBuilder: (context, index) {
             final item = scheduleList[index];
@@ -218,8 +218,20 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
 
             return Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF3E0),
+                color: const Color(0xFFFFF3E0), // สีพื้นหลังครีมอ่อน
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFFFFCC80), // สีส้มอ่อนเข้ากับพื้นหลัง
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orange.withOpacity(0.2), // เงาส้มอ่อนโปร่งใส
+                    spreadRadius: 2,
+                    blurRadius: 8,
+                    offset: const Offset(0, 4), // เงาลงด้านล่างเล็กน้อย
+                  ),
+                ],
               ),
               margin: const EdgeInsets.symmetric(vertical: 8),
               child: Padding(
@@ -315,21 +327,28 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                       ],
                     ),
 
-                    //รายละเอียด
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor:
+                                const Color(0xFF4CAF50), // เขียวธรรมชาติ
                             foregroundColor: Colors.white,
+                            elevation: 4, // ✅ เพิ่มเงา
+                            shadowColor: Color.fromARGB(
+                                208, 163, 160, 160), // ✅ เงานุ่มๆ
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius:
+                                  BorderRadius.circular(16), // ✅ มุมนุ่มขึ้น
                             ),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 8),
-                            textStyle: const TextStyle(fontSize: 13),
+                                horizontal: 24, vertical: 10), // ✅ ขนาดกำลังดี
+                            textStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           onPressed: () {
                             Navigator.push(
@@ -359,9 +378,10 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        // backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         appBar: AppBar(
-          backgroundColor: const Color(0xFF006000),
+          // backgroundColor: const Color(0xFF006000),
+          backgroundColor: const Color.fromARGB(255, 255, 158, 60),
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: const Text(

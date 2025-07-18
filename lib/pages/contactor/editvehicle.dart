@@ -199,15 +199,16 @@ class _EditVehicleState extends State<EditVehicle> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 255, 192, 128),
       body: Stack(
         children: [
           // ✅ ภาพพื้นหลังแบบเต็มจอ
-          Positioned.fill(
-            child: Image.network(
-              'https://i.ibb.co/FbG6mQrF/Rectangle-33-1.png', // 🔗 เปลี่ยนลิงก์ภาพได้
-              fit: BoxFit.cover,
-            ),
-          ),
+          // Positioned.fill(
+          //   child: Image.network(
+          //     'https://i.ibb.co/FbG6mQrF/Rectangle-33-1.png', // 🔗 เปลี่ยนลิงก์ภาพได้
+          //     fit: BoxFit.cover,
+          //   ),
+          // ),
 
           // ✅ ชั้นที่มีเนื้อหาหลัก
           SafeArea(
@@ -467,8 +468,6 @@ class _EditVehicleState extends State<EditVehicle> {
                                 // ยกเลิก
                                 Expanded(
                                   child: ElevatedButton.icon(
-                                    icon: const Icon(Icons.close,
-                                        color: Colors.black87),
                                     label: Text('ยกเลิก',
                                         style: cancelButtonTextStyle),
                                     onPressed: isLoading
@@ -489,8 +488,6 @@ class _EditVehicleState extends State<EditVehicle> {
                                 // ตกลง
                                 Expanded(
                                   child: ElevatedButton.icon(
-                                    icon: const Icon(Icons.check,
-                                        color: Colors.white),
                                     label: const Text('ตกลง',
                                         style: submitButtonTextStyle),
                                     onPressed: isLoading ? null : updateVehicle,

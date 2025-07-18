@@ -413,7 +413,7 @@ class _DetailvehicleState extends State<Detailvehicle> {
                               minimumSize:
                                   const Size(80, 36), // กำหนดขนาดปุ่มให้เล็กลง
                             ),
-                            child: const Text('ตารางงาน'),
+                            child: const Text('คิวงานทั้งหมด'),
                           ),
 
                           const SizedBox(width: 8), // ช่องว่างระหว่างปุ่ม
@@ -461,12 +461,18 @@ class _DetailvehicleState extends State<Detailvehicle> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color:
-                              Color.fromARGB(255, 255, 208, 19), // สีเหลืองอ่อน
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFFFFF8E1), // สีเหลืองอ่อนมาก (บน)
+                              Color(0xFFFFD54F), // สีส้มอ่อน (ล่าง)
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: const Color.fromARGB(
-                                  255, 255, 196, 20)), // เส้นขอบสีส้ม
+                            color: Color(0xFFFFC107), // ขอบสีส้มทอง
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

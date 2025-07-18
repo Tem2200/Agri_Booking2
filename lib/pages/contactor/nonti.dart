@@ -63,9 +63,10 @@ class _NontiPageState extends State<NontiPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+      //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF006000),
+        //backgroundColor: const Color(0xFF006000),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         centerTitle: true,
         automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
         title: const Text(

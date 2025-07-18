@@ -231,12 +231,16 @@ class _PlanAndHistoryState extends State<PlanPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          item['name_rs'] ?? '-',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                        Flexible(
+                          child: Text(
+                            item['name_rs'] ?? '-',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                            overflow: TextOverflow.ellipsis, // ✅ ตัดด้วย ...
+                            maxLines: 1, // ✅ แสดงแค่บรรทัดเดียว
                           ),
                         ),
                         Row(
@@ -361,9 +365,10 @@ class _PlanAndHistoryState extends State<PlanPage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         appBar: AppBar(
-          backgroundColor: const Color(0xFF006000),
+          //backgroundColor: const Color(0xFF006000),
+          backgroundColor: const Color.fromARGB(255, 255, 158, 60),
           centerTitle: true,
           //automaticallyImplyLeading: false,
           title: const Text(

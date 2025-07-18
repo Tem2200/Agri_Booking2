@@ -401,9 +401,9 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 2, // 2 แท็บ: รายการรถ และ รีวิว
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         appBar: AppBar(
-          backgroundColor: const Color(0xFF006000),
+          backgroundColor: const Color.fromARGB(255, 255, 158, 60),
           centerTitle: true,
           automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
           title: const Text(
@@ -735,7 +735,7 @@ class _HomePageState extends State<HomePage> {
               style: TextStyle(fontSize: 14), // ตัวหนังสือเล็กลง
             ),
             backgroundColor: Color.fromARGB(255, 88, 196, 26),
-            foregroundColor: const Color.fromARGB(255, 24, 24, 24),
+            foregroundColor: Color.fromARGB(255, 255, 255, 255),
             tooltip: 'เพิ่มรถ',
             materialTapTargetSize:
                 MaterialTapTargetSize.shrinkWrap, // ลดพื้นที่รอบปุ่ม
@@ -763,18 +763,30 @@ class _HomePageState extends State<HomePage> {
               }
 
               final vehicles = snapshot.data!;
+
               return Column(
                 children: vehicles.map<Widget>((vehicle) {
                   bool currentStatus = (vehicle['status_vehicle'] == 1);
                   int vid = vehicle['vid'];
 
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
+                    // padding: const EdgeInsets.only(bottom: 25),
+                    padding: const EdgeInsets.fromLTRB(
+                        11, 0, 11, 25), // ซ้าย-ขวา-ล่าง
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.orange[50],
                         border: Border.all(color: Colors.orange),
                         borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.orange
+                                .withOpacity(0.3), // เงาส้มอ่อนโปร่งใส
+                            spreadRadius: 1,
+                            blurRadius: 8,
+                            offset: const Offset(0, 4), // เงาลงด้านล่างเล็กน้อย
+                          ),
+                        ],
                       ),
                       padding: const EdgeInsets.all(12),
                       child: Row(
@@ -788,13 +800,13 @@ class _HomePageState extends State<HomePage> {
                                 ? Image.network(
                                     vehicle['image'],
                                     height: 180,
-                                    width: 140,
+                                    width: 120,
                                     fit: BoxFit.cover,
                                     errorBuilder:
                                         (context, error, stackTrace) =>
                                             Container(
                                       height: 180,
-                                      width: 140,
+                                      width: 120,
                                       color: Colors.grey[300],
                                       alignment: Alignment.center,
                                       child: const Icon(Icons.broken_image,
@@ -852,7 +864,7 @@ class _HomePageState extends State<HomePage> {
 
                                 const SizedBox(height: 4),
 
-// 🔹 ราคา พร้อมไอคอน
+                                // 🔹 ราคา พร้อมไอคอน
                                 Row(
                                   children: [
                                     const Icon(Icons.attach_money,
@@ -867,7 +879,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ],
                                 ),
-
+                                const SizedBox(height: 4),
                                 // ✅ ปุ่ม + สวิตช์ + สถานะด้านล่าง
                                 Row(
                                   mainAxisAlignment:
@@ -927,25 +939,26 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
 
-                                    // 🔹 สวิตช์ + สถานะ (ไม่มีคำว่าเปิด/ปิดแล้ว)
                                     Column(
                                       children: [
-                                        Switch(
-                                          value: currentStatus,
-                                          onChanged: (bool newValue) {
-                                            int newStatus = newValue ? 1 : 0;
-                                            updateVehicleStatus(vid, newStatus);
-                                          },
-                                          activeColor: Colors
-                                              .white, // สีปุ่ม (หัว) ตอนเปิด
-                                          activeTrackColor:
-                                              Colors.green, // พื้นหลังตอนเปิด
-                                          inactiveThumbColor:
-                                              Colors.white, // สีปุ่มตอนปิด
-                                          inactiveTrackColor:
-                                              Colors.red.shade200, // พื้นตอนปิด
+                                        Transform.scale(
+                                          scale:
+                                              0.9, // ✅ ปรับขนาดเล็กลง (1.0 = ขนาดปกติ)
+                                          child: Switch(
+                                            value: currentStatus,
+                                            onChanged: (bool newValue) {
+                                              int newStatus = newValue ? 1 : 0;
+                                              updateVehicleStatus(
+                                                  vid, newStatus);
+                                            },
+                                            activeColor: Colors.white,
+                                            activeTrackColor: Colors.green,
+                                            inactiveThumbColor: Colors.white,
+                                            inactiveTrackColor:
+                                                Colors.red.shade200,
+                                          ),
                                         ),
-                                        const SizedBox(height: 4),
+                                        // const SizedBox(height: 1),
                                         Text(
                                           currentStatus
                                               ? 'ให้บริการ'
