@@ -815,7 +815,7 @@ class _HomePageState extends State<HomePage> {
                                   )
                                 : Container(
                                     height: 180,
-                                    width: 140,
+                                    width: 120,
                                     color: Colors.grey[200],
                                     alignment: Alignment.center,
                                     child: const Icon(Icons.image_not_supported,
