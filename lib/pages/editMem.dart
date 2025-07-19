@@ -395,16 +395,56 @@ class _EditMemberPageState extends State<EditMemberPage> {
               ),
               const SizedBox(height: 12),
 
+              // ElevatedButton(
+              //   onPressed: _selectLocationOnMap,
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: const Color.fromARGB(255, 255, 238, 50),
+              //     foregroundColor: Colors.black,
+              //   ),
+              //   child: const Text('เลือกตำแหน่งแผนที่'),
+              // ),
               ElevatedButton(
                 onPressed: _selectLocationOnMap,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 255, 238, 50),
-                  foregroundColor: Colors.black,
+                  padding: EdgeInsets
+                      .zero, // ลบ padding ปุ่มออกเพื่อให้ gradient เต็ม
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 4,
+                  backgroundColor:
+                      Colors.transparent, // ตั้งค่าโปร่งใส เพื่อโชว์ gradient
+                  shadowColor: Colors.black,
                 ),
-                child: const Text('เลือกตำแหน่งแผนที่'),
+                child: Ink(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFFFF176), // เหลืองอ่อน
+                        Color(0xFFFFC107), // เหลืองเข้ม
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Container(
+                    alignment: Alignment.center,
+                    constraints:
+                        const BoxConstraints(minWidth: 150, minHeight: 45),
+                    child: const Text(
+                      'เลือกตำแหน่งแผนที่',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
 
               buildInput(
                 addressController,

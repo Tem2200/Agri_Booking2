@@ -172,7 +172,7 @@ class _AddVehicleState extends State<AddVehicle> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //backgroundColor: const Color(0xFF006000),
+      backgroundColor: const Color.fromARGB(255, 255, 217, 180),
       appBar: AppBar(
         //backgroundColor: const Color(0xFF006000),
         backgroundColor: const Color.fromARGB(255, 255, 158, 60),
@@ -229,9 +229,9 @@ class _AddVehicleState extends State<AddVehicle> {
             child: Center(
               child: Card(
                 color: Colors.white
-                    .withOpacity(0.9), // หรือปรับ 0.8, 0.85 ตามความโปร่งใส
+                    .withOpacity(1), // หรือปรับ 0.8, 0.85 ตามความโปร่งใส
 
-                elevation: 6,
+                elevation: 8,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -247,18 +247,39 @@ class _AddVehicleState extends State<AddVehicle> {
                             children: [
                               Stack(
                                 children: [
-                                  CircleAvatar(
-                                    radius: 50,
-                                    backgroundColor: const Color.fromARGB(
-                                        255, 255, 253, 253),
-                                    backgroundImage:
-                                        imageUrl != null && imageUrl!.isNotEmpty
-                                            ? NetworkImage(imageUrl!)
-                                            : null,
-                                    child: imageUrl == null || imageUrl!.isEmpty
-                                        ? Icon(Icons.directions_car,
-                                            size: 60, color: Colors.grey[600])
-                                        : null,
+                                  Container(
+                                    width: 100, // 2 x radius
+                                    height: 100,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color.fromARGB(255, 245, 255, 243),
+                                          Color.fromARGB(255, 80, 211, 54),
+                                          Color.fromARGB(255, 38, 103, 8),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 50,
+                                      backgroundColor: Colors
+                                          .transparent, // โปร่งใสเพื่อให้เห็น gradient ด้านหลัง
+                                      backgroundImage: imageUrl != null &&
+                                              imageUrl!.isNotEmpty
+                                          ? NetworkImage(imageUrl!)
+                                          : null,
+                                      child: (imageUrl == null ||
+                                              imageUrl!.isEmpty)
+                                          ? const Icon(
+                                              Icons.directions_car,
+                                              size: 60,
+                                              color: Color.fromARGB(
+                                                  255, 255, 255, 255),
+                                            )
+                                          : null,
+                                    ),
                                   ),
                                   Positioned(
                                     bottom: 0,

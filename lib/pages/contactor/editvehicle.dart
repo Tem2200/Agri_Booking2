@@ -199,7 +199,30 @@ class _EditVehicleState extends State<EditVehicle> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 255, 192, 128),
+      backgroundColor: Color.fromARGB(255, 255, 217, 180),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context, true),
+        ),
+        title: const Text(
+          'เพิ่มรถรับจ้าง',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
+      ),
       body: Stack(
         children: [
           // ✅ ภาพพื้นหลังแบบเต็มจอ
@@ -217,32 +240,32 @@ class _EditVehicleState extends State<EditVehicle> {
               child: Column(
                 children: [
                   // ✅ AppBar แบบกำหนดเอง
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.pop(context, true),
-                      ),
-                      const Spacer(),
-                      const Text(
-                        'แก้ไขข้อมูลรถ',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              color: Color.fromARGB(115, 0, 0, 0),
-                              blurRadius: 4,
-                              offset: Offset(1, 1),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Spacer(),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
+                  // Row(
+                  //   children: [
+                  //     IconButton(
+                  //       icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  //       onPressed: () => Navigator.pop(context, true),
+                  //     ),
+                  //     const Spacer(),
+                  //     const Text(
+                  //       'แก้ไขข้อมูลรถ',
+                  //       style: TextStyle(
+                  //         fontSize: 22,
+                  //         fontWeight: FontWeight.bold,
+                  //         color: Colors.white,
+                  //         shadows: [
+                  //           Shadow(
+                  //             color: Color.fromARGB(115, 0, 0, 0),
+                  //             blurRadius: 4,
+                  //             offset: Offset(1, 1),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //     const Spacer(),
+                  //   ],
+                  // ),
+                  // const SizedBox(height: 16),
 
                   // ✅ Card โปร่งใส
                   Card(

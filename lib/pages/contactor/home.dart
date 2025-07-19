@@ -647,7 +647,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   // ✅ แถบแท็บนูนด้วย Card
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(8),
                     child: Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -659,7 +659,19 @@ class _HomePageState extends State<HomePage> {
                         child: TabBar(
                           indicator: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
-                            color: Colors.green[900],
+                            gradient: LinearGradient(
+                              colors: [
+                                Color.fromARGB(255, 190, 255, 189)!,
+                                Color.fromARGB(255, 37, 189, 35)!,
+                                Colors.green[800]!,
+
+                                // Color.fromARGB(255, 255, 244, 189)!,
+                                // Color.fromARGB(255, 254, 187, 42)!,
+                                // Color.fromARGB(255, 218, 140, 22)!,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black26,
@@ -678,13 +690,13 @@ class _HomePageState extends State<HomePage> {
                           tabs: const [
                             Tab(
                               child: SizedBox(
-                                width: 120,
+                                width: 110,
                                 child: Center(child: Text('รายการรถ')),
                               ),
                             ),
                             Tab(
                               child: SizedBox(
-                                width: 120,
+                                width: 110,
                                 child: Center(child: Text('รีวิว')),
                               ),
                             ),
@@ -698,14 +710,145 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     child: TabBarView(
                       children: [
-                        Center(child: _buildVehicleTab()),
-                        Center(child: _buildReviewTab()),
+                        _buildVehicleTab(),
+                        _buildReviewTab(),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
+
+// Expanded(
+            //   child: Column(
+            //     children: [
+            //       // ✅ แถบแท็บนูนด้วย Card
+            //       Padding(
+            //         padding: const EdgeInsets.all(16),
+            //         child: Card(
+            //           shape: RoundedRectangleBorder(
+            //             borderRadius: BorderRadius.circular(16),
+            //           ),
+            //           elevation: 6,
+            //           child: Padding(
+            //             padding: const EdgeInsets.symmetric(
+            //                 vertical: 12, horizontal: 8),
+            //             child: TabBar(
+            //               indicator: BoxDecoration(
+            //                 borderRadius: BorderRadius.circular(8),
+            //                 color: Colors.green[900],
+            //                 boxShadow: [
+            //                   BoxShadow(
+            //                     color: Colors.black26,
+            //                     blurRadius: 4,
+            //                     offset: Offset(0, 2),
+            //                   ),
+            //                 ],
+            //               ),
+            //               labelColor: Colors.white,
+            //               unselectedLabelColor: Colors.black87,
+            //               indicatorSize: TabBarIndicatorSize.tab,
+            //               labelStyle: const TextStyle(
+            //                 fontSize: 14,
+            //                 fontWeight: FontWeight.bold,
+            //               ),
+            //               tabs: const [
+            //                 Tab(
+            //                   child: SizedBox(
+            //                     width: 120,
+            //                     child: Center(child: Text('รายการรถ')),
+            //                   ),
+            //                 ),
+            //                 Tab(
+            //                   child: SizedBox(
+            //                     width: 120,
+            //                     child: Center(child: Text('รีวิว')),
+            //                   ),
+            //                 ),
+            //               ],
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+
+            //       // ✅ เนื้อหาภายในแต่ละแท็บ
+            //       Expanded(
+            //         child: TabBarView(
+            //           children: [
+            //             Center(child: _buildVehicleTab()),
+            //             Center(child: _buildReviewTab()),
+            //           ],
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+
+            //แถบเมนูแบบมีปุ่ม
+            // Expanded(
+            //   child: Column(
+            //     children: [
+            //       // ✅ แถบแท็บนูนด้วย Card
+            //       Padding(
+            //         padding: const EdgeInsets.all(16),
+            //         child: Card(
+            //           shape: RoundedRectangleBorder(
+            //             borderRadius: BorderRadius.circular(16),
+            //           ),
+            //           elevation: 6,
+            //           child: Padding(
+            //             padding: const EdgeInsets.symmetric(
+            //                 vertical: 12, horizontal: 8),
+            //             child: TabBar(
+            //               indicator: BoxDecoration(
+            //                 borderRadius: BorderRadius.circular(8),
+            //                 color: Colors.green[900],
+            //                 boxShadow: [
+            //                   BoxShadow(
+            //                     color: Colors.black26,
+            //                     blurRadius: 4,
+            //                     offset: Offset(0, 2),
+            //                   ),
+            //                 ],
+            //               ),
+            //               labelColor: Colors.white,
+            //               unselectedLabelColor: Colors.black87,
+            //               indicatorSize: TabBarIndicatorSize.tab,
+            //               labelStyle: const TextStyle(
+            //                 fontSize: 14,
+            //                 fontWeight: FontWeight.bold,
+            //               ),
+            //               tabs: const [
+            //                 Tab(
+            //                   child: SizedBox(
+            //                     width: 120,
+            //                     child: Center(child: Text('รายการรถ')),
+            //                   ),
+            //                 ),
+            //                 Tab(
+            //                   child: SizedBox(
+            //                     width: 120,
+            //                     child: Center(child: Text('รีวิว')),
+            //                   ),
+            //                 ),
+            //               ],
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+
+            //       // ✅ เนื้อหาภายในแต่ละแท็บ
+            //       Expanded(
+            //         child: TabBarView(
+            //           children: [
+            //             Center(child: _buildVehicleTab()),
+            //             Center(child: _buildReviewTab()),
+            //           ],
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -1010,27 +1153,176 @@ class _HomePageState extends State<HomePage> {
 
         final reviewCount = reviews.length;
 
+        // return Column(
+        //   crossAxisAlignment: CrossAxisAlignment.start,
+        //   children: [
+        //     const SizedBox(height: 10),
+        //     Center(
+        //       child: Text(
+        //         'คะแนนรีวิว: $avg ($reviewCount รีวิว)',
+        //         style: const TextStyle(
+        //           fontSize: 20,
+        //           fontWeight: FontWeight.w600,
+        //           color: Color(0xFF2E7D32),
+        //           letterSpacing: 0.5,
+        //         ),
+        //       ),
+        //     ),
+        //     Expanded(
+        //       child: ListView.builder(
+        //         padding: const EdgeInsets.all(8),
+        //         itemCount: reviews.length,
+        //         itemBuilder: (context, index) {
+        //           final review = reviews[index];
+        //           final reportedList =
+        //               jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
+        //           final isReported = reportedList.contains(_currentMid);
+
+        //           return Card(
+        //             margin: const EdgeInsets.symmetric(vertical: 8),
+        //             child: Padding(
+        //               padding: const EdgeInsets.all(12),
+        //               child: Column(
+        //                 crossAxisAlignment: CrossAxisAlignment.start,
+        //                 children: [
+        //                   // รูปภาพรีวิว (ถ้ามี)
+        //                   if (review['image_url'] != null &&
+        //                       review['image_url'].toString().isNotEmpty)
+        //                     Padding(
+        //                       padding: const EdgeInsets.only(bottom: 8),
+        //                       child: Image.network(
+        //                         review['image_url'],
+        //                         height: 150,
+        //                         width: double.infinity,
+        //                         fit: BoxFit.cover,
+        //                         errorBuilder: (context, error, stackTrace) =>
+        //                             const Text('โหลดรูปไม่สำเร็จ'),
+        //                       ),
+        //                     ),
+        //                   Row(
+        //                     mainAxisSize: MainAxisSize.min,
+        //                     children: [
+        //                       const Icon(
+        //                         Icons.person, // ไอคอนไม่ระบุตัวตน
+        //                         color: Colors.grey,
+        //                         size: 20,
+        //                       ),
+        //                       const SizedBox(
+        //                           width: 6), // ช่องว่างระหว่างไอคอนกับดาว
+        //                       Row(
+        //                         mainAxisSize: MainAxisSize.min,
+        //                         children: List.generate(5, (index) {
+        //                           return Icon(
+        //                             index < (review['point'] ?? 0)
+        //                                 ? Icons.star
+        //                                 : Icons.star_border,
+        //                             color: Colors.amber,
+        //                             size: 20,
+        //                           );
+        //                         }),
+        //                       ),
+        //                       const SizedBox(width: 8),
+        //                       Text(
+        //                         '${review['point'] ?? '-'} / 5',
+        //                         style: const TextStyle(
+        //                           fontSize: 14,
+        //                           fontWeight: FontWeight.bold,
+        //                           color: Colors.black87,
+        //                         ),
+        //                       ),
+        //                     ],
+        //                   ),
+        //                   // ข้อความรีวิว
+        //                   Text(
+        //                     review['text'] ?? '-',
+        //                     style: const TextStyle(fontSize: 16),
+        //                   ),
+
+        //                   const SizedBox(height: 6),
+        //                   if (review['image'] != null &&
+        //                       review['image'].isNotEmpty)
+        //                     Padding(
+        //                       padding: const EdgeInsets.only(top: 8.0),
+        //                       child: Image.network(
+        //                         review['image'],
+        //                         height: 100,
+        //                         width: 100,
+        //                         fit: BoxFit.cover,
+        //                         errorBuilder: (context, error, stackTrace) =>
+        //                             const Icon(Icons.image_not_supported),
+        //                       ),
+        //                     ),
+        //                   // คะแนน และ วันที่
+        //                   Row(
+        //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //                     children: [
+        //                       //Text('คะแนน: ${review['point'] ?? '-'}'),
+        //                       Text(
+        //                           'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}'),
+        //                     ],
+        //                   ),
+
+        //                   // ปุ่มรายงาน (หรือปุ่มถูกปิด)
+        //                   Align(
+        //                     alignment: Alignment.centerRight,
+        //                     child: ElevatedButton(
+        //                       onPressed: isReported
+        //                           ? null
+        //                           : () => _reportReview(review['rid']),
+        //                       style: ElevatedButton.styleFrom(
+        //                         backgroundColor: isReported
+        //                             ? Colors.grey
+        //                             : Colors.red, // สีตามสถานะ
+        //                         foregroundColor: Colors.white,
+        //                         padding: const EdgeInsets.symmetric(
+        //                             horizontal: 16, vertical: 8),
+        //                         textStyle: const TextStyle(fontSize: 10),
+        //                         shape: RoundedRectangleBorder(
+        //                           borderRadius: BorderRadius.circular(8),
+        //                         ),
+        //                       ),
+        //                       child: Text(
+        //                           isReported ? 'รายงานแล้ว' : 'รายงานรีวิว'),
+        //                     ),
+        //                   ),
+        //                 ],
+        //               ),
+        //             ),
+        //           );
+        //         },
+        //       ),
+        //     ),
+        //   ],
+        // );
+
         return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-            Center(
-              child: Text(
-                'คะแนนรีวิว: $avg ($reviewCount รีวิว)',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2E7D32),
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(8),
-                itemCount: reviews.length,
+                itemCount: reviews.length + 1, // เพิ่ม 1 เพื่อเผื่อหัวข้อ
                 itemBuilder: (context, index) {
-                  final review = reviews[index];
+                  if (index == 0) {
+                    // ✅ หัวข้อคะแนนรีวิว — ให้เลื่อนได้
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          'คะแนนรีวิว: $avg ($reviewCount รีวิว)',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF2E7D32),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  final review =
+                      reviews[index - 1]; // ลด index ลง เพราะเราเพิ่มหัวข้อ
                   final reportedList =
                       jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
                   final isReported = reportedList.contains(_currentMid);
@@ -1056,21 +1348,19 @@ class _HomePageState extends State<HomePage> {
                                     const Text('โหลดรูปไม่สำเร็จ'),
                               ),
                             ),
+
+                          // ผู้รีวิว + ดาว
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
-                                Icons.person, // ไอคอนไม่ระบุตัวตน
-                                color: Colors.grey,
-                                size: 20,
-                              ),
-                              const SizedBox(
-                                  width: 6), // ช่องว่างระหว่างไอคอนกับดาว
+                              const Icon(Icons.person,
+                                  color: Colors.grey, size: 20),
+                              const SizedBox(width: 6),
                               Row(
                                 mainAxisSize: MainAxisSize.min,
-                                children: List.generate(5, (index) {
+                                children: List.generate(5, (i) {
                                   return Icon(
-                                    index < (review['point'] ?? 0)
+                                    i < (review['point'] ?? 0)
                                         ? Icons.star
                                         : Icons.star_border,
                                     color: Colors.amber,
@@ -1089,6 +1379,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ],
                           ),
+
                           // ข้อความรีวิว
                           Text(
                             review['text'] ?? '-',
@@ -1096,6 +1387,7 @@ class _HomePageState extends State<HomePage> {
                           ),
 
                           const SizedBox(height: 6),
+
                           if (review['image'] != null &&
                               review['image'].isNotEmpty)
                             Padding(
@@ -1109,17 +1401,15 @@ class _HomePageState extends State<HomePage> {
                                     const Icon(Icons.image_not_supported),
                               ),
                             ),
-                          // คะแนน และ วันที่
+
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              //Text('คะแนน: ${review['point'] ?? '-'}'),
                               Text(
                                   'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}'),
                             ],
                           ),
 
-                          // ปุ่มรายงาน (หรือปุ่มถูกปิด)
                           Align(
                             alignment: Alignment.centerRight,
                             child: ElevatedButton(
@@ -1127,9 +1417,8 @@ class _HomePageState extends State<HomePage> {
                                   ? null
                                   : () => _reportReview(review['rid']),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: isReported
-                                    ? Colors.grey
-                                    : Colors.red, // สีตามสถานะ
+                                backgroundColor:
+                                    isReported ? Colors.grey : Colors.red,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 8),

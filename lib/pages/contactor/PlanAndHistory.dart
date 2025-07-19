@@ -414,9 +414,32 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                   child: TabBar(
+                    // indicator: BoxDecoration(
+                    //   borderRadius: BorderRadius.circular(8),
+                    //   color: Colors.green[900],
+                    //   boxShadow: [
+                    //     BoxShadow(
+                    //       color: Colors.black26,
+                    //       blurRadius: 4,
+                    //       offset: Offset(0, 2),
+                    //     ),
+                    //   ],
+                    // ),
                     indicator: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Colors.green[900],
+                      gradient: LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 190, 255, 189)!,
+                          Color.fromARGB(255, 37, 189, 35)!,
+                          Colors.green[800]!,
+
+                          // Color.fromARGB(255, 255, 244, 189)!,
+                          // Color.fromARGB(255, 254, 187, 42)!,
+                          // Color.fromARGB(255, 218, 140, 22)!,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black26,
