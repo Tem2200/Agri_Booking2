@@ -175,7 +175,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
 
         //test ui
         return ListView.builder(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20), // ซ้าย-ขวา-ล่าง
           itemCount: scheduleList.length,
           itemBuilder: (context, index) {
             final item = scheduleList[index];
@@ -218,8 +218,20 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
 
             return Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF3E0),
+                color: const Color(0xFFFFF3E0), // สีพื้นหลังครีมอ่อน
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFFFFCC80), // สีส้มอ่อนเข้ากับพื้นหลัง
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orange.withOpacity(0.2), // เงาส้มอ่อนโปร่งใส
+                    spreadRadius: 2,
+                    blurRadius: 8,
+                    offset: const Offset(0, 4), // เงาลงด้านล่างเล็กน้อย
+                  ),
+                ],
               ),
               margin: const EdgeInsets.symmetric(vertical: 8),
               child: Padding(
@@ -315,21 +327,28 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                       ],
                     ),
 
-                    //รายละเอียด
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor:
+                                const Color(0xFF4CAF50), // เขียวธรรมชาติ
                             foregroundColor: Colors.white,
+                            elevation: 4, // ✅ เพิ่มเงา
+                            shadowColor: Color.fromARGB(
+                                208, 163, 160, 160), // ✅ เงานุ่มๆ
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius:
+                                  BorderRadius.circular(16), // ✅ มุมนุ่มขึ้น
                             ),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 8),
-                            textStyle: const TextStyle(fontSize: 13),
+                                horizontal: 24, vertical: 10), // ✅ ขนาดกำลังดี
+                            textStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           onPressed: () {
                             Navigator.push(
@@ -356,32 +375,120 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isLocaleInitialized) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFCC99),
+        // backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 255, 187, 119),
-          automaticallyImplyLeading: false,
-          title: const Text('งานทั้งหมด'),
+          // backgroundColor: const Color(0xFF006000),
+          backgroundColor: const Color.fromARGB(255, 255, 158, 60),
           centerTitle: true,
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'คิวงาน'),
-              Tab(text: 'ประวัติ'),
-            ],
+          automaticallyImplyLeading: false,
+          title: const Text(
+            'คิวงานทั้งหมด',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                  color: Color.fromARGB(115, 253, 237, 237),
+                  blurRadius: 3,
+                  offset: Offset(1.5, 1.5),
+                ),
+              ],
+            ),
           ),
         ),
-        body: TabBarView(
+        body: Column(
           children: [
-            _buildPlanTab(), // แสดงปฏิทิน + งานที่ไม่ใช่ประวัติ
-            _buildScheduleTab(includeHistory: true), // งานที่จบแล้วเท่านั้น
+            // ✅ แถบแท็บนูนด้วย Card
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 6,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                  child: TabBar(
+                    // indicator: BoxDecoration(
+                    //   borderRadius: BorderRadius.circular(8),
+                    //   color: Colors.green[900],
+                    //   boxShadow: [
+                    //     BoxShadow(
+                    //       color: Colors.black26,
+                    //       blurRadius: 4,
+                    //       offset: Offset(0, 2),
+                    //     ),
+                    //   ],
+                    // ),
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      gradient: LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 190, 255, 189)!,
+                          Color.fromARGB(255, 37, 189, 35)!,
+                          Colors.green[800]!,
+
+                          // Color.fromARGB(255, 255, 244, 189)!,
+                          // Color.fromARGB(255, 254, 187, 42)!,
+                          // Color.fromARGB(255, 218, 140, 22)!,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.black87,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    labelStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    tabs: const [
+                      Tab(
+                        child: SizedBox(
+                          width: 120,
+                          child: Center(child: Text('ตารางงาน')),
+                        ),
+                      ),
+                      Tab(
+                        child: SizedBox(
+                          width: 120,
+                          child: Center(child: Text('ประวัติการรับงาน')),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            Expanded(
+              child: TabBarView(
+                children: [
+                  // ตารางงาน - จัดกลางจอ
+                  Center(
+                    child: _buildPlanTab(),
+                  ),
+
+                  // ประวัติการรับงาน - จัดกลางจอ
+                  Center(
+                    child: _buildScheduleTab(includeHistory: true),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

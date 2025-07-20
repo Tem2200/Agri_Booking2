@@ -63,12 +63,28 @@ class _NontiPageState extends State<NontiPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFCC99),
+      //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 255, 187, 119),
-        title: const Text('การแจ้งเตือน'),
-        centerTitle: true, // ให้ title อยู่ตรงกลาง
-        automaticallyImplyLeading: false, // ปิดปุ่มย้อนกลับ
+        //backgroundColor: const Color(0xFF006000),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        centerTitle: true,
+        automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
+        title: const Text(
+          'การแจ้งเตือน',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            //letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
       ),
       body: FutureBuilder<List<dynamic>>(
         future: _scheduleFuture,

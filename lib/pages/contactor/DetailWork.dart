@@ -355,13 +355,32 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
       appBar: AppBar(
-        backgroundColor: Color(0xFFFFCC99),
-        title: const Text('รายละเอียดงาน'),
+        //backgroundColor: const Color(0xFF006000),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        centerTitle: true,
+        //automaticallyImplyLeading: false,
+        title: const Text(
+          'รายละเอียดงาน',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
         leading: IconButton(
+          color: Colors.white,
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // กลับหน้าก่อนหน้า
+            Navigator.pop(context); // ✅ กลับหน้าก่อนหน้า
           },
         ),
       ),
@@ -435,9 +454,9 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
 
                 //ข้อมูลการจอง
                 DraggableScrollableSheet(
-                  initialChildSize: 0.4,
-                  minChildSize: 0.2,
-                  maxChildSize: 0.85,
+                  initialChildSize: 0.2, //ขนาดจอเมื่อเปิดมาครั้งแรก
+                  minChildSize: 0.2, //ขนาดจอที่ย่อลงไปมากสุด
+                  maxChildSize: 0.9, //ขนาดจอที่ดึงขึ้นได้มากสุด
                   builder: (context, scrollController) {
                     // แปลง progress_status เป็นข้อความ
                     String getStatusText(dynamic status) {
@@ -477,16 +496,18 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
 
                     return Container(
                       decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(20)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 10,
-                            offset: Offset(0, -3),
-                          )
-                        ],
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color.fromARGB(255, 255, 222, 122), // เหลืองเข้ม
+                            Color.fromARGB(255, 255, 251, 236), // เหลืองอ่อน
+                            Color.fromARGB(255, 253, 253, 252)
+                          ],
+                        ),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
                       ),
                       child: SingleChildScrollView(
                         controller: scrollController,
@@ -542,23 +563,33 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      // ชื่องาน
-                                      Text(
-                                        data!['name_rs'] ?? 'ไม่ระบุชื่อการจอง',
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
+                                      // ✅ ชื่องาน (แสดง 1 บรรทัด + ...)
+                                      Expanded(
+                                        child: Text(
+                                          data!['name_rs'] ??
+                                              'ไม่ระบุชื่อการจอง',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign
+                                              .center, // ✅ ข้อความอยู่กลางในตัวมันเอง
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(
+                                                0xFF006400), // เขียวเข้ม ดูสุขุม
+                                            letterSpacing: 0.5,
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(width: 10),
                                     ],
                                   ),
 
-                                  const SizedBox(height: 10),
+                                  const SizedBox(height: 16),
 
-                                  // รูปรถ
+                                  // ✅ รูปรถ
                                   ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(12),
                                     child: data!['image'] != null &&
                                             data!['image'].toString().isNotEmpty
                                         ? Image.network(
@@ -588,11 +619,27 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                                 size: 48),
                                           ),
                                   ),
+
+                                  const SizedBox(height: 12),
+
+                                  // ✅ ชื่อรถ
                                   Text(
-                                    'รถ: ${data!['name_vehicle']}',
+                                    '🚗 รถ: ${data!['name_vehicle']}',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
                                   ),
+
+                                  // ✅ ทะเบียนรถ
                                   Text(
-                                    'ทะเบียนรถ: ${data!['plate_number'] != null && data!['plate_number'].toString().isNotEmpty ? data!['plate_number'] : 'ไม่มี'}',
+                                    '📄 ทะเบียนรถ: ${data!['plate_number'] != null && data!['plate_number'].toString().isNotEmpty ? data!['plate_number'] : 'ไม่มี'}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black54,
+                                      fontStyle: FontStyle.italic,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -613,7 +660,8 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                       )
                                     : const CircleAvatar(
                                         radius: 25,
-                                        backgroundColor: Colors.amber,
+                                        backgroundColor:
+                                            Color.fromARGB(255, 181, 115, 17),
                                         child: Icon(
                                           Icons.person,
                                           size: 30,
@@ -731,34 +779,35 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                               ],
                             ),
 
-                            //วันที่และเวลาจ้างงาน
+                            // 📅 วันที่และเวลาจ้างงาน
                             const SizedBox(height: 16),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(Icons.access_time, size: 16),
-                                const SizedBox(width: 4),
+                                const Icon(Icons.access_time,
+                                    size: 18, color: Colors.amber),
+                                const SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
                                     _formatDateRange(
-                                      data!['date_start'],
-                                      data!['date_end'],
-                                    ),
+                                        data!['date_start'], data!['date_end']),
                                     style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 5),
+
+                            const SizedBox(height: 14),
+
+// 📝 ข้อมูลเพิ่มเติม
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const SizedBox(height: 10),
-
-                                // พื้นที่
+                                // 🌾 พื้นที่
                                 Row(
                                   children: [
                                     const Icon(Icons.landscape,
@@ -766,13 +815,17 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                     const SizedBox(width: 8),
                                     Text(
                                       'พื้นที่: ${data!['area_amount']} ${data!['unit_area']}',
-                                      style: const TextStyle(fontSize: 15),
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 8),
 
-                                // ฟาร์ม
+                                // 🚜 ฟาร์ม
                                 Row(
                                   children: [
                                     const Icon(Icons.agriculture,
@@ -781,14 +834,18 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                     Expanded(
                                       child: Text(
                                         'ฟาร์ม: ${data!['name_farm']} (${data!['village']}, ${data!['subdistrict']})',
-                                        style: const TextStyle(fontSize: 15),
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black87,
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 8),
 
-                                // ที่อยู่
+                                // 📍 ที่อยู่
                                 Row(
                                   children: [
                                     const Icon(Icons.location_on,
@@ -797,14 +854,18 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                     Expanded(
                                       child: Text(
                                         'ที่อยู่: ${data!['district']} จ.${data!['province']}',
-                                        style: const TextStyle(fontSize: 15),
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black87,
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 8),
 
-                                // เบอร์โทร
+                                // 📞 เบอร์โทร
                                 Row(
                                   children: [
                                     const Icon(Icons.phone,
@@ -812,13 +873,17 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                     const SizedBox(width: 8),
                                     Text(
                                       'เบอร์โทร: ${data!['employee_phone']}',
-                                      style: const TextStyle(fontSize: 15),
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 8),
 
-                                // ราคา
+                                // 💰 ราคา
                                 Row(
                                   children: [
                                     const Icon(Icons.attach_money,
@@ -826,13 +891,17 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                     const SizedBox(width: 8),
                                     Text(
                                       'ราคา: ${data!['price']} ${data!['unit_price']}',
-                                      style: const TextStyle(fontSize: 15),
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 8),
 
-                                // รายละเอียด
+                                // 📄 รายละเอียด
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -842,29 +911,43 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                     Expanded(
                                       child: Text(
                                         'รายละเอียด: ${data!['detail']}',
-                                        style: const TextStyle(fontSize: 15),
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.black87,
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
                               ],
                             ),
+
+// 🔻 เส้นคั่น
                             const Divider(
-                              color: Colors.grey, // สีของเส้น
-                              thickness: 1, // ความหนา
-                              height: 20, // ความสูงของพื้นที่รอบเส้น
+                              color: Colors.grey,
+                              thickness: 1,
+                              height: 24,
                             ),
 
-                            const SizedBox(height: 10),
+                            // 🔘 ปุ่มเปลี่ยนสถานะ
+                            const SizedBox(height: 12),
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
                               alignment: WrapAlignment.center,
                               children: [
-                                Text('กดปุ่มเพื่อเปลี่ยนสถานะการดำเนินงาน'),
+                                const Text(
+                                  'กดปุ่มเพื่อเปลี่ยนสถานะการดำเนินงาน',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black87,
+                                  ),
+                                ),
                                 buildButtons(),
                               ],
-                            )
+                            ),
                           ],
                         ),
                       ),

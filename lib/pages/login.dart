@@ -67,21 +67,28 @@ class _LoginState extends State<Login> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title:
-                    const Text('ประเภทผู้ใช้งาน', textAlign: TextAlign.center),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                title: const Text(
+                  'ประเภทผู้ใช้งาน',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                ),
                 content: const Text(
                   'กรุณาเลือกประเภทผู้ใช้งานที่ต้องการเข้าสู่ระบบ',
                   textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, color: Colors.black87),
                 ),
+                contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
                 actionsPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 actions: [
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: const Color(0xFF0DA128),
                             foregroundColor: Colors.white,
                             minimumSize: const Size.fromHeight(48),
                           ),
@@ -101,14 +108,18 @@ class _LoginState extends State<Login> {
                               ),
                             );
                           },
-                          child: const Text('ผู้จ้าง'),
+                          child: const Text(
+                            'ผู้จ้าง',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w600),
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: const Color(0xFF0DA128),
                             foregroundColor: Colors.white,
                             minimumSize: const Size.fromHeight(48),
                           ),
@@ -128,17 +139,24 @@ class _LoginState extends State<Login> {
                               ),
                             );
                           },
-                          child: const Text('ผู้รับจ้าง'),
+                          child: const Text(
+                            'ผู้รับจ้าง',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w600),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Center(
                     child: TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.grey[700],
+                        textStyle: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
+                      ),
+                      onPressed: () => Navigator.pop(context),
                       child: const Text('ปิด'),
                     ),
                   ),
@@ -262,43 +280,20 @@ class _LoginState extends State<Login> {
                     ),
                     child: Column(
                       children: [
-                        TextField(
-                          controller: emailController,
-                          decoration: InputDecoration(
-                            labelText: 'ชื่อผู้ใช้ / อีเมล',
-                            labelStyle: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 16,
-                              fontFamily: 'Roboto',
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            buildInnerShadowTextField(
+                              controller: emailController,
+                              label: 'ชื่อผู้ใช้ / อีเมล',
                             ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
+                            const SizedBox(height: 16),
+                            buildInnerShadowTextField(
+                              controller: passwordController,
+                              label: 'รหัสผ่าน',
+                              obscureText: true,
                             ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        TextField(
-                          controller: passwordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: 'รหัสผ่าน',
-                            labelStyle: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 16,
-                              fontFamily: 'Roboto',
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
+                          ],
                         ),
 
                         const SizedBox(height: 20),
@@ -311,10 +306,10 @@ class _LoginState extends State<Login> {
                                   WidgetStateProperty.resolveWith<Color>(
                                       (states) {
                                 if (states.contains(MaterialState.disabled)) {
-                                  return Color.fromARGB(255, 7, 172,
+                                  return const Color.fromARGB(255, 7, 172,
                                       15); // สีเขียวอ่อนเวลาปุ่ม disable
                                 }
-                                return Color.fromARGB(
+                                return const Color.fromARGB(
                                     255, 7, 172, 15); // สีเขียวปกติ
                               }),
                               foregroundColor:
@@ -386,6 +381,60 @@ class _LoginState extends State<Login> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildInnerShadowTextField({
+    required TextEditingController controller,
+    required String label,
+    bool obscureText = false,
+  }) {
+    return Stack(
+      children: [
+        // Shadow layer
+        Container(
+          height: 60,
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [
+              BoxShadow(
+                color: Color.fromARGB(255, 176, 171, 171),
+                offset: Offset(-2, -2),
+                blurRadius: 4,
+                spreadRadius: 1,
+              ),
+              BoxShadow(
+                color: Color.fromARGB(31, 87, 85, 85),
+                offset: Offset(2, 2),
+                blurRadius: 4,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+        ),
+        // TextField layer
+        TextField(
+          controller: controller,
+          obscureText: obscureText,
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: TextStyle(
+              color: Colors.grey[700],
+              fontSize: 16,
+              fontFamily: 'Roboto',
+            ),
+            filled: true,
+            fillColor: Colors.grey[200],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          ),
+        ),
+      ],
     );
   }
 }

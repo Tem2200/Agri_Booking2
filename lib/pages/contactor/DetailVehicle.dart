@@ -245,8 +245,27 @@ class _DetailvehicleState extends State<Detailvehicle> {
     return Scaffold(
       appBar: AppBar(
         //title: Text(vehicleData?['name_vehicle'] ?? 'รายละเอียดรถ'),
-        backgroundColor: Color(0xFFFFCC99),
-        title: Text('รายละเอียดรถ'),
+        backgroundColor: Color.fromARGB(255, 255, 158, 60),
+        centerTitle: true,
+        iconTheme: const IconThemeData(
+          color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว
+        ),
+        title: const Text(
+          'รายละเอียดรถ',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            //letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -394,7 +413,7 @@ class _DetailvehicleState extends State<Detailvehicle> {
                               minimumSize:
                                   const Size(80, 36), // กำหนดขนาดปุ่มให้เล็กลง
                             ),
-                            child: const Text('ตารางงาน'),
+                            child: const Text('คิวงานทั้งหมด'),
                           ),
 
                           const SizedBox(width: 8), // ช่องว่างระหว่างปุ่ม
@@ -442,12 +461,18 @@ class _DetailvehicleState extends State<Detailvehicle> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color:
-                              Color.fromARGB(255, 255, 208, 19), // สีเหลืองอ่อน
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFFFFF8E1), // สีเหลืองอ่อนมาก (บน)
+                              Color(0xFFFFD54F), // สีส้มอ่อน (ล่าง)
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: const Color.fromARGB(
-                                  255, 255, 196, 20)), // เส้นขอบสีส้ม
+                            color: Color(0xFFFFC107), // ขอบสีส้มทอง
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

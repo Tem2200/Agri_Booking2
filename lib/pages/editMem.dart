@@ -221,11 +221,32 @@ class _EditMemberPageState extends State<EditMemberPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFC074),
-        title: const Text('แก้ไขข้อมูลส่วนตัว'),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        centerTitle: true, // ✅ บังคับให้อยู่ตรงกลาง
+        title: const Text(
+          'แก้ไขข้อมูลส่วนตัว',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            //letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
         ),
       ),
       body: SingleChildScrollView(
@@ -374,16 +395,56 @@ class _EditMemberPageState extends State<EditMemberPage> {
               ),
               const SizedBox(height: 12),
 
+              // ElevatedButton(
+              //   onPressed: _selectLocationOnMap,
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: const Color.fromARGB(255, 255, 238, 50),
+              //     foregroundColor: Colors.black,
+              //   ),
+              //   child: const Text('เลือกตำแหน่งแผนที่'),
+              // ),
               ElevatedButton(
                 onPressed: _selectLocationOnMap,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 255, 238, 50),
-                  foregroundColor: Colors.black,
+                  padding: EdgeInsets
+                      .zero, // ลบ padding ปุ่มออกเพื่อให้ gradient เต็ม
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 4,
+                  backgroundColor:
+                      Colors.transparent, // ตั้งค่าโปร่งใส เพื่อโชว์ gradient
+                  shadowColor: Colors.black,
                 ),
-                child: const Text('เลือกตำแหน่งแผนที่'),
+                child: Ink(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFFFF176), // เหลืองอ่อน
+                        Color(0xFFFFC107), // เหลืองเข้ม
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Container(
+                    alignment: Alignment.center,
+                    constraints:
+                        const BoxConstraints(minWidth: 150, minHeight: 45),
+                    child: const Text(
+                      'เลือกตำแหน่งแผนที่',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
 
               buildInput(
                 addressController,
@@ -395,8 +456,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
                   return null;
                 },
               ),
-
-              const SizedBox(height: 24),
 
               Row(
                 children: [
