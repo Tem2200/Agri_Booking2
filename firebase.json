@@ -1,1 +1,41 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"agribooking-9f958","appId":"1:66778233764:android:95144df534fc077da3df31","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"agribooking-9f958","configurations":{"android":"1:66778233764:android:95144df534fc077da3df31","ios":"1:66778233764:ios:1a986aea2aea1466a3df31","macos":"1:66778233764:ios:1a986aea2aea1466a3df31","web":"1:66778233764:web:8a86d81ef2531c4aa3df31","windows":"1:66778233764:web:0a43d08753b7a4c0a3df31"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "agribooking-9f958",
+          "appId": "1:66778233764:android:95144df534fc077da3df31",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "agribooking-9f958",
+          "configurations": {
+            "android": "1:66778233764:android:95144df534fc077da3df31",
+            "ios": "1:66778233764:ios:1a986aea2aea1466a3df31",
+            "macos": "1:66778233764:ios:1a986aea2aea1466a3df31",
+            "web": "1:66778233764:web:8a86d81ef2531c4aa3df31",
+            "windows": "1:66778233764:web:0a43d08753b7a4c0a3df31"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ]
+}

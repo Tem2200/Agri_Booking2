@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/employer/DetailReserving.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:googleapis_auth/auth.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/http.dart' as http;
@@ -92,12 +93,19 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
     final accountCredentials = ServiceAccountCredentials.fromJson({
       "type": "service_account",
       "project_id": "agribooking-9f958",
-      "private_key_id": "3cb022d6380491ae267b5c4773c59fef246c6e17",
+      "private_key_id": "1614eebc3c45d4e1fded779f134b185f2c327c02",
       "private_key":
-          "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDQGAAdplUmNmiv\nRoXrV421sEGUdEZV0XbtXX1oVN5SL+YdK7Z0rkRibMnJW48fQ+I0fx60JJR92CsO\n+9QOMqmniqHfwtXnsPk3Fdglkn0ty/Ie/esUINsGcVPCfdBtjrxJQ2qyGVULWEYw\n0tsD9+C4EQ4A1ijaLKJMYiFrI1MF9oH9q0d+hzcyWv8R1joUcahFpOOjE4h/ba2x\nrHsa1kgznmG7q2h2SJ3uQkuOTSR6BoVCHGBZPivzKC1DKGSVSQTod5Lab3fO8/kI\nM3VnqLnzKfUd1UP71O+9MQxHqgKL27zZO+qrm7RGqoXiUOIgpqz1uFJXmyYZBK8q\nKD+/PQPnAgMBAAECggEAATmTq1MxR8Hk3n6H0wDF410hSVSPKOKdzrv5jpiGv8R2\n3ftdHf4TV5xual+D6u6Dxdv4yrSUPHWVbR7VusMew7fYJRZ0j23O8EkdxLyrDmvp\nC7h5jS4ZPWkPRjSVHUaGrgZzKGDE+j/kF1Xv3L1BBW0Uoz+feU1MaaL2yMJBbUNp\nbb4fSuOr1yZpGFT+EXHyyJnnM9wL5hMEuQ3zJwEOy/bpE2bAlojg/YW3IxhFSxE5\nMIfzSLrdueQLIYsAlwaRvNvPJOUZKKQrAPMJCVLOFVx9v/+b3Z8E7/PhmylnivHh\n62F+iQkHgeaD12yHtCeQfWCVqDYf0AApM1TRM7jV3QKBgQD/Zheo1GpW4apQV3Tv\nxiQWbMTTYEgEPw7s+vhFvRDqoHSw2wwg/SVpz2x4Ns/vMneP5CDlOpVVbCoA+UX/\n/nTjTDWdbbLmUr1zw65MSfm5Jf/lLhPqoGnjNdvB4/p0Z1LjbvSdPAKM2qJbdeH8\niaOo930OXEuOM7Zy10xlgX6j4wKBgQDQlWa2dL83TjN1+teg8pBhrEJ/XFwCvQ/U\nABF9CSxEAucfdknNVKGSv90j2qwYu0FytbI+yxEFzfCs4TfRrEpCQ+gwgDZdO79O\nvoG7O4fC8iAvZ3p+dOwr4y59utJo1vFOVhDScEeAofriSDs7Z2qXvmp6ru41cuHA\n/TZKorUHLQKBgHrpczF5KMQvTnvj2w8Z2HxCVGc1yvLgNhqunZVSbDW+iuoiQTAP\nJFZL0PP5zRBcxVWmgH5RN1Uo/P4C+UE+AJrzLkpZZOObpjl0TwnAAEKumvx8tHES\nSmNipCQnx30FzMpPt8GEA+Ytwj0p+lxDEVRb5v9mQ6ZoFMIoA0hGjd/pAoGAY+HX\nMLIRSxOYkvuOvFTLjOonYcPBj9InPTbXKQ/2cY8OTEOhrcDEKnjUFbJGTQWGnr6h\nX25wdV4bzT2ANFiTqs3H50nOPrE4uCWEDDvClDjL7sdXoiytV4rPnYeT8H5VSVTv\nc0YvB0sJz8gVDSpFoeqeJKeWDGQ59OeMUws9MvUCgYBqMqbAYUXwmf0MCmBNd1Pf\nVq4UtW+JwFyNI8jZDIB+SvIf23TmCYozjhAEpnXvMdVOBGIaphM6TxPbdnSfKfbz\nhaecXGkO3/xDW/3HqL+qaWlAAfdDjG96v8UDJ6D3eIwmKPZedft6ai1wE43oNlax\nA5JmPqpZN2mZXloL8J/CUQ==\n-----END PRIVATE KEY-----\n",
+          "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDQQDeT2U66M5xd\nTa3lnwkYtkqC5hkD49r4CdvfnJdrtr+88AZ32QWZelS5tn9l4o+Op8Wjkmd/m8in\nK9y2mKvMdWIy4wpVo+X1jocjQ7CSmodxqdV4CEEA5Wbg1rgcyCSetPRb2RKIzUiT\neWQycN1Ur71sPWc3LGDN8yDhrmPPLR06ydJRfXt7qa4SB4vD0VLJ1F56ET79JLKX\n1KNDmz8dTpxpVmASqmuQIKqfP67fLbgi8Ma5GitVZN/ZywGgQNGZd3JWvJGRqVR2\nT8Ha5oqWBXVVyPV682cktxaV2yhkw71/dYa+ZMWVSi8b3onkuIrJqpi8crq2nvLm\nTM/DdQgRAgMBAAECggEAUIqNlCpm5t/gGTvaRiT4bSzPa4nXYehFf0m81mJnM7sF\ns+p27fIq1r13uC2rXvm9QNSFPSp5yeIzu+fcYGhyhUxe0sR5cj7FyO87N7nNuB14\nxc6D53z1uwV+APY6VbNYamMc4Mr2/p66c4Lu7A03pLGlRpAG89E/jVd7P51lL7IV\n8dZs+Aw2ogWORlq4INF6yDwxWVH5x/tMAQaYrZP+sbHGWZx7GQAAzzLoCa6tHYM9\nUgtAMaxyXVixs9YowoIPrTvvprCJdG7WFNr6SkjXPk+ZrH1dN0NJl7mTu9o+a86m\nN72OuHJnhL5Ozs2XB7FdLf0QN6RKleA9OsSPFzKJWwKBgQDobPP6XBuleh663AtT\nlfNOB1JEEqES/xsM4ICF48u+uXWJn1feMbjlq9cxXxpG2dfotrSXDrUjMYIchdVA\nrjRaKqvuSntusNTEYe/5JV7hZSOjSLFPn3DbxP8WBX98b0yZeXmog79o4I8468hc\n/4Z2UHh0YYJ+Tocrr39p02PEDwKBgQDlX435TdIzq9Jx7n4KR361c8tETHzxOdBX\nCe+BpoYoU3su51DznsRjUoldKqVlT+eyT8rxQ3BRdAYVDpWZwC6DBk3c2dkyDxH+\n+c4zcYKTRG/z/xK7bgfi4qYI4cjdgQLzLP9XxxSQSlF94/gJ4sM5OAC8V9zlrmAn\nYFDGirPR3wKBgQDHxQW6tTpJ83nAL+tIT4UNFvvdaImrczrDyZ6N9eokJvFgdWWn\no+MA/L78P3qtVQXfjlIP1+NWuXHUpC9T5ac3rJ+UM859qF1n4anJ4hX38t87s/o6\nrpbpPhvlyJn30Q3sh91KOtrlAMX5LadMT5A51xaBKWJov4Qsxy3jPn7sfwKBgQDb\nW0W4XO8gkTqh0JXjGLqZp1KGT6vROhv/kTXmxK1aVXPhyEAHrBdecSmC2uzv9bm8\nMkj/8CGzFAVZD+iL8FnK3jWKdyAamoT4VkgXtH9OfU2fh5mPe8u49E4bAmqJQv7i\nNm8/r9j/oMNMZL7qHV3cE63IcTKEyP2VyquVJEKR+wKBgAvhRAsGnvO8V5O50W3O\ntmgsh3+KLHSk2WA7hDACVc+43/WvpUPujSgD5tm8SIsRwD8hbykqcB64wC1FgBVa\nRG6e7cZRhsgKhjEHPwIexiBFdB5nOuByCHxhb6cAuMoL0BUufw453XHmRbmu/b6k\nervzTfSUrHL9sS16TpGLi/qw\n-----END PRIVATE KEY-----\n",
       "client_email":
           "firebase-adminsdk-fbsvc@agribooking-9f958.iam.gserviceaccount.com",
+      "client_id": "106395285857648756377",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
       "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url":
+          "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url":
+          "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40agribooking-9f958.iam.gserviceaccount.com",
+      "universe_domain": "googleapis.com"
     });
 
     final scopes = ['https://www.googleapis.com/auth/firebase.messaging'];
@@ -248,9 +256,6 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                   ' ${rs['farm_province'] ?? '-'})',
                 ),
                 Text(
-                  'midผู้รับจ้าง: ${rs['mid_contractor'] ?? '-'}',
-                ),
-                Text(
                     'พื้นที่: ${rs['area_amount'] ?? '-'} ${rs['unit_area'] ?? '-'}'),
                 Text('รายละเอียด: ${rs['detail'] ?? '-'}'),
                 Text(
@@ -264,7 +269,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                     "รอผู้รับจ้างยืนยันการจอง")
                   ElevatedButton(
                     onPressed: () {
-                      final contractorMid = rs['contractor_mid'];
+                      final contractorMid = rs['mid_contractor'];
                       final rsid = rs['rsid'];
 
                       print("contractor_mid = $contractorMid");

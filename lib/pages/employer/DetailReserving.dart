@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:agri_booking2/main.dart';
 import 'package:agri_booking2/pages/employer/ProfileCon.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
@@ -27,6 +29,19 @@ class _DetailReservingState extends State<DetailReserving> {
   void initState() {
     super.initState();
     fetchDetail();
+  }
+
+  void _handleMessage(RemoteMessage message) {
+    if (message.data.containsKey('rsid')) {
+      final rsidStr = message.data['rsid'];
+      final rsid = int.tryParse(rsidStr ?? '') ?? 0;
+
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (context) => DetailReserving(rsid: rsid),
+        ),
+      );
+    }
   }
 
   Future<void> fetchVehicleDetail() async {

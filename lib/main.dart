@@ -1,26 +1,74 @@
+import 'dart:convert';
+
 import 'package:agri_booking2/firebase_options.dart';
+import 'package:agri_booking2/pages/employer/notification.dart';
+import 'package:agri_booking2/pages/employer/notification_detail_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:agri_booking2/pages/login.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
+import 'package:agri_booking2/pages/employer/DetailReserving.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+Future<void> _backgroundMessaginf(RemoteMessage message) async {
+  print("Handling a background message: ${message.messageId}");
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseMessaging.onBackgroundMessage(_backgroundMessaginf);
+
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  await initializeNotification(flutterLocalNotificationsPlugin);
+
+  // ✅ ขอ permission ที่นี่แทน
+  NotificationSettings settings =
+      await FirebaseMessaging.instance.requestPermission();
+
+  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+    print('User granted permission');
+  } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
+    print('User denied permission');
+  } else {
+    print('User permission status: ${settings.authorizationStatus}');
+  }
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print('Got a message: ${message.data}');
+    _showNotification(flutterLocalNotificationsPlugin, message);
   });
 
-  final prefs = await SharedPreferences.getInstance();
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    _handleMessage(message);
+  });
 
+  // handle app launched from terminated state
+  RemoteMessage? initialMessage =
+      await FirebaseMessaging.instance.getInitialMessage();
+
+  if (initialMessage != null) {
+    _handleMessage(initialMessage);
+  }
+
+  final prefs = await SharedPreferences.getInstance();
   final mid = prefs.getInt('mid');
   final type = prefs.getInt('type_member');
+
+  if (type == 2 && mid != null) {
+    // contractor subscribe topic
+    await FirebaseMessaging.instance.subscribeToTopic("user_$mid");
+  }
 
   Widget startPage;
 
@@ -45,12 +93,68 @@ void main() async {
         year: currentYear,
       );
     } else {
-      // type 3 ให้กลับไป login เพื่อเลือก role ใหม่ทุกครั้ง
       startPage = const Login();
     }
   }
 
   runApp(MyApp(home: startPage));
+}
+
+Future<void> initializeNotification(
+    FlutterLocalNotificationsPlugin plugin) async {
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  const InitializationSettings initializationSettings =
+      InitializationSettings(android: initializationSettingsAndroid);
+
+  await plugin.initialize(
+    initializationSettings,
+  );
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  print("Handling background message: ${message.data}");
+}
+
+void _handleMessage(RemoteMessage message) {
+  print("User tapped notification: ${message.data}");
+
+  if (message.data.containsKey('rsid')) {
+    final rsidStr = message.data['rsid'];
+    final rsid = int.tryParse(rsidStr ?? '') ?? 0;
+
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(
+        builder: (context) => DetailReserving(rsid: rsid),
+      ),
+    );
+  }
+}
+
+Future<void> _showNotification(
+    FlutterLocalNotificationsPlugin plugin, RemoteMessage message) async {
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    'your_channel_id',
+    'your_channel_name',
+    importance: Importance.max,
+    priority: Priority.high,
+  );
+
+  const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+
+  await plugin.show(
+    message.hashCode,
+    message.notification?.title ?? '',
+    message.notification?.body ?? '',
+    platformChannelSpecifics,
+    payload: jsonEncode(message.data),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -61,12 +165,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Agri Booking',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: home,
-    );
+        title: 'Agri Booking',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        navigatorKey: navigatorKey,
+        home: NotificationScreen() //home,
+        // Use NotificationScreen as the home widget
+        );
   }
 }
