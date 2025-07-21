@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/employer/addFarm2.dart';
 import 'package:agri_booking2/pages/employer/plan_emp.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -240,6 +241,33 @@ class _ReservingForNFState extends State<ReservingForNF> {
                           "ขนาดพื้นที่: ${selectedFarm['area_amount'] ?? '-'} ${selectedFarm['unit_area'] ?? ''}"),
                       Text("รายละเอียด: ${selectedFarm['detail'] ?? '-'}"),
                       const Divider(),
+                    ],
+                    if (farmList.isEmpty) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        'คุณยังไม่มีข้อมูลที่นา',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  AddFarmPage2(mid: widget.mid),
+                            ),
+                          ).then((_) {
+                            // กลับมาหน้านี้แล้วโหลดฟาร์มใหม่
+                            _loadFarms();
+                          });
+                        },
+                        icon: Icon(Icons.add_location_alt),
+                        label: Text('เพิ่มที่นา'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
+                      ),
                     ],
                     TextFormField(
                       controller: nameController,

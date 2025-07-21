@@ -146,6 +146,7 @@ class _MapFarmState extends State<MapFarm> {
                 ),
                 Expanded(
                   child: GoogleMap(
+                    mapType: MapType.satellite,
                     initialCameraPosition:
                         CameraPosition(target: _initialPosition!, zoom: 15),
                     onMapCreated: (controller) =>

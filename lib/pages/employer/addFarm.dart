@@ -33,6 +33,9 @@ class _AddFarmPageState extends State<AddFarmPage> {
 
   String markerMessage = '';
 
+  final List<String> unitOptions = ['ไร่', 'งาน', 'ตารางวา', 'อื่นๆ'];
+  String? selectedUnit;
+
   @override
   void initState() {
     super.initState();
@@ -217,12 +220,21 @@ class _AddFarmPageState extends State<AddFarmPage> {
                 validator: (val) =>
                     val == null || val.isEmpty ? 'กรุณากรอกขนาดพื้นที่' : null,
               ),
-              TextFormField(
-                controller: unitAreaCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'หน่วยพื้นที่ (เช่น ไร่)'),
-                validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกหน่วยพื้นที่' : null,
+              DropdownButtonFormField<String>(
+                value: selectedUnit,
+                decoration: const InputDecoration(labelText: 'หน่วยพื้นที่'),
+                items: unitOptions
+                    .map((unit) => DropdownMenuItem(
+                          value: unit,
+                          child: Text(unit),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedUnit = value;
+                  });
+                },
+                validator: (v) => v == null ? 'กรุณาเลือกหน่วยพื้นที่' : null,
               ),
 
               const SizedBox(height: 16),

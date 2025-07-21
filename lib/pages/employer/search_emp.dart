@@ -237,6 +237,10 @@ class _SearchEmpState extends State<SearchEmp> {
               onSubmitted: (_) => _onSearch(),
             ),
             const SizedBox(height: 16),
+            if (farmList.isEmpty)
+              const Text('ไม่มีฟาร์มที่บันทึกไว้ กรุณาเพิ่มฟาร์มที่เมนู "ฉัน"')
+            else
+              const Text('เลือกฟาร์มที่ต้องการค้นหารถรับจ้าง'),
             if (hasFarm) ...[
               DropdownButtonFormField<dynamic>(
                 value: selectedFarm,

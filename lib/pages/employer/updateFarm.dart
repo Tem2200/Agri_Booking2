@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/employer/map_farms.dart';
+import 'package:agri_booking2/pages/map_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:agri_booking2/pages/assets/location_data.dart';
@@ -25,20 +26,23 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
   late TextEditingController villageCtrl;
   late TextEditingController detailCtrl;
   late TextEditingController areaAmountCtrl;
-  late TextEditingController unitAreaCtrl;
+  late TextEditingController unitAreaOtherCtrl;
 
   List<String> provinces = [];
   List<String> amphoes = [];
   List<String> districts = [];
+  final List<String> unitOptions = ['ไร่', 'งาน', 'ตารางวา', 'อื่นๆ'];
 
   String? selectedProvince;
   String? selectedAmphoe;
   String? selectedDistrict;
+  String? selectedUnit;
 
   double? latitude;
   double? longitude;
 
   String markerMessage = '';
+  bool showOtherUnitField = false;
 
   @override
   void initState() {
@@ -49,10 +53,21 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
     detailCtrl = TextEditingController(text: widget.farmData['detail'] ?? '');
     areaAmountCtrl =
         TextEditingController(text: widget.farmData['area_amount'].toString());
-    unitAreaCtrl =
-        TextEditingController(text: widget.farmData['unit_area'] ?? '');
 
-    // ค่า location เดิม
+    // ถ้า unit_area เป็นหนึ่งในตัวเลือก ให้ตั้ง selectedUnit ตรงนั้น
+    // ถ้าไม่ใช่ ให้เลือก 'อื่นๆ' และแสดงช่องกรอกอื่น ๆ
+    if (widget.farmData['unit_area'] != null &&
+        unitOptions.contains(widget.farmData['unit_area'])) {
+      selectedUnit = widget.farmData['unit_area'];
+      showOtherUnitField = false;
+      unitAreaOtherCtrl = TextEditingController(text: '');
+    } else {
+      selectedUnit = 'อื่นๆ';
+      showOtherUnitField = true;
+      unitAreaOtherCtrl =
+          TextEditingController(text: widget.farmData['unit_area'] ?? '');
+    }
+
     latitude = widget.farmData['latitude'];
     longitude = widget.farmData['longitude'];
 
@@ -60,7 +75,6 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
       markerMessage = 'ปักหมุดแผนที่แล้ว';
     }
 
-    // Province, amphoe, district เดิม
     selectedProvince = widget.farmData['province'];
     selectedAmphoe = widget.farmData['district'];
     selectedDistrict = widget.farmData['subdistrict'];
@@ -71,7 +85,6 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
         .toList()
       ..sort();
 
-    // load amphoes และ districts ตาม province/district เดิม
     if (selectedProvince != null) {
       amphoes = locationData
           .where((e) => e['province'] == selectedProvince)
@@ -96,7 +109,11 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
   Future<void> _pickLocation() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const MapFarm()),
+      MaterialPageRoute(
+          builder: (_) => MapEdit(
+                initialLat: latitude,
+                initialLng: longitude,
+              )),
     );
 
     if (result != null && result is Map<String, double>) {
@@ -116,6 +133,19 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
         const SnackBar(content: Text('กรุณาเลือกตำแหน่งแผนที่')),
       );
       return;
+    }
+
+    String unitAreaFinal;
+    if (selectedUnit == 'อื่นๆ') {
+      unitAreaFinal = unitAreaOtherCtrl.text.trim();
+      if (unitAreaFinal.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('กรุณากรอกหน่วยพื้นที่')),
+        );
+        return;
+      }
+    } else {
+      unitAreaFinal = selectedUnit ?? '';
     }
 
     final confirm = await showDialog<bool>(
@@ -147,7 +177,7 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
       "province": selectedProvince,
       "detail": detailCtrl.text,
       "area_amount": int.tryParse(areaAmountCtrl.text) ?? 0,
-      "unit_area": unitAreaCtrl.text,
+      "unit_area": unitAreaFinal,
       "latitude": latitude,
       "longitude": longitude,
     };
@@ -284,12 +314,40 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
                 validator: (val) =>
                     val == null || val.isEmpty ? 'กรุณากรอกขนาดพื้นที่' : null,
               ),
-              TextFormField(
-                controller: unitAreaCtrl,
+              DropdownButtonFormField<String>(
+                value: selectedUnit,
                 decoration: const InputDecoration(labelText: 'หน่วยพื้นที่'),
-                validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกหน่วยพื้นที่' : null,
+                items: unitOptions
+                    .map((e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(e),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedUnit = value;
+                    showOtherUnitField = value == 'อื่นๆ';
+                    if (!showOtherUnitField) {
+                      unitAreaOtherCtrl.text = '';
+                    }
+                  });
+                },
+                validator: (val) => val == null || val.isEmpty
+                    ? 'กรุณาเลือกหน่วยพื้นที่'
+                    : null,
               ),
+              if (showOtherUnitField)
+                TextFormField(
+                  controller: unitAreaOtherCtrl,
+                  decoration:
+                      const InputDecoration(labelText: 'กรุณาระบุหน่วยพื้นที่'),
+                  validator: (val) {
+                    if (showOtherUnitField && (val == null || val.isEmpty)) {
+                      return 'กรุณากรอกหน่วยพื้นที่';
+                    }
+                    return null;
+                  },
+                ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
                 icon: const Icon(Icons.map),

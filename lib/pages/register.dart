@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
+import 'package:agri_booking2/pages/employer/addFarm.dart';
+import 'package:agri_booking2/pages/employer/addFarm2.dart';
 import 'package:agri_booking2/pages/login.dart';
 import 'package:agri_booking2/pages/map_register.dart';
 import 'package:flutter/material.dart';
@@ -170,16 +172,11 @@ class _RegisterState extends State<Register> {
                         ),
                       );
                     } else if (data['type_member'] == 2) {
-                      int currentMonth = DateTime.now().month;
-                      int currentYear = DateTime.now().year;
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Tabbar(
+                          builder: (context) => AddFarmPage(
                             mid: mid,
-                            value: 0,
-                            month: currentMonth,
-                            year: currentYear,
                           ),
                         ),
                       );

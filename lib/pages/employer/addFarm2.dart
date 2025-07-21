@@ -1,5 +1,5 @@
+import 'package:agri_booking2/pages/employer/homeEmp.dart';
 import 'package:agri_booking2/pages/employer/map_farms.dart';
-import 'package:agri_booking2/pages/employer/reservingForNF.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -7,8 +7,7 @@ import 'package:agri_booking2/pages/assets/location_data.dart';
 
 class AddFarmPage2 extends StatefulWidget {
   final int mid;
-  final int vid;
-  const AddFarmPage2({super.key, required this.mid, required this.vid});
+  const AddFarmPage2({super.key, required this.mid});
 
   @override
   State<AddFarmPage2> createState() => _AddFarmPage2State();
@@ -21,7 +20,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
   TextEditingController villageCtrl = TextEditingController();
   TextEditingController detailCtrl = TextEditingController();
   TextEditingController areaAmountCtrl = TextEditingController();
-  TextEditingController unitAreaCtrl = TextEditingController();
+  TextEditingController customUnitCtrl = TextEditingController();
 
   List<String> provinces = [];
   List<String> amphoes = [];
@@ -32,13 +31,14 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
   String? selectedDistrict;
   double? latitude;
   double? longitude;
-
   String markerMessage = '';
+
+  final List<String> unitOptions = ['ไร่', 'งาน', 'ตารางวา', 'อื่นๆ'];
+  String? selectedUnit;
 
   @override
   void initState() {
     super.initState();
-
     provinces = locationData
         .map((e) => e['province'] as String)
         .toSet()
@@ -51,7 +51,6 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
       context,
       MaterialPageRoute(builder: (_) => const MapFarm()),
     );
-
     if (result != null && result is Map<String, double>) {
       setState(() {
         latitude = result['lat'];
@@ -71,6 +70,9 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
       return;
     }
 
+    final unitToSend =
+        selectedUnit == 'อื่นๆ' ? customUnitCtrl.text : selectedUnit;
+
     final farmData = {
       "name_farm": nameFarmCtrl.text,
       "village": villageCtrl.text,
@@ -79,7 +81,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
       "province": selectedProvince,
       "detail": detailCtrl.text,
       "area_amount": int.tryParse(areaAmountCtrl.text) ?? 0,
-      "unit_area": unitAreaCtrl.text,
+      "unit_area": unitToSend,
       "latitude": latitude,
       "longitude": longitude,
       "mid": widget.mid,
@@ -99,15 +101,8 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('เพิ่มฟาร์มสำเร็จ')),
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ReservingForNF(
-              mid: widget.mid,
-              vid: widget.vid,
-            ),
-          ),
-        );
+
+        Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('เกิดข้อผิดพลาด: ${response.body}')),
@@ -132,7 +127,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
           key: _formKey,
           child: Column(
             children: [
-              // ฟิลด์กรอกข้อมูลฟาร์มพื้นฐาน
+              const Text('กรุณากรอกข้อมูลฟาร์มของคุณเพื่อใช้ในการจองงาน'),
               TextFormField(
                 controller: nameFarmCtrl,
                 decoration: const InputDecoration(labelText: 'ชื่อฟาร์ม'),
@@ -149,10 +144,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                 value: selectedProvince,
                 decoration: const InputDecoration(labelText: 'จังหวัด'),
                 items: provinces
-                    .map((e) => DropdownMenuItem(
-                          value: e,
-                          child: Text(e),
-                        ))
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -176,10 +168,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                 value: selectedAmphoe,
                 decoration: const InputDecoration(labelText: 'อำเภอ'),
                 items: amphoes
-                    .map((e) => DropdownMenuItem(
-                          value: e,
-                          child: Text(e),
-                        ))
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -202,10 +191,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                 value: selectedDistrict,
                 decoration: const InputDecoration(labelText: 'ตำบล'),
                 items: districts
-                    .map((e) => DropdownMenuItem(
-                          value: e,
-                          child: Text(e),
-                        ))
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -226,22 +212,35 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                 validator: (val) =>
                     val == null || val.isEmpty ? 'กรุณากรอกขนาดพื้นที่' : null,
               ),
-              TextFormField(
-                controller: unitAreaCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'หน่วยพื้นที่ (เช่น ไร่)'),
+              DropdownButtonFormField<String>(
+                value: selectedUnit,
+                decoration: const InputDecoration(labelText: 'หน่วยพื้นที่'),
+                items: unitOptions
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedUnit = value;
+                  });
+                },
                 validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกหน่วยพื้นที่' : null,
+                    val == null ? 'กรุณาเลือกหน่วยพื้นที่' : null,
               ),
-
+              if (selectedUnit == 'อื่นๆ')
+                TextFormField(
+                  controller: customUnitCtrl,
+                  decoration:
+                      const InputDecoration(labelText: 'ระบุหน่วยพื้นที่เอง'),
+                  validator: (val) => val == null || val.isEmpty
+                      ? 'กรุณาระบุหน่วยพื้นที่'
+                      : null,
+                ),
               const SizedBox(height: 16),
-
               ElevatedButton.icon(
                 icon: const Icon(Icons.map),
                 label: const Text('เลือกตำแหน่งบนแผนที่'),
                 onPressed: _pickLocation,
               ),
-
               if (markerMessage.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -251,9 +250,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                         color: Colors.green, fontWeight: FontWeight.bold),
                   ),
                 ),
-
               const SizedBox(height: 20),
-
               ElevatedButton(
                 onPressed: _submitFarm,
                 child: const Text('บันทึกฟาร์ม'),

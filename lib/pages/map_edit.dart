@@ -234,6 +234,7 @@ class _MapEditState extends State<MapEdit> {
           ),
           Expanded(
             child: GoogleMap(
+              mapType: MapType.satellite,
               // ตำแหน่งเริ่มต้นของกล้องจะใช้ _initialCameraPosition
               initialCameraPosition:
                   CameraPosition(target: _initialCameraPosition, zoom: 15),

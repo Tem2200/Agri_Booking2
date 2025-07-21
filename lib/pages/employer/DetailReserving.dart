@@ -265,18 +265,6 @@ class _DetailReservingState extends State<DetailReserving> {
     }
   }
 
-  void _openInGoogleMaps(double lat, double lng) async {
-    final Uri url =
-        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ไม่สามารถเปิด Google Maps ได้')),
-      );
-    }
-  }
-
   String _formatDateRange(String? startDate, String? endDate) {
     if (startDate == null ||
         startDate.isEmpty ||
@@ -326,7 +314,7 @@ class _DetailReservingState extends State<DetailReserving> {
                   children: [
                     TileLayer(
                       urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                       subdomains: ['a', 'b', 'c'],
                       userAgentPackageName: 'com.example.yourapp',
                     ),
@@ -337,13 +325,31 @@ class _DetailReservingState extends State<DetailReserving> {
                               data!['contractor_longitude']),
                           width: 40, // ต้องกำหนดความกว้าง
                           height: 40, // และความสูง
-                          child: Icon(Icons.location_on, color: Colors.green),
+                          child: const Column(
+                            children: [
+                              Text('ผู้รับจ้าง',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      backgroundColor: Colors.green)),
+                              Icon(Icons.person_pin_circle,
+                                  color: Colors.green, size: 40),
+                            ],
+                          ),
                         ),
                         Marker(
                           point: LatLng(data!['latitude'], data!['longitude']),
                           width: 40, // ต้องกำหนดความกว้าง
                           height: 40, // และความสูง
-                          child: Icon(Icons.location_on, color: Colors.green),
+                          child: const Column(
+                            children: [
+                              Text('ผู้จ้าง',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      backgroundColor: Colors.green)),
+                              Icon(Icons.person_pin_circle,
+                                  color: Colors.green, size: 40),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -364,18 +370,22 @@ class _DetailReservingState extends State<DetailReserving> {
                     ),
                   ],
                 ),
-                Positioned(
-                  top: 16,
-                  right: 16,
-                  child: FloatingActionButton(
-                    onPressed: () {
-                      _openInGoogleMaps(data!['latitude'], data!['longitude']);
-                    },
-                    backgroundColor: Colors.blue,
-                    child: const Icon(Icons.map),
-                    tooltip: 'เปิด Google Maps',
-                  ),
-                ),
+
+                //เข้าไปหน้าgoogle maps
+
+                // Positioned(
+                //   top: 16,
+                //   right: 16,
+                //   child: FloatingActionButton(
+                //     onPressed: () {
+                //       _openInGoogleMaps(data!['latitude'], data!['longitude']);
+                //     },
+                //     backgroundColor: Colors.blue,
+                //     child: const Icon(Icons.map),
+                //     tooltip: 'เปิด Google Maps',
+                //   ),
+                // ),
+
                 // 📄 แผ่นข้อมูลแบบเลื่อน
                 if (_distanceInKm != null)
                   Text(

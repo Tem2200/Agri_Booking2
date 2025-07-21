@@ -397,7 +397,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                   children: [
                     TileLayer(
                       urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                       subdomains: ['a', 'b', 'c'],
                       userAgentPackageName: 'com.example.yourapp',
                     ),
@@ -408,13 +408,31 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                               data!['contractor_longitude']),
                           width: 40, // ต้องกำหนดความกว้าง
                           height: 40, // และความสูง
-                          child: Icon(Icons.location_on, color: Colors.green),
+                          child: const Column(
+                            children: [
+                              Text('ผู้รับจ้าง',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      backgroundColor: Colors.green)),
+                              Icon(Icons.person_pin_circle,
+                                  color: Colors.green, size: 40),
+                            ],
+                          ),
                         ),
                         Marker(
                           point: LatLng(data!['latitude'], data!['longitude']),
                           width: 40, // ต้องกำหนดความกว้าง
                           height: 40, // และความสูง
-                          child: Icon(Icons.location_on, color: Colors.green),
+                          child: const Column(
+                            children: [
+                              Text('ผู้จ้าง',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      backgroundColor: Colors.green)),
+                              Icon(Icons.person_pin_circle,
+                                  color: Colors.green, size: 40),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -435,18 +453,21 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                     ),
                   ],
                 ),
-                Positioned(
-                  top: 16,
-                  right: 16,
-                  child: FloatingActionButton(
-                    onPressed: () {
-                      _openInGoogleMaps(data!['latitude'], data!['longitude']);
-                    },
-                    backgroundColor: Colors.blue,
-                    child: const Icon(Icons.map),
-                    tooltip: 'เปิด Google Maps',
-                  ),
-                ),
+
+                //เข้าไปหน้าgoogle maps
+
+                // Positioned(
+                //   top: 16,
+                //   right: 16,
+                //   child: FloatingActionButton(
+                //     onPressed: () {
+                //       _openInGoogleMaps(data!['latitude'], data!['longitude']);
+                //     },
+                //     backgroundColor: Colors.blue,
+                //     child: const Icon(Icons.map),
+                //     tooltip: 'เปิด Google Maps',
+                //   ),
+                // ),
                 // 📄 แผ่นข้อมูลแบบเลื่อน
                 if (_distanceInKm != null)
                   Text(

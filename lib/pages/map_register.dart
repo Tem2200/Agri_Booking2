@@ -294,6 +294,7 @@ class _MapRegisterState extends State<MapRegister> {
                 ),
                 Expanded(
                   child: GoogleMap(
+                    mapType: MapType.satellite,
                     initialCameraPosition:
                         CameraPosition(target: _initialPosition!, zoom: 15),
                     onMapCreated: (controller) =>
