@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/employer/DetailReserving.dart';
+import 'package:agri_booking2/pages/employer/review_con.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:googleapis_auth/auth.dart';
@@ -265,6 +266,24 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                     color: Colors.orange,
                   ),
                 ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailReserving(
+                          rsid: rs['rsid'] ?? 0,
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.yellow,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text("รายละเอียดเพิ่มเติม"),
+                ),
+                const SizedBox(height: 8),
                 if (progressStatusText(rs['progress_status']) ==
                     "รอผู้รับจ้างยืนยันการจอง")
                   ElevatedButton(
@@ -294,20 +313,26 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                     ),
                     child: const Text("แจ้งยกเลิกการจอง"),
                   ),
-                const SizedBox(height: 8),
-                OutlinedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailReserving(
-                          rsid: rs['rsid'] ?? 0,
+                if (progressStatusText(rs['progress_status']) ==
+                    "ทำงานเสร็จสิ้น")
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReviewCon(
+                            midContractor: rs['mid_contractor'] ?? 0,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  child: const Text('รายละเอียดเพิ่มเติม'),
-                ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.yellow,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text("รีวิวผู้รับจ้าง"),
+                  ),
+                const SizedBox(height: 8),
               ],
             ),
             isThreeLine: true,
