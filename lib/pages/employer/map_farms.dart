@@ -105,8 +105,33 @@ class _MapFarmState extends State<MapFarm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFFFFCC99),
-        title: const Text('เลือกตำแหน่งบนแผนที่'),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        centerTitle: true, // ✅ บังคับให้อยู่ตรงกลาง
+        title: const Text(
+          'เลือกตำแหน่งบนแผนที่',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            //letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
@@ -136,9 +161,10 @@ class _MapFarmState extends State<MapFarm> {
                         onPressed: () => _searchPlace(searchController.text),
                         label: const Text('ค้นหา'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color(0xFFFFCC99), // สีพื้นหลัง
-                          foregroundColor: Colors.black, // สีข้อความและไอคอน
+                          backgroundColor: const Color.fromARGB(
+                              255, 255, 158, 60), // สีพื้นหลัง
+                          foregroundColor: const Color.fromARGB(
+                              255, 255, 255, 255), // สีข้อความและไอคอน
                         ),
                       )
                     ],

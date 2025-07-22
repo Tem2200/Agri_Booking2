@@ -119,7 +119,26 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('เพิ่มฟาร์ม'),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+        //automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
+        title: const Text(
+          'เพิ่มไร่นา',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            //letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

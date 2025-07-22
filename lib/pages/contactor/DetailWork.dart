@@ -483,9 +483,9 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                     String getStatusText(dynamic status) {
                       switch (status.toString()) {
                         case '0':
-                          return 'ยกเลิก';
+                          return 'ผู้รับจ้างยกเลิกงาน';
                         case '1':
-                          return 'ยืนยัน';
+                          return 'ผู้รับจ้างยืนยันการจอง';
                         case '2':
                           return 'กำลังเดินทาง';
                         case '3':
@@ -493,7 +493,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                         case '4':
                           return 'เสร็จสิ้น';
                         default:
-                          return 'ยังไม่ระบุ';
+                          return 'รอผู้รับจ้างยืนยันการจอง';
                       }
                     }
 

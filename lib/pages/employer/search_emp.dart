@@ -217,8 +217,26 @@ class _SearchEmpState extends State<SearchEmp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('ค้นหารถรับจ้าง'),
+        backgroundColor: Color.fromARGB(255, 18, 143, 9),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+        automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
+        title: const Text(
+          'หน้าแรก',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            //letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -281,56 +299,215 @@ class _SearchEmpState extends State<SearchEmp> {
                           itemCount: filteredVehicles.length,
                           itemBuilder: (context, index) {
                             final v = filteredVehicles[index];
-                            return Card(
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              child: ListTile(
-                                leading: v['image'] != null
-                                    ? CachedNetworkImage(
-                                        imageUrl: v['image'],
-                                        width: 60,
-                                        height: 60,
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) =>
-                                            const CircularProgressIndicator(),
-                                        errorWidget: (context, url, error) =>
-                                            const Icon(
-                                                Icons.image_not_supported),
-                                      )
-                                    : const Icon(Icons.agriculture, size: 50),
-                                title: Text(v['name_vehicle'] ?? '-'),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                        'ผู้รับจ้าง: ${v['username_contractor'] ?? '-'}'),
-                                    Text(
-                                        'ราคา: ${v['price'] ?? '-'} บาท/${v['unit_price'] ?? '-'}'),
-                                    Text(
-                                        'คะแนนเฉลี่ยรีวิว: ${v['avg_review_point'] ?? '-'}'),
-                                    if (hasFarm)
-                                      Text(
-                                        'ระยะทาง: ${v['distance_text'] ?? '-'}',
-                                      ),
-                                    const SizedBox(height: 8),
-                                    OutlinedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => DetailvehcEmp(
-                                              vid: v['vid'] ?? 0,
-                                              mid: widget.mid,
-                                              fid: selectedFarm?['fid'] ?? 0,
-                                              farm: selectedFarm,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      child: const Text('รายละเอียดเพิ่มเติม'),
+
+                            return Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 25),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.orange[50],
+                                  border: Border.all(color: Colors.orange),
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.orange.withOpacity(0.3),
+                                      spreadRadius: 1,
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
-                                isThreeLine: true,
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // ✅ รูปภาพ
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: v['image'] != null &&
+                                              v['image'].toString().isNotEmpty
+                                          ? CachedNetworkImage(
+                                              imageUrl: v['image'],
+                                              width: 120,
+                                              height: 180,
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, url) =>
+                                                  const Center(
+                                                child: SizedBox(
+                                                  width: 32,
+                                                  height: 32,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                          strokeWidth: 2),
+                                                ),
+                                              ),
+                                              errorWidget: (context, url,
+                                                      error) =>
+                                                  const Icon(Icons.broken_image,
+                                                      size: 48),
+                                            )
+                                          : Container(
+                                              width: 120,
+                                              height: 180,
+                                              color: Colors.grey[200],
+                                              alignment: Alignment.center,
+                                              child: const Icon(
+                                                  Icons.image_not_supported,
+                                                  size: 48),
+                                            ),
+                                    ),
+
+                                    const SizedBox(width: 12),
+
+                                    // ✅ ข้อมูล
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            v['name_vehicle'] ?? 'ไม่มีชื่อรถ',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                          const SizedBox(height: 6),
+
+                                          // 🔸 ผู้รับจ้าง
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.person,
+                                                  size: 18,
+                                                  color: Colors.orange),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: Text(
+                                                  'ผู้รับจ้าง: ${v['username_contractor'] ?? '-'}',
+                                                  style: const TextStyle(
+                                                      fontSize: 14),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+
+                                          const SizedBox(height: 4),
+
+                                          // 🔸 ราคา
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.attach_money,
+                                                  size: 18,
+                                                  color: Colors.green),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                '${v['price']} บาท / ${v['unit_price']}',
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.green,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
+                                            ],
+                                          ),
+
+                                          const SizedBox(height: 4),
+
+                                          // 🔸 คะแนน
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.star,
+                                                  size: 18,
+                                                  color: Colors.amber),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                'คะแนนเฉลี่ยรีวิว: ${v['avg_review_point'] ?? '-'}',
+                                                style: const TextStyle(
+                                                    fontSize: 14),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
+                                            ],
+                                          ),
+
+                                          const SizedBox(height: 4),
+
+                                          // 🔸 ระยะทาง (ถ้ามีฟาร์ม)
+                                          if (hasFarm)
+                                            Row(
+                                              children: [
+                                                const Icon(Icons.map,
+                                                    size: 18,
+                                                    color: Colors.blue),
+                                                const SizedBox(width: 6),
+                                                Expanded(
+                                                  child: Text(
+                                                    'ระยะทาง: ${v['distance_text'] ?? '-'}',
+                                                    style: const TextStyle(
+                                                        fontSize: 14),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+
+                                          const SizedBox(height: 12),
+
+                                          // 🔸 ปุ่มรายละเอียดเพิ่มเติม
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: OutlinedButton(
+                                              style: OutlinedButton.styleFrom(
+                                                side: const BorderSide(
+                                                    color: Color.fromARGB(
+                                                        255,
+                                                        174,
+                                                        134,
+                                                        182)), // สีกรอบ
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20), // มุมโค้ง
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 8),
+                                              ),
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        DetailvehcEmp(
+                                                      vid: v['vid'] ?? 0,
+                                                      mid: widget.mid,
+                                                      fid: selectedFarm?[
+                                                              'fid'] ??
+                                                          0,
+                                                      farm: selectedFarm,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: const Text(
+                                                  'รายละเอียดเพิ่มเติม'),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },

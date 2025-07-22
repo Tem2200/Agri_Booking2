@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/employer/DetailVehc_emp.dart';
+import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/search_emp.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -132,15 +134,52 @@ class _SearchEnterState extends State<SearchEnter> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ผลการค้นหา'),
+        // title: const Text('ผลการค้นหา'),
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     Navigator.push(
+        //       context,
+        //       MaterialPageRoute(
+        //         builder: (context) => SearchEmp(
+        //           mid: widget.mid,
+        //         ),
+        //       ),
+        //     );
+        //   },
+        // ),
+        backgroundColor: Color.fromARGB(255, 18, 143, 9),
+        centerTitle: true,
+        title: const Text(
+          'ผลการค้นหา',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            //letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
         leading: IconButton(
+          color: Colors.white,
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(
+            int currentMonth = DateTime.now().month;
+            int currentYear = DateTime.now().year;
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => SearchEmp(
+                builder: (context) => Tabbar(
                   mid: widget.mid,
+                  value: 0,
+                  month: currentMonth,
+                  year: currentYear,
                 ),
               ),
             );
@@ -185,55 +224,244 @@ class _SearchEnterState extends State<SearchEnter> {
                           itemCount: vehicles.length,
                           itemBuilder: (context, index) {
                             final v = vehicles[index];
-                            return Card(
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 16),
-                              child: ListTile(
-                                leading: v['image'] != null
-                                    ? Image.network(
-                                        v['image'],
-                                        width: 60,
-                                        height: 60,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) =>
-                                            const Icon(
-                                                Icons.image_not_supported),
-                                      )
-                                    : const Icon(Icons.agriculture, size: 50),
-                                title: Text(v['name_vehicle'] ?? '-'),
-                                subtitle: Column(
+                            // return Card(
+                            //   margin: const EdgeInsets.symmetric(
+                            //       vertical: 8, horizontal: 16),
+                            //   child: ListTile(
+                            //     leading: v['image'] != null
+                            //         ? Image.network(
+                            //             v['image'],
+                            //             width: 60,
+                            //             height: 60,
+                            //             fit: BoxFit.cover,
+                            //             errorBuilder: (_, __, ___) =>
+                            //                 const Icon(
+                            //                     Icons.image_not_supported),
+                            //           )
+                            //         : const Icon(Icons.agriculture, size: 50),
+                            //     title: Text(v['name_vehicle'] ?? '-'),
+                            //     subtitle: Column(
+                            //       crossAxisAlignment: CrossAxisAlignment.start,
+                            //       children: [
+                            //         Text(
+                            //             'ผู้รับจ้าง: ${v['username_contractor'] ?? '-'}'),
+                            //         Text(
+                            //             'คะแนนเฉลี่ยรีวิว: ${v['avg_review_point'] ?? '-'}'),
+                            //         Text('ราคา: ${v['price'] ?? '-'} บาท'),
+                            //         if (v['distance_text'] != null)
+                            //           Text('ระยะทาง: ${v['distance_text']}'),
+                            //         const SizedBox(height: 8),
+                            //         OutlinedButton(
+                            //           onPressed: () {
+                            //             Navigator.push(
+                            //               context,
+                            //               MaterialPageRoute(
+                            //                 builder: (context) => DetailvehcEmp(
+                            //                   vid: v['vid'] ?? 0,
+                            //                   mid: widget.mid,
+                            //                   fid: (widget.payload['farm'] !=
+                            //                               null &&
+                            //                           widget.payload['farm']
+                            //                                   ['fid'] !=
+                            //                               null)
+                            //                       ? widget.payload['farm']
+                            //                           ['fid'] as int
+                            //                       : 0,
+                            //                   farm: widget.payload["farm"],
+                            //                 ),
+                            //               ),
+                            //             );
+                            //           },
+                            //           child: const Text('รายละเอียดเพิ่มเติม'),
+                            //         ),
+                            //       ],
+                            //     ),
+                            //   ),
+                            // );
+
+                            return Padding(
+                              padding: const EdgeInsets.fromLTRB(15, 0, 15, 25),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.orange[50],
+                                  border: Border.all(color: Colors.orange),
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.orange.withOpacity(0.3),
+                                      spreadRadius: 1,
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                        'ผู้รับจ้าง: ${v['username_contractor'] ?? '-'}'),
-                                    Text(
-                                        'คะแนนเฉลี่ยรีวิว: ${v['avg_review_point'] ?? '-'}'),
-                                    Text('ราคา: ${v['price'] ?? '-'} บาท'),
-                                    if (v['distance_text'] != null)
-                                      Text('ระยะทาง: ${v['distance_text']}'),
-                                    const SizedBox(height: 8),
-                                    OutlinedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => DetailvehcEmp(
-                                              vid: v['vid'] ?? 0,
-                                              mid: widget.mid,
-                                              fid: (widget.payload['farm'] !=
-                                                          null &&
-                                                      widget.payload['farm']
-                                                              ['fid'] !=
-                                                          null)
-                                                  ? widget.payload['farm']
-                                                      ['fid'] as int
-                                                  : 0,
-                                              farm: widget.payload["farm"],
+                                    // ✅ รูปภาพ
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: v['image'] != null &&
+                                              v['image'].toString().isNotEmpty
+                                          ? CachedNetworkImage(
+                                              imageUrl: v['image'],
+                                              width: 120,
+                                              height: 180,
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, url) =>
+                                                  const Center(
+                                                child: SizedBox(
+                                                  width: 32,
+                                                  height: 32,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                          strokeWidth: 2),
+                                                ),
+                                              ),
+                                              errorWidget: (context, url,
+                                                      error) =>
+                                                  const Icon(Icons.broken_image,
+                                                      size: 48),
+                                            )
+                                          : Container(
+                                              width: 120,
+                                              height: 180,
+                                              color: Colors.grey[200],
+                                              alignment: Alignment.center,
+                                              child: const Icon(
+                                                  Icons.image_not_supported,
+                                                  size: 48),
+                                            ),
+                                    ),
+
+                                    const SizedBox(width: 12),
+
+                                    // ✅ ข้อมูล
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            v['name_vehicle'] ?? 'ไม่มีชื่อรถ',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.person,
+                                                  size: 18,
+                                                  color: Colors.orange),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: Text(
+                                                  'ผู้รับจ้าง: ${v['username_contractor'] ?? '-'}',
+                                                  style: const TextStyle(
+                                                      fontSize: 14),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.attach_money,
+                                                  size: 18,
+                                                  color: Colors.green),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                '${v['price'] ?? '-'} บาท',
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.green,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.star,
+                                                  size: 18,
+                                                  color: Colors.amber),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                'คะแนนเฉลี่ยรีวิว: ${v['avg_review_point'] ?? '-'}',
+                                                style: const TextStyle(
+                                                    fontSize: 14),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          if (v['distance_text'] != null)
+                                            Row(
+                                              children: [
+                                                const Icon(Icons.map,
+                                                    size: 18,
+                                                    color: Colors.blue),
+                                                const SizedBox(width: 6),
+                                                Expanded(
+                                                  child: Text(
+                                                    'ระยะทาง: ${v['distance_text']}',
+                                                    style: const TextStyle(
+                                                        fontSize: 14),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          const SizedBox(height: 12),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: OutlinedButton(
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        DetailvehcEmp(
+                                                      vid: v['vid'] ?? 0,
+                                                      mid: widget.mid,
+                                                      fid: (widget.payload[
+                                                                      'farm'] !=
+                                                                  null &&
+                                                              widget.payload[
+                                                                          'farm']
+                                                                      ['fid'] !=
+                                                                  null)
+                                                          ? widget.payload[
+                                                                  'farm']['fid']
+                                                              as int
+                                                          : 0,
+                                                      farm: widget
+                                                          .payload["farm"],
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: const Text(
+                                                  'รายละเอียดเพิ่มเติม'),
                                             ),
                                           ),
-                                        );
-                                      },
-                                      child: const Text('รายละเอียดเพิ่มเติม'),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),

@@ -87,32 +87,28 @@ class _FarmsPageState extends State<FarmsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Farms Page (MID: ${widget.mid})'),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        centerTitle: true,
+        //automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          'Farms Page (MID: ${widget.mid})',
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.add),
-              label: const Text('เพิ่มฟาร์มใหม่'),
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => AddFarmPage(mid: widget.mid),
-                  ),
-                );
-
-                if (result == true) {
-                  // รีเฟรชข้อมูลเมื่อเพิ่มฟาร์มสำเร็จ
-                  setState(() {
-                    farmsFuture = fetchFarms(widget.mid);
-                  });
-                }
-              },
-            ),
-          ),
           Expanded(
             child: FutureBuilder<List<dynamic>>(
               future: farmsFuture,
@@ -132,45 +128,251 @@ class _FarmsPageState extends State<FarmsPage> {
                   itemCount: farms.length,
                   itemBuilder: (context, index) {
                     final farm = farms[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(farm['name_farm']),
-                        subtitle: Text(
-                            '${farm['subdistrict']}, ${farm['district']}, ${farm['province']}'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () async {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => UpdateFarmPage(
-                                      fid: farm['fid'],
-                                      farmData: farm,
-                                    ),
-                                  ),
-                                );
+                    // return Card(
+                    //   child: ListTile(
+                    //     title: Text(farm['name_farm']),
+                    //     subtitle: Text(
+                    //         '${farm['subdistrict']}, ${farm['district']}, ${farm['province']}'),
+                    //     trailing: Row(
+                    //       mainAxisSize: MainAxisSize.min,
+                    //       children: [
+                    //         IconButton(
+                    //           icon: const Icon(Icons.edit, color: Colors.blue),
+                    //           onPressed: () async {
+                    //             final result = await Navigator.push(
+                    //               context,
+                    //               MaterialPageRoute(
+                    //                 builder: (_) => UpdateFarmPage(
+                    //                   fid: farm['fid'],
+                    //                   farmData: farm,
+                    //                 ),
+                    //               ),
+                    //             );
 
-                                if (result == true) {
-                                  setState(() {
-                                    farmsFuture = fetchFarms(widget.mid);
-                                  });
-                                }
-                              },
+                    //             if (result == true) {
+                    //               setState(() {
+                    //                 farmsFuture = fetchFarms(widget.mid);
+                    //               });
+                    //             }
+                    //           },
+                    //         ),
+                    //         IconButton(
+                    //           icon: const Icon(Icons.delete, color: Colors.red),
+                    //           onPressed: () => deleteFarm(farm['fid']),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // );
+
+                    //ui new
+                    return Card(
+                      elevation: 8, // เงาชัดเจน
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16), // มุมโค้งมนสวย
+                      ),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10), // เว้นขอบการ์ด
+                      shadowColor: Colors.black54, // เงาสีเข้มขึ้นเล็กน้อย
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 12), // ระยะห่างในการ์ด
+                        child: ListTile(
+                          title: Text(
+                            farm['name_farm'],
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black12,
+                                  offset: Offset(1, 1),
+                                  blurRadius: 2,
+                                ),
+                              ],
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => deleteFarm(farm['fid']),
+                          ),
+                          subtitle: Text(
+                            '${farm['subdistrict']}, ${farm['district']}, ${farm['province']}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w500,
                             ),
-                          ],
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                color:
+                                    Colors.blue.shade700, // สีน้ำเงินเข้มสบายตา
+                                tooltip: 'แก้ไขข้อมูลฟาร์ม',
+                                onPressed: () async {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => UpdateFarmPage(
+                                        fid: farm['fid'],
+                                        farmData: farm,
+                                      ),
+                                    ),
+                                  );
+                                  if (result == true) {
+                                    setState(() {
+                                      farmsFuture = fetchFarms(widget.mid);
+                                    });
+                                  }
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                color: Colors.red.shade700, // สีแดงเข้ม
+                                tooltip: 'ลบฟาร์ม',
+                                onPressed: () => deleteFarm(farm['fid']),
+                              ),
+                            ],
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 0), // จัดระยะห่างภายใน ListTile
                         ),
                       ),
                     );
                   },
                 );
               },
+            ),
+          ),
+
+          //เพิ่มไรนามีปุ่มปกติ
+          // Padding(
+          //   padding: const EdgeInsets.all(12),
+          //   child: ElevatedButton.icon(
+          //     icon: const Icon(Icons.add),
+          //     label: const Text('เพิ่มไร่นาใหม่'),
+          //     onPressed: () async {
+          //       final result = await Navigator.push(
+          //         context,
+          //         MaterialPageRoute(
+          //           builder: (_) => AddFarmPage(mid: widget.mid),
+          //         ),
+          //       );
+
+          //       if (result == true) {
+          //         // รีเฟรชข้อมูลเมื่อเพิ่มฟาร์มสำเร็จ
+          //         setState(() {
+          //           farmsFuture = fetchFarms(widget.mid);
+          //         });
+          //       }
+          //     },
+          //   ),
+          // ),
+
+          //เพิ่มไร่นาปุ่มไล่สี
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(12, 12, 12, 25), // ด้านล่าง = 0
+
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.end,
+          //     children: [
+          //       GestureDetector(
+          //         onTap: () async {
+          //           final result = await Navigator.push(
+          //             context,
+          //             MaterialPageRoute(
+          //               builder: (_) => AddFarmPage(mid: widget.mid),
+          //             ),
+          //           );
+          //           if (result == true) {
+          //             setState(() {
+          //               farmsFuture = fetchFarms(widget.mid);
+          //             });
+          //           }
+          //         },
+          //         child: Container(
+          //           padding: const EdgeInsets.symmetric(
+          //               horizontal: 20, vertical: 14),
+          //           decoration: BoxDecoration(
+          //             gradient: const LinearGradient(
+          //               colors: [
+          //                 Color.fromARGB(255, 190, 255, 189),
+          //                 Color.fromARGB(255, 37, 189, 35),
+          //                 Color.fromARGB(255, 46, 125, 50),
+          //               ], // ไล่เฉดสีเขียว
+          //               begin: Alignment.topLeft,
+          //               end: Alignment.bottomRight,
+          //             ),
+          //             borderRadius: BorderRadius.circular(12),
+          //             boxShadow: const [
+          //               BoxShadow(
+          //                 color: Colors.black26,
+          //                 blurRadius: 6,
+          //                 offset: Offset(2, 2),
+          //               ),
+          //             ],
+          //           ),
+          //           child: const Row(
+          //             mainAxisSize: MainAxisSize.min,
+          //             children: [
+          //               Icon(Icons.add, color: Colors.white),
+          //               SizedBox(width: 8),
+          //               Text(
+          //                 'เพิ่มไร่นาใหม่',
+          //                 style: TextStyle(
+          //                   color: Colors.white,
+          //                   fontSize: 18,
+          //                   fontWeight: FontWeight.w600,
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end, // ✅ ชิดขวา
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AddFarmPage(mid: widget.mid),
+                      ),
+                    );
+                    if (result == true) {
+                      setState(() {
+                        farmsFuture = fetchFarms(widget.mid);
+                      });
+                    }
+                  },
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.add,
+                        color: Color(0xFFFF8C00), // สีส้ม
+                        size: 60, // ✅ ขนาดไอคอน (ค่าเริ่มต้นคือ 24)
+                      ),
+                      Text(
+                        'เพิ่มไร่นา',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: Colors
+                              .black87, // สีข้อความ (เปลี่ยนได้ตามต้องการ)
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],

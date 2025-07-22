@@ -227,6 +227,20 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
     }
   }
 
+// ปุ่มจองคิว
+  final ButtonStyle bookingButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: Colors.blue,
+    foregroundColor: Colors.white,
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+    textStyle: const TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.bold, // ✅ ตัวหนา
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     // ✅ URL รูปภาพรถ
@@ -252,8 +266,28 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
     return Scaffold(
       appBar: AppBar(
         //title: Text(vehicleData?['name_vehicle'] ?? 'รายละเอียดรถ'),
-        backgroundColor: Color(0xFFFFCC99),
-        title: Text('รายละเอียดรถ'),
+        // backgroundColor: Color.fromARGB(255, 255, 158, 60),
+        backgroundColor: Color.fromARGB(255, 18, 143, 9),
+        centerTitle: true,
+        iconTheme: const IconThemeData(
+          color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว
+        ),
+        title: const Text(
+          'รายละเอียดรถ',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            //letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -420,38 +454,6 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                             },
                             child: const Text('โปรไฟล์ผู้รับจ้าง'),
                           ), // ช่องว่างระหว่างปุ่ม
-
-                          // ปุ่มแก้ไขรถ
-                          // ElevatedButton(
-                          //   onPressed: () async {
-                          //     if (vehicleData != null) {
-                          //       final result = await Navigator.push(
-                          //         context,
-                          //         MaterialPageRoute(
-                          //           builder: (context) => EditVehicle(
-                          //             initialVehicleData: vehicleData,
-                          //           ),
-                          //         ),
-                          //       );
-
-                          //       if (result == true || result == null) {
-                          //         fetchVehicleDetail(); // รีเฟรชข้อมูล
-                          //       }
-                          //     }
-                          //   },
-                          //   style: ElevatedButton.styleFrom(
-                          //     padding: const EdgeInsets.symmetric(
-                          //         horizontal: 16, vertical: 8),
-                          //     textStyle: const TextStyle(
-                          //         fontSize: 12), // ลดขนาดตัวหนังสือ
-                          //     shape: RoundedRectangleBorder(
-                          //         borderRadius: BorderRadius.circular(8)),
-                          //     backgroundColor: Colors.orange,
-                          //     foregroundColor: Colors.white,
-                          //     minimumSize: const Size(80, 36),
-                          //   ),
-                          //   child: const Text('แก้ไขรถ'),
-                          // ),
                         ],
                       ),
 
@@ -464,12 +466,18 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color:
-                              Color.fromARGB(255, 255, 208, 19), // สีเหลืองอ่อน
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFFFFF8E1), // สีเหลืองอ่อนมาก (บน)
+                              Color(0xFFFFD54F), // สีส้มอ่อน (ล่าง)
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: const Color.fromARGB(
-                                  255, 255, 196, 20)), // เส้นขอบสีส้ม
+                            color: Color(0xFFFFC107), // ขอบสีส้มทอง
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -706,48 +714,88 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                           ),
                         ],
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (widget.farm != null &&
-                              widget.farm is Map &&
-                              widget.farm.isNotEmpty) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ReservingEmp(
-                                  mid: widget.mid,
-                                  vid: widget.vid,
-                                  fid: widget.fid,
-                                  farm: widget.farm,
-                                ),
-                              ),
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ReservingForNF(
-                                  mid: widget.mid,
-                                  vid: widget.vid,
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                          textStyle: const TextStyle(fontSize: 12),
-                        ),
-                        child: const Text('จองคิวรถ'),
-                      ),
+
+                      // ElevatedButton(
+                      //   onPressed: () {
+                      //     if (widget.farm != null &&
+                      //         widget.farm is Map &&
+                      //         widget.farm.isNotEmpty) {
+                      //       Navigator.push(
+                      //         context,
+                      //         MaterialPageRoute(
+                      //           builder: (context) => ReservingEmp(
+                      //             mid: widget.mid,
+                      //             vid: widget.vid,
+                      //             fid: widget.fid,
+                      //             farm: widget.farm,
+                      //           ),
+                      //         ),
+                      //       );
+                      //     } else {
+                      //       Navigator.push(
+                      //         context,
+                      //         MaterialPageRoute(
+                      //           builder: (context) => ReservingForNF(
+                      //             mid: widget.mid,
+                      //             vid: widget.vid,
+                      //           ),
+                      //         ),
+                      //       );
+                      //     }
+                      //   },
+                      //   style: ElevatedButton.styleFrom(
+                      //     backgroundColor: Colors.blue,
+                      //     foregroundColor: Colors.white,
+                      //     padding: const EdgeInsets.symmetric(
+                      //         horizontal: 16, vertical: 8),
+                      //     shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(8)),
+                      //     textStyle: const TextStyle(fontSize: 12),
+                      //   ),
+                      //   child: const Text('จองคิวรถ'),
+                      // ),
                     ],
                   ),
                 ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                if (widget.farm != null &&
+                    widget.farm is Map &&
+                    widget.farm.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReservingEmp(
+                        mid: widget.mid,
+                        vid: widget.vid,
+                        fid: widget.fid,
+                        farm: widget.farm,
+                      ),
+                    ),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReservingForNF(
+                        mid: widget.mid,
+                        vid: widget.vid,
+                      ),
+                    ),
+                  );
+                }
+              },
+              style: bookingButtonStyle,
+              child: const Text('จองคิวรถ'),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

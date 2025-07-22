@@ -226,116 +226,267 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
       itemCount: list.length,
       itemBuilder: (context, index) {
         final rs = list[index];
-        return Card(
-          margin: const EdgeInsets.symmetric(
-            vertical: 8,
-            horizontal: 16,
-          ),
-          child: ListTile(
-            leading: rs['vehicle_image'] != null
-                ? Image.network(
-                    rs['vehicle_image'],
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
-                        const Icon(Icons.image_not_supported),
-                  )
-                : const Icon(Icons.agriculture, size: 50),
-            title: Text(
-              rs['name_rs'] ?? '-',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('รถ: ${rs['name_vehicle'] ?? '-'}'),
-                Text(
-                  'ฟาร์ม: ${rs['name_farm'] ?? '-'}'
-                  ' (${rs['farm_subdistrict'] ?? '-'},'
-                  ' ${rs['farm_district'] ?? '-'},'
-                  ' ${rs['farm_province'] ?? '-'})',
-                ),
-                Text(
-                    'พื้นที่: ${rs['area_amount'] ?? '-'} ${rs['unit_area'] ?? '-'}'),
-                Text('รายละเอียด: ${rs['detail'] ?? '-'}'),
-                Text(
-                  'สถานะ: ${progressStatusText(rs['progress_status'])}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange,
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailReserving(
-                          rsid: rs['rsid'] ?? 0,
-                        ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.yellow,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text("รายละเอียดเพิ่มเติม"),
-                ),
-                const SizedBox(height: 8),
-                if (progressStatusText(rs['progress_status']) ==
-                    "รอผู้รับจ้างยืนยันการจอง")
-                  ElevatedButton(
-                    onPressed: () {
-                      final contractorMid = rs['mid_contractor'];
-                      final rsid = rs['rsid'];
+        // return Card(
+        //   margin: const EdgeInsets.symmetric(
+        //     vertical: 8,
+        //     horizontal: 16,
+        //   ),
+        //   child: ListTile(
+        //     leading: rs['vehicle_image'] != null
+        //         ? Image.network(
+        //             rs['vehicle_image'],
+        //             width: 60,
+        //             height: 60,
+        //             fit: BoxFit.cover,
+        //             errorBuilder: (_, __, ___) =>
+        //                 const Icon(Icons.image_not_supported),
+        //           )
+        //         : const Icon(Icons.agriculture, size: 50),
+        //     title: Text(
+        //       rs['name_rs'] ?? '-',
+        //       style: const TextStyle(fontWeight: FontWeight.bold),
+        //     ),
+        //     subtitle: Column(
+        //       crossAxisAlignment: CrossAxisAlignment.start,
+        //       children: [
+        //         Text('รถ: ${rs['name_vehicle'] ?? '-'}'),
+        //         Text(
+        //           'ฟาร์ม: ${rs['name_farm'] ?? '-'}'
+        //           ' (${rs['farm_subdistrict'] ?? '-'},'
+        //           ' ${rs['farm_district'] ?? '-'},'
+        //           ' ${rs['farm_province'] ?? '-'})',
+        //         ),
+        //         Text(
+        //             'พื้นที่: ${rs['area_amount'] ?? '-'} ${rs['unit_area'] ?? '-'}'),
+        //         Text('รายละเอียด: ${rs['detail'] ?? '-'}'),
+        //         Text(
+        //           'สถานะ: ${progressStatusText(rs['progress_status'])}',
+        //           style: const TextStyle(
+        //             fontWeight: FontWeight.bold,
+        //             color: Colors.orange,
+        //           ),
+        //         ),
+        //         ElevatedButton(
+        //           onPressed: () {
+        //             Navigator.push(
+        //               context,
+        //               MaterialPageRoute(
+        //                 builder: (context) => DetailReserving(
+        //                   rsid: rs['rsid'] ?? 0,
+        //                 ),
+        //               ),
+        //             );
+        //           },
+        //           style: ElevatedButton.styleFrom(
+        //             backgroundColor: Colors.yellow,
+        //             foregroundColor: Colors.white,
+        //           ),
+        //           child: const Text("รายละเอียดเพิ่มเติม"),
+        //         ),
+        //         const SizedBox(height: 8),
+        //         if (progressStatusText(rs['progress_status']) ==
+        //             "รอผู้รับจ้างยืนยันการจอง")
+        //           ElevatedButton(
+        //             onPressed: () {
+        //               final contractorMid = rs['mid_contractor'];
+        //               final rsid = rs['rsid'];
 
-                      print("contractor_mid = $contractorMid");
-                      print("rsid = $rsid");
+        //               print("contractor_mid = $contractorMid");
+        //               print("rsid = $rsid");
 
-                      if (contractorMid != null && rsid != null) {
-                        sendCancelNotification(
-                          contractorMid: contractorMid,
-                          rsid: rsid,
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content:
-                                  Text("ไม่พบข้อมูล contractor_mid หรือ rsid")),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text("แจ้งยกเลิกการจอง"),
-                  ),
-                if (progressStatusText(rs['progress_status']) ==
-                    "ทำงานเสร็จสิ้น")
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ReviewCon(
-                            midContractor: rs['mid_contractor'] ?? 0,
-                          ),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.yellow,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text("รีวิวผู้รับจ้าง"),
-                  ),
-                const SizedBox(height: 8),
+        //               if (contractorMid != null && rsid != null) {
+        //                 sendCancelNotification(
+        //                   contractorMid: contractorMid,
+        //                   rsid: rsid,
+        //                 );
+        //               } else {
+        //                 ScaffoldMessenger.of(context).showSnackBar(
+        //                   const SnackBar(
+        //                       content:
+        //                           Text("ไม่พบข้อมูล contractor_mid หรือ rsid")),
+        //                 );
+        //               }
+        //             },
+        //             style: ElevatedButton.styleFrom(
+        //               backgroundColor: Colors.red,
+        //               foregroundColor: Colors.white,
+        //             ),
+        //             child: const Text("แจ้งยกเลิกการจอง"),
+        //           ),
+        //         if (progressStatusText(rs['progress_status']) ==
+        //             "ทำงานเสร็จสิ้น")
+        //           ElevatedButton(
+        //             onPressed: () {
+        //               Navigator.push(
+        //                 context,
+        //                 MaterialPageRoute(
+        //                   builder: (context) => ReviewCon(
+        //                     midContractor: rs['mid_contractor'] ?? 0,
+        //                   ),
+        //                 ),
+        //               );
+        //             },
+        //             style: ElevatedButton.styleFrom(
+        //               backgroundColor: Colors.yellow,
+        //               foregroundColor: Colors.white,
+        //             ),
+        //             child: const Text("รีวิวผู้รับจ้าง"),
+        //           ),
+        //         const SizedBox(height: 8),
+        //       ],
+        //     ),
+        //     isThreeLine: true,
+        //   ),
+        // );
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 25),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.orange[50],
+              border: Border.all(color: Colors.orange),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.orange.withOpacity(0.3),
+                  spreadRadius: 1,
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
               ],
             ),
-            isThreeLine: true,
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ✅ รูปภาพ
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: rs['vehicle_image'] != null
+                      ? Image.network(
+                          rs['vehicle_image'],
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              const Icon(Icons.image_not_supported, size: 48),
+                        )
+                      : Container(
+                          width: 120,
+                          height: 120,
+                          color: Colors.grey[200],
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.agriculture, size: 48),
+                        ),
+                ),
+                const SizedBox(width: 12),
+
+                // ✅ ข้อมูล
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        rs['name_rs'] ?? '-',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text('รถ: ${rs['name_vehicle'] ?? '-'}'),
+                      Text(
+                        'ฟาร์ม: ${rs['name_farm'] ?? '-'}'
+                        ' (${rs['farm_subdistrict'] ?? '-'}, '
+                        '${rs['farm_district'] ?? '-'}, '
+                        '${rs['farm_province'] ?? '-'})',
+                      ),
+                      Text(
+                          'พื้นที่: ${rs['area_amount'] ?? '-'} ${rs['unit_area'] ?? '-'}'),
+                      Text('รายละเอียด: ${rs['detail'] ?? '-'}'),
+                      Text(
+                        'สถานะ: ${progressStatusText(rs['progress_status'])}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailReserving(
+                                    rsid: rs['rsid'] ?? 0,
+                                  ),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.yellow,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text("รายละเอียดเพิ่มเติม"),
+                          ),
+                          if (progressStatusText(rs['progress_status']) ==
+                              "รอผู้รับจ้างยืนยันการจอง")
+                            ElevatedButton(
+                              onPressed: () {
+                                final contractorMid = rs['mid_contractor'];
+                                final rsid = rs['rsid'];
+
+                                print("contractor_mid = $contractorMid");
+                                print("rsid = $rsid");
+
+                                if (contractorMid != null && rsid != null) {
+                                  sendCancelNotification(
+                                    contractorMid: contractorMid,
+                                    rsid: rsid,
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "ไม่พบข้อมูล contractor_mid หรือ rsid")),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text("แจ้งยกเลิกการจอง"),
+                            ),
+                          if (progressStatusText(rs['progress_status']) ==
+                              "ทำงานเสร็จสิ้น")
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ReviewCon(
+                                      midContractor: rs['mid_contractor'] ?? 0,
+                                    ),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.yellow,
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text("รีวิวผู้รับจ้าง"),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -344,30 +495,141 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // return DefaultTabController(
+    //   length: 2,
+    //   child: Scaffold(
+    //     appBar: AppBar(
+    //       backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+    //       centerTitle: true,
+    //       iconTheme: const IconThemeData(color: Colors.white),
+    //       automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
+    //       title: const Text(
+    //         'การจองคิวรถทั้งหมด',
+    //         style: TextStyle(
+    //           fontSize: 22,
+    //           fontWeight: FontWeight.bold,
+    //           color: Color.fromARGB(255, 255, 255, 255),
+    //           //letterSpacing: 1,
+    //           shadows: [
+    //             Shadow(
+    //               color: Color.fromARGB(115, 253, 237, 237),
+    //               blurRadius: 3,
+    //               offset: Offset(1.5, 1.5),
+    //             ),
+    //           ],
+    //         ),
+    //       ),
+    //       bottom: TabBar(
+    //         controller: _tabController,
+    //         tabs: const [
+    //           Tab(text: "งานที่จอง"),
+    //           Tab(text: "ประวัติการจ้างงาน"),
+    //         ],
+    //       ),
+    //     ),
+    //     body: isLoading
+    //         ? const Center(child: CircularProgressIndicator())
+    //         : TabBarView(
+    //             controller: _tabController,
+    //             children: [
+    //               buildList(reservings),
+    //               buildList(history),
+    //             ],
+    //           ),
+    //   ),
+    // );
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+          centerTitle: true,
           automaticallyImplyLeading: false,
-          backgroundColor: Colors.orange,
-          title: const Text("แผนการจองรถของฉัน"),
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: const [
-              Tab(text: "งานที่จอง"),
-              Tab(text: "ประวัติการจ้างงาน"),
-            ],
+          title: const Text(
+            'แผนการจองคิวรถทั้งหมด',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                  color: Color.fromARGB(115, 253, 237, 237),
+                  blurRadius: 3,
+                  offset: Offset(1.5, 1.5),
+                ),
+              ],
+            ),
           ),
         ),
-        body: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : TabBarView(
-                controller: _tabController,
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 6,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                  child: TabBar(
+                    controller: _tabController, // ✅ ใส่ตรงนี้
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 190, 255, 189),
+                          Color.fromARGB(255, 37, 189, 35),
+                          Colors.green[800]!,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.black87,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    labelStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    tabs: const [
+                      Tab(
+                        child: SizedBox(
+                          height: 48,
+                          child: Center(child: Text('รถที่จอง')),
+                        ),
+                      ),
+                      Tab(
+                        child: SizedBox(
+                          height: 48,
+                          child: Center(child: Text('ประวัติการจ้าง')),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController, // ✅ ย้ายมาตรงนี้
                 children: [
-                  buildList(reservings),
-                  buildList(history),
+                  Center(child: buildList(reservings)),
+                  Center(child: buildList(history)),
                 ],
               ),
+            ),
+          ],
+        ),
       ),
     );
   }

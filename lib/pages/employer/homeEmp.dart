@@ -113,7 +113,24 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                     ),
 
                     const SizedBox(height: 4), // ระยะห่างเล็กน้อย
-
+                    Text(
+                      member['email'] ?? '-',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFFFFF8E1), // สีขาวนวลตัดกับส้ม
+                        letterSpacing: 0.5,
+                        fontStyle: FontStyle.italic,
+                        shadows: [
+                          Shadow(
+                            blurRadius: 2.0,
+                            color: Colors.black26,
+                            offset: Offset(1.0, 1.0),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 4), // ระยะห่างเล็กน้อย
                     Text(
                       member['phone'] ?? '-',
                       style: const TextStyle(

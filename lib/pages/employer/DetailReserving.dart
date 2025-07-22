@@ -292,12 +292,29 @@ class _DetailReservingState extends State<DetailReserving> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFFFFCC99),
-        title: const Text('รายละเอียดงาน'),
+        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        centerTitle: true,
+        //automaticallyImplyLeading: false,
+        title: const Text(
+          'รายละเอียดงาน',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
         leading: IconButton(
+          color: Colors.white,
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // กลับหน้าก่อนหน้า
+            Navigator.pop(context); // ✅ กลับหน้าก่อนหน้า
           },
         ),
       ),
@@ -401,9 +418,9 @@ class _DetailReservingState extends State<DetailReserving> {
                     String getStatusText(dynamic status) {
                       switch (status.toString()) {
                         case '0':
-                          return 'ยกเลิก';
+                          return 'ผู้รับจ้างยกเลิกงาน';
                         case '1':
-                          return 'ยืนยัน';
+                          return 'ผู้รับจ้างยืนยันการจอง';
                         case '2':
                           return 'กำลังเดินทาง';
                         case '3':
@@ -411,7 +428,7 @@ class _DetailReservingState extends State<DetailReserving> {
                         case '4':
                           return 'เสร็จสิ้น';
                         default:
-                          return 'ยังไม่ระบุ';
+                          return 'รอผู้รับจ้างยืนยันการจอง';
                       }
                     }
 
@@ -435,16 +452,18 @@ class _DetailReservingState extends State<DetailReserving> {
 
                     return Container(
                       decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(20)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 10,
-                            offset: Offset(0, -3),
-                          )
-                        ],
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color.fromARGB(255, 255, 222, 122), // เหลืองเข้ม
+                            Color.fromARGB(255, 255, 251, 236), // เหลืองอ่อน
+                            Color.fromARGB(255, 253, 253, 252)
+                          ],
+                        ),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
                       ),
                       child: SingleChildScrollView(
                         controller: scrollController,

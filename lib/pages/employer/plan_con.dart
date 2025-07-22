@@ -175,7 +175,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
 
         //test ui
         return ListView.builder(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20), // ซ้าย-ขวา-ล่าง
           itemCount: scheduleList.length,
           itemBuilder: (context, index) {
             final item = scheduleList[index];
@@ -184,9 +184,9 @@ class _PlanAndHistoryState extends State<PlanPage> {
             String getStatusText(dynamic status) {
               switch (status.toString()) {
                 case '0':
-                  return 'ยกเลิก';
+                  return 'ผู้รับจ้างยกเลิกงาน';
                 case '1':
-                  return 'ยืนยัน';
+                  return 'ผู้รับจ้างยืนยันการจอง';
                 case '2':
                   return 'กำลังเดินทาง';
                 case '3':
@@ -194,7 +194,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
                 case '4':
                   return 'เสร็จสิ้น';
                 default:
-                  return 'ยังไม่ระบุ';
+                  return 'รอผู้รับจ้างยืนยันการจอง';
               }
             }
 
@@ -218,8 +218,20 @@ class _PlanAndHistoryState extends State<PlanPage> {
 
             return Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF3E0),
+                color: const Color(0xFFFFF3E0), // สีพื้นหลังครีมอ่อน
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFFFFCC80), // สีส้มอ่อนเข้ากับพื้นหลัง
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orange.withOpacity(0.2), // เงาส้มอ่อนโปร่งใส
+                    spreadRadius: 2,
+                    blurRadius: 8,
+                    offset: const Offset(0, 4), // เงาลงด้านล่างเล็กน้อย
+                  ),
+                ],
               ),
               margin: const EdgeInsets.symmetric(vertical: 8),
               child: Padding(
@@ -231,12 +243,16 @@ class _PlanAndHistoryState extends State<PlanPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          item['name_rs'] ?? '-',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                        Flexible(
+                          child: Text(
+                            item['name_rs'] ?? '-',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                            overflow: TextOverflow.ellipsis, // ✅ ตัดด้วย ...
+                            maxLines: 1, // ✅ แสดงแค่บรรทัดเดียว
                           ),
                         ),
                         Row(
@@ -311,8 +327,42 @@ class _PlanAndHistoryState extends State<PlanPage> {
                       ],
                     ),
 
-                    //รายละเอียด
                     const SizedBox(height: 8),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.end,
+                    //   children: [
+                    //     ElevatedButton(
+                    //       style: ElevatedButton.styleFrom(
+                    //         backgroundColor:
+                    //             const Color(0xFF4CAF50), // เขียวธรรมชาติ
+                    //         foregroundColor: Colors.white,
+                    //         elevation: 4, // ✅ เพิ่มเงา
+                    //         shadowColor: Color.fromARGB(
+                    //             208, 163, 160, 160), // ✅ เงานุ่มๆ
+                    //         shape: RoundedRectangleBorder(
+                    //           borderRadius:
+                    //               BorderRadius.circular(16), // ✅ มุมนุ่มขึ้น
+                    //         ),
+                    //         padding: const EdgeInsets.symmetric(
+                    //             horizontal: 24, vertical: 10), // ✅ ขนาดกำลังดี
+                    //         textStyle: const TextStyle(
+                    //           fontSize: 14,
+                    //           fontWeight: FontWeight.w600,
+                    //         ),
+                    //       ),
+                    //       onPressed: () {
+                    //         Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //             builder: (context) =>
+                    //                 DetailWorkPage(rsid: item['rsid']),
+                    //           ),
+                    //         );
+                    //       },
+                    //       child: const Text('รายละเอียด'),
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),
@@ -334,11 +384,29 @@ class _PlanAndHistoryState extends State<PlanPage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFCC99),
+        //backgroundColor: const Color(0xFFFFCC99),
         appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 255, 187, 119),
-          title: const Text('ตารางงาน'),
+          backgroundColor: Color.fromARGB(255, 255, 158, 60),
           centerTitle: true,
+          iconTheme: const IconThemeData(
+            color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว
+          ),
+          title: const Text(
+            'คิวงานทั้งหมด',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 255, 255, 255),
+              //letterSpacing: 1,
+              shadows: [
+                Shadow(
+                  color: Color.fromARGB(115, 253, 237, 237),
+                  blurRadius: 3,
+                  offset: Offset(1.5, 1.5),
+                ),
+              ],
+            ),
+          ),
         ),
         body: TabBarView(
           children: [
