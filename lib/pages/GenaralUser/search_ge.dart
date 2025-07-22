@@ -1,41 +1,59 @@
-// หน้า HomeGe.dart
+// หน้า search_ge.dart
 import 'dart:async';
 import 'dart:convert';
-import 'package:agri_booking2/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'search_ge.dart'; // import หน้า SearchGe
-
-class HomeGe extends StatefulWidget {
-  const HomeGe({super.key});
+class SearchGe extends StatefulWidget {
+  final String keyword;
+  final String initialOrder;
+  const SearchGe(
+      {super.key, required this.keyword, required this.initialOrder});
 
   @override
-  State<HomeGe> createState() => _HomeGeState();
+  State<SearchGe> createState() => _SearchGeState();
 }
 
-class _HomeGeState extends State<HomeGe> {
-  final TextEditingController _searchController = TextEditingController();
-  Timer? _debounce;
-  String _priceOrder = 'ASC';
+class _SearchGeState extends State<SearchGe> {
   List<dynamic> vehicles = [];
   bool isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+  late String _priceOrder;
 
   @override
   void initState() {
     super.initState();
-    fetchAllVehicles();
+    _priceOrder = widget.initialOrder;
+    _searchController.text = widget.keyword;
+    fetchVehicles(searchKeyword: widget.keyword);
   }
 
-  Future<void> fetchAllVehicles() async {
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> fetchVehicles({required String searchKeyword}) async {
     setState(() => isLoading = true);
+
     final url = Uri.parse(
-        'http://projectnodejs.thammadalok.com/AGribooking/get_vehicle_HomeMem');
+        'http://projectnodejs.thammadalok.com/AGribooking/search_vehicle');
+
     try {
-      final response = await http.get(url);
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "keyword": searchKeyword,
+          "order": _priceOrder,
+        }),
+      );
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print("Fetched vehicles: $data");
         setState(() {
           vehicles = data;
           isLoading = false;
@@ -51,21 +69,9 @@ class _HomeGeState extends State<HomeGe> {
 
   void _onSearchChanged(String text) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
+
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      if (text.trim().isNotEmpty) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => SearchGe(
-              keyword: text.trim(),
-              initialOrder: _priceOrder,
-            ),
-          ),
-        );
-      } else {
-        // ถ้า search ว่าง ให้โหลดข้อมูลทั้งหมดกลับมา
-        fetchAllVehicles();
-      }
+      fetchVehicles(searchKeyword: text.trim());
     });
   }
 
@@ -73,32 +79,14 @@ class _HomeGeState extends State<HomeGe> {
     setState(() {
       _priceOrder = _priceOrder == 'DECS' ? 'ASC' : 'DECS';
     });
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _searchController.dispose();
-    super.dispose();
+    fetchVehicles(searchKeyword: _searchController.text.trim());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('หน้า HomeGe'),
-        actions: [
-          Text('เข้าสู่ระบบ'),
-          IconButton(
-            icon: const Icon(Icons.login),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const Login()),
-              );
-            },
-          ),
-        ],
+        title: const Text('ผลการค้นหา'),
       ),
       body: Column(
         children: [
@@ -167,7 +155,7 @@ class _HomeGeState extends State<HomeGe> {
                           );
                         },
                       ),
-          )
+          ),
         ],
       ),
     );
