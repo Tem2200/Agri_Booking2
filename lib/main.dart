@@ -1,9 +1,8 @@
 import 'dart:convert';
 
 import 'package:agri_booking2/firebase_options.dart';
-import 'package:agri_booking2/pages/GenaralUser/home.dart';
-import 'package:agri_booking2/pages/employer/notification.dart';
-import 'package:agri_booking2/pages/employer/notification_detail_screen.dart';
+import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -172,10 +171,6 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         navigatorKey: navigatorKey,
-        home: HomeGe()
-        //Login()
-        //NotificationScreen() //home,
-        // Use NotificationScreen as the home widget
-        );
+        home: TabbarGenaralUser(value: 0));
   }
 }

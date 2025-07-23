@@ -87,7 +87,7 @@ class _FarmsPageState extends State<FarmsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         centerTitle: true,
         //automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
         iconTheme: const IconThemeData(color: Colors.white),

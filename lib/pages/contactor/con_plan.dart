@@ -368,7 +368,8 @@ class _PlanAndHistoryState extends State<PlanPage> {
         //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         appBar: AppBar(
           //backgroundColor: const Color(0xFF006000),
-          backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+          backgroundColor: const Color.fromARGB(255, 18, 143, 9),
+          //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
           centerTitle: true,
           //automaticallyImplyLeading: false,
           title: const Text(

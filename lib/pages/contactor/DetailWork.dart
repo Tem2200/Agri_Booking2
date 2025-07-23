@@ -358,7 +358,8 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
       //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
       appBar: AppBar(
         //backgroundColor: const Color(0xFF006000),
-        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
+        //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         centerTitle: true,
         //automaticallyImplyLeading: false,
         title: const Text(
@@ -401,41 +402,99 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                       subdomains: ['a', 'b', 'c'],
                       userAgentPackageName: 'com.example.yourapp',
                     ),
+                    // MarkerLayer(
+                    //   markers: [
+                    //     Marker(
+                    //       point: LatLng(data!['contractor_latitude'],
+                    //           data!['contractor_longitude']),
+                    //       width: 40, // ต้องกำหนดความกว้าง
+                    //       height: 40, // และความสูง
+                    //       child: const Column(
+                    //         children: [
+                    //           Text('ผู้รับจ้าง',
+                    //               style: TextStyle(
+                    //                   color: Colors.white,
+                    //                   backgroundColor: Colors.green)),
+                    //           Icon(Icons.person_pin_circle,
+                    //               color: Colors.green, size: 40),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //     Marker(
+                    //       point: LatLng(data!['latitude'], data!['longitude']),
+                    //       width: 40, // ต้องกำหนดความกว้าง
+                    //       height: 40, // และความสูง
+                    //       child: const Column(
+                    //         children: [
+                    //           Text('ผู้จ้าง',
+                    //               style: TextStyle(
+                    //                   color: Colors.white,
+                    //                   backgroundColor: Colors.green)),
+                    //           Icon(Icons.person_pin_circle,
+                    //               color: Colors.green, size: 40),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+
+                    //สัญลักษณ์ใหม่
                     MarkerLayer(
                       markers: [
                         Marker(
                           point: LatLng(data!['contractor_latitude'],
                               data!['contractor_longitude']),
-                          width: 40, // ต้องกำหนดความกว้าง
-                          height: 40, // และความสูง
-                          child: const Column(
+                          width: 100,
+                          height: 60,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('ผู้รับจ้าง',
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.8),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Text(
+                                  'ผู้รับจ้าง',
                                   style: TextStyle(
-                                      color: Colors.white,
-                                      backgroundColor: Colors.green)),
-                              Icon(Icons.person_pin_circle,
-                                  color: Colors.green, size: 40),
+                                      color: Colors.white, fontSize: 12),
+                                ),
+                              ),
+                              const Icon(Icons.person_pin_circle,
+                                  color: Colors.green, size: 32),
                             ],
                           ),
                         ),
                         Marker(
                           point: LatLng(data!['latitude'], data!['longitude']),
-                          width: 40, // ต้องกำหนดความกว้าง
-                          height: 40, // และความสูง
-                          child: const Column(
+                          width: 100,
+                          height: 60,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('ผู้จ้าง',
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.withOpacity(0.8),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Text(
+                                  'ผู้จ้าง',
                                   style: TextStyle(
-                                      color: Colors.white,
-                                      backgroundColor: Colors.green)),
-                              Icon(Icons.person_pin_circle,
-                                  color: Colors.green, size: 40),
+                                      color: Colors.white, fontSize: 12),
+                                ),
+                              ),
+                              const Icon(Icons.person_pin_circle,
+                                  color: Colors.orange, size: 32),
                             ],
                           ),
                         ),
                       ],
                     ),
+
                     PolylineLayer(
                       polylines: [
                         Polyline(

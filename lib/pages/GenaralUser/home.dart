@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:agri_booking2/pages/login.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -86,19 +87,39 @@ class _HomeGeState extends State<HomeGe> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('หน้า HomeGe'),
-        actions: [
-          Text('เข้าสู่ระบบ'),
-          IconButton(
-            icon: const Icon(Icons.login),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const Login()),
-              );
-            },
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
+        //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+        automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
+        title: const Text(
+          'หน้าแรก',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 255, 255, 255),
+            //letterSpacing: 1,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
           ),
-        ],
+        ),
+        // actions: [
+        //   Text('เข้าสู่ระบบ'),
+        //   IconButton(
+        //     icon: const Icon(Icons.login),
+        //     onPressed: () {
+        //       Navigator.push(
+        //         context,
+        //         MaterialPageRoute(builder: (_) => const Login()),
+        //       );
+        //     },
+        //   ),
+        // ],
       ),
       body: Column(
         children: [
@@ -129,43 +150,186 @@ class _HomeGeState extends State<HomeGe> {
                 ? const Center(child: CircularProgressIndicator())
                 : vehicles.isEmpty
                     ? const Center(child: Text('ไม่พบข้อมูลรถ'))
-                    : ListView.builder(
-                        itemCount: vehicles.length,
-                        itemBuilder: (context, index) {
-                          final vehicle = vehicles[index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            child: ListTile(
-                              leading: SizedBox(
-                                width: 60,
-                                height: 60,
-                                child: Image.network(
-                                  vehicle['image'] ?? '',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(Icons.broken_image, size: 60),
+                    : ListView(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        children: [
+                          // 🔄 สไลด์โชว์ภาพ
+                          CarouselSlider(
+                            options: CarouselOptions(
+                              height: 160,
+                              autoPlay: true,
+                              enlargeCenterPage: true,
+                              viewportFraction: 0.95,
+                              aspectRatio: 16 / 9,
+                              autoPlayInterval: const Duration(seconds: 3),
+                            ),
+                            items: [
+                              'https://i.ibb.co/MqW0vC7/1.png',
+                              'https://i.ibb.co/spDRtGWM/2.png',
+                              'https://i.ibb.co/pBhd5QJ4/3.png',
+                            ].map((imageUrl) {
+                              return Builder(
+                                builder: (context) => ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.network(
+                                    imageUrl,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+
+                          const SizedBox(height: 16),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'รถที่ให้บริการ',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
                                 ),
                               ),
-                              title:
-                                  Text(vehicle['name_vehicle'] ?? 'ไม่มีชื่อ'),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                      '${vehicle['price']} บาท/${vehicle['unit_price']}'),
-                                  Text(
-                                      'โดย: ${vehicle['username_contractor']}'),
-                                  Text(
-                                      '${vehicle['subdistrict']} ,${vehicle['district']} ,${vehicle['province']}'),
-                                  Text(
-                                      'คะแนนเฉลี่ย: ${vehicle['avg_review_point']}'),
-                                ],
-                              ),
-                              isThreeLine: true,
                             ),
-                          );
-                        },
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // 🔁 สร้างรายการรถจาก vehicles
+                          ...vehicles.map((vehicle) {
+                            return Card(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 4,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.orange[50],
+                                  border: Border.all(color: Colors.orange),
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.orange.withOpacity(0.3),
+                                      spreadRadius: 1,
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.network(
+                                        vehicle['image'] ?? '',
+                                        width: 120,
+                                        height: 180,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                const SizedBox(
+                                          width: 120,
+                                          height: 180,
+                                          child: Icon(
+                                            Icons.broken_image,
+                                            size: 48,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            vehicle['name_vehicle'] ??
+                                                'ไม่มีชื่อ',
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF333333),
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.person,
+                                                  size: 18,
+                                                  color: Colors.blueGrey),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: Text(
+                                                  'ผู้รับจ้าง: ${vehicle['username_contractor']}',
+                                                  style: const TextStyle(
+                                                      fontSize: 15),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.attach_money,
+                                                  size: 18,
+                                                  color: Colors.green),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                '${vehicle['price']} บาท/${vehicle['unit_price']}',
+                                                style: const TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.green,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.location_on,
+                                                  size: 18,
+                                                  color: Colors.redAccent),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: Text(
+                                                  '${vehicle['subdistrict']} ,${vehicle['district']} ,${vehicle['province']}',
+                                                  style: const TextStyle(
+                                                      fontSize: 15),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.star,
+                                                  size: 18,
+                                                  color: Colors.amber),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                'คะแนนเฉลี่ย: ${vehicle['avg_review_point']}',
+                                                style: const TextStyle(
+                                                    fontSize: 15),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ],
                       ),
           )
         ],

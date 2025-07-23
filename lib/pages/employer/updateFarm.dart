@@ -236,7 +236,7 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
         //automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ

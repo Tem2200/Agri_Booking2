@@ -175,7 +175,8 @@ class _AddVehicleState extends State<AddVehicle> {
       backgroundColor: const Color.fromARGB(255, 255, 217, 180),
       appBar: AppBar(
         //backgroundColor: const Color(0xFF006000),
-        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        // backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         centerTitle: true,
         title: const Text(
           'เพิ่มรถรับจ้าง',

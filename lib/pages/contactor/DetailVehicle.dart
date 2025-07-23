@@ -245,7 +245,8 @@ class _DetailvehicleState extends State<Detailvehicle> {
     return Scaffold(
       appBar: AppBar(
         //title: Text(vehicleData?['name_vehicle'] ?? 'รายละเอียดรถ'),
-        backgroundColor: Color.fromARGB(255, 255, 158, 60),
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
+        //backgroundColor: Color.fromARGB(255, 255, 158, 60),
         centerTitle: true,
         iconTheme: const IconThemeData(
           color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว

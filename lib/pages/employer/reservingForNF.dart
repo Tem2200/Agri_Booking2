@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/addFarm2.dart';
 import 'package:agri_booking2/pages/employer/plan_emp.dart';
 import 'package:flutter/material.dart';
@@ -157,10 +158,24 @@ class _ReservingForNFState extends State<ReservingForNF> {
           const SnackBar(content: Text('จองสำเร็จ')),
         );
 
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => PlanEmp(mid: widget.mid),
+        //   ),
+        // );
+
+        int currentMonth = DateTime.now().month;
+        int currentYear = DateTime.now().year;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => PlanEmp(mid: widget.mid),
+            builder: (context) => Tabbar(
+              mid: widget.mid,
+              value: 1,
+              month: currentMonth,
+              year: currentYear,
+            ),
           ),
         );
       } else {
@@ -195,12 +210,71 @@ class _ReservingForNFState extends State<ReservingForNF> {
     }
   }
 
+  final TextStyle _infoStyles = const TextStyle(
+    fontSize: 16,
+    color: Colors.black87,
+    fontWeight: FontWeight.w500,
+    height: 1.4,
+  );
+
+// เพิ่มในส่วนบนของไฟล์:
+  TextStyle get _infoStyle =>
+      const TextStyle(fontSize: 14, color: Colors.black87);
+  TextStyle get _sectionTitleStyle =>
+      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
+
+// เพิ่มฟังก์ชันช่วยสร้าง TextField:
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    TextInputType? inputType,
+    String? Function(String?)? validator,
+    int maxLines = 1,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: inputType,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      validator: validator ??
+          (value) => value == null || value.isEmpty ? 'กรุณากรอก $label' : null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("จองคิวรถจากที่นา"),
-        backgroundColor: Colors.orange,
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
+        centerTitle: true,
+        //automaticallyImplyLeading: false,
+        title: const Text(
+          'จองคิวรถ',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
+        leading: IconButton(
+          color: Colors.white,
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // ✅ กลับหน้าก่อนหน้า
+          },
+        ),
       ),
       body: isLoading || isFarmLoading
           ? const Center(child: CircularProgressIndicator())
@@ -216,6 +290,8 @@ class _ReservingForNFState extends State<ReservingForNF> {
                       decoration: const InputDecoration(
                         labelText: 'เลือกที่นา',
                         border: OutlineInputBorder(),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                       items: farmList.map<DropdownMenuItem<dynamic>>((farm) {
                         return DropdownMenuItem<dynamic>(
@@ -233,67 +309,121 @@ class _ReservingForNFState extends State<ReservingForNF> {
                     ),
                     const SizedBox(height: 16),
                     if (selectedFarm != null) ...[
-                      Text("หมู่บ้าน: ${selectedFarm['village'] ?? '-'}"),
-                      Text("ตำบล: ${selectedFarm['subdistrict'] ?? '-'}"),
-                      Text("อำเภอ: ${selectedFarm['district'] ?? '-'}"),
-                      Text("จังหวัด: ${selectedFarm['province'] ?? '-'}"),
-                      Text(
-                          "ขนาดพื้นที่: ${selectedFarm['area_amount'] ?? '-'} ${selectedFarm['unit_area'] ?? ''}"),
-                      Text("รายละเอียด: ${selectedFarm['detail'] ?? '-'}"),
-                      const Divider(),
-                    ],
-                    if (farmList.isEmpty) ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        'คุณยังไม่มีข้อมูลที่นา',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  AddFarmPage2(mid: widget.mid),
-                            ),
-                          ).then((_) {
-                            // กลับมาหน้านี้แล้วโหลดฟาร์มใหม่
-                            _loadFarms();
-                          });
-                        },
-                        icon: Icon(Icons.add_location_alt),
-                        label: Text('เพิ่มที่นา'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                      // Text("หมู่บ้าน: ${selectedFarm['village'] ?? '-'}",
+                      //     style: _infoStyle),
+                      // Text("ตำบล: ${selectedFarm['subdistrict'] ?? '-'}",
+                      //     style: _infoStyle),
+                      // Text("อำเภอ: ${selectedFarm['district'] ?? '-'}",
+                      //     style: _infoStyle),
+                      // Text("จังหวัด: ${selectedFarm['province'] ?? '-'}",
+                      //     style: _infoStyle),
+                      // Text(
+                      //     "ขนาดพื้นที่: ${selectedFarm['area_amount'] ?? '-'} ${selectedFarm['unit_area'] ?? ''}",
+                      //     style: _infoStyle),
+                      // Text("รายละเอียด: ${selectedFarm['detail'] ?? '-'}",
+                      //     style: _infoStyle),
+                      // const Divider(height: 32, thickness: 1),
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.orange[50],
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.orange),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.orange.withOpacity(0.2),
+                                blurRadius: 6,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  "หมู่บ้าน: ${selectedFarm['village'] ?? '-'}",
+                                  style: _infoStyles),
+                              Text(
+                                  "ตำบล: ${selectedFarm['subdistrict'] ?? '-'}",
+                                  style: _infoStyles),
+                              Text("อำเภอ: ${selectedFarm['district'] ?? '-'}",
+                                  style: _infoStyles),
+                              Text(
+                                  "จังหวัด: ${selectedFarm['province'] ?? '-'}",
+                                  style: _infoStyles),
+                              Text(
+                                "ขนาดพื้นที่: ${selectedFarm['area_amount'] ?? '-'} ${selectedFarm['unit_area'] ?? ''}",
+                                style: _infoStyles,
+                              ),
+                              Text(
+                                  "รายละเอียด: ${selectedFarm['detail'] ?? '-'}",
+                                  style: _infoStyles),
+                            ],
+                          ),
                         ),
                       ),
                     ],
-                    TextFormField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'ชื่อการจอง',
-                        border: OutlineInputBorder(),
+                    if (farmList.isEmpty) ...[
+                      const SizedBox(height: 16),
+                      const Center(
+                        child: Text(
+                          'คุณยังไม่มีข้อมูลที่นา',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'กรุณากรอกชื่อการจอง'
-                          : null,
-                    ),
+                      const SizedBox(height: 8),
+                      Center(
+                        // จัดปุ่มให้อยู่ตรงกลาง
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    AddFarmPage2(mid: widget.mid),
+                              ),
+                            ).then((_) => _loadFarms());
+                          },
+                          icon: const Icon(Icons.add_location_alt,
+                              color: Colors.white), // ไอคอนสีขาว
+                          label: const Text(
+                            'เพิ่มที่นา',
+                            style: TextStyle(
+                                color: Colors.white), // ตัวหนังสือสีขาว
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green, // พื้นปุ่มสีเขียว
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12), // ปรับขนาดปุ่มให้พอดี
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(8), // มุมโค้งเล็กน้อย
+                            ),
+                          ),
+                        ),
+                      ),
+                      const Divider(height: 32, thickness: 1),
+                    ],
+                    _buildTextField(
+                        label: 'ชื่อการจอง', controller: nameController),
                     const SizedBox(height: 16),
-                    TextFormField(
+                    _buildTextField(
+                      label: 'จำนวนพื้นที่',
                       controller: areaAmountController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'จำนวนพื้นที่',
-                        border: OutlineInputBorder(),
-                      ),
+                      inputType: TextInputType.number,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null || value.isEmpty)
                           return 'กรุณากรอกจำนวนพื้นที่';
-                        }
-                        if (int.tryParse(value) == null) {
+                        if (int.tryParse(value) == null)
                           return 'กรุณากรอกเป็นตัวเลข';
-                        }
                         return null;
                       },
                     ),
@@ -315,6 +445,8 @@ class _ReservingForNFState extends State<ReservingForNF> {
                       decoration: const InputDecoration(
                         labelText: 'หน่วยพื้นที่',
                         border: OutlineInputBorder(),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                       validator: (value) => value == null || value.isEmpty
                           ? 'กรุณาเลือกหน่วยพื้นที่'
@@ -322,63 +454,59 @@ class _ReservingForNFState extends State<ReservingForNF> {
                     ),
                     if (isCustomUnit) ...[
                       const SizedBox(height: 16),
-                      TextFormField(
-                        controller: customUnitController,
-                        decoration: const InputDecoration(
-                          labelText: 'ระบุหน่วยพื้นที่เอง',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) => value == null || value.isEmpty
-                            ? 'กรุณากรอกหน่วยพื้นที่เอง'
-                            : null,
-                      ),
+                      _buildTextField(
+                          label: 'ระบุหน่วยพื้นที่เอง',
+                          controller: customUnitController),
                     ],
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: detailController,
-                      maxLines: 3,
-                      decoration: const InputDecoration(
-                        labelText: 'รายละเอียด',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'กรุณากรอกรายละเอียด'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
+                    _buildTextField(
+                        label: 'รายละเอียด',
+                        controller: detailController,
+                        maxLines: 3),
+                    const SizedBox(height: 20),
+                    Text("เลือกวันและเวลาทำงาน", style: _sectionTitleStyle),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () => _selectDateStart(context),
-                            child: Text(dateStart == null
-                                ? 'เลือกวันที่เริ่ม'
-                                : 'เริ่ม: ${dateStart!.toLocal()}'
-                                    .split('.')[0]),
+                            child: Text(
+                              dateStart == null
+                                  ? 'เลือกวันที่เริ่ม'
+                                  : 'เริ่ม: ${dateStart!.toLocal()}'
+                                      .split('.')[0],
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () => _selectDateEnd(context),
-                            child: Text(dateEnd == null
-                                ? 'เลือกวันที่สิ้นสุด'
-                                : 'สิ้นสุด: ${dateEnd!.toLocal()}'
-                                    .split('.')[0]),
+                            child: Text(
+                              dateEnd == null
+                                  ? 'เลือกวันที่สิ้นสุด'
+                                  : 'สิ้นสุด: ${dateEnd!.toLocal()}'
+                                      .split('.')[0],
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: _submitReservation,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        textStyle: const TextStyle(fontSize: 16),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _submitReservation,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          textStyle: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        child: const Text('ยืนยันจอง'),
                       ),
-                      child: const Center(child: Text('ยืนยันจอง')),
                     ),
                   ],
                 ),

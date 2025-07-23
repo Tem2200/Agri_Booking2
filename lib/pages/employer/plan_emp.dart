@@ -200,20 +200,78 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
     }
   }
 
+  String _formatDateRange(String? startDate, String? endDate) {
+    if (startDate == null ||
+        startDate.isEmpty ||
+        endDate == null ||
+        endDate.isEmpty) {
+      return 'ไม่ระบุวันที่';
+    }
+
+    try {
+      final startUtc = DateTime.parse(startDate);
+      final endUtc = DateTime.parse(endDate);
+
+      final startThai = startUtc.toUtc().add(const Duration(hours: 7));
+      final endThai = endUtc.toUtc().add(const Duration(hours: 7));
+
+      final formatter = DateFormat('dd/MM/yyyy เวลา HH:mm น.');
+
+      return 'เริ่มงาน: ${formatter.format(startThai)}\nสิ้นสุด: ${formatter.format(endThai)}';
+    } catch (e) {
+      return 'รูปแบบวันที่ไม่ถูกต้อง';
+    }
+  }
+  // String progressStatusText(int? status) {
+  //   switch (status) {
+  //     case 0:
+  //       return "ผู้รับจ้างยกเลิกงาน";
+  //     case 1:
+  //       return "ผู้รับจ้างยืนยันการจอง";
+  //     case 2:
+  //       return "กำลังเดินทางมา";
+  //     case 3:
+  //       return "กำลังทำงาน";
+  //     case 4:
+  //       return "ทำงานเสร็จสิ้น";
+  //     default:
+  //       return "รอผู้รับจ้างยืนยันการจอง";
+  //   }
+  // }
+
+  // แปลง progress_status เป็นข้อความ
   String progressStatusText(int? status) {
-    switch (status) {
-      case 0:
-        return "ผู้รับจ้างยกเลิกงาน";
-      case 1:
-        return "ผู้รับจ้างยืนยันการจอง";
-      case 2:
-        return "กำลังเดินทางมา";
-      case 3:
-        return "กำลังทำงาน";
-      case 4:
-        return "ทำงานเสร็จสิ้น";
+    switch (status.toString()) {
+      case '0':
+        return 'ผู้รับจ้างยกเลิกงาน';
+      case '1':
+        return 'ผู้รับจ้างยืนยันการจอง';
+      case '2':
+        return 'กำลังเดินทาง';
+      case '3':
+        return 'กำลังทำงาน';
+      case '4':
+        return 'เสร็จสิ้น';
       default:
-        return "รอผู้รับจ้างยืนยันการจอง";
+        return 'รอผู้รับจ้างยืนยันการจอง';
+    }
+  }
+
+  // กำหนดสีตามสถานะ
+  Color getStatusColor(dynamic status) {
+    switch (status.toString()) {
+      case '0':
+        return Colors.red;
+      case '1':
+        return Colors.blueGrey;
+      case '2':
+        return Colors.pinkAccent;
+      case '3':
+        return Colors.amber;
+      case '4':
+        return Colors.green;
+      default:
+        return Colors.black45;
     }
   }
 
@@ -226,118 +284,180 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
       itemCount: list.length,
       itemBuilder: (context, index) {
         final rs = list[index];
-        // return Card(
-        //   margin: const EdgeInsets.symmetric(
-        //     vertical: 8,
-        //     horizontal: 16,
-        //   ),
-        //   child: ListTile(
-        //     leading: rs['vehicle_image'] != null
-        //         ? Image.network(
-        //             rs['vehicle_image'],
-        //             width: 60,
-        //             height: 60,
-        //             fit: BoxFit.cover,
-        //             errorBuilder: (_, __, ___) =>
-        //                 const Icon(Icons.image_not_supported),
-        //           )
-        //         : const Icon(Icons.agriculture, size: 50),
-        //     title: Text(
-        //       rs['name_rs'] ?? '-',
-        //       style: const TextStyle(fontWeight: FontWeight.bold),
-        //     ),
-        //     subtitle: Column(
-        //       crossAxisAlignment: CrossAxisAlignment.start,
-        //       children: [
-        //         Text('รถ: ${rs['name_vehicle'] ?? '-'}'),
-        //         Text(
-        //           'ฟาร์ม: ${rs['name_farm'] ?? '-'}'
-        //           ' (${rs['farm_subdistrict'] ?? '-'},'
-        //           ' ${rs['farm_district'] ?? '-'},'
-        //           ' ${rs['farm_province'] ?? '-'})',
-        //         ),
-        //         Text(
-        //             'พื้นที่: ${rs['area_amount'] ?? '-'} ${rs['unit_area'] ?? '-'}'),
-        //         Text('รายละเอียด: ${rs['detail'] ?? '-'}'),
-        //         Text(
-        //           'สถานะ: ${progressStatusText(rs['progress_status'])}',
-        //           style: const TextStyle(
-        //             fontWeight: FontWeight.bold,
-        //             color: Colors.orange,
-        //           ),
-        //         ),
-        //         ElevatedButton(
-        //           onPressed: () {
-        //             Navigator.push(
-        //               context,
-        //               MaterialPageRoute(
-        //                 builder: (context) => DetailReserving(
-        //                   rsid: rs['rsid'] ?? 0,
-        //                 ),
-        //               ),
-        //             );
-        //           },
-        //           style: ElevatedButton.styleFrom(
-        //             backgroundColor: Colors.yellow,
-        //             foregroundColor: Colors.white,
-        //           ),
-        //           child: const Text("รายละเอียดเพิ่มเติม"),
-        //         ),
-        //         const SizedBox(height: 8),
-        //         if (progressStatusText(rs['progress_status']) ==
-        //             "รอผู้รับจ้างยืนยันการจอง")
-        //           ElevatedButton(
-        //             onPressed: () {
-        //               final contractorMid = rs['mid_contractor'];
-        //               final rsid = rs['rsid'];
 
-        //               print("contractor_mid = $contractorMid");
-        //               print("rsid = $rsid");
-
-        //               if (contractorMid != null && rsid != null) {
-        //                 sendCancelNotification(
-        //                   contractorMid: contractorMid,
-        //                   rsid: rsid,
-        //                 );
-        //               } else {
-        //                 ScaffoldMessenger.of(context).showSnackBar(
-        //                   const SnackBar(
-        //                       content:
-        //                           Text("ไม่พบข้อมูล contractor_mid หรือ rsid")),
-        //                 );
-        //               }
-        //             },
-        //             style: ElevatedButton.styleFrom(
-        //               backgroundColor: Colors.red,
-        //               foregroundColor: Colors.white,
-        //             ),
-        //             child: const Text("แจ้งยกเลิกการจอง"),
-        //           ),
-        //         if (progressStatusText(rs['progress_status']) ==
-        //             "ทำงานเสร็จสิ้น")
-        //           ElevatedButton(
-        //             onPressed: () {
-        //               Navigator.push(
-        //                 context,
-        //                 MaterialPageRoute(
-        //                   builder: (context) => ReviewCon(
-        //                     midContractor: rs['mid_contractor'] ?? 0,
-        //                   ),
-        //                 ),
-        //               );
-        //             },
-        //             style: ElevatedButton.styleFrom(
-        //               backgroundColor: Colors.yellow,
-        //               foregroundColor: Colors.white,
-        //             ),
-        //             child: const Text("รีวิวผู้รับจ้าง"),
-        //           ),
-        //         const SizedBox(height: 8),
+        // return Padding(
+        //   padding: const EdgeInsets.fromLTRB(16, 0, 16, 25),
+        //   child: Container(
+        //     decoration: BoxDecoration(
+        //       color: Colors.orange[50],
+        //       border: Border.all(color: Colors.orange),
+        //       borderRadius: BorderRadius.circular(12),
+        //       boxShadow: [
+        //         BoxShadow(
+        //           color: Colors.orange.withOpacity(0.3),
+        //           spreadRadius: 1,
+        //           blurRadius: 8,
+        //           offset: const Offset(0, 4),
+        //         ),
         //       ],
         //     ),
-        //     isThreeLine: true,
+        //     padding: const EdgeInsets.all(12),
+        //     child: Row(
+        //       crossAxisAlignment: CrossAxisAlignment.start,
+        //       children: [
+        //         const SizedBox(width: 12),
+
+        //         // ✅ ข้อมูล
+        //         Expanded(
+        //           child: Column(
+        //             crossAxisAlignment: CrossAxisAlignment.start,
+        //             children: [
+        //               Text(
+        //                 rs['name_rs'] ?? '-',
+        //                 style: const TextStyle(
+        //                   fontSize: 16,
+        //                   fontWeight: FontWeight.bold,
+        //                 ),
+        //               ),
+        //               const SizedBox(height: 6),
+        //               //ชื่องาน
+        //               Text('รถ: ${rs['name_vehicle'] ?? '-'}'),
+        //               Text(
+        //                 'ฟาร์ม: ${rs['name_farm'] ?? '-'}'
+        //                 ' (${rs['farm_subdistrict'] ?? '-'}, '
+        //                 '${rs['farm_district'] ?? '-'}, '
+        //                 '${rs['farm_province'] ?? '-'})',
+        //               ),
+
+        //               Text(
+        //                 'สถานะ: ${progressStatusText(rs['progress_status'])}',
+        //                 style: const TextStyle(
+        //                   fontWeight: FontWeight.bold,
+        //                   color: Colors.orange,
+        //                 ),
+        //               ),
+        //               const SizedBox(height: 12),
+        //               Wrap(
+        //                 spacing: 8,
+        //                 runSpacing: 8,
+        //                 children: [
+        //                   ElevatedButton(
+        //                     onPressed: () {
+        //                       Navigator.push(
+        //                         context,
+        //                         MaterialPageRoute(
+        //                           builder: (context) => DetailReserving(
+        //                             rsid: rs['rsid'] ?? 0,
+        //                           ),
+        //                         ),
+        //                       );
+        //                     },
+        //                     style: ElevatedButton.styleFrom(
+        //                       backgroundColor:
+        //                           const Color(0xFF4CAF50), // เขียวธรรมชาติ
+        //                       foregroundColor: Colors.white,
+        //                       elevation: 4, // ✅ เพิ่มเงา
+        //                       shadowColor: Color.fromARGB(
+        //                           208, 163, 160, 160), // ✅ เงานุ่มๆ
+        //                       shape: RoundedRectangleBorder(
+        //                         borderRadius:
+        //                             BorderRadius.circular(16), // ✅ มุมนุ่มขึ้น
+        //                       ),
+        //                       padding: const EdgeInsets.symmetric(
+        //                           horizontal: 24,
+        //                           vertical: 10), // ✅ ขนาดกำลังดี
+        //                       textStyle: const TextStyle(
+        //                         fontSize: 14,
+        //                         fontWeight: FontWeight.w600,
+        //                       ),
+        //                     ),
+        //                     child: const Text("รายละเอียดเพิ่มเติม"),
+        //                   ),
+        //                   if (progressStatusText(rs['progress_status']) ==
+        //                       "รอผู้รับจ้างยืนยันการจอง")
+        //                     ElevatedButton(
+        //                       onPressed: () {
+        //                         final contractorMid = rs['mid_contractor'];
+        //                         final rsid = rs['rsid'];
+
+        //                         print("contractor_mid = $contractorMid");
+        //                         print("rsid = $rsid");
+
+        //                         if (contractorMid != null && rsid != null) {
+        //                           sendCancelNotification(
+        //                             contractorMid: contractorMid,
+        //                             rsid: rsid,
+        //                           );
+        //                         } else {
+        //                           ScaffoldMessenger.of(context).showSnackBar(
+        //                             const SnackBar(
+        //                                 content: Text(
+        //                                     "ไม่พบข้อมูล contractor_mid หรือ rsid")),
+        //                           );
+        //                         }
+        //                       },
+        //                       style: ElevatedButton.styleFrom(
+        //                         backgroundColor: Color.fromARGB(
+        //                             255, 225, 49, 18), // เขียวธรรมชาติ
+        //                         foregroundColor: Colors.white,
+        //                         elevation: 4, // ✅ เพิ่มเงา
+        //                         shadowColor: Color.fromARGB(
+        //                             208, 163, 160, 160), // ✅ เงานุ่มๆ
+        //                         shape: RoundedRectangleBorder(
+        //                           borderRadius: BorderRadius.circular(
+        //                               16), // ✅ มุมนุ่มขึ้น
+        //                         ),
+        //                         padding: const EdgeInsets.symmetric(
+        //                             horizontal: 24,
+        //                             vertical: 10), // ✅ ขนาดกำลังดี
+        //                         textStyle: const TextStyle(
+        //                           fontSize: 14,
+        //                           fontWeight: FontWeight.w600,
+        //                         ),
+        //                       ),
+        //                       child: const Text(" แจ้งยกเลิกการจอง "),
+        //                     ),
+        //                   if (progressStatusText(rs['progress_status']) ==
+        //                       "ทำงานเสร็จสิ้น")
+        //                     ElevatedButton(
+        //                       onPressed: () {
+        //                         Navigator.push(
+        //                           context,
+        //                           MaterialPageRoute(
+        //                             builder: (context) => ReviewCon(
+        //                               midContractor: rs['mid_contractor'] ?? 0,
+        //                             ),
+        //                           ),
+        //                         );
+        //                       },
+        //                       style: ElevatedButton.styleFrom(
+        //                         elevation: 4, // ✅ เพิ่มเงา
+        //                         shadowColor: Color.fromARGB(
+        //                             208, 163, 160, 160), // ✅ เงานุ่มๆ
+        //                         shape: RoundedRectangleBorder(
+        //                           borderRadius: BorderRadius.circular(
+        //                               16), // ✅ มุมนุ่มขึ้น
+        //                         ),
+        //                         padding: const EdgeInsets.symmetric(
+        //                             horizontal: 24,
+        //                             vertical: 10), // ✅ ขนาดกำลังดี
+        //                         textStyle: const TextStyle(
+        //                           fontSize: 14,
+        //                           fontWeight: FontWeight.w600,
+        //                         ),
+        //                       ),
+        //                       child: const Text("       รีวิวผู้รับจ้าง      "),
+        //                     ),
+        //                 ],
+        //               ),
+        //             ],
+        //           ),
+        //         ),
+        //       ],
+        //     ),
         //   ),
         // );
+
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 25),
           child: Container(
@@ -354,30 +474,10 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                 ),
               ],
             ),
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ✅ รูปภาพ
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: rs['vehicle_image'] != null
-                      ? Image.network(
-                          rs['vehicle_image'],
-                          width: 120,
-                          height: 120,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              const Icon(Icons.image_not_supported, size: 48),
-                        )
-                      : Container(
-                          width: 120,
-                          height: 120,
-                          color: Colors.grey[200],
-                          alignment: Alignment.center,
-                          child: const Icon(Icons.agriculture, size: 48),
-                        ),
-                ),
                 const SizedBox(width: 12),
 
                 // ✅ ข้อมูล
@@ -385,62 +485,111 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        rs['name_rs'] ?? '-',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text('รถ: ${rs['name_vehicle'] ?? '-'}'),
-                      Text(
-                        'ฟาร์ม: ${rs['name_farm'] ?? '-'}'
-                        ' (${rs['farm_subdistrict'] ?? '-'}, '
-                        '${rs['farm_district'] ?? '-'}, '
-                        '${rs['farm_province'] ?? '-'})',
-                      ),
-                      Text(
-                          'พื้นที่: ${rs['area_amount'] ?? '-'} ${rs['unit_area'] ?? '-'}'),
-                      Text('รายละเอียด: ${rs['detail'] ?? '-'}'),
-                      Text(
-                        'สถานะ: ${progressStatusText(rs['progress_status'])}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                      // งาน + สถานะ
+                      Row(
                         children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailReserving(
-                                    rsid: rs['rsid'] ?? 0,
-                                  ),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.yellow,
-                              foregroundColor: Colors.white,
+                          Expanded(
+                            child: Text(
+                              rs['name_rs'] ?? '-',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
-                            child: const Text("รายละเอียดเพิ่มเติม"),
                           ),
+                          const SizedBox(width: 8),
+                          // Text(
+                          //   progressStatusText(rs['progress_status']),
+                          //   style: const TextStyle(
+                          //     fontWeight: FontWeight.bold,
+                          //     fontSize: 14,
+                          //     color: Colors.orange,
+                          //   ),
+                          // ),
+                          Text(
+                            progressStatusText(rs['progress_status']),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: getStatusColor(
+                                  rs['progress_status']), // ✅ สีเปลี่ยนตามสถานะ
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // รถ
+                      Row(
+                        children: [
+                          const Icon(Icons.directions_car,
+                              size: 16, color: Colors.blueGrey),
+                          const SizedBox(width: 6),
+                          Text(
+                            'รถ: ${rs['name_vehicle'] ?? '-'}',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      // ฟาร์ม
+                      Row(
+                        children: [
+                          const Icon(Icons.agriculture,
+                              size: 16, color: Colors.green),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'ฟาร์ม: ${rs['name_farm'] ?? '-'}'
+                              ' (${rs['farm_subdistrict'] ?? '-'}, '
+                              '${rs['farm_district'] ?? '-'}, '
+                              '${rs['farm_province'] ?? '-'})',
+                              style: const TextStyle(fontSize: 14),
+                              maxLines: 1, // แสดงแค่บรรทัดเดียว
+                              overflow: TextOverflow
+                                  .ellipsis, // ถ้ายาวเกินให้แสดง ...
+                            ),
+                          ),
+                        ],
+                      ),
+                      //วันที่และเวลาจ้างงาน
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.access_time, size: 16),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              _formatDateRange(
+                                rs['date_start'],
+                                rs['date_end'],
+                              ),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // ปุ่ม
+                      Row(
+                        children: [
+                          // ปุ่มแจ้งยกเลิก
                           if (progressStatusText(rs['progress_status']) ==
                               "รอผู้รับจ้างยืนยันการจอง")
-                            ElevatedButton(
+                            ElevatedButton.icon(
                               onPressed: () {
                                 final contractorMid = rs['mid_contractor'];
                                 final rsid = rs['rsid'];
-
-                                print("contractor_mid = $contractorMid");
-                                print("rsid = $rsid");
 
                                 if (contractorMid != null && rsid != null) {
                                   sendCancelNotification(
@@ -450,20 +599,36 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                        content: Text(
-                                            "ไม่พบข้อมูล contractor_mid หรือ rsid")),
+                                      content: Text(
+                                          "ไม่พบข้อมูล contractor_mid หรือ rsid"),
+                                    ),
                                   );
                                 }
                               },
+                              label: const Text("แจ้งยกเลิกการจอง"),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
+                                backgroundColor:
+                                    const Color.fromARGB(255, 225, 49, 18),
                                 foregroundColor: Colors.white,
+                                elevation: 4,
+                                shadowColor:
+                                    const Color.fromARGB(208, 163, 160, 160),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 10),
+                                textStyle: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                              child: const Text("แจ้งยกเลิกการจอง"),
                             ),
+
+                          // กรณีสถานะเสร็จสิ้น ให้ปุ่มรีวิวแสดงข้างปุ่มรายละเอียด
                           if (progressStatusText(rs['progress_status']) ==
-                              "ทำงานเสร็จสิ้น")
-                            ElevatedButton(
+                              "เสร็จสิ้น") ...[
+                            ElevatedButton.icon(
                               onPressed: () {
                                 Navigator.push(
                                   context,
@@ -474,12 +639,57 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                                   ),
                                 );
                               },
+                              label: const Text("   รีวิวผู้รับจ้าง   "),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.yellow,
-                                foregroundColor: Colors.white,
+                                elevation: 4,
+                                shadowColor:
+                                    const Color.fromARGB(208, 163, 160, 160),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 10),
+                                textStyle: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                              child: const Text("รีวิวผู้รับจ้าง"),
                             ),
+
+                            const SizedBox(
+                                width: 10), // เว้นช่องว่างระหว่างปุ่ม
+                          ],
+                          const SizedBox(width: 16),
+                          // ปุ่มรายละเอียดเพิ่มเติม (แสดงทุกกรณี)
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailReserving(
+                                    rsid: rs['rsid'] ?? 0,
+                                  ),
+                                ),
+                              );
+                            },
+                            label: const Text("รายละเอียดเพิ่มเติม"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4CAF50),
+                              foregroundColor: Colors.white,
+                              elevation: 4,
+                              shadowColor:
+                                  const Color.fromARGB(208, 163, 160, 160),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 10),
+                              textStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -542,7 +752,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+          backgroundColor: const Color.fromARGB(255, 18, 143, 9),
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: const Text(

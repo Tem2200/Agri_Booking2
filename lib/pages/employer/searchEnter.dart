@@ -148,7 +148,8 @@ class _SearchEnterState extends State<SearchEnter> {
         //     );
         //   },
         // ),
-        backgroundColor: Color.fromARGB(255, 18, 143, 9),
+        //backgroundColor: Color.fromARGB(255, 18, 143, 9),
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         centerTitle: true,
         title: const Text(
           'ผลการค้นหา',
@@ -217,6 +218,52 @@ class _SearchEnterState extends State<SearchEnter> {
                     ],
                   ),
                 ),
+
+                //เอาไว้ก่อนปุ่มระยะทางกับราคา
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     OutlinedButton(
+                //       onPressed: _sortByDistance,
+                //       style: OutlinedButton.styleFrom(
+                //         shape: RoundedRectangleBorder(
+                //           borderRadius: BorderRadius.circular(20),
+                //         ),
+                //         side: const BorderSide(color: Colors.orange),
+                //         padding: const EdgeInsets.symmetric(
+                //             horizontal: 16, vertical: 12),
+                //       ),
+                //       child: const Row(
+                //         children: [
+                //           Text("ระยะทาง",
+                //               style: TextStyle(color: Colors.black)),
+                //           SizedBox(width: 4),
+                //           Icon(Icons.swap_vert, color: Colors.black, size: 18),
+                //         ],
+                //       ),
+                //     ),
+                //     const SizedBox(width: 12),
+                //     OutlinedButton(
+                //       onPressed: _togglePriceOrder,
+                //       style: OutlinedButton.styleFrom(
+                //         shape: RoundedRectangleBorder(
+                //           borderRadius: BorderRadius.circular(20),
+                //         ),
+                //         side: const BorderSide(color: Colors.orange),
+                //         padding: const EdgeInsets.symmetric(
+                //             horizontal: 16, vertical: 12),
+                //       ),
+                //       child: const Row(
+                //         children: [
+                //           Text("ราคา", style: TextStyle(color: Colors.black)),
+                //           SizedBox(width: 4),
+                //           Icon(Icons.swap_vert, color: Colors.black, size: 18),
+                //         ],
+                //       ),
+                //     ),
+                //   ],
+                // ),
+
                 Expanded(
                   child: vehicles.isEmpty
                       ? const Center(child: Text('ไม่พบผลลัพธ์'))

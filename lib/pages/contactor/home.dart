@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/contactor/DetailVehicle.dart';
 import 'package:agri_booking2/pages/contactor/addvehcle.dart';
 import 'package:agri_booking2/pages/editMem.dart';
@@ -403,7 +404,8 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+          //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+          backgroundColor: const Color.fromARGB(255, 18, 143, 9),
           centerTitle: true,
           automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
           title: const Text(
@@ -475,7 +477,8 @@ class _HomePageState extends State<HomePage> {
                 } else if (value == 'logout') {
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const Login()),
+                    MaterialPageRoute(
+                        builder: (context) => TabbarGenaralUser(value: 0)),
                     (route) => false,
                   );
                 }

@@ -386,7 +386,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
       child: Scaffold(
         //backgroundColor: const Color(0xFFFFCC99),
         appBar: AppBar(
-          backgroundColor: Color.fromARGB(255, 255, 158, 60),
+          backgroundColor: const Color.fromARGB(255, 18, 143, 9),
           centerTitle: true,
           iconTheme: const IconThemeData(
             color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว

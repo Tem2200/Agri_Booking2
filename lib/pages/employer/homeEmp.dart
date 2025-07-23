@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:agri_booking2/pages/contactor/home.dart';
 import 'package:agri_booking2/pages/editMem.dart';
@@ -82,7 +83,7 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                 height: MediaQuery.of(context).size.height *
                     0.50, // ประมาณ 35% ของจอ
                 decoration: const BoxDecoration(
-                  color: Colors.orange,
+                  color: Color.fromARGB(255, 18, 143, 9),
                   borderRadius: BorderRadius.vertical(
                     bottom: Radius.circular(40),
                   ),
@@ -241,7 +242,9 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => const Login()),
+                                          builder: (context) =>
+                                              const TabbarGenaralUser(
+                                                  value: 0)),
                                     );
                                   },
                                   child: buildMenuItem(

@@ -221,7 +221,8 @@ class _EditMemberPageState extends State<EditMemberPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         centerTitle: true, // ✅ บังคับให้อยู่ตรงกลาง
         title: const Text(
           'แก้ไขข้อมูลส่วนตัว',

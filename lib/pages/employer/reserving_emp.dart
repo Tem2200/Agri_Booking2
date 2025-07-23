@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -136,7 +137,20 @@ class _ReservingEmpState extends State<ReservingEmp> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('จองสำเร็จ')),
         );
-        Navigator.pop(context);
+        //Navigator.pop(context);
+        int currentMonth = DateTime.now().month;
+        int currentYear = DateTime.now().year;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Tabbar(
+              mid: widget.mid,
+              value: 1,
+              month: currentMonth,
+              year: currentYear,
+            ),
+          ),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('ผิดพลาด: ${response.statusCode}')),
@@ -211,6 +225,8 @@ class _ReservingEmpState extends State<ReservingEmp> {
               );
   }
 
+  TextStyle get _sectionTitleStyle =>
+      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
   @override
   Widget build(BuildContext context) {
     final bool shouldSelectFarm = widget.farm == null ||
@@ -219,8 +235,31 @@ class _ReservingEmpState extends State<ReservingEmp> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("จองคิวรถ"),
-        backgroundColor: Colors.orange,
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
+        centerTitle: true,
+        //automaticallyImplyLeading: false,
+        title: const Text(
+          'จองคิวรถ',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            shadows: [
+              Shadow(
+                color: Color.fromARGB(115, 253, 237, 237),
+                blurRadius: 3,
+                offset: Offset(1.5, 1.5),
+              ),
+            ],
+          ),
+        ),
+        leading: IconButton(
+          color: Colors.white,
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // ✅ กลับหน้าก่อนหน้า
+          },
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -233,19 +272,53 @@ class _ReservingEmpState extends State<ReservingEmp> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 8),
-                        const Text("ข้อมูลฟาร์มที่เลือก",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                        const SizedBox(height: 8),
-                        Text("ชื่อฟาร์ม: ${widget.farm['name_farm'] ?? '-'}"),
-                        Text("หมู่บ้าน: ${widget.farm['village'] ?? '-'}"),
-                        Text("ตำบล: ${widget.farm['subdistrict'] ?? '-'}"),
-                        Text("อำเภอ: ${widget.farm['district'] ?? '-'}"),
-                        Text("จังหวัด: ${widget.farm['province'] ?? '-'}"),
-                        Text(
-                            "ขนาดพื้นที่: ${widget.farm['area_amount'] ?? '-'} ${widget.farm['unit_area'] ?? ''}"),
-                        Text("รายละเอียด: ${widget.farm['detail'] ?? '-'}"),
+                        Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.orange[50],
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.orange),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.orange.withOpacity(0.2),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "ข้อมูลไร่นาที่เลือก",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                _buildInfoText(
+                                    "ชื่อฟาร์ม", widget.farm['name_farm']),
+                                _buildInfoText(
+                                    "หมู่บ้าน", widget.farm['village']),
+                                _buildInfoText(
+                                    "ตำบล", widget.farm['subdistrict']),
+                                _buildInfoText(
+                                    "อำเภอ", widget.farm['district']),
+                                _buildInfoText(
+                                    "จังหวัด", widget.farm['province']),
+                                _buildInfoText("ขนาดพื้นที่",
+                                    "${widget.farm['area_amount'] ?? '-'} ${widget.farm['unit_area'] ?? ''}"),
+                                _buildInfoText(
+                                    "รายละเอียด", widget.farm['detail']),
+                              ],
+                            ),
+                          ),
+                        ),
                         const Divider(height: 32, color: Colors.orange),
                         TextFormField(
                           controller: nameController,
@@ -325,6 +398,8 @@ class _ReservingEmpState extends State<ReservingEmp> {
                               : null,
                         ),
                         const SizedBox(height: 16),
+                        Text("เลือกวันและเวลาทำงาน", style: _sectionTitleStyle),
+                        const SizedBox(height: 8),
                         Row(
                           children: [
                             Expanded(
@@ -349,14 +424,51 @@ class _ReservingEmpState extends State<ReservingEmp> {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: _submitReservation,
-                          child: const Text('ยืนยันจอง'),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _submitReservation,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              textStyle: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            child: const Text('ยืนยันจอง'),
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
+    );
+  }
+
+// ฟังก์ชันช่วยสร้างข้อความแต่ละบรรทัด พร้อมสไตล์สวยงาม
+  Widget _buildInfoText(String label, dynamic value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: RichText(
+        text: TextSpan(
+          text: "$label: ",
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+            color: Colors.black,
+          ),
+          children: [
+            TextSpan(
+              text: value?.toString() ?? "-",
+              style: const TextStyle(
+                fontWeight: FontWeight.normal,
+                fontSize: 15,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

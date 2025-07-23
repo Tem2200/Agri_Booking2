@@ -116,20 +116,196 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
   }
 
   @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+  //       centerTitle: true,
+  //       iconTheme: const IconThemeData(color: Colors.white),
+  //       //automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
+  //       title: const Text(
+  //         'เพิ่มไร่นา',
+  //         style: TextStyle(
+  //           fontSize: 22,
+  //           fontWeight: FontWeight.bold,
+  //           color: Color.fromARGB(255, 255, 255, 255),
+  //           //letterSpacing: 1,
+  //           shadows: [
+  //             Shadow(
+  //               color: Color.fromARGB(115, 253, 237, 237),
+  //               blurRadius: 3,
+  //               offset: Offset(1.5, 1.5),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //     body: SingleChildScrollView(
+  //       padding: const EdgeInsets.all(16),
+  //       child: Form(
+  //         key: _formKey,
+  //         child: Column(
+  //           children: [
+  //             const Text('กรุณากรอกข้อมูลฟาร์มของคุณเพื่อใช้ในการจองงาน'),
+  //             TextFormField(
+  //               controller: nameFarmCtrl,
+  //               decoration: const InputDecoration(labelText: 'ชื่อฟาร์ม'),
+  //               validator: (val) =>
+  //                   val == null || val.isEmpty ? 'กรุณากรอกชื่อฟาร์ม' : null,
+  //             ),
+  //             TextFormField(
+  //               controller: villageCtrl,
+  //               decoration: const InputDecoration(labelText: 'หมู่บ้าน'),
+  //               validator: (val) =>
+  //                   val == null || val.isEmpty ? 'กรุณากรอกหมู่บ้าน' : null,
+  //             ),
+  //             DropdownButtonFormField<String>(
+  //               value: selectedProvince,
+  //               decoration: const InputDecoration(labelText: 'จังหวัด'),
+  //               items: provinces
+  //                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+  //                   .toList(),
+  //               onChanged: (value) {
+  //                 setState(() {
+  //                   selectedProvince = value;
+  //                   selectedAmphoe = null;
+  //                   selectedDistrict = null;
+
+  //                   amphoes = locationData
+  //                       .where((e) => e['province'] == value)
+  //                       .map((e) => e['amphoe'] as String)
+  //                       .toSet()
+  //                       .toList()
+  //                     ..sort();
+
+  //                   districts = [];
+  //                 });
+  //               },
+  //               validator: (v) => v == null ? 'กรุณาเลือกจังหวัด' : null,
+  //             ),
+  //             DropdownButtonFormField<String>(
+  //               value: selectedAmphoe,
+  //               decoration: const InputDecoration(labelText: 'อำเภอ'),
+  //               items: amphoes
+  //                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+  //                   .toList(),
+  //               onChanged: (value) {
+  //                 setState(() {
+  //                   selectedAmphoe = value;
+  //                   selectedDistrict = null;
+
+  //                   districts = locationData
+  //                       .where((e) =>
+  //                           e['province'] == selectedProvince &&
+  //                           e['amphoe'] == value)
+  //                       .map((e) => e['district'] as String)
+  //                       .toSet()
+  //                       .toList()
+  //                     ..sort();
+  //                 });
+  //               },
+  //               validator: (v) => v == null ? 'กรุณาเลือกอำเภอ' : null,
+  //             ),
+  //             DropdownButtonFormField<String>(
+  //               value: selectedDistrict,
+  //               decoration: const InputDecoration(labelText: 'ตำบล'),
+  //               items: districts
+  //                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+  //                   .toList(),
+  //               onChanged: (value) {
+  //                 setState(() {
+  //                   selectedDistrict = value;
+  //                 });
+  //               },
+  //               validator: (v) => v == null ? 'กรุณาเลือกตำบล' : null,
+  //             ),
+  //             TextFormField(
+  //               controller: detailCtrl,
+  //               decoration:
+  //                   const InputDecoration(labelText: 'รายละเอียด (ไม่บังคับ)'),
+  //             ),
+  //             TextFormField(
+  //               controller: areaAmountCtrl,
+  //               decoration: const InputDecoration(labelText: 'ขนาดพื้นที่'),
+  //               keyboardType: TextInputType.number,
+  //               validator: (val) =>
+  //                   val == null || val.isEmpty ? 'กรุณากรอกขนาดพื้นที่' : null,
+  //             ),
+  //             DropdownButtonFormField<String>(
+  //               value: selectedUnit,
+  //               decoration: const InputDecoration(labelText: 'หน่วยพื้นที่'),
+  //               items: unitOptions
+  //                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+  //                   .toList(),
+  //               onChanged: (value) {
+  //                 setState(() {
+  //                   selectedUnit = value;
+  //                 });
+  //               },
+  //               validator: (val) =>
+  //                   val == null ? 'กรุณาเลือกหน่วยพื้นที่' : null,
+  //             ),
+  //             if (selectedUnit == 'อื่นๆ')
+  //               TextFormField(
+  //                 controller: customUnitCtrl,
+  //                 decoration:
+  //                     const InputDecoration(labelText: 'ระบุหน่วยพื้นที่เอง'),
+  //                 validator: (val) => val == null || val.isEmpty
+  //                     ? 'กรุณาระบุหน่วยพื้นที่'
+  //                     : null,
+  //               ),
+  //             const SizedBox(height: 16),
+  //             ElevatedButton.icon(
+  //               icon: const Icon(Icons.map),
+  //               label: const Text('เลือกตำแหน่งบนแผนที่'),
+  //               onPressed: _pickLocation,
+  //             ),
+  //             if (markerMessage.isNotEmpty)
+  //               Padding(
+  //                 padding: const EdgeInsets.only(top: 8),
+  //                 child: Text(
+  //                   markerMessage,
+  //                   style: const TextStyle(
+  //                       color: Colors.green, fontWeight: FontWeight.bold),
+  //                 ),
+  //               ),
+  //             const SizedBox(height: 20),
+  //             ElevatedButton(
+  //               onPressed: _submitFarm,
+  //               child: const Text('บันทึกฟาร์ม'),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
   Widget build(BuildContext context) {
+    final labelStyle = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      color: Colors.grey[800],
+    );
+
+    final inputDecoration = InputDecoration(
+      filled: true,
+      fillColor: Colors.white,
+      labelStyle: labelStyle,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    );
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 255, 158, 60),
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
-        //automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
         title: const Text(
           'เพิ่มไร่นา',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: Color.fromARGB(255, 255, 255, 255),
-            //letterSpacing: 1,
+            color: Colors.white,
             shadows: [
               Shadow(
                 color: Color.fromARGB(115, 253, 237, 237),
@@ -141,27 +317,34 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('กรุณากรอกข้อมูลฟาร์มของคุณเพื่อใช้ในการจองงาน'),
+              const Text(
+                'กรุณากรอกข้อมูลฟาร์มของคุณเพื่อใช้ในการจองงาน',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              ),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: nameFarmCtrl,
-                decoration: const InputDecoration(labelText: 'ชื่อฟาร์ม'),
+                decoration: inputDecoration.copyWith(labelText: 'ชื่อฟาร์ม*'),
                 validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกชื่อฟาร์ม' : null,
+                    val == null || val.isEmpty ? 'กรุณากรอกชื่อฟาร์ม*' : null,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: villageCtrl,
-                decoration: const InputDecoration(labelText: 'หมู่บ้าน'),
+                decoration: inputDecoration.copyWith(labelText: 'หมู่บ้าน*'),
                 validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกหมู่บ้าน' : null,
+                    val == null || val.isEmpty ? 'กรุณากรอกหมู่บ้าน*' : null,
               ),
+              const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: selectedProvince,
-                decoration: const InputDecoration(labelText: 'จังหวัด'),
+                decoration: inputDecoration.copyWith(labelText: 'จังหวัด*'),
                 items: provinces
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
@@ -181,11 +364,12 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                     districts = [];
                   });
                 },
-                validator: (v) => v == null ? 'กรุณาเลือกจังหวัด' : null,
+                validator: (v) => v == null ? 'กรุณาเลือกจังหวัด*' : null,
               ),
+              const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: selectedAmphoe,
-                decoration: const InputDecoration(labelText: 'อำเภอ'),
+                decoration: inputDecoration.copyWith(labelText: 'อำเภอ*'),
                 items: amphoes
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
@@ -204,11 +388,12 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                       ..sort();
                   });
                 },
-                validator: (v) => v == null ? 'กรุณาเลือกอำเภอ' : null,
+                validator: (v) => v == null ? 'กรุณาเลือกอำเภอ*' : null,
               ),
+              const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: selectedDistrict,
-                decoration: const InputDecoration(labelText: 'ตำบล'),
+                decoration: inputDecoration.copyWith(labelText: 'ตำบล*'),
                 items: districts
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
@@ -217,23 +402,21 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                     selectedDistrict = value;
                   });
                 },
-                validator: (v) => v == null ? 'กรุณาเลือกตำบล' : null,
+                validator: (v) => v == null ? 'กรุณาเลือกตำบล*' : null,
               ),
-              TextFormField(
-                controller: detailCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'รายละเอียด (ไม่บังคับ)'),
-              ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: areaAmountCtrl,
-                decoration: const InputDecoration(labelText: 'ขนาดพื้นที่'),
+                decoration: inputDecoration.copyWith(labelText: 'ขนาดพื้นที่*'),
                 keyboardType: TextInputType.number,
                 validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกขนาดพื้นที่' : null,
+                    val == null || val.isEmpty ? 'กรุณากรอกขนาดพื้นที่*' : null,
               ),
+              const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: selectedUnit,
-                decoration: const InputDecoration(labelText: 'หน่วยพื้นที่'),
+                decoration:
+                    inputDecoration.copyWith(labelText: 'หน่วยพื้นที่*'),
                 items: unitOptions
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
@@ -243,37 +426,115 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                   });
                 },
                 validator: (val) =>
-                    val == null ? 'กรุณาเลือกหน่วยพื้นที่' : null,
+                    val == null ? 'กรุณาเลือกหน่วยพื้นที่*' : null,
               ),
               if (selectedUnit == 'อื่นๆ')
-                TextFormField(
-                  controller: customUnitCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'ระบุหน่วยพื้นที่เอง'),
-                  validator: (val) => val == null || val.isEmpty
-                      ? 'กรุณาระบุหน่วยพื้นที่'
-                      : null,
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: TextFormField(
+                    controller: customUnitCtrl,
+                    decoration: inputDecoration.copyWith(
+                        labelText: 'ระบุหน่วยพื้นที่เอง*'),
+                    validator: (val) => val == null || val.isEmpty
+                        ? 'กรุณาระบุหน่วยพื้นที่*'
+                        : null,
+                  ),
                 ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.map),
-                label: const Text('เลือกตำแหน่งบนแผนที่'),
-                onPressed: _pickLocation,
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: detailCtrl,
+                decoration: inputDecoration.copyWith(
+                    labelText: 'รายละเอียด (ไม่บังคับ)'),
               ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _pickLocation,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 4,
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.black,
+                ),
+                child: Ink(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFFFF176), // เหลืองอ่อน
+                        Color(0xFFFFC107), // เหลืองเข้ม
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Container(
+                    alignment: Alignment.center,
+                    constraints:
+                        const BoxConstraints(minWidth: 180, minHeight: 50),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.map, color: Colors.black),
+                        SizedBox(width: 8),
+                        Text(
+                          'เลือกตำแหน่งบนแผนที่ *',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // แสดงข้อความตำแหน่งที่เลือก (ถ้ามี)
               if (markerMessage.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     markerMessage,
                     style: const TextStyle(
-                        color: Colors.green, fontWeight: FontWeight.bold),
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submitFarm,
-                child: const Text('บันทึกฟาร์ม'),
-              ),
+              const SizedBox(height: 24),
+              Center(
+                child: SizedBox(
+                  width: 150, // กำหนดความยาวปุ่ม
+                  child: ElevatedButton(
+                    onPressed: _submitFarm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 6, 126, 12),
+                      foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 30,
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 8,
+                      shadowColor: const Color.fromARGB(164, 174, 174, 174),
+                    ),
+                    child: const Text(
+                      'บันทึกฟาร์ม',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/addFarm.dart';
@@ -361,7 +362,8 @@ class _RegisterState extends State<Register> {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Login()),
+              MaterialPageRoute(
+                  builder: (context) => TabbarGenaralUser(value: 1)),
             );
           },
         ),
