@@ -30,10 +30,10 @@ class _ProfileConState extends State<ProfileCon> {
 
   late int _currentMid;
   bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
+    print("farm: ${widget.farm}");
     _currentMid = widget.mid_con;
 
     _memberDataFuture = fetchCon(widget.mid_con);

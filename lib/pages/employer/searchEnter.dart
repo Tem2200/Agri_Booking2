@@ -4,6 +4,8 @@ import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/search_emp.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'package:http/http.dart' as http;
 
 class SearchEnter extends StatefulWidget {
@@ -21,13 +23,23 @@ class SearchEnter extends StatefulWidget {
 }
 
 class _SearchEnterState extends State<SearchEnter> {
+  Timer? _debounce;
+
   bool isLoading = false;
   List<dynamic> vehicles = [];
   String currentOrder = "asc";
   bool sortByDistance = false;
+  TextEditingController _searchController = TextEditingController();
+  String searchQuery = "";
 
   double? userLat;
   double? userLng;
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -35,6 +47,17 @@ class _SearchEnterState extends State<SearchEnter> {
     currentOrder = widget.payload["order"] ?? "asc";
     userLat = widget.payload["latitude"];
     userLng = widget.payload["longitude"];
+    searchQuery = widget.payload["keyword"] ?? "";
+    // _searchController.addListener(() {
+    //   if (_debounce?.isActive ?? false) _debounce!.cancel();
+    //   _debounce = Timer(const Duration(milliseconds: 500), () {
+    //     setState(() {
+    //       searchQuery = _searchController.text;
+    //     });
+    //     _searchVehicle();
+    //   });
+    // });
+
     _searchVehicle();
   }
 
@@ -49,8 +72,7 @@ class _SearchEnterState extends State<SearchEnter> {
       );
 
       final body = {
-        "mid": widget.mid,
-        ...widget.payload,
+        "keyword": searchQuery,
         "order": currentOrder,
       };
 
@@ -167,6 +189,7 @@ class _SearchEnterState extends State<SearchEnter> {
             ],
           ),
         ),
+
         leading: IconButton(
           color: Colors.white,
           icon: const Icon(Icons.arrow_back),
@@ -192,30 +215,100 @@ class _SearchEnterState extends State<SearchEnter> {
           : Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
                     children: [
-                      ElevatedButton.icon(
-                        onPressed: _togglePriceOrder,
-                        icon: Icon(
-                          currentOrder == "asc"
-                              ? Icons.arrow_upward
-                              : Icons.arrow_downward,
-                        ),
-                        label: Text(
-                          currentOrder == "asc"
-                              ? "ราคา: น้อย → มาก"
-                              : "ราคา: มาก → น้อย",
+                      // ช่องกรอก TextField
+                      Expanded(
+                        flex: 3,
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: 'ค้นหาชื่อรถหรือผู้รับจ้าง',
+                            prefixIcon: Icon(Icons.search),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
                         ),
                       ),
+
+                      const SizedBox(
+                          width: 8), // ระยะห่างระหว่างช่องกรอกกับปุ่ม
+
+                      // ปุ่มค้นหา
                       ElevatedButton.icon(
-                        onPressed: _sortByDistance,
-                        icon: const Icon(Icons.route),
-                        label: const Text("เรียงตามระยะทาง"),
+                        icon: const Icon(Icons.search),
+                        label: const Text('ค้นหา'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 18),
+                        ),
+                        onPressed: () {
+                          FocusScope.of(context).unfocus(); // ปิดแป้นพิมพ์
+                          setState(() {
+                            searchQuery = _searchController.text;
+                          });
+                          _searchVehicle();
+                        },
                       ),
                     ],
+                  ),
+                ),
+                // Padding(
+                //   padding: const EdgeInsets.all(16),
+                //   child: TextField(
+                //     controller: _searchController,
+                //     decoration: InputDecoration(
+                //       hintText: 'ค้นหาชื่อรถหรือผู้รับจ้าง',
+                //       prefixIcon: Icon(Icons.search),
+                //       border: OutlineInputBorder(
+                //         borderRadius: BorderRadius.circular(12),
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 16),
+                //   child: SizedBox(
+                //     width: double.infinity,
+                //     child: ElevatedButton.icon(
+                //       icon: const Icon(Icons.search),
+                //       label: const Text('ค้นหา'),
+                //       onPressed: () {
+                //         setState(() {
+                //           searchQuery = _searchController.text;
+                //         });
+                //         _searchVehicle();
+                //       },
+                //     ),
+                //   ),
+                // ),
+
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft, // จัดให้ชิดซ้าย
+                    child: Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: _togglePriceOrder,
+                          icon: Icon(
+                            currentOrder == "desc"
+                                ? Icons.arrow_upward
+                                : Icons.arrow_downward,
+                          ),
+                          label: Text(
+                            currentOrder == "desc"
+                                ? "ราคา: มาก → น้อย"
+                                : "ราคา: น้อย → มาก",
+                          ),
+                        ),
+                        // เพิ่มปุ่มอื่นในนี้ได้ตามต้องการ
+                      ],
+                    ),
                   ),
                 ),
 

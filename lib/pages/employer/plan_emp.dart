@@ -545,7 +545,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'ฟาร์ม: ${rs['name_farm'] ?? '-'}'
+                              'ที่นา: ${rs['name_farm'] ?? '-'}'
                               ' (${rs['farm_subdistrict'] ?? '-'}, '
                               '${rs['farm_district'] ?? '-'}, '
                               '${rs['farm_province'] ?? '-'})',

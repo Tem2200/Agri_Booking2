@@ -734,7 +734,7 @@ class _DetailReservingState extends State<DetailReserving> {
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'ฟาร์ม: ${data!['name_farm']} (${data!['village']}, ${data!['subdistrict']})',
+                                        'ที่นา: ${data!['name_farm']} (${data!['village']}, ${data!['subdistrict']})',
                                         style: const TextStyle(fontSize: 15),
                                       ),
                                     ),
