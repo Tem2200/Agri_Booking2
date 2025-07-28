@@ -125,24 +125,48 @@ class _HomeGeState extends State<HomeGe> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'ค้นหารถ เช่น ชื่อรถ หรือจังหวัด',
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _priceOrder == 'DECS'
-                        ? Icons.arrow_downward
-                        : Icons.arrow_upward,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
+                      labelText: 'ค้นหารถ เช่น ชื่อรถ หรือจังหวัด',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.search),
+                    ),
                   ),
-                  onPressed: _togglePriceOrder,
-                  tooltip:
-                      _priceOrder == 'DECS' ? 'ราคาสูง → ต่ำ' : 'ราคาต่ำ → สูง',
                 ),
-              ),
-              onChanged: _onSearchChanged,
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.search),
+                  label: const Text("ค้นหา"),
+                  onPressed: () {
+                    final keyword = _searchController.text.trim();
+                    if (keyword.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => SearchGe(
+                            keyword: keyword,
+                            initialOrder: _priceOrder,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                // IconButton(
+                //   icon: Icon(
+                //     _priceOrder == 'DECS'
+                //         ? Icons.arrow_downward
+                //         : Icons.arrow_upward,
+                //   ),
+                //   onPressed: _togglePriceOrder,
+                //   tooltip:
+                //       _priceOrder == 'DECS' ? 'ราคาสูง → ต่ำ' : 'ราคาต่ำ → สูง',
+                // ),
+              ],
             ),
           ),
           Expanded(
@@ -315,7 +339,7 @@ class _HomeGeState extends State<HomeGe> {
                                                   color: Colors.amber),
                                               const SizedBox(width: 6),
                                               Text(
-                                                'คะแนนเฉลี่ย: ${vehicle['avg_review_point']}',
+                                                'คะแนนรีวิว: ${double.tryParse(vehicle['avg_review_point'] ?? '0')?.toStringAsFixed(2) ?? '0.00'}',
                                                 style: const TextStyle(
                                                     fontSize: 15),
                                               ),

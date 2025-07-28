@@ -56,6 +56,7 @@ class _SearchGeState extends State<SearchGe> {
         final data = json.decode(response.body);
         setState(() {
           vehicles = data;
+          print("Fetched vehicles: $vehicles");
           isLoading = false;
         });
       } else {
@@ -113,13 +114,38 @@ class _SearchGeState extends State<SearchGe> {
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.all(8),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'ค้นหารถ เช่น ชื่อรถ หรือจังหวัด',
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: IconButton(
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
+                      labelText: 'ค้นหารถ เช่น ชื่อรถ หรือจังหวัด',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.search),
+                  label: const Text("ค้นหา"),
+                  onPressed: () {
+                    final keyword = _searchController.text.trim();
+                    if (keyword.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => SearchGe(
+                            keyword: keyword,
+                            initialOrder: _priceOrder,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                IconButton(
                   icon: Icon(
                     _priceOrder == 'DECS'
                         ? Icons.arrow_downward
@@ -129,10 +155,10 @@ class _SearchGeState extends State<SearchGe> {
                   tooltip:
                       _priceOrder == 'DECS' ? 'ราคาสูง → ต่ำ' : 'ราคาต่ำ → สูง',
                 ),
-              ),
-              onChanged: _onSearchChanged,
+              ],
             ),
           ),
+
           // Expanded(
           //   child: isLoading
           //       ? const Center(child: CircularProgressIndicator())
@@ -253,7 +279,7 @@ class _SearchGeState extends State<SearchGe> {
                                             const SizedBox(width: 6),
                                             Expanded(
                                               child: Text(
-                                                'ผู้รับจ้าง: ${vehicle['username_contractor']}',
+                                                'ผู้รับจ้าง: ${vehicle['username']}',
                                                 style: const TextStyle(
                                                     fontSize: 15),
                                               ),
@@ -299,10 +325,18 @@ class _SearchGeState extends State<SearchGe> {
                                                 size: 18, color: Colors.amber),
                                             const SizedBox(width: 6),
                                             Text(
-                                              'คะแนนเฉลี่ย: ${vehicle['avg_review_point']}',
+                                              'คะแนนรีวิว: ${double.tryParse(vehicle['avg_review_point'] ?? '0')?.toStringAsFixed(2) ?? '0.00'}',
                                               style:
                                                   const TextStyle(fontSize: 15),
                                             ),
+                                            // Text(
+                                            //   vehicle['avg_review_point'] ==
+                                            //           null
+                                            //       ? 'ยังไม่มีรีวิว'
+                                            //       : 'คะแนนเฉลี่ย: ${(vehicle['avg_review_point']).toStringAsFixed(2)}',
+                                            //   style:
+                                            //       const TextStyle(fontSize: 15),
+                                            // ),
                                           ],
                                         ),
                                       ],

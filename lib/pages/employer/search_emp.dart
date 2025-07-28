@@ -519,7 +519,25 @@ class _SearchEmpState extends State<SearchEmp> {
                                                     ),
                                                   ],
                                                 ),
-
+                                                const SizedBox(height: 4),
+                                                Row(
+                                                  children: [
+                                                    const Icon(
+                                                        Icons.location_on,
+                                                        size: 18,
+                                                        color:
+                                                            Colors.redAccent),
+                                                    const SizedBox(width: 6),
+                                                    Expanded(
+                                                      child: Text(
+                                                        '${v['subdistrict']} ,${v['district']} ,${v['province']}',
+                                                        maxLines: 1,
+                                                        style: const TextStyle(
+                                                            fontSize: 15),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                                 const SizedBox(height: 4),
 
                                                 // 🔸 ระยะทาง (ถ้ามีฟาร์ม)

@@ -8,11 +8,12 @@ import 'package:http/http.dart' as http;
 class ReservingForNF extends StatefulWidget {
   final int mid;
   final int vid;
-
+  final dynamic vihicleData;
   const ReservingForNF({
     super.key,
     required this.mid,
     required this.vid,
+    required this.vihicleData,
   });
 
   @override
@@ -285,133 +286,300 @@ class _ReservingForNFState extends State<ReservingForNF> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DropdownButtonFormField<dynamic>(
-                      value: selectedFarm,
-                      decoration: const InputDecoration(
-                        labelText: 'เลือกที่นา',
-                        border: OutlineInputBorder(),
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    Container(
+                        // padding: const EdgeInsets.all(16),
+                        // margin: const EdgeInsets.symmetric(
+                        //     vertical: 12, horizontal: 16),
+                        // decoration: BoxDecoration(
+                        //   color: Colors.orange[50],
+                        //   borderRadius: BorderRadius.circular(16),
+                        //   border: Border.all(color: Colors.orange),
+                        //   boxShadow: [
+                        //     BoxShadow(
+                        //       color: Colors.orange.withOpacity(0.2),
+                        //       blurRadius: 6,
+                        //       offset: const Offset(0, 4),
+                        //     ),
+                        //   ],
+                        // ),
+                        child: Card(
+                      elevation: 8, // เงาชัดเจน
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16), // มุมโค้งมนสวย
                       ),
-                      items: farmList.map<DropdownMenuItem<dynamic>>((farm) {
-                        return DropdownMenuItem<dynamic>(
-                          value: farm,
-                          child: Text(farm['name_farm'] ?? "-"),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedFarm = value;
-                        });
-                      },
-                      validator: (value) =>
-                          value == null ? 'กรุณาเลือกที่นา' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    if (selectedFarm != null) ...[
-                      // Text("หมู่บ้าน: ${selectedFarm['village'] ?? '-'}",
-                      //     style: _infoStyle),
-                      // Text("ตำบล: ${selectedFarm['subdistrict'] ?? '-'}",
-                      //     style: _infoStyle),
-                      // Text("อำเภอ: ${selectedFarm['district'] ?? '-'}",
-                      //     style: _infoStyle),
-                      // Text("จังหวัด: ${selectedFarm['province'] ?? '-'}",
-                      //     style: _infoStyle),
-                      // Text(
-                      //     "ขนาดพื้นที่: ${selectedFarm['area_amount'] ?? '-'} ${selectedFarm['unit_area'] ?? ''}",
-                      //     style: _infoStyle),
-                      // Text("รายละเอียด: ${selectedFarm['detail'] ?? '-'}",
-                      //     style: _infoStyle),
-                      // const Divider(height: 32, thickness: 1),
-                      Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.orange[50],
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.orange),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.orange.withOpacity(0.2),
-                                blurRadius: 6,
-                                offset: const Offset(0, 4),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 2, vertical: 2), // เว้นขอบการ์ด
+                      shadowColor: Colors.black54, // เงาสีเข้มขึ้นเล็กน้อย
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 12), // ระยะห่างในการ์ด
+                        child: ListTile(
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              widget.vihicleData['image_vehicle'] ?? '',
+                              width: 120,
+                              height: 180,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const SizedBox(
+                                width: 100,
+                                height: 180,
+                                child: Icon(Icons.broken_image,
+                                    size: 48, color: Colors.grey),
                               ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  "หมู่บ้าน: ${selectedFarm['village'] ?? '-'}",
-                                  style: _infoStyles),
-                              Text(
-                                  "ตำบล: ${selectedFarm['subdistrict'] ?? '-'}",
-                                  style: _infoStyles),
-                              Text("อำเภอ: ${selectedFarm['district'] ?? '-'}",
-                                  style: _infoStyles),
-                              Text(
-                                  "จังหวัด: ${selectedFarm['province'] ?? '-'}",
-                                  style: _infoStyles),
-                              Text(
-                                "ขนาดพื้นที่: ${selectedFarm['area_amount'] ?? '-'} ${selectedFarm['unit_area'] ?? ''}",
-                                style: _infoStyles,
-                              ),
-                              Text(
-                                  "รายละเอียด: ${selectedFarm['detail'] ?? '-'}",
-                                  style: _infoStyles),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                    if (farmList.isEmpty) ...[
-                      const SizedBox(height: 16),
-                      const Center(
-                        child: Text(
-                          'คุณยังไม่มีข้อมูลที่นา',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Center(
-                        // จัดปุ่มให้อยู่ตรงกลาง
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AddFarmPage2(mid: widget.mid),
-                              ),
-                            ).then((_) => _loadFarms());
-                          },
-                          icon: const Icon(Icons.add_location_alt,
-                              color: Colors.white), // ไอคอนสีขาว
-                          label: const Text(
-                            'เพิ่มที่นา',
-                            style: TextStyle(
-                                color: Colors.white), // ตัวหนังสือสีขาว
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green, // พื้นปุ่มสีเขียว
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12), // ปรับขนาดปุ่มให้พอดี
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(8), // มุมโค้งเล็กน้อย
                             ),
                           ),
+                          title: Text(
+                            widget.vihicleData['name_vehicle'],
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black12,
+                                  offset: Offset(1, 1),
+                                  blurRadius: 2,
+                                ),
+                              ],
+                            ),
+                          ),
+                          subtitle: Text(
+                            'ผู้รับจ้าง: ${widget.vihicleData['username']}\n${widget.vihicleData['price']} บาท/ ${widget.vihicleData['unit_price']}, ${widget.vihicleData['detail']}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color.fromARGB(255, 95, 95, 95),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 0), // จัดระยะห่างภายใน ListTile
                         ),
                       ),
-                      const Divider(height: 32, thickness: 1),
-                    ],
+                    )),
+                    const SizedBox(height: 16),
+                    // DropdownButtonFormField<dynamic>(
+                    //   value: selectedFarm,
+                    //   decoration: const InputDecoration(
+                    //     labelText: 'เลือกที่นา',
+                    //     border: OutlineInputBorder(),
+                    //     contentPadding:
+                    //         EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    //   ),
+                    //   items: farmList.map<DropdownMenuItem<dynamic>>((farm) {
+                    //     return DropdownMenuItem<dynamic>(
+                    //       value: farm,
+                    //       child: Text(farm['name_farm'] ?? "-"),
+                    //     );
+                    //   }).toList(),
+                    //   onChanged: (value) {
+                    //     setState(() {
+                    //       selectedFarm = value;
+                    //     });
+                    //   },
+                    //   validator: (value) =>
+                    //       value == null ? 'กรุณาเลือกที่นา' : null,
+                    // ),
+                    // const SizedBox(height: 16),
+                    // if (selectedFarm != null) ...[
+                    // Text("หมู่บ้าน: ${selectedFarm['village'] ?? '-'}",
+                    //     style: _infoStyle),
+                    // Text("ตำบล: ${selectedFarm['subdistrict'] ?? '-'}",
+                    //     style: _infoStyle),
+                    // Text("อำเภอ: ${selectedFarm['district'] ?? '-'}",
+                    //     style: _infoStyle),
+                    // Text("จังหวัด: ${selectedFarm['province'] ?? '-'}",
+                    //     style: _infoStyle),
+                    // Text(
+                    //     "ขนาดพื้นที่: ${selectedFarm['area_amount'] ?? '-'} ${selectedFarm['unit_area'] ?? ''}",
+                    //     style: _infoStyle),
+                    // Text("รายละเอียด: ${selectedFarm['detail'] ?? '-'}",
+                    //     style: _infoStyle),
+                    // const Divider(height: 32, thickness: 1),
+
+                    // Center(
+                    //   child: Container(
+                    //     padding: const EdgeInsets.all(16),
+                    //     margin: const EdgeInsets.symmetric(
+                    //         vertical: 12, horizontal: 16),
+                    //     decoration: BoxDecoration(
+                    //       color: Colors.orange[50],
+                    //       borderRadius: BorderRadius.circular(16),
+                    //       border: Border.all(color: Colors.orange),
+                    //       boxShadow: [
+                    //         BoxShadow(
+                    //           color: Colors.orange.withOpacity(0.2),
+                    //           blurRadius: 6,
+                    //           offset: const Offset(0, 4),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //     child: Column(
+                    //       crossAxisAlignment: CrossAxisAlignment.start,
+                    //       children: [
+                    //         Text(
+                    //             "หมู่บ้าน: ${selectedFarm['village'] ?? '-'}",
+                    //             style: _infoStyles),
+                    //         Text(
+                    //             "ตำบล: ${selectedFarm['subdistrict'] ?? '-'}",
+                    //             style: _infoStyles),
+                    //         Text("อำเภอ: ${selectedFarm['district'] ?? '-'}",
+                    //             style: _infoStyles),
+                    //         Text(
+                    //             "จังหวัด: ${selectedFarm['province'] ?? '-'}",
+                    //             style: _infoStyles),
+                    //         Text(
+                    //           "ขนาดพื้นที่: ${selectedFarm['area_amount'] ?? '-'} ${selectedFarm['unit_area'] ?? ''}",
+                    //           style: _infoStyles,
+                    //         ),
+                    //         Text(
+                    //             "รายละเอียด: ${selectedFarm['detail'] ?? '-'}",
+                    //             style: _infoStyles),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+
+                    // Center(
+                    //   child: Container(
+                    //       padding: const EdgeInsets.all(0),
+                    //       margin: const EdgeInsets.symmetric(
+                    //           vertical: 5, horizontal: 2),
+                    // decoration: BoxDecoration(
+                    //   color: Colors.orange[50],
+                    //   borderRadius: BorderRadius.circular(16),
+                    //   border: Border.all(color: Colors.orange),
+                    //   boxShadow: [
+                    //     BoxShadow(
+                    //       color: Colors.orange.withOpacity(0.2),
+                    //       blurRadius: 6,
+                    //       offset: const Offset(0, 4),
+                    //     ),
+                    //   ],
+                    // ),
+                    // child: Column(
+                    //   crossAxisAlignment: CrossAxisAlignment.start,
+                    //   children: [
+                    //     const Text(
+                    //       "ข้อมูลไร่นา",
+                    //       style: TextStyle(
+                    //         fontWeight: FontWeight.bold,
+                    //         fontSize: 16,
+                    //         color: Colors.black,
+                    //       ),
+                    //     ),
+                    //     const SizedBox(height: 12),
+                    //     _buildInfoText(
+                    //         "ชื่อฟาร์ม", widget.farm['name_farm']),
+                    //     _buildInfoText(
+                    //         "หมู่บ้าน", widget.farm['village']),
+                    //     _buildInfoText(
+                    //         "ตำบล", widget.farm['subdistrict']),
+                    //     _buildInfoText(
+                    //         "อำเภอ", widget.farm['district']),
+                    //     _buildInfoText(
+                    //         "จังหวัด", widget.farm['province']),
+                    //     _buildInfoText("ขนาดพื้นที่",
+                    //         "${widget.farm['area_amount'] ?? '-'} ${widget.farm['unit_area'] ?? ''}"),
+                    //     _buildInfoText(
+                    //         "รายละเอียด", widget.farm['detail']),
+                    //   ],
+                    // ),
+
+                    //         child: Card(
+                    //           elevation: 8, // เงาชัดเจน
+                    //           shape: RoundedRectangleBorder(
+                    //             borderRadius:
+                    //                 BorderRadius.circular(16), // มุมโค้งมนสวย
+                    //           ),
+                    //           margin: const EdgeInsets.symmetric(
+                    //               horizontal: 16, vertical: 10), // เว้นขอบการ์ด
+                    //           shadowColor:
+                    //               Colors.black54, // เงาสีเข้มขึ้นเล็กน้อย
+                    //           child: Padding(
+                    //             padding: const EdgeInsets.symmetric(
+                    //                 vertical: 8,
+                    //                 horizontal: 12), // ระยะห่างในการ์ด
+                    //             child: ListTile(
+                    //               title: Text(
+                    //                 selectedFarm['name_farm'],
+                    //                 style: const TextStyle(
+                    //                   fontSize: 15,
+                    //                   fontWeight: FontWeight.bold,
+                    //                   color: Colors.black87,
+                    //                   shadows: [
+                    //                     Shadow(
+                    //                       color: Colors.black12,
+                    //                       offset: Offset(1, 1),
+                    //                       blurRadius: 2,
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //               ),
+                    //               subtitle: Text(
+                    //                 '${selectedFarm['village']}, ${selectedFarm['subdistrict']}, ${selectedFarm['district']}, ${selectedFarm['province']},${selectedFarm['area_amount']} ${selectedFarm['unit_area']}\n${selectedFarm['detail'] ?? 'ไม่มีรายละเอียดอื่นๆ'}',
+                    //                 style: const TextStyle(
+                    //                   fontSize: 14,
+                    //                   color: Color.fromARGB(255, 95, 95, 95),
+                    //                   fontWeight: FontWeight.w500,
+                    //                 ),
+                    //               ),
+
+                    //               contentPadding: const EdgeInsets.symmetric(
+                    //                   horizontal:
+                    //                       0), // จัดระยะห่างภายใน ListTile
+                    //             ),
+                    //           ),
+                    //         )),
+                    //   ),
+                    // ],
+                    // if (farmList.isEmpty) ...[
+                    //   const SizedBox(height: 16),
+                    //   const Center(
+                    //     child: Text(
+                    //       'คุณยังไม่มีข้อมูลที่นา',
+                    //       style: TextStyle(
+                    //         color: Colors.red,
+                    //         fontWeight: FontWeight.bold,
+                    //       ),
+                    //       textAlign: TextAlign.center,
+                    //     ),
+                    //   ),
+                    //   const SizedBox(height: 8),
+                    //   Center(
+                    //     // จัดปุ่มให้อยู่ตรงกลาง
+                    //     child: ElevatedButton.icon(
+                    //       onPressed: () {
+                    //         Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //             builder: (context) =>
+                    //                 AddFarmPage2(mid: widget.mid),
+                    //           ),
+                    //         ).then((_) => _loadFarms());
+                    //       },
+                    //       icon: const Icon(Icons.add_location_alt,
+                    //           color: Colors.white), // ไอคอนสีขาว
+                    //       label: const Text(
+                    //         'เพิ่มที่นา',
+                    //         style: TextStyle(
+                    //             color: Colors.white), // ตัวหนังสือสีขาว
+                    //       ),
+                    //       style: ElevatedButton.styleFrom(
+                    //         backgroundColor: Colors.green, // พื้นปุ่มสีเขียว
+                    //         padding: const EdgeInsets.symmetric(
+                    //             horizontal: 24,
+                    //             vertical: 12), // ปรับขนาดปุ่มให้พอดี
+                    //         shape: RoundedRectangleBorder(
+                    //           borderRadius:
+                    //               BorderRadius.circular(8), // มุมโค้งเล็กน้อย
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    //   const Divider(height: 32, thickness: 1),
+                    // ],
                     _buildTextField(
                         label: 'ชื่อการจอง', controller: nameController),
                     const SizedBox(height: 16),
@@ -493,6 +661,228 @@ class _ReservingForNFState extends State<ReservingForNF> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<dynamic>(
+                      value: selectedFarm,
+                      decoration: const InputDecoration(
+                        labelText: 'เลือกที่นา',
+                        border: OutlineInputBorder(),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      items: farmList.map<DropdownMenuItem<dynamic>>((farm) {
+                        return DropdownMenuItem<dynamic>(
+                          value: farm,
+                          child: Text(farm['name_farm'] ?? "-"),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedFarm = value;
+                        });
+                      },
+                      validator: (value) =>
+                          value == null ? 'กรุณาเลือกที่นา' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    if (selectedFarm != null) ...[
+                      // Text("หมู่บ้าน: ${selectedFarm['village'] ?? '-'}",
+                      //     style: _infoStyle),
+                      // Text("ตำบล: ${selectedFarm['subdistrict'] ?? '-'}",
+                      //     style: _infoStyle),
+                      // Text("อำเภอ: ${selectedFarm['district'] ?? '-'}",
+                      //     style: _infoStyle),
+                      // Text("จังหวัด: ${selectedFarm['province'] ?? '-'}",
+                      //     style: _infoStyle),
+                      // Text(
+                      //     "ขนาดพื้นที่: ${selectedFarm['area_amount'] ?? '-'} ${selectedFarm['unit_area'] ?? ''}",
+                      //     style: _infoStyle),
+                      // Text("รายละเอียด: ${selectedFarm['detail'] ?? '-'}",
+                      //     style: _infoStyle),
+                      // const Divider(height: 32, thickness: 1),
+
+                      // Center(
+                      //   child: Container(
+                      //     padding: const EdgeInsets.all(16),
+                      //     margin: const EdgeInsets.symmetric(
+                      //         vertical: 12, horizontal: 16),
+                      //     decoration: BoxDecoration(
+                      //       color: Colors.orange[50],
+                      //       borderRadius: BorderRadius.circular(16),
+                      //       border: Border.all(color: Colors.orange),
+                      //       boxShadow: [
+                      //         BoxShadow(
+                      //           color: Colors.orange.withOpacity(0.2),
+                      //           blurRadius: 6,
+                      //           offset: const Offset(0, 4),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //     child: Column(
+                      //       crossAxisAlignment: CrossAxisAlignment.start,
+                      //       children: [
+                      //         Text(
+                      //             "หมู่บ้าน: ${selectedFarm['village'] ?? '-'}",
+                      //             style: _infoStyles),
+                      //         Text(
+                      //             "ตำบล: ${selectedFarm['subdistrict'] ?? '-'}",
+                      //             style: _infoStyles),
+                      //         Text("อำเภอ: ${selectedFarm['district'] ?? '-'}",
+                      //             style: _infoStyles),
+                      //         Text(
+                      //             "จังหวัด: ${selectedFarm['province'] ?? '-'}",
+                      //             style: _infoStyles),
+                      //         Text(
+                      //           "ขนาดพื้นที่: ${selectedFarm['area_amount'] ?? '-'} ${selectedFarm['unit_area'] ?? ''}",
+                      //           style: _infoStyles,
+                      //         ),
+                      //         Text(
+                      //             "รายละเอียด: ${selectedFarm['detail'] ?? '-'}",
+                      //             style: _infoStyles),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
+
+                      Center(
+                        child: Container(
+                            padding: const EdgeInsets.all(0),
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 2),
+                            // decoration: BoxDecoration(
+                            //   color: Colors.orange[50],
+                            //   borderRadius: BorderRadius.circular(16),
+                            //   border: Border.all(color: Colors.orange),
+                            //   boxShadow: [
+                            //     BoxShadow(
+                            //       color: Colors.orange.withOpacity(0.2),
+                            //       blurRadius: 6,
+                            //       offset: const Offset(0, 4),
+                            //     ),
+                            //   ],
+                            // ),
+                            // child: Column(
+                            //   crossAxisAlignment: CrossAxisAlignment.start,
+                            //   children: [
+                            //     const Text(
+                            //       "ข้อมูลไร่นา",
+                            //       style: TextStyle(
+                            //         fontWeight: FontWeight.bold,
+                            //         fontSize: 16,
+                            //         color: Colors.black,
+                            //       ),
+                            //     ),
+                            //     const SizedBox(height: 12),
+                            //     _buildInfoText(
+                            //         "ชื่อฟาร์ม", widget.farm['name_farm']),
+                            //     _buildInfoText(
+                            //         "หมู่บ้าน", widget.farm['village']),
+                            //     _buildInfoText(
+                            //         "ตำบล", widget.farm['subdistrict']),
+                            //     _buildInfoText(
+                            //         "อำเภอ", widget.farm['district']),
+                            //     _buildInfoText(
+                            //         "จังหวัด", widget.farm['province']),
+                            //     _buildInfoText("ขนาดพื้นที่",
+                            //         "${widget.farm['area_amount'] ?? '-'} ${widget.farm['unit_area'] ?? ''}"),
+                            //     _buildInfoText(
+                            //         "รายละเอียด", widget.farm['detail']),
+                            //   ],
+                            // ),
+
+                            child: Card(
+                              elevation: 8, // เงาชัดเจน
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(16), // มุมโค้งมนสวย
+                              ),
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 10), // เว้นขอบการ์ด
+                              shadowColor:
+                                  Colors.black54, // เงาสีเข้มขึ้นเล็กน้อย
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                    horizontal: 12), // ระยะห่างในการ์ด
+                                child: ListTile(
+                                  title: Text(
+                                    selectedFarm['name_farm'],
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.black12,
+                                          offset: Offset(1, 1),
+                                          blurRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    '${selectedFarm['village']}, ${selectedFarm['subdistrict']}, ${selectedFarm['district']}, ${selectedFarm['province']},${selectedFarm['area_amount']} ${selectedFarm['unit_area']}\n${selectedFarm['detail'] ?? 'ไม่มีรายละเอียดอื่นๆ'}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Color.fromARGB(255, 95, 95, 95),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal:
+                                          0), // จัดระยะห่างภายใน ListTile
+                                ),
+                              ),
+                            )),
+                      ),
+                    ],
+                    if (farmList.isEmpty) ...[
+                      const SizedBox(height: 16),
+                      const Center(
+                        child: Text(
+                          'คุณยังไม่มีข้อมูลที่นา',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Center(
+                        // จัดปุ่มให้อยู่ตรงกลาง
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    AddFarmPage2(mid: widget.mid),
+                              ),
+                            ).then((_) => _loadFarms());
+                          },
+                          icon: const Icon(Icons.add_location_alt,
+                              color: Colors.white), // ไอคอนสีขาว
+                          label: const Text(
+                            'เพิ่มที่นา',
+                            style: TextStyle(
+                                color: Colors.white), // ตัวหนังสือสีขาว
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green, // พื้นปุ่มสีเขียว
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12), // ปรับขนาดปุ่มให้พอดี
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(8), // มุมโค้งเล็กน้อย
+                            ),
+                          ),
+                        ),
+                      ),
+                      const Divider(height: 32, thickness: 1),
+                    ],
                     const SizedBox(height: 28),
                     SizedBox(
                       width: double.infinity,

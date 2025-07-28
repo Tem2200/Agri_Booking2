@@ -502,7 +502,7 @@ class _SearchEnterState extends State<SearchEnter> {
                                               const SizedBox(width: 6),
                                               Expanded(
                                                 child: Text(
-                                                  'ผู้รับจ้าง: ${v['username_contractor'] ?? '-'}',
+                                                  'ผู้รับจ้าง: ${v['username'] ?? '-'}',
                                                   style: const TextStyle(
                                                       fontSize: 14),
                                                   overflow:
@@ -539,11 +539,28 @@ class _SearchEnterState extends State<SearchEnter> {
                                                   color: Colors.amber),
                                               const SizedBox(width: 6),
                                               Text(
-                                                'คะแนนเฉลี่ยรีวิว: ${v['avg_review_point'] ?? '-'}',
+                                                'คะแนนรีวิว: ${double.tryParse(v['avg_review_point'] ?? '0')?.toStringAsFixed(2) ?? '0.00'}',
                                                 style: const TextStyle(
                                                     fontSize: 14),
                                                 overflow: TextOverflow.ellipsis,
                                                 maxLines: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.location_on,
+                                                  size: 18,
+                                                  color: Colors.redAccent),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: Text(
+                                                  '${v['subdistrict']} ,${v['district']} ,${v['province']}',
+                                                  maxLines: 1,
+                                                  style: const TextStyle(
+                                                      fontSize: 15),
+                                                ),
                                               ),
                                             ],
                                           ),

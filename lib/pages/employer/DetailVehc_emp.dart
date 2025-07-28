@@ -339,23 +339,71 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                       ),
 
                       const SizedBox(height: 8),
-                      Text(
-                          'ราคา: ${vehicleData?['price'] ?? '-'} บาท/${vehicleData?['unit_price'] ?? '-'}',
-                          style: const TextStyle(fontSize: 16)),
-                      const SizedBox(height: 8),
-                      Text('รายละเอียด: ${vehicleData?['detail'] ?? '-'}'),
-                      const SizedBox(height: 8),
-                      Text('ทะเบียนรถ: ${vehicleData?['plate_number'] ?? '-'}'),
-                      const SizedBox(height: 8),
-                      Text(
-                        'สถานะ: ${vehicleData?['status_vehicle'] == 1 ? 'พร้อมใช้งาน' : 'ไม่พร้อม'}',
-                        style: TextStyle(
-                          color: vehicleData?['status_vehicle'] == 1
-                              ? Colors.green
-                              : Colors.red,
-                          fontWeight: FontWeight.bold,
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            const TextSpan(
+                              text: 'ราคา: ',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Colors.black),
+                            ),
+                            TextSpan(
+                              text:
+                                  '${vehicleData?['price'] ?? '-'} บาท/${vehicleData?['unit_price'] ?? '-'}',
+                              style: const TextStyle(
+                                  fontSize: 16, color: Colors.green),
+                            ),
+                          ],
                         ),
                       ),
+                      const SizedBox(height: 8),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            const TextSpan(
+                              text: 'รายละเอียด: ',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                            ),
+                            TextSpan(
+                              text: '${vehicleData?['detail'] ?? '-'}',
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            const TextSpan(
+                              text: 'ทะเบียนรถ: ',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                            ),
+                            TextSpan(
+                              text: '${vehicleData?['plate_number'] ?? '-'}',
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // const SizedBox(height: 8),
+                      // Text(
+                      //   'สถานะ: ${vehicleData?['status_vehicle'] == 1 ? 'พร้อมใช้งาน' : 'ไม่พร้อม'}',
+                      //   style: TextStyle(
+                      //     color: vehicleData?['status_vehicle'] == 1
+                      //         ? Colors.green
+                      //         : Colors.red,
+                      //     fontWeight: FontWeight.bold,
+                      //   ),
+                      // ),
                       const Divider(height: 32),
 
                       // --- ข้อมูลเจ้าของรถ ---
@@ -775,6 +823,7 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                         vid: widget.vid,
                         fid: widget.fid,
                         farm: widget.farm,
+                        vihicleData: vehicleData,
                       ),
                     ),
                   );
@@ -785,6 +834,7 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                       builder: (context) => ReservingForNF(
                         mid: widget.mid,
                         vid: widget.vid,
+                        vihicleData: vehicleData,
                       ),
                     ),
                   );

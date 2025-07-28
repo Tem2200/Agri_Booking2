@@ -20,22 +20,24 @@ class _NontiPageState extends State<NontiPage> {
   @override
   void initState() {
     super.initState();
+    print("MID: ${widget.mid}");
     setState(() {
       _scheduleFuture = fetchSchedule(widget.mid); // ✅ แก้ตรงนี้
+      print("_scheduleFuture: $_scheduleFuture");
       // ✅ ไม่ใช้ month/year แล้ว
     });
   }
 
   Future<List<dynamic>> fetchSchedule(int mid) async {
     final url = Uri.parse(
-        'http://projectnodejs.thammadalok.com/AGribooking/get_ConReservingNonti/:mid'); // ✅ เปลี่ยนเป็น URL ที่โหลดทั้งหมด
+        'http://projectnodejs.thammadalok.com/AGribooking/get_ConReservingNonti/$mid');
 
     try {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
+        print("สถานะ NULLLLLLLLLLLL + ${response.body}");
         if (response.body.isNotEmpty) {
-          print("สถานะ NULLLLLLLLLLLL + ${response.body}");
           return jsonDecode(response.body);
         } else {
           return [];
@@ -50,11 +52,14 @@ class _NontiPageState extends State<NontiPage> {
 
   String _formatDateRange(String? startDate, String? endDate) {
     if (startDate == null || endDate == null) return 'ไม่ระบุวันที่';
+
     try {
       final start = DateTime.parse(startDate);
       final end = DateTime.parse(endDate);
-      final formatter = DateFormat('dd/MM/yyyy');
-      return '${formatter.format(start)} - ${formatter.format(end)}';
+
+      final formatter = DateFormat('dd/MM/yyyy HH:mm', 'th_TH'); // ✅ เพิ่มเวลา
+
+      return '${formatter.format(start)} ถึง ${formatter.format(end)}';
     } catch (e) {
       return 'รูปแบบวันที่ไม่ถูกต้อง';
     }
@@ -138,7 +143,7 @@ class _NontiPageState extends State<NontiPage> {
                         ),
                         const SizedBox(height: 8.0),
                         Text(
-                          'วันที่: ${_formatDateRange(item['date_start'], item['date_end'])}',
+                          'วันเวลานัดหมาย: ${_formatDateRange(item['date_start'], item['date_end'])}',
                           style: const TextStyle(fontSize: 16),
                         ),
                         Text(
@@ -146,23 +151,12 @@ class _NontiPageState extends State<NontiPage> {
                           style: const TextStyle(fontSize: 16),
                         ),
                         Text(
-                          'ฟาร์ม: ${item['name_farm'] ?? '-'}',
+                          'ฟาร์ม: ${item['name_farm'] ?? '-'}, ${item['farm_district'] ?? '-'}, ${item['farm_province'] ?? '-'}',
                           style: const TextStyle(fontSize: 16),
                         ),
                         Text(
-                          'พื้นที่: ${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
+                          'จำนวนการจ้างงาน: ${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
                           style: const TextStyle(fontSize: 16),
-                        ),
-                        Text(
-                          'รายละเอียดงาน: ${item['detail'] ?? '-'}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        Text(
-                          'สถานะความคืบหน้า: ${item['progress_status'] ?? 'ยังไม่ระบุ'}',
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.deepOrange),
                         ),
                         if (item['employee_username'] != null)
                           Text(
