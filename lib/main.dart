@@ -21,46 +21,7 @@ Future<void> _backgroundMessaginf(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  FirebaseMessaging.onBackgroundMessage(_backgroundMessaginf);
-
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
-  await initializeNotification(flutterLocalNotificationsPlugin);
-
-  // ✅ ขอ permission ที่นี่แทน
-  NotificationSettings settings =
-      await FirebaseMessaging.instance.requestPermission();
-
-  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-    print('User granted permission');
-  } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
-    print('User denied permission');
-  } else {
-    print('User permission status: ${settings.authorizationStatus}');
-  }
-
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    _showNotification(flutterLocalNotificationsPlugin, message);
-  });
-
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    _handleMessage(message);
-  });
-
-  // handle app launched from terminated state
-  RemoteMessage? initialMessage =
-      await FirebaseMessaging.instance.getInitialMessage();
-
-  if (initialMessage != null) {
-    _handleMessage(initialMessage);
-  }
+  await Firebase.initializeApp();
 
   final prefs = await SharedPreferences.getInstance();
   final mid = prefs.getInt('mid');
