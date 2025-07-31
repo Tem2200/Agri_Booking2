@@ -3,6 +3,7 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -47,6 +48,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
       final List<dynamic> jsonList = jsonDecode(response.body);
       setState(() {
         data = jsonList.first;
+        print(data);
         progress_status = data!['progress_status'];
       });
 
@@ -65,6 +67,92 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
         print('Error loading route: $e');
         // กรณีล้มเหลวจะยังแสดงเส้นตรงแบบเดิมหรือไม่แสดงเส้นก็ได้
       }
+    }
+  }
+
+  Future<void> sendEmail(Map<String, dynamic> rs) async {
+    await initializeDateFormatting('th_TH'); // ต้องเรียกก่อนใช้ format แบบไทย
+
+    String formatThaiDate(String isoDate) {
+      final date = DateTime.parse(isoDate).toLocal();
+      final formatter = DateFormat('d MMMM yyyy', 'th_TH');
+      return formatter.format(date);
+    }
+
+    final emailEmployee = rs['employee_email'];
+    final fromName = 'ระบบจองคิว AgriBooking';
+    final toName = 'ผู้จ้าง';
+
+    final nameRs = rs['name_rs'];
+    final areaAmount = rs['area_amount'];
+    final unitArea = rs['unit_area'];
+    final detail = rs['detail'];
+    final dateReserve = formatThaiDate(rs['date_reserve']);
+    final dateStart = formatThaiDate(rs['date_start']);
+    final dateEnd = formatThaiDate(rs['date_end']);
+
+    final vehicleName = rs['name_vehicle'];
+    final farmName = rs['name_farm'];
+    final farmLocation =
+        '${rs['farm_subdistrict']} อ.${rs['farm_district']} จ.${rs['farm_province']}';
+
+    final message = '''
+เรียน $toName
+
+ทางเรายกเลิกการจองคิวรถสำหรับงาน "$nameRs" เรียบร้อยแล้ว
+
+รายละเอียดการจอง:
+- พื้นที่ทำงาน: $areaAmount $unitArea
+- รายละเอียดเพิ่มเติม: $detail
+- วันที่จอง: $dateReserve
+- วันที่เริ่มงาน: $dateStart
+- วันที่สิ้นสุด: $dateEnd
+
+ยานพาหนะที่เลือกใช้: $vehicleName
+สถานที่ทำงาน: $farmName, $farmLocation
+''';
+
+    const serviceId = 'service_x7vmrvq';
+    const templateId = 'template_1mrmj3e';
+    const userId = '9pdBbRJwCa8veHOzy';
+
+    final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'origin': 'http://localhost',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'service_id': serviceId,
+        'template_id': templateId,
+        'user_id': userId,
+        'template_params': {
+          'from_name': fromName,
+          'to_name': toName,
+          'message': message,
+          'to_email': emailEmployee ?? '',
+        }
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      showDialog(
+        context: context,
+        builder: (context) => const AlertDialog(
+          title: Text('ส่งสำเร็จ'),
+          content: Text('ส่งอีเมลแจ้งยกเลิกเรียบร้อยแล้ว'),
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => const AlertDialog(
+          title: Text('เกิดข้อผิดพลาด'),
+          content: Text('ไม่สามารถส่งอีเมลได้'),
+        ),
+      );
     }
   }
 
@@ -117,7 +205,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
   // }
 
 //สถานะของปุ่ม
-  Widget buildButtons() {
+  Widget buildButtons(Map<String, dynamic> rs) {
     if (progress_status == null) {
       // ยังไม่มีสถานะ → แสดงปุ่มยกเลิก และ ยืนยัน
       return Row(
@@ -200,7 +288,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
             case 4:
               return 'ทำงานเสร็จเรียบร้อย';
             default:
-              return 'สถานะไม่รู้จัก ($status)';
+              return 'สถานะยกเลิกการจอง';
           }
         }
 
@@ -252,6 +340,11 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
     );
 
     if (confirmed != true) return;
+
+    // ✉️ ส่งอีเมลแจ้งยกเลิก ถ้าเลือกสถานะยกเลิก
+    if (newStatus == 0) {
+      await sendEmail(data!); // ต้องไม่ลืม await
+    }
 
     final url = Uri.parse(
         'http://projectnodejs.thammadalok.com/AGribooking/update_progress');
@@ -1025,7 +1118,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                     color: Colors.black87,
                                   ),
                                 ),
-                                buildButtons(),
+                                buildButtons(data!),
                               ],
                             ),
                           ],

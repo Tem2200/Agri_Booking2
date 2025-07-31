@@ -50,16 +50,18 @@ class _NontiPageState extends State<NontiPage> {
     }
   }
 
-  String _formatDateRange(String? startDate, String? endDate) {
-    if (startDate == null || endDate == null) return 'ไม่ระบุวันที่';
+  String _formatDateRange(String? reDate, String? startDate, String? endDate) {
+    if (reDate == null || startDate == null || endDate == null)
+      return 'ไม่ระบุวันที่';
 
     try {
+      final reserveUtc = DateTime.parse(reDate);
       final start = DateTime.parse(startDate);
       final end = DateTime.parse(endDate);
 
       final formatter = DateFormat('dd/MM/yyyy HH:mm', 'th_TH'); // ✅ เพิ่มเวลา
 
-      return '${formatter.format(start)} ถึง ${formatter.format(end)}';
+      return 'จองเข้ามา: ${formatter.format(reserveUtc)}\nเริ่ม${formatter.format(start)} ถึง ${formatter.format(end)}';
     } catch (e) {
       return 'รูปแบบวันที่ไม่ถูกต้อง';
     }
@@ -139,11 +141,11 @@ class _NontiPageState extends State<NontiPage> {
                           style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.blueAccent),
+                              color: Color.fromARGB(255, 216, 103, 27)),
                         ),
                         const SizedBox(height: 8.0),
                         Text(
-                          'วันเวลานัดหมาย: ${_formatDateRange(item['date_start'], item['date_end'])}',
+                          '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
                           style: const TextStyle(fontSize: 16),
                         ),
                         Text(

@@ -80,18 +80,22 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
   }
 
   //วันที่และเวลา
-  String _formatDateRange(String? startDate, String? endDate) {
-    if (startDate == null || endDate == null) return 'ไม่ระบุวันที่';
+  String _formatDateRange(
+      String? date_reserve, String? startDate, String? endDate) {
+    if (date_reserve == null || startDate == null || endDate == null)
+      return 'ไม่ระบุวันที่';
     try {
+      final reserveUtc = DateTime.parse(date_reserve);
       final startUtc = DateTime.parse(startDate);
       final endUtc = DateTime.parse(endDate);
 
+      final reservingThai = reserveUtc.add(const Duration(hours: 7));
       final startThai = startUtc.add(const Duration(hours: 7));
       final endThai = endUtc.add(const Duration(hours: 7));
 
       final formatter = DateFormat('dd/MM/yyyy \t\tเวลา HH:mm น.');
 
-      return 'เริ่มงาน: ${formatter.format(startThai)}\nสิ้นสุด: ${formatter.format(endThai)}';
+      return 'จองเข้ามา:${formatter.format(reservingThai)}\n เริ่มงาน: ${formatter.format(startThai)}\nสิ้นสุด: ${formatter.format(endThai)}';
     } catch (e) {
       return 'รูปแบบวันที่ไม่ถูกต้อง';
     }
@@ -157,7 +161,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
         } else if (snapshot.hasError) {
           return Center(
             // child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'),
-            child: Text('ขออภัยค่ะ ขณะนี้ยังไม่มีการจองคิวรถในเดือนนี้'),
+            child: Text('ขณะนี้ยังไม่มีการจองคิวรถในเดือนนี้'),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('ไม่มีคิวงาน'));
@@ -316,7 +320,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            _formatDateRange(
+                            _formatDateRange(item['date_reserve'],
                                 item['date_start'], item['date_end']),
                             style: const TextStyle(
                               fontSize: 13,

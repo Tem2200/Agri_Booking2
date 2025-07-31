@@ -7,6 +7,7 @@ import 'package:googleapis_auth/auth.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class PlanEmp extends StatefulWidget {
   final int mid;
@@ -20,7 +21,6 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
   List<dynamic> reservings = [];
   List<dynamic> history = [];
   bool isLoading = false;
-
   late TabController _tabController;
 
   @override
@@ -35,6 +35,144 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  // Future<void> sendEmail(Map<String, dynamic> rs) async {
+  //   final emailContractor = rs['email_contractor'];
+  //   final fromName = rs['some_sender_name'] ?? 'ระบบจองคิว';
+  //   final message =
+  //       'แจ้งยกเลิกการจองคิวรถ สำหรับงาน ${rs['name_rs'] ?? "ไม่ทราบชื่อ"}';
+
+  //   const serviceId = 'service_x7vmrvq';
+  //   const templateId = 'template_1mrmj3e';
+  //   const userId = '9pdBbRJwCa8veHOzy';
+
+  //   final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
+
+  //   final response = await http.post(
+  //     url,
+  //     headers: {
+  //       'origin': 'http://localhost',
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: json.encode({
+  //       'service_id': serviceId,
+  //       'template_id': templateId,
+  //       'user_id': userId,
+  //       'template_params': {
+  //         'from_name': fromName,
+  //         'to_name': 'ชื่อผู้รับ',
+  //         'message': message,
+  //         'to_email': emailContractor ?? ''
+  //       }
+  //     }),
+  //   );
+
+  //   if (response.statusCode == 200) {
+  //     print('ส่งอีเมลเรียบร้อยแล้ว');
+  //     showDialog(
+  //       context: context,
+  //       builder: (context) => const AlertDialog(
+  //         title: Text('สำเร็จ'),
+  //         content: Text('ส่งอีเมลแจ้งยกเลิกเรียบร้อยแล้ว'),
+  //       ),
+  //     );
+  //   } else {
+  //     print('เกิดข้อผิดพลาด: ${response.body}');
+  //     showDialog(
+  //       context: context,
+  //       builder: (context) => const AlertDialog(
+  //         title: Text('ล้มเหลว'),
+  //         content: Text('ไม่สามารถส่งอีเมลแจ้งยกเลิกได้'),
+  //       ),
+  //     );
+  //   }
+  // }
+
+  Future<void> sendEmail(Map<String, dynamic> rs) async {
+    await initializeDateFormatting('th_TH'); // ต้องเรียกก่อนใช้ format แบบไทย
+
+    String formatThaiDate(String isoDate) {
+      final date = DateTime.parse(isoDate).toLocal();
+      final formatter = DateFormat('d MMMM yyyy', 'th_TH');
+      return formatter.format(date);
+    }
+
+    final emailContractor = rs['email_contractor'];
+    final fromName = 'ระบบจองคิว AgriBooking';
+    final toName = 'ผู้รับจ้าง';
+
+    final nameRs = rs['name_rs'];
+    final areaAmount = rs['area_amount'];
+    final unitArea = rs['unit_area'];
+    final detail = rs['detail'];
+    final dateReserve = formatThaiDate(rs['date_reserve']);
+    final dateStart = formatThaiDate(rs['date_start']);
+    final dateEnd = formatThaiDate(rs['date_end']);
+
+    final vehicleName = rs['name_vehicle'];
+    final farmName = rs['name_farm'];
+    final farmLocation =
+        '${rs['farm_subdistrict']} อ.${rs['farm_district']} จ.${rs['farm_province']}';
+
+    final message = '''
+เรียน $toName
+
+ทางเราขอแจ้งยกเลิกการจองคิวรถสำหรับงาน "$nameRs"
+
+รายละเอียดการจอง:
+- พื้นที่ทำงาน: $areaAmount $unitArea
+- รายละเอียดเพิ่มเติม: $detail
+- วันที่จอง: $dateReserve
+- วันที่เริ่มงาน: $dateStart
+- วันที่สิ้นสุด: $dateEnd
+
+ยานพาหนะที่เลือกใช้: $vehicleName
+สถานที่ทำงาน: $farmName, $farmLocation
+''';
+
+    const serviceId = 'service_x7vmrvq';
+    const templateId = 'template_1mrmj3e';
+    const userId = '9pdBbRJwCa8veHOzy';
+
+    final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'origin': 'http://localhost',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'service_id': serviceId,
+        'template_id': templateId,
+        'user_id': userId,
+        'template_params': {
+          'from_name': fromName,
+          'to_name': toName,
+          'message': message,
+          'to_email': emailContractor ?? '',
+        }
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      showDialog(
+        context: context,
+        builder: (context) => const AlertDialog(
+          title: Text('ส่งสำเร็จ'),
+          content: Text('ส่งอีเมลแจ้งยกเลิกเรียบร้อยแล้ว'),
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => const AlertDialog(
+          title: Text('เกิดข้อผิดพลาด'),
+          content: Text('ไม่สามารถส่งอีเมลได้'),
+        ),
+      );
+    }
   }
 
   Future<void> sendFCM() async {
@@ -87,68 +225,6 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
     authClient.close();
   }
 
-  Future<void> sendCancelNotification({
-    required int contractorMid,
-    required int rsid,
-  }) async {
-    final accountCredentials = ServiceAccountCredentials.fromJson({
-      "type": "service_account",
-      "project_id": "agribooking-9f958",
-      "private_key_id": "1614eebc3c45d4e1fded779f134b185f2c327c02",
-      "private_key":
-          "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDQQDeT2U66M5xd\nTa3lnwkYtkqC5hkD49r4CdvfnJdrtr+88AZ32QWZelS5tn9l4o+Op8Wjkmd/m8in\nK9y2mKvMdWIy4wpVo+X1jocjQ7CSmodxqdV4CEEA5Wbg1rgcyCSetPRb2RKIzUiT\neWQycN1Ur71sPWc3LGDN8yDhrmPPLR06ydJRfXt7qa4SB4vD0VLJ1F56ET79JLKX\n1KNDmz8dTpxpVmASqmuQIKqfP67fLbgi8Ma5GitVZN/ZywGgQNGZd3JWvJGRqVR2\nT8Ha5oqWBXVVyPV682cktxaV2yhkw71/dYa+ZMWVSi8b3onkuIrJqpi8crq2nvLm\nTM/DdQgRAgMBAAECggEAUIqNlCpm5t/gGTvaRiT4bSzPa4nXYehFf0m81mJnM7sF\ns+p27fIq1r13uC2rXvm9QNSFPSp5yeIzu+fcYGhyhUxe0sR5cj7FyO87N7nNuB14\nxc6D53z1uwV+APY6VbNYamMc4Mr2/p66c4Lu7A03pLGlRpAG89E/jVd7P51lL7IV\n8dZs+Aw2ogWORlq4INF6yDwxWVH5x/tMAQaYrZP+sbHGWZx7GQAAzzLoCa6tHYM9\nUgtAMaxyXVixs9YowoIPrTvvprCJdG7WFNr6SkjXPk+ZrH1dN0NJl7mTu9o+a86m\nN72OuHJnhL5Ozs2XB7FdLf0QN6RKleA9OsSPFzKJWwKBgQDobPP6XBuleh663AtT\nlfNOB1JEEqES/xsM4ICF48u+uXWJn1feMbjlq9cxXxpG2dfotrSXDrUjMYIchdVA\nrjRaKqvuSntusNTEYe/5JV7hZSOjSLFPn3DbxP8WBX98b0yZeXmog79o4I8468hc\n/4Z2UHh0YYJ+Tocrr39p02PEDwKBgQDlX435TdIzq9Jx7n4KR361c8tETHzxOdBX\nCe+BpoYoU3su51DznsRjUoldKqVlT+eyT8rxQ3BRdAYVDpWZwC6DBk3c2dkyDxH+\n+c4zcYKTRG/z/xK7bgfi4qYI4cjdgQLzLP9XxxSQSlF94/gJ4sM5OAC8V9zlrmAn\nYFDGirPR3wKBgQDHxQW6tTpJ83nAL+tIT4UNFvvdaImrczrDyZ6N9eokJvFgdWWn\no+MA/L78P3qtVQXfjlIP1+NWuXHUpC9T5ac3rJ+UM859qF1n4anJ4hX38t87s/o6\nrpbpPhvlyJn30Q3sh91KOtrlAMX5LadMT5A51xaBKWJov4Qsxy3jPn7sfwKBgQDb\nW0W4XO8gkTqh0JXjGLqZp1KGT6vROhv/kTXmxK1aVXPhyEAHrBdecSmC2uzv9bm8\nMkj/8CGzFAVZD+iL8FnK3jWKdyAamoT4VkgXtH9OfU2fh5mPe8u49E4bAmqJQv7i\nNm8/r9j/oMNMZL7qHV3cE63IcTKEyP2VyquVJEKR+wKBgAvhRAsGnvO8V5O50W3O\ntmgsh3+KLHSk2WA7hDACVc+43/WvpUPujSgD5tm8SIsRwD8hbykqcB64wC1FgBVa\nRG6e7cZRhsgKhjEHPwIexiBFdB5nOuByCHxhb6cAuMoL0BUufw453XHmRbmu/b6k\nervzTfSUrHL9sS16TpGLi/qw\n-----END PRIVATE KEY-----\n",
-      "client_email":
-          "firebase-adminsdk-fbsvc@agribooking-9f958.iam.gserviceaccount.com",
-      "client_id": "106395285857648756377",
-      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-      "token_uri": "https://oauth2.googleapis.com/token",
-      "auth_provider_x509_cert_url":
-          "https://www.googleapis.com/oauth2/v1/certs",
-      "client_x509_cert_url":
-          "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40agribooking-9f958.iam.gserviceaccount.com",
-      "universe_domain": "googleapis.com"
-    });
-
-    final scopes = ['https://www.googleapis.com/auth/firebase.messaging'];
-    final authClient =
-        await clientViaServiceAccount(accountCredentials, scopes);
-
-    final url = Uri.parse(
-        'https://fcm.googleapis.com/v1/projects/agribooking-9f958/messages:send');
-
-    final message = {
-      "message": {
-        "topic": "user_$contractorMid",
-        "notification": {
-          "title": "แจ้งยกเลิกการจอง",
-          "body": "มีการขอยกเลิกการจองหมายเลข $rsid",
-        },
-        "data": {
-          "click_action": "FLUTTER_NOTIFICATION_CLICK",
-          "rsid": rsid.toString(),
-        }
-      }
-    };
-
-    final response = await authClient.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(message),
-    );
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("ส่งแจ้งเตือนสำเร็จ")),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("ส่งแจ้งเตือนล้มเหลว: ${response.body}")),
-      );
-    }
-
-    authClient.close();
-  }
-
   Future<void> fetchReservings() async {
     setState(() {
       isLoading = true;
@@ -161,7 +237,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-
+        print('นี่คือข้อมูล $data');
         // แยกเป็น 2 กลุ่ม
         final current =
             data.where((item) => item['progress_status'] != 4).toList();
@@ -588,22 +664,46 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                               "รอผู้รับจ้างยืนยันการจอง")
                             ElevatedButton.icon(
                               onPressed: () {
-                                final contractorMid = rs['mid_contractor'];
-                                final rsid = rs['rsid'];
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('ยืนยันการยกเลิก'),
+                                    content: const Text(
+                                        'คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการจองนี้?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context), // ยกเลิก
+                                        child: const Text('ไม่'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(
+                                              context); // ปิด dialog ก่อน
+                                          final contractorMid =
+                                              rs['mid_contractor'];
+                                          final rsid = rs['rsid'];
 
-                                if (contractorMid != null && rsid != null) {
-                                  sendCancelNotification(
-                                    contractorMid: contractorMid,
-                                    rsid: rsid,
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          "ไม่พบข้อมูล contractor_mid หรือ rsid"),
-                                    ),
-                                  );
-                                }
+                                          if (contractorMid != null &&
+                                              rsid != null) {
+                                            sendEmail(rs);
+                                          } else {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) =>
+                                                  const AlertDialog(
+                                                title: Text("เกิดข้อผิดพลาด"),
+                                                content: Text(
+                                                    "ไม่พบข้อมูล contractor_mid หรือ rsid"),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        child: const Text('ใช่'),
+                                      ),
+                                    ],
+                                  ),
+                                );
                               },
                               label: const Text("แจ้งยกเลิกการจอง"),
                               style: ElevatedButton.styleFrom(
