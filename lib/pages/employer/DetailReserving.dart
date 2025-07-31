@@ -31,19 +31,6 @@ class _DetailReservingState extends State<DetailReserving> {
     fetchDetail();
   }
 
-  void _handleMessage(RemoteMessage message) {
-    if (message.data.containsKey('rsid')) {
-      final rsidStr = message.data['rsid'];
-      final rsid = int.tryParse(rsidStr ?? '') ?? 0;
-
-      navigatorKey.currentState?.push(
-        MaterialPageRoute(
-          builder: (context) => DetailReserving(rsid: rsid),
-        ),
-      );
-    }
-  }
-
   Future<void> fetchVehicleDetail() async {
     setState(() {
       isLoading = true; // ตั้งสถานะว่ากำลังโหลด

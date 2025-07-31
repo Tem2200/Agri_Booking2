@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:agri_booking2/firebase_options.dart';
 import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/send_email.dart';
-
+import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -18,6 +18,9 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> _backgroundMessaginf(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }
+
+List<dynamic> bookings = [];
+late Timer _timer;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
