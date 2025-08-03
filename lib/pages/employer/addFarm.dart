@@ -35,6 +35,7 @@ class _AddFarmPageState extends State<AddFarmPage> {
   final TextEditingController otherUnitController = TextEditingController();
   final List<String> unitOptions = ['ไร่', 'งาน', 'ตารางวา', 'อื่นๆ'];
   String? selectedUnit;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -63,6 +64,8 @@ class _AddFarmPageState extends State<AddFarmPage> {
   }
 
   Future<void> _submitFarm() async {
+    if (_isSubmitting) return; // ป้องกันการกดซ้ำ
+
     if (!_formKey.currentState!.validate()) return;
 
     if (latitude == null || longitude == null) {
@@ -72,6 +75,10 @@ class _AddFarmPageState extends State<AddFarmPage> {
       return;
     }
 
+    setState(() {
+      _isSubmitting = true;
+    });
+
     final farmData = {
       "name_farm": nameFarmCtrl.text,
       "village": villageCtrl.text,
@@ -80,7 +87,6 @@ class _AddFarmPageState extends State<AddFarmPage> {
       "province": selectedProvince,
       "detail": detailCtrl.text,
       "area_amount": int.tryParse(areaAmountCtrl.text) ?? 0,
-      // "unit_area": unitAreaCtrl.text,
       "unit_area":
           selectedUnit == 'อื่นๆ' ? otherUnitController.text : selectedUnit,
       "latitude": latitude,
@@ -99,7 +105,6 @@ class _AddFarmPageState extends State<AddFarmPage> {
       );
 
       if (response.statusCode == 200) {
-        // เพิ่มสำเร็จ กลับไปหน้าก่อนหน้า พร้อมแจ้งผล
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('เพิ่มฟาร์มสำเร็จ')),
         );
@@ -113,6 +118,10 @@ class _AddFarmPageState extends State<AddFarmPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
       );
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
     }
   }
 
@@ -535,7 +544,25 @@ class _AddFarmPageState extends State<AddFarmPage> {
               ),
               const SizedBox(height: 40),
 
+              // ElevatedButton(
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: const Color.fromARGB(255, 6, 126, 12),
+              //     foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+              //     padding:
+              //         const EdgeInsets.symmetric(vertical: 16, horizontal: 30),
+              //     textStyle: const TextStyle(
+              //         fontSize: 16, fontWeight: FontWeight.bold),
+              //     shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(12)),
+              //     elevation: 8,
+              //     shadowColor: const Color.fromARGB(164, 174, 174, 174),
+              //   ),
+              //   onPressed: _submitFarm,
+              //   child: const Text('เพิ่มไร่นา'),
+              // ),
+
               ElevatedButton(
+                onPressed: _isSubmitting ? null : _submitFarm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 6, 126, 12),
                   foregroundColor: const Color.fromARGB(255, 255, 255, 255),
@@ -544,13 +571,22 @@ class _AddFarmPageState extends State<AddFarmPage> {
                   textStyle: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.bold),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   elevation: 8,
                   shadowColor: const Color.fromARGB(164, 174, 174, 174),
                 ),
-                onPressed: _submitFarm,
-                child: const Text('เพิ่มไร่นา'),
-              ),
+                child: _isSubmitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text('เพิ่มไร่นา'),
+              )
             ],
           ),
         ),

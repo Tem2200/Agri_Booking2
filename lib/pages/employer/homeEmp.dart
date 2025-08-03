@@ -190,9 +190,9 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                           Expanded(
                             child: GridView.count(
                               crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: 1.1,
+                              crossAxisSpacing: 5,
+                              mainAxisSpacing: 5,
+                              childAspectRatio: 1.3,
                               physics: const NeverScrollableScrollPhysics(),
                               children: [
                                 GestureDetector(
