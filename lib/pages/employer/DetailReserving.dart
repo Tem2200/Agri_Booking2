@@ -101,6 +101,18 @@ class _DetailReservingState extends State<DetailReserving> {
     }
   }
 
+  void _openInGoogleMaps(double lat, double lng) async {
+    final Uri url =
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ไม่สามารถเปิด Google Maps ได้')),
+      );
+    }
+  }
+
   //สีของสถานะล่าสุดที่เลือก
   Widget _statusButton(int statusValue, String label) {
     final bool isSelected = progress_status == statusValue;
@@ -315,6 +327,7 @@ class _DetailReservingState extends State<DetailReserving> {
                   options: MapOptions(
                     center: LatLng(data!['latitude'], data!['longitude']),
                     zoom: 14,
+                    maxZoom: 18,
                   ),
                   children: [
                     TileLayer(
@@ -436,18 +449,18 @@ class _DetailReservingState extends State<DetailReserving> {
 
                 //เข้าไปหน้าgoogle maps
 
-                // Positioned(
-                //   top: 16,
-                //   right: 16,
-                //   child: FloatingActionButton(
-                //     onPressed: () {
-                //       _openInGoogleMaps(data!['latitude'], data!['longitude']);
-                //     },
-                //     backgroundColor: Colors.blue,
-                //     child: const Icon(Icons.map),
-                //     tooltip: 'เปิด Google Maps',
-                //   ),
-                // ),
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      _openInGoogleMaps(data!['latitude'], data!['longitude']);
+                    },
+                    backgroundColor: Colors.blue,
+                    child: const Icon(Icons.map),
+                    tooltip: 'เปิด Google Maps',
+                  ),
+                ),
 
                 // 📄 แผ่นข้อมูลแบบเลื่อน
                 if (_distanceInKm != null)

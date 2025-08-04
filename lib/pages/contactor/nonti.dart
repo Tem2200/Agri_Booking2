@@ -135,11 +135,11 @@ class _NontiPageState extends State<NontiPage> {
                       Tab(
                           child: SizedBox(
                               width: 120,
-                              child: Center(child: Text('คิวรถทั้งหมด')))),
+                              child: Center(child: Text('งานใหม่')))),
                       Tab(
                           child: SizedBox(
                               width: 120,
-                              child: Center(child: Text('ยกเลิกคิวรถ')))),
+                              child: Center(child: Text('แจ้งยกเลิกงาน')))),
                     ],
                   ),
                 ),
@@ -159,6 +159,158 @@ class _NontiPageState extends State<NontiPage> {
     );
   }
 
+  // Widget _buildVehicleQueueList({required bool includeHistory}) {
+  //   return FutureBuilder<List<dynamic>>(
+  //     future: _scheduleFuture,
+  //     builder: (context, snapshot) {
+  //       if (snapshot.connectionState == ConnectionState.waiting) {
+  //         return const Center(child: CircularProgressIndicator());
+  //       } else if (snapshot.hasError) {
+  //         return const Center(child: Text('ขณะนี้ยังไม่มีการแจ้งเตือนค่ะ'));
+  //       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+  //         return const Center(child: Text('ไม่มีคิวงาน'));
+  //       }
+
+  //       final scheduleList = snapshot.data!.where((item) {
+  //         final status = item['progress_status'];
+  //         if (includeHistory) {
+  //           return status == 4;
+  //         } else {
+  //           return status != 4 && status != 5; // ✅ ยกเว้น 5 ออกไป
+  //         }
+  //       }).toList();
+
+  //       return ListView.builder(
+  //         padding: const EdgeInsets.all(8.0),
+  //         itemCount: scheduleList.length,
+  //         itemBuilder: (context, index) {
+  //           final item = scheduleList[index];
+  //           return GestureDetector(
+  //             onTap: () {
+  //               Navigator.push(
+  //                 context,
+  //                 MaterialPageRoute(
+  //                   builder: (context) => DetailWorkPage(rsid: item['rsid']),
+  //                 ),
+  //               );
+  //             },
+  //             child: Card(
+  //               margin: const EdgeInsets.symmetric(vertical: 8.0),
+  //               elevation: 2.0,
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(8.0),
+  //               ),
+  //               child: Padding(
+  //                 padding: const EdgeInsets.all(16.0),
+  //                 child: Column(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     Text(
+  //                       'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
+  //                       style: const TextStyle(
+  //                         fontSize: 18,
+  //                         fontWeight: FontWeight.bold,
+  //                         color: Color.fromARGB(255, 216, 103, 27),
+  //                       ),
+  //                     ),
+  //                     const SizedBox(height: 8.0),
+  //                     Text(
+  //                       '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
+  //                       style: const TextStyle(fontSize: 16),
+  //                     ),
+  //                     Text(
+  //                       'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
+  //                       style: const TextStyle(fontSize: 16),
+  //                     ),
+  //                     Text(
+  //                       'ฟาร์ม: ${item['name_farm'] ?? '-'}, ${item['farm_district'] ?? '-'}, ${item['farm_province'] ?? '-'}',
+  //                       style: const TextStyle(fontSize: 16),
+  //                     ),
+  //                     Text(
+  //                       'จำนวนการจ้างงาน: ${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
+  //                       style: const TextStyle(fontSize: 16),
+  //                     ),
+  //                     if (item['employee_username'] != null)
+  //                       Text(
+  //                         'ผู้รับจ้าง: ${item['employee_username']} (${item['employee_phone'] ?? '-'})',
+  //                         style: const TextStyle(fontSize: 16),
+  //                       ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
+  // Widget _buildCancelVehicleQueue() {
+  //   return FutureBuilder<List<dynamic>>(
+  //     future: _scheduleFuture,
+  //     builder: (context, snapshot) {
+  //       if (snapshot.connectionState == ConnectionState.waiting) {
+  //         return const Center(child: CircularProgressIndicator());
+  //       } else if (snapshot.hasError) {
+  //         return const Center(child: Text('ขณะนี้ยังไม่มีการแจ้งเตือนค่ะ'));
+  //       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+  //         return const Center(child: Text('ไม่มีคิวที่ถูกยกเลิก'));
+  //       }
+
+  //       final cancelList = snapshot.data!
+  //           .where(
+  //             (item) => item['progress_status'] == 5,
+  //           )
+  //           .toList();
+
+  //       if (cancelList.isEmpty) {
+  //         return const Center(child: Text('ไม่มีคิวที่ถูกยกเลิก'));
+  //       }
+
+  //       return ListView.builder(
+  //         padding: const EdgeInsets.all(8.0),
+  //         itemCount: cancelList.length,
+  //         itemBuilder: (context, index) {
+  //           final item = cancelList[index];
+  //           return Card(
+  //             margin: const EdgeInsets.symmetric(vertical: 8.0),
+  //             elevation: 2.0,
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(8.0),
+  //             ),
+  //             child: Padding(
+  //               padding: const EdgeInsets.all(16.0),
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(
+  //                     'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
+  //                     style: const TextStyle(
+  //                       fontSize: 18,
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Color.fromARGB(255, 216, 103, 27),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 8.0),
+  //                   Text(
+  //                     '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
+  //                     style: const TextStyle(fontSize: 16),
+  //                   ),
+  //                   Text(
+  //                     'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
+  //                     style: const TextStyle(fontSize: 16),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
   Widget _buildVehicleQueueList({required bool includeHistory}) {
     return FutureBuilder<List<dynamic>>(
       future: _scheduleFuture,
@@ -172,74 +324,82 @@ class _NontiPageState extends State<NontiPage> {
         }
 
         final scheduleList = snapshot.data!.where((item) {
+          final status = item['progress_status'];
           if (includeHistory) {
-            return item['progress_status'] == 4;
+            return status == 4;
           } else {
-            return item['progress_status'] != 4;
+            return status != 4 && status != 5;
           }
         }).toList();
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(8.0),
-          itemCount: scheduleList.length,
-          itemBuilder: (context, index) {
-            final item = scheduleList[index];
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetailWorkPage(rsid: item['rsid']),
+        return RefreshIndicator(
+          onRefresh: () async {
+            setState(() {
+              _scheduleFuture = fetchSchedule(widget.mid); // รีโหลดข้อมูล
+            });
+          },
+          child: ListView.builder(
+            padding: const EdgeInsets.all(8.0),
+            itemCount: scheduleList.length,
+            itemBuilder: (context, index) {
+              final item = scheduleList[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailWorkPage(rsid: item['rsid']),
+                    ),
+                  );
+                },
+                child: Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  elevation: 2.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                );
-              },
-              child: Card(
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                elevation: 2.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 216, 103, 27),
-                        ),
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        'ฟาร์ม: ${item['name_farm'] ?? '-'}, ${item['farm_district'] ?? '-'}, ${item['farm_province'] ?? '-'}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        'จำนวนการจ้างงาน: ${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      if (item['employee_username'] != null)
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          'ผู้รับจ้าง: ${item['employee_username']} (${item['employee_phone'] ?? '-'})',
+                          'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 216, 103, 27),
+                          ),
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
                           style: const TextStyle(fontSize: 16),
                         ),
-                    ],
+                        Text(
+                          'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          'ฟาร์ม: ${item['name_farm'] ?? '-'}, ${item['farm_district'] ?? '-'}, ${item['farm_province'] ?? '-'}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          'จำนวนการจ้างงาน: ${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        if (item['employee_username'] != null)
+                          Text(
+                            'ผู้รับจ้าง: ${item['employee_username']} (${item['employee_phone'] ?? '-'})',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         );
       },
     );
@@ -258,60 +418,69 @@ class _NontiPageState extends State<NontiPage> {
         }
 
         final cancelList = snapshot.data!
-            .where(
-              (item) => item['progress_status'] == 0, // เฉพาะคิวที่ถูกยกเลิก
-            )
+            .where((item) => item['progress_status'] == 5)
             .toList();
 
         if (cancelList.isEmpty) {
           return const Center(child: Text('ไม่มีคิวที่ถูกยกเลิก'));
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(8.0),
-          itemCount: cancelList.length,
-          itemBuilder: (context, index) {
-            final item = cancelList[index];
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              elevation: 2.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 216, 103, 27),
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    Text(
-                      '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    Text(
-                      'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    Text(
-                      'เหตุผลที่ยกเลิก: ${item['cancel_reason'] ?? 'ไม่ระบุ'}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.redAccent,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
+        return RefreshIndicator(
+          onRefresh: () async {
+            setState(() {
+              _scheduleFuture = fetchSchedule(widget.mid); // รีโหลดข้อมูล
+            });
           },
+          child: ListView.builder(
+            padding: const EdgeInsets.all(8.0),
+            itemCount: cancelList.length,
+            itemBuilder: (context, index) {
+              final item = cancelList[index];
+              return InkWell(
+                onTap: () {
+                  // เมื่อผู้ใช้กดที่การ์ดนี้ ทำอะไรก็ใส่ที่นี่
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailWorkPage(rsid: item['rsid']),
+                    ),
+                  );
+                },
+                child: Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  elevation: 2.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 216, 103, 27),
+                          ),
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         );
       },
     );

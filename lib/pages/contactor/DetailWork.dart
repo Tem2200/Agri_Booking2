@@ -206,7 +206,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
 
 //สถานะของปุ่ม
   Widget buildButtons(Map<String, dynamic> rs) {
-    if (progress_status == null) {
+    if (progress_status == null || progress_status == 5) {
       // ยังไม่มีสถานะ → แสดงปุ่มยกเลิก และ ยืนยัน
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -287,6 +287,8 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
               return 'กำลังทำงาน';
             case 4:
               return 'ทำงานเสร็จเรียบร้อย';
+            case 5:
+              return 'รอผู้รับจ้างยกเลิกงาน';
             default:
               return 'สถานะยกเลิกการจอง';
           }
@@ -487,6 +489,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                   options: MapOptions(
                     center: LatLng(data!['latitude'], data!['longitude']),
                     zoom: 14,
+                    maxZoom: 18, // ✅ ป้องกันซูมเกิน
                   ),
                   children: [
                     TileLayer(
@@ -608,18 +611,18 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
 
                 //เข้าไปหน้าgoogle maps
 
-                // Positioned(
-                //   top: 16,
-                //   right: 16,
-                //   child: FloatingActionButton(
-                //     onPressed: () {
-                //       _openInGoogleMaps(data!['latitude'], data!['longitude']);
-                //     },
-                //     backgroundColor: Colors.blue,
-                //     child: const Icon(Icons.map),
-                //     tooltip: 'เปิด Google Maps',
-                //   ),
-                // ),
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      _openInGoogleMaps(data!['latitude'], data!['longitude']);
+                    },
+                    backgroundColor: Colors.blue,
+                    child: const Icon(Icons.map),
+                    tooltip: 'เปิด Google Maps',
+                  ),
+                ),
                 // 📄 แผ่นข้อมูลแบบเลื่อน
                 if (_distanceInKm != null)
                   Text(
@@ -644,6 +647,8 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                           return 'กำลังทำงาน';
                         case '4':
                           return 'เสร็จสิ้น';
+                        case '5':
+                          return 'รอผู้รับจ้างยกเลิกงาน';
                         default:
                           return 'รอผู้รับจ้างยืนยันการจอง';
                       }
