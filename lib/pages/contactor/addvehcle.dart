@@ -51,6 +51,7 @@ class _AddVehicleState extends State<AddVehicle> {
   final ImagePicker picker = ImagePicker();
   String? selectedUnit;
   final TextEditingController customUnitController = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -61,7 +62,7 @@ class _AddVehicleState extends State<AddVehicle> {
   @override
   void initState() {
     super.initState();
-    selectedUnit = 'ไร่'; // กำหนดค่าเริ่มต้นที่นี่แทน
+    //selectedUnit = 'ไร่'; // กำหนดค่าเริ่มต้นที่นี่แทน
   }
 
   Future<void> pickAndUploadImage() async {
@@ -100,15 +101,20 @@ class _AddVehicleState extends State<AddVehicle> {
   }
 
   Future<void> submitVehicle() async {
+    if (_isSubmitting) return; // ป้องกันกดซ้ำ
+
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      _isSubmitting = true;
+    });
 
     final data = {
       "name_vehicle": nameController.text,
       "price": int.tryParse(priceController.text) ?? 0,
       "unit_price": unitPriceController.text,
-      "image": imageUrl, // ถ้าไม่มีรูป ส่ง null
+      "image": imageUrl, // ถ้าไม่มีรูป ส่ง null หรือเว้นไว้
       "detail": detailController.text,
       "plate_number": plateController.text,
       "mid": widget.mid,
@@ -131,41 +137,51 @@ class _AddVehicleState extends State<AddVehicle> {
         final int vid = res['vehicleId'] ?? 0;
         showDialog(
           context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('เพิ่มรถสำเร็จ'),
-            content: Text('รหัสรถ (VID): $vid'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  int currentMonth = DateTime.now().month;
-                  int currentYear = DateTime.now().year;
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TabbarCar(
-                        mid: widget.mid,
-                        value: 2,
-                        month: currentMonth,
-                        year: currentYear,
-                      ),
-                    ),
-                  );
-                },
-                child: const Text('ตกลง'),
+          barrierDismissible: false, // ป้องกันแตะนอก dialog ปิด
+          builder: (_) => WillPopScope(
+            onWillPop: () async => false, // ป้องกันกด back ปิด dialog
+            child: AlertDialog(
+              title: const Center(
+                child: Text('เพิ่มรถสำเร็จ'),
               ),
-            ],
+              content: Text('ข้อมูลรถของคุณถูกบันทึกเรียบร้อย'),
+              // content: Text('รหัสรถ (VID): $vid'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    int currentMonth = DateTime.now().month;
+                    int currentYear = DateTime.now().year;
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TabbarCar(
+                          mid: widget.mid,
+                          value: 2,
+                          month: currentMonth,
+                          year: currentYear,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text('ตกลง'),
+                ),
+              ],
+            ),
           ),
         );
       } else {
         throw Exception('ผิดพลาด: ${response.body}');
       }
     } catch (e) {
-      print('Error: $e'); // แสดงในคอนโซล
+      print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('ไม่สามารถเพิ่มรถได้: $e')),
       );
     } finally {
-      setState(() => isLoading = false);
+      setState(() {
+        isLoading = false;
+        _isSubmitting = false;
+      });
     }
   }
 
@@ -492,7 +508,7 @@ class _AddVehicleState extends State<AddVehicle> {
                             const SizedBox(width: 16),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: isLoading ? null : submitVehicle,
+                                onPressed: _isSubmitting ? null : submitVehicle,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
                                   padding:
@@ -501,8 +517,17 @@ class _AddVehicleState extends State<AddVehicle> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                child: const Text('เพิ่มรถ',
-                                    style: submitButtonTextStyle),
+                                child: _isSubmitting
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Text('เพิ่มรถ',
+                                        style: submitButtonTextStyle),
                               ),
                             ),
                           ],

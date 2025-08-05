@@ -65,7 +65,7 @@ class _TabbarCarState extends State<TabbarCar> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
-            label: 'คิวงาน',
+            label: 'ตารางงาน',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),

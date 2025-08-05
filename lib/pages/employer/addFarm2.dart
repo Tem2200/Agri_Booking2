@@ -35,6 +35,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
 
   final List<String> unitOptions = ['ไร่', 'งาน', 'ตารางวา', 'อื่นๆ'];
   String? selectedUnit;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -61,6 +62,8 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
   }
 
   Future<void> _submitFarm() async {
+    if (_isSubmitting) return; // ป้องกันการกดรัว
+
     if (!_formKey.currentState!.validate()) return;
 
     if (latitude == null || longitude == null) {
@@ -69,6 +72,10 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
       );
       return;
     }
+
+    setState(() {
+      _isSubmitting = true; // ตั้งค่าว่ากำลังส่งข้อมูล
+    });
 
     final unitToSend =
         selectedUnit == 'อื่นๆ' ? customUnitCtrl.text : selectedUnit;
@@ -112,6 +119,10 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
       );
+    } finally {
+      setState(() {
+        _isSubmitting = false; // ปล่อยให้กดได้อีกหลังจากเสร็จ
+      });
     }
   }
 
@@ -510,7 +521,9 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                 child: SizedBox(
                   width: 150, // กำหนดความยาวปุ่ม
                   child: ElevatedButton(
-                    onPressed: _submitFarm,
+                    onPressed: _isSubmitting
+                        ? null
+                        : _submitFarm, // ปิดปุ่มถ้ากำลังส่ง
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 6, 126, 12),
                       foregroundColor: const Color.fromARGB(255, 255, 255, 255),
@@ -528,10 +541,19 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                       elevation: 8,
                       shadowColor: const Color.fromARGB(164, 174, 174, 174),
                     ),
-                    child: const Text(
-                      'บันทึกฟาร์ม',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'บันทึกฟาร์ม',
+                            style: TextStyle(fontSize: 16),
+                          ),
                   ),
                 ),
               )

@@ -55,23 +55,64 @@ class _ReservingEmpState extends State<ReservingEmp> {
     super.initState();
   }
 
+  // Future<void> _selectDateStart(BuildContext context) async {
+  //   final DateTime? picked = await showDatePicker(
+  //     context: context,
+  //     initialDate: dateStart ?? DateTime.now(),
+  //     firstDate: DateTime(2023),
+  //     lastDate: DateTime(2100),
+  //   );
+  //   if (picked != null) {
+  //     final TimeOfDay? pickedTime = await showTimePicker(
+  //       context: context,
+  //       initialTime: TimeOfDay(hour: 9, minute: 0),
+  //     );
+  //     if (pickedTime != null) {
+  //       setState(() {
+  //         dateStart = DateTime(picked.year, picked.month, picked.day,
+  //             pickedTime.hour, pickedTime.minute);
+  //       });
+  //     }
+  //   }
+  // }
+
   Future<void> _selectDateStart(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final DateTime now = DateTime.now();
+
+    final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: dateStart ?? DateTime.now(),
-      firstDate: DateTime(2023),
+      initialDate: dateStart ?? now,
+      firstDate: DateTime(now.year, now.month, now.day),
       lastDate: DateTime(2100),
     );
-    if (picked != null) {
+
+    if (pickedDate != null) {
       final TimeOfDay? pickedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay(hour: 9, minute: 0),
       );
+
       if (pickedTime != null) {
-        setState(() {
-          dateStart = DateTime(picked.year, picked.month, picked.day,
-              pickedTime.hour, pickedTime.minute);
-        });
+        final DateTime selectedDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+        // เช็คว่าเป็นอนาคต
+        if (selectedDateTime.isAfter(now)) {
+          setState(() {
+            dateStart = selectedDateTime;
+          });
+        } else {
+          // แจ้งเตือนถ้าเลือกเวลาย้อนหลัง
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('กรุณาเลือกวันที่และเวลาที่มากกว่าปัจจุบัน')),
+          );
+        }
       }
     }
   }
@@ -97,11 +138,105 @@ class _ReservingEmpState extends State<ReservingEmp> {
     }
   }
 
+  // Future<void> _submitReservation() async {
+  //   if (!_formKey.currentState!.validate()) return;
+  //   if (dateStart == null || dateEnd == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('กรุณาเลือกวันที่เริ่มและวันที่สิ้นสุด')),
+  //     );
+  //     return;
+  //   }
+
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+
+  //   final String finalUnit =
+  //       isCustomUnit ? customUnitController.text.trim() : selectedUnit ?? '';
+  //   final String detailText = detailController.text.trim().isEmpty
+  //       ? 'ไม่มีรายละเอียด'
+  //       : detailController.text.trim();
+
+  //   final Map<String, dynamic> body = {
+  //     "name_rs": nameController.text.trim(),
+  //     "area_amount": int.tryParse(areaAmountController.text.trim()) ?? 0,
+  //     "unit_area": finalUnit,
+  //     "detail": detailText,
+  //     "date_start":
+  //         dateStart!.toIso8601String().replaceFirst('T', ' ').substring(0, 19),
+  //     "date_end":
+  //         dateEnd!.toIso8601String().replaceFirst('T', ' ').substring(0, 19),
+  //     "progress_status": null,
+  //     "mid_employee": widget.mid,
+  //     "vid": widget.vid,
+  //     "fid": widget.fid,
+  //   };
+
+  //   try {
+  //     final response = await http.post(
+  //       Uri.parse('http://projectnodejs.thammadalok.com/AGribooking/reserve'),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode(body),
+  //     );
+
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('จองสำเร็จ')),
+  //       );
+  //       //Navigator.pop(context);
+  //       int currentMonth = DateTime.now().month;
+  //       int currentYear = DateTime.now().year;
+  //       Navigator.pushReplacement(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) => Tabbar(
+  //             mid: widget.mid,
+  //             value: 1,
+  //             month: currentMonth,
+  //             year: currentYear,
+  //           ),
+  //         ),
+  //       );
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('ผิดพลาด: ${response.statusCode}')),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+  //     );
+  //   } finally {
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
+
   Future<void> _submitReservation() async {
     if (!_formKey.currentState!.validate()) return;
+
     if (dateStart == null || dateEnd == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('กรุณาเลือกวันที่เริ่มและวันที่สิ้นสุด')),
+      );
+      return;
+    }
+
+    // ✅ ตรวจสอบว่าเวลาสิ้นสุดมากกว่าหรือเท่ากับเวลาเริ่ม
+    if (dateEnd!.isBefore(dateStart!)) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('การจองผิดพลาด'),
+          content: const Text('เวลาสิ้นสุดต้องมากกว่าหรือเท่ากับเวลาเริ่มต้น'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('ตกลง'),
+            ),
+          ],
+        ),
       );
       return;
     }
@@ -112,12 +247,15 @@ class _ReservingEmpState extends State<ReservingEmp> {
 
     final String finalUnit =
         isCustomUnit ? customUnitController.text.trim() : selectedUnit ?? '';
+    final String detailText = detailController.text.trim().isEmpty
+        ? 'ไม่มีรายละเอียด'
+        : detailController.text.trim();
 
     final Map<String, dynamic> body = {
       "name_rs": nameController.text.trim(),
       "area_amount": int.tryParse(areaAmountController.text.trim()) ?? 0,
       "unit_area": finalUnit,
-      "detail": detailController.text.trim(),
+      "detail": detailText,
       "date_start":
           dateStart!.toIso8601String().replaceFirst('T', ' ').substring(0, 19),
       "date_end":
@@ -139,7 +277,6 @@ class _ReservingEmpState extends State<ReservingEmp> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('จองสำเร็จ')),
         );
-        //Navigator.pop(context);
         int currentMonth = DateTime.now().month;
         int currentYear = DateTime.now().year;
         Navigator.pushReplacement(
@@ -154,13 +291,33 @@ class _ReservingEmpState extends State<ReservingEmp> {
           ),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ผิดพลาด: ${response.statusCode}')),
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('การจองล้มเหลว'),
+            content: Text('ผิดพลาด: ${response.statusCode}'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('ตกลง'),
+              ),
+            ],
+          ),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('ข้อผิดพลาด'),
+          content: Text('เกิดข้อผิดพลาด: $e'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('ตกลง'),
+            ),
+          ],
+        ),
       );
     } finally {
       setState(() {
@@ -426,9 +583,6 @@ class _ReservingEmpState extends State<ReservingEmp> {
                             labelText: 'รายละเอียด',
                             border: OutlineInputBorder(),
                           ),
-                          validator: (value) => value == null || value.isEmpty
-                              ? 'กรุณากรอกรายละเอียด'
-                              : null,
                         ),
                         const SizedBox(height: 16),
                         Text("เลือกวันและเวลาทำงาน", style: _sectionTitleStyle),
@@ -440,8 +594,7 @@ class _ReservingEmpState extends State<ReservingEmp> {
                                 onPressed: () => _selectDateStart(context),
                                 child: Text(dateStart == null
                                     ? 'เลือกวันที่เริ่ม'
-                                    : 'วันที่เริ่ม: ${dateStart!.toLocal()}'
-                                        .split('.')[0]),
+                                    : 'วันที่เริ่ม: ${formatDateThai(dateStart!)}'),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -450,8 +603,7 @@ class _ReservingEmpState extends State<ReservingEmp> {
                                 onPressed: () => _selectDateEnd(context),
                                 child: Text(dateEnd == null
                                     ? 'เลือกวันที่สิ้นสุด'
-                                    : 'วันที่สิ้นสุด: ${dateEnd!.toLocal()}'
-                                        .split('.')[0]),
+                                    : 'วันที่สิ้นสุด: ${formatDateThai(dateEnd!)}'),
                               ),
                             ),
                           ],
@@ -569,6 +721,31 @@ class _ReservingEmpState extends State<ReservingEmp> {
                   ),
                 ),
     );
+  }
+
+  String formatDateThai(DateTime date) {
+    final thaiMonths = [
+      '',
+      'มกราคม',
+      'กุมภาพันธ์',
+      'มีนาคม',
+      'เมษายน',
+      'พฤษภาคม',
+      'มิถุนายน',
+      'กรกฎาคม',
+      'สิงหาคม',
+      'กันยายน',
+      'ตุลาคม',
+      'พฤศจิกายน',
+      'ธันวาคม',
+    ];
+    String day = date.day.toString();
+    String month = thaiMonths[date.month];
+    String year = (date.year + 543).toString(); // พ.ศ.
+    String hour = date.hour.toString().padLeft(2, '0');
+    String minute = date.minute.toString().padLeft(2, '0');
+
+    return '$day $month $year $hour:$minute';
   }
 
 // ฟังก์ชันช่วยสร้างข้อความแต่ละบรรทัด พร้อมสไตล์สวยงาม

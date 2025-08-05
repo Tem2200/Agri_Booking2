@@ -1463,6 +1463,46 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
     }
   }
 
+  Future<void> updateProgressStatus(dynamic rsid) async {
+    print(rsid);
+    final url = Uri.parse(
+      'http://projectnodejs.thammadalok.com/AGribooking/update_progress',
+    );
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'rsid': rsid,
+          'progress_status': 5,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('อัปเดตสถานะสำเร็จ')),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("อัปเดตล้มเหลว"),
+            content: Text("รหัสสถานะ: ${response.statusCode}"),
+          ),
+        );
+      }
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("เกิดข้อผิดพลาด"),
+          content: Text("ไม่สามารถเชื่อมต่อ: $e"),
+        ),
+      );
+    }
+  }
+
   String formatDateThai(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return '-';
     try {
@@ -1515,6 +1555,8 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
         return 'กำลังทำงาน';
       case '4':
         return 'เสร็จสิ้น';
+      case '5':
+        return 'รอผู้รับจ้างยกเลิกการจอง';
       default:
         return 'รอผู้รับจ้างยืนยันการจอง';
     }
@@ -1524,17 +1566,19 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
   Color getStatusColor(dynamic status) {
     switch (status.toString()) {
       case '0':
-        return Colors.red;
+        return Colors.red; // ยกเลิกงาน
       case '1':
-        return Colors.blueGrey;
+        return Colors.blue; // ยืนยันการจอง
       case '2':
-        return Colors.pinkAccent;
+        return Colors.purple; // กำลังเดินทาง
       case '3':
-        return Colors.amber;
+        return Colors.orange; // กำลังทำงาน
       case '4':
-        return Colors.green;
+        return Colors.green; // เสร็จสิ้น
+      case '5':
+        return Colors.brown; // รอผู้รับจ้างยกเลิก
       default:
-        return Colors.black45;
+        return Colors.grey; // รอยืนยัน
     }
   }
 
@@ -1705,13 +1749,10 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                                             onPressed: () {
                                               Navigator.pop(
                                                   context); // ปิด dialog ก่อน
-                                              final contractorMid =
-                                                  rs['mid_contractor'];
-                                              final rsid = rs['rsid'];
 
-                                              if (contractorMid != null &&
-                                                  rsid != null) {
-                                                sendEmail(rs);
+                                              if (rs['rsid'] != null) {
+                                                updateProgressStatus(
+                                                    rs['rsid']);
                                               } else {
                                                 showDialog(
                                                   context: context,
@@ -1720,7 +1761,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                                                     title:
                                                         Text("เกิดข้อผิดพลาด"),
                                                     content: Text(
-                                                        "ไม่พบข้อมูล contractor_mid หรือ rsid"),
+                                                        "ไม่พบข้อมูล rsid"),
                                                   ),
                                                 );
                                               }
