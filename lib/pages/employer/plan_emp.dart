@@ -1263,6 +1263,7 @@ import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class PlanEmp extends StatefulWidget {
   final int mid;
@@ -1480,9 +1481,22 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
       );
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('อัปเดตสถานะสำเร็จ')),
+        // โชว์ toast ที่ด้านบน
+        Fluttertoast.showToast(
+          msg: 'อัปเดตสถานะสำเร็จ',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          timeInSecForIosWeb: 2,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
+
+        // รีเฟรชหน้าหรือโหลดข้อมูลใหม่
+        setState(() {
+          // เรียกฟังก์ชันโหลดข้อมูลใหม่ เช่น
+          fetchReservings(); // สมมุติชื่อฟังก์ชันโหลดข้อมูล
+        });
       } else {
         showDialog(
           context: context,

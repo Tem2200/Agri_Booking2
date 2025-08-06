@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/employer/addFarm.dart';
+import 'package:agri_booking2/pages/employer/homeEmp.dart';
 import 'package:agri_booking2/pages/employer/updateFarm.dart';
+import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 class FarmsPage extends StatefulWidget {
@@ -33,7 +36,16 @@ class _FarmsPageState extends State<FarmsPage> {
       print("ข้อมูลฟาร์ม: $data");
       return data;
     } else {
-      throw Exception('ไม่พบข้อมูลฟาร์ม');
+      Fluttertoast.showToast(
+        msg: 'ไม่พบข้อมูลฟาร์ม',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 2,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return []; // หรือ [] แล้วแต่ฟังก์ชันคุณรองรับอะไร
     }
   }
 
@@ -89,10 +101,28 @@ class _FarmsPageState extends State<FarmsPage> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         centerTitle: true,
-        //automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
         iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            int currentMonth = DateTime.now().month;
+            int currentYear = DateTime.now().year;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Tabbar(
+                  mid: widget.mid,
+                  value: 2,
+                  month: currentMonth,
+                  year: currentYear,
+                ),
+              ),
+            );
+          },
+        ),
+        //iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
-          'Farms Page (MID: ${widget.mid})',
+          'ที่นาของฉัน',
           style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,

@@ -1,3 +1,4 @@
+import 'package:agri_booking2/pages/employer/farms.dart';
 import 'package:agri_booking2/pages/employer/map_farms.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -108,7 +109,10 @@ class _AddFarmPageState extends State<AddFarmPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('เพิ่มฟาร์มสำเร็จ')),
         );
-        Navigator.pop(context, true);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => FarmsPage(mid: widget.mid)),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('เกิดข้อผิดพลาด: ${response.body}')),

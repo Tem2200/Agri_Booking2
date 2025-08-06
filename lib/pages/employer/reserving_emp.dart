@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
+import 'package:agri_booking2/pages/employer/addFarm2.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -47,12 +48,14 @@ class _ReservingEmpState extends State<ReservingEmp> {
   ];
   String? selectedUnit = 'ตารางวา';
   bool isCustomUnit = false;
+  Future<List<dynamic>>? farmsFuture;
 
   @override
   void initState() {
     print('Initializing ReservingEmp with vihicle: ${widget.vihicleData}');
     print('Initializing ReservingEmp with farm: ${widget.farm}');
     super.initState();
+    farmsFuture = fetchFarms(widget.mid);
   }
 
   // Future<void> _selectDateStart(BuildContext context) async {
@@ -75,6 +78,22 @@ class _ReservingEmpState extends State<ReservingEmp> {
   //     }
   //   }
   // }
+
+  Future<List<dynamic>> fetchFarms(int mid) async {
+    final url = Uri.parse(
+      'http://projectnodejs.thammadalok.com/AGribooking/get_farms/$mid',
+    );
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print("ข้อมูลฟาร์ม: $data");
+      return data;
+    } else {
+      throw Exception('ไม่พบข้อมูลฟาร์ม');
+    }
+  }
 
   Future<void> _selectDateStart(BuildContext context) async {
     final DateTime now = DateTime.now();
@@ -213,6 +232,25 @@ class _ReservingEmpState extends State<ReservingEmp> {
   //   }
   // }
 
+  Future<void> _loadFarms() async {
+    setState(() => isFarmLoading = true);
+    try {
+      final url = Uri.parse(
+          'http://projectnodejs.thammadalok.com/AGribooking/get_farms/${widget.mid}');
+      final res = await http.get(url);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        setState(() {
+          farmList = data;
+        });
+      }
+    } catch (e) {
+      print('Error loading farms: $e');
+    } finally {
+      setState(() => isFarmLoading = false);
+    }
+  }
+
   Future<void> _submitReservation() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -326,11 +364,118 @@ class _ReservingEmpState extends State<ReservingEmp> {
     }
   }
 
+  // Widget _buildFarmDropdown() {
+  //   return isFarmLoading
+  //       ? const Center(child: CircularProgressIndicator())
+  //       : farmList.isEmpty
+  //           ? const Center(child: Text('ไม่พบฟาร์มของคุณ'))
+  //           : Padding(
+  //               padding: const EdgeInsets.all(16),
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   const Text("เลือกฟาร์มของคุณ",
+  //                       style: TextStyle(
+  //                           fontWeight: FontWeight.bold, fontSize: 18)),
+  //                   const SizedBox(height: 16),
+  //                   DropdownButtonFormField<dynamic>(
+  //                     value: selectedFarm,
+  //                     decoration: const InputDecoration(
+  //                       labelText: 'เลือกฟาร์ม',
+  //                       border: OutlineInputBorder(),
+  //                     ),
+  //                     items: farmList.map<DropdownMenuItem<dynamic>>((farm) {
+  //                       return DropdownMenuItem<dynamic>(
+  //                         value: farm,
+  //                         child: Text(farm['name_farm'] ?? "-"),
+  //                       );
+  //                     }).toList(),
+  //                     onChanged: (value) {
+  //                       setState(() {
+  //                         selectedFarm = value;
+  //                       });
+  //                     },
+  //                     validator: (value) =>
+  //                         value == null ? 'กรุณาเลือกฟาร์ม' : null,
+  //                   ),
+  //                   const SizedBox(height: 24),
+  //                   ElevatedButton(
+  //                     onPressed: selectedFarm == null
+  //                         ? null
+  //                         : () {
+  //                             Navigator.pushReplacement(
+  //                               context,
+  //                               MaterialPageRoute(
+  //                                 builder: (context) => ReservingEmp(
+  //                                   mid: widget.mid,
+  //                                   vid: widget.vid,
+  //                                   fid: selectedFarm['fid'] ?? 0,
+  //                                   farm: selectedFarm,
+  //                                 ),
+  //                               ),
+  //                             );
+  //                           },
+  //                     child: const Text('ถัดไป'),
+  //                   ),
+  //                 ],
+  //               ),
+  //             );
+  // }
+
   Widget _buildFarmDropdown() {
     return isFarmLoading
         ? const Center(child: CircularProgressIndicator())
         : farmList.isEmpty
-            ? const Center(child: Text('ไม่พบฟาร์มของคุณ'))
+            ? Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 16),
+                    const Center(
+                      child: Text(
+                        'คุณยังไม่มีข้อมูลที่นา',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Center(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  AddFarmPage2(mid: widget.mid),
+                            ),
+                          ).then((_) =>
+                              _loadFarms()); // รีโหลดเมื่อกลับมาจากหน้าสร้างฟาร์ม
+                        },
+                        icon: const Icon(Icons.add_location_alt,
+                            color: Colors.white),
+                        label: const Text(
+                          'เพิ่มที่นา',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Divider(height: 32, thickness: 1),
+                  ],
+                ),
+              )
             : Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(

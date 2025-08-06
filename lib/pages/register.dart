@@ -29,6 +29,7 @@ class _RegisterState extends State<Register> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
+  final TextEditingController otherController = TextEditingController();
 
   String? imageUrl; // URL รูปภาพจาก imagebb
   double? latitude;
@@ -116,13 +117,13 @@ class _RegisterState extends State<Register> {
       "password": passwordController.text,
       "phone": phoneController.text,
       "image": imageUrl ?? null,
-      "detail_address":
-          addressController.text.isEmpty ? null : addressController.text,
+      "detail_address": addressController.text ?? null,
       "province": selectedProvince,
       "district": selectedAmphoe,
       "subdistrict": selectedDistrict,
       "latitude": latitude,
       "longitude": longitude,
+      "other": otherController.text ?? null,
       "type_member": typeMember,
     };
 
@@ -511,6 +512,26 @@ class _RegisterState extends State<Register> {
                               selectedDistrict = value;
                             });
                           }),
+                          // ช่องกรอก
+                          TextFormField(
+                            controller: otherController,
+                            maxLength: 500,
+                            maxLines: 1,
+                            keyboardType: TextInputType.multiline,
+                            decoration: InputDecoration(
+                              labelText: 'ช่องทางติดต่อเพิ่มเตฺิม',
+                              hintText: 'เช่น Line, Facebook, Instagram',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              counterText: '',
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 26),
+                            ),
+                          ),
                           const SizedBox(height: 10),
                           ElevatedButton(
                             onPressed: goToMapPage,
@@ -568,7 +589,7 @@ class _RegisterState extends State<Register> {
                                 // ช่องกรอก
                                 TextFormField(
                                   controller: addressController,
-                                  maxLength: 300,
+                                  maxLength: 500,
                                   maxLines: 1,
                                   keyboardType: TextInputType.multiline,
                                   decoration: InputDecoration(
@@ -585,8 +606,6 @@ class _RegisterState extends State<Register> {
                                     contentPadding: const EdgeInsets.symmetric(
                                         horizontal: 16, vertical: 26),
                                   ),
-                                  validator: (v) =>
-                                      v!.isEmpty ? 'กรุณากรอกที่อยู่ *' : null,
                                 ),
                               ],
                             ),

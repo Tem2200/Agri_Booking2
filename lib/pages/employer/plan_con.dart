@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class PlanPage extends StatefulWidget {
   final int mid;
@@ -79,6 +80,22 @@ class _PlanAndHistoryState extends State<PlanPage> {
     }
   }
 
+  Map<DateTime, List<dynamic>> eventsByDay = {};
+
+  void groupEventsByDay(List<dynamic> scheduleList) {
+    eventsByDay.clear();
+    for (var item in scheduleList) {
+      final dateStart = DateTime.parse(item['date_start']).toLocal();
+      final dateKey = DateTime(dateStart.year, dateStart.month, dateStart.day);
+
+      if (eventsByDay[dateKey] == null) {
+        eventsByDay[dateKey] = [item];
+      } else {
+        eventsByDay[dateKey]!.add(item);
+      }
+    }
+  }
+
   //วันที่และเวลา
   String _formatDateRange(String? startDate, String? endDate) {
     if (startDate == null || endDate == null) return 'ไม่ระบุวันที่';
@@ -112,37 +129,79 @@ class _PlanAndHistoryState extends State<PlanPage> {
     });
   }
 
+  DateTime? _selectedDay;
+
   Widget _buildPlanTab() {
     final String currentMonthName =
         DateFormat.MMMM('th').format(DateTime(_displayYear, _displayMonth));
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Expanded(
+          child: Column(
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back_ios),
-                onPressed: () => _changeMonth(-1),
-              ),
-              Text(
-                '$currentMonthName $_displayYear',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              TableCalendar(
+                locale: 'th_TH',
+                focusedDay: DateTime(_displayYear, _displayMonth),
+                firstDay: DateTime(_displayYear - 1),
+                lastDay: DateTime(_displayYear + 1),
+                startingDayOfWeek: StartingDayOfWeek.monday,
+
+                // ✅ บอกว่า วันไหนถูกเลือก
+                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+
+                calendarStyle: CalendarStyle(
+                  todayDecoration: BoxDecoration(
+                    color: Colors.orangeAccent.withOpacity(0.6),
+                    shape: BoxShape.rectangle, // ไม่ต้องใช้ circle
+                  ),
+                  selectedDecoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.rectangle,
+                  ),
+                  markerDecoration: BoxDecoration(), // ไม่จำเป็นอีกต่อไป
+                  outsideDaysVisible: false,
                 ),
+
+                headerStyle: const HeaderStyle(
+                  formatButtonVisible:
+                      false, // ซ่อนปุ่มเลือก format เดือน/สัปดาห์
+                  titleCentered: true,
+                ),
+
+                calendarBuilders: CalendarBuilders(
+                  dowBuilder: (context, day) {
+                    // ✅ ไม่ต้องเขียนอะไรเกี่ยวกับ week number
+                    return null;
+                  },
+                ),
+
+                eventLoader: (day) =>
+                    eventsByDay[DateTime(day.year, day.month, day.day)] ?? [],
+
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = DateTime(
+                        selectedDay.year, selectedDay.month, selectedDay.day);
+                  });
+                },
               ),
-              IconButton(
-                icon: const Icon(Icons.arrow_forward_ios),
-                onPressed: () => _changeMonth(1),
+              const SizedBox(height: 8),
+              if (_selectedDay != null)
+                Text(
+                  'วันที่เลือก: ${DateFormat('dd MMMM yyyy', 'th').format(_selectedDay!)}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: _buildScheduleTab(includeHistory: false),
               ),
             ],
           ),
-        ),
-        Expanded(
-          child: _buildScheduleTab(includeHistory: false),
         ),
       ],
     );
@@ -156,7 +215,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(
-            // child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'),
             child: Text('ขออภัยค่ะ ขณะนี้ยังไม่มีการจองคิวรถในเดือนนี้'),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -169,18 +227,35 @@ class _PlanAndHistoryState extends State<PlanPage> {
                 : item['progress_status'] != 4)
             .toList();
 
+        groupEventsByDay(scheduleList); // เตรียมข้อมูลปฏิทิน
+
         if (scheduleList.isEmpty) {
           return const Center(child: Text('ไม่พบงานในหมวดนี้'));
         }
 
-        //test ui
-        return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20), // ซ้าย-ขวา-ล่าง
-          itemCount: scheduleList.length,
-          itemBuilder: (context, index) {
-            final item = scheduleList[index];
+        // กรองรายการงานตามวันที่เลือก
+        List<dynamic> filteredList;
+        if (_selectedDay != null) {
+          filteredList = scheduleList.where((item) {
+            final dateStart = DateTime.parse(item['date_start']).toLocal();
+            final itemDate =
+                DateTime(dateStart.year, dateStart.month, dateStart.day);
+            return itemDate == _selectedDay;
+          }).toList();
+        } else {
+          filteredList = scheduleList; // ถ้าไม่เลือกวัน แสดงทั้งหมดในเดือน
+        }
 
-            // แปลง progress_status เป็นข้อความ
+        if (filteredList.isEmpty) {
+          return const Center(child: Text('ไม่มีคิวงานในวันที่เลือก'));
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          itemCount: filteredList.length,
+          itemBuilder: (context, index) {
+            final item = filteredList[index];
+
             String getStatusText(dynamic status) {
               switch (status.toString()) {
                 case '0':
@@ -198,7 +273,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
               }
             }
 
-            // กำหนดสีตามสถานะ
             Color getStatusColor(dynamic status) {
               switch (status.toString()) {
                 case '0':
@@ -218,18 +292,18 @@ class _PlanAndHistoryState extends State<PlanPage> {
 
             return Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF3E0), // สีพื้นหลังครีมอ่อน
+                color: const Color(0xFFFFF3E0),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFFFFCC80), // สีส้มอ่อนเข้ากับพื้นหลัง
+                  color: const Color(0xFFFFCC80),
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.orange.withOpacity(0.2), // เงาส้มอ่อนโปร่งใส
+                    color: Colors.orange.withOpacity(0.2),
                     spreadRadius: 2,
                     blurRadius: 8,
-                    offset: const Offset(0, 4), // เงาลงด้านล่างเล็กน้อย
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -239,7 +313,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ชื่อ + สถานะ
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -251,8 +324,8 @@ class _PlanAndHistoryState extends State<PlanPage> {
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
                             ),
-                            overflow: TextOverflow.ellipsis, // ✅ ตัดด้วย ...
-                            maxLines: 1, // ✅ แสดงแค่บรรทัดเดียว
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
                         Row(
@@ -273,10 +346,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
                         )
                       ],
                     ),
-
                     const SizedBox(height: 8),
-
-                    // รุ่นรถ
                     Row(
                       children: [
                         const Icon(Icons.directions_car,
@@ -291,8 +361,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
                         ),
                       ],
                     ),
-
-                    // ฟาร์ม
                     const SizedBox(height: 4),
                     Row(
                       children: [
@@ -307,7 +375,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 8),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,43 +393,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 8),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.end,
-                    //   children: [
-                    //     ElevatedButton(
-                    //       style: ElevatedButton.styleFrom(
-                    //         backgroundColor:
-                    //             const Color(0xFF4CAF50), // เขียวธรรมชาติ
-                    //         foregroundColor: Colors.white,
-                    //         elevation: 4, // ✅ เพิ่มเงา
-                    //         shadowColor: Color.fromARGB(
-                    //             208, 163, 160, 160), // ✅ เงานุ่มๆ
-                    //         shape: RoundedRectangleBorder(
-                    //           borderRadius:
-                    //               BorderRadius.circular(16), // ✅ มุมนุ่มขึ้น
-                    //         ),
-                    //         padding: const EdgeInsets.symmetric(
-                    //             horizontal: 24, vertical: 10), // ✅ ขนาดกำลังดี
-                    //         textStyle: const TextStyle(
-                    //           fontSize: 14,
-                    //           fontWeight: FontWeight.w600,
-                    //         ),
-                    //       ),
-                    //       onPressed: () {
-                    //         Navigator.push(
-                    //           context,
-                    //           MaterialPageRoute(
-                    //             builder: (context) =>
-                    //                 DetailWorkPage(rsid: item['rsid']),
-                    //           ),
-                    //         );
-                    //       },
-                    //       child: const Text('รายละเอียด'),
-                    //     ),
-                    //   ],
-                    // ),
                   ],
                 ),
               ),
