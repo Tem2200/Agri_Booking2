@@ -459,6 +459,11 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                                       mid: _currentMid,
                                       month: now.month,
                                       year: now.year,
+                                      mid_employer: widget.mid,
+                                      vid: widget.vid,
+                                      fid: widget.fid,
+                                      farm: widget.farm,
+                                      vihicleData: vehicleData,
                                     ),
                                   ),
                                 );
