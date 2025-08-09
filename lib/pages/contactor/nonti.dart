@@ -16,16 +16,61 @@ class NontiPage extends StatefulWidget {
 
 class _NontiPageState extends State<NontiPage> {
   Future<List<dynamic>>? _scheduleFuture;
+  int _newJobsCount = 0; // จำนวนงานใหม่ (progress_status = null)
+  int _cancelledJobsCount = 0; // จำนวนงานที่ถูกยกเลิก (progress_status = 5)
 
   @override
   void initState() {
     super.initState();
     print("MID: ${widget.mid}");
     setState(() {
-      _scheduleFuture = fetchSchedule(widget.mid); // ✅ แก้ตรงนี้
+      _scheduleFuture = fetchAndCountSchedule(widget.mid);
+      //_scheduleFuture = fetchSchedule(widget.mid); // ✅ แก้ตรงนี้
       print("_scheduleFuture: $_scheduleFuture");
       // ✅ ไม่ใช้ month/year แล้ว
     });
+  }
+
+  Future<List<dynamic>> fetchAndCountSchedule(int mid) async {
+    final url = Uri.parse(
+        'http://projectnodejs.thammadalok.com/AGribooking/get_ConReservingNonti/$mid');
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        if (response.body.isNotEmpty) {
+          final List<dynamic> data = jsonDecode(response.body);
+
+          int newJobs = 0;
+          int cancelledJobs = 0;
+
+          for (var item in data) {
+            final status = item['progress_status'];
+            if (status == null) {
+              newJobs++;
+            } else if (status == 5) {
+              cancelledJobs++;
+            }
+          }
+
+// อัปเดตตัวแปรสถานะ
+          if (mounted) {
+            setState(() {
+              _newJobsCount = newJobs;
+              _cancelledJobsCount = cancelledJobs;
+            });
+          }
+          return data;
+        } else {
+          return [];
+        }
+      } else {
+        throw Exception('Failed to load schedule: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Connection error: $e');
+    }
   }
 
   Future<List<dynamic>> fetchSchedule(int mid) async {
@@ -131,15 +176,72 @@ class _NontiPageState extends State<NontiPage> {
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
-                    tabs: const [
+                    tabs: [
                       Tab(
-                          child: SizedBox(
-                              width: 120,
-                              child: Center(child: Text('งานใหม่')))),
+                        child: SizedBox(
+                          width: 120,
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text('งานใหม่'),
+                                if (_newJobsCount > 0) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      '$_newJobsCount',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                       Tab(
-                          child: SizedBox(
-                              width: 120,
-                              child: Center(child: Text('แจ้งยกเลิกงาน')))),
+                        child: SizedBox(
+                          width: 120,
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text('แจ้งยกเลิกงาน'),
+                                if (_cancelledJobsCount > 0) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors
+                                          .red, // 💡 ใช้สีแดงเพื่อให้เด่นชัด
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      '$_cancelledJobsCount',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

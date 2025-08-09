@@ -7,7 +7,11 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+// 💡 1. สร้าง enum เพื่อกำหนดสถานะการกรอง
+enum StatusFilter { all, pending, notAvailable }
+
 class PlanPage extends StatefulWidget {
+  // ... (โค้ดส่วนเดิม) ...
   final int mid;
   final int month;
   final int year;
@@ -38,11 +42,11 @@ class _PlanAndHistoryState extends State<PlanPage> {
   late int _displayMonth;
   late int _displayYear;
   bool _isLocaleInitialized = false;
+  Future<Map<String, dynamic>>? _conFuture;
 
-  bool _showNotAvailable = true;
-  bool _showPending = true;
+  // 💡 1.1 เปลี่ยนมาใช้ตัวแปรเดียวสำหรับเก็บสถานะที่ถูกเลือก
+  StatusFilter _selectedStatus = StatusFilter.all;
 
-  // 💡 กำหนดค่าเริ่มต้นของ _selectedDay เป็นวันปัจจุบัน
   DateTime _selectedDay = DateTime.now();
   Map<DateTime, List<dynamic>> eventsByDay = {};
 
@@ -51,20 +55,21 @@ class _PlanAndHistoryState extends State<PlanPage> {
     super.initState();
     _displayMonth = widget.month;
     _displayYear = widget.year;
-    fetchCon(this.widget.mid);
+    print("vihicleData: ${widget.vihicleData}");
+    _conFuture = fetchCon(this.widget.mid);
     initializeDateFormatting('th', null).then((_) {
       setState(() {
         _isLocaleInitialized = true;
-        // 💡 เรียกใช้ fetchSchedule ทันทีและนำข้อมูลมาจัดกลุ่ม
         _scheduleFuture =
             fetchSchedule(widget.mid, _displayMonth, _displayYear).then((list) {
-          groupEventsByDay(list); // จัดกลุ่มข้อมูลทันทีที่โหลดเสร็จ
+          groupEventsByDay(list);
           return list;
         });
       });
     });
   }
 
+  // ... (โค้ด fetchCon, fetchSchedule, groupEventsByDay, _formatDateRange, _changeMonth ส่วนเดิม) ...
   Future<Map<String, dynamic>> fetchCon(int mid) async {
     final url_con = Uri.parse(
         'http://projectnodejs.thammadalok.com/AGribooking/members/$mid');
@@ -93,7 +98,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
 
           final filteredData = data.where((item) {
             final status = item['progress_status'];
-            return status != 4; // กรองสถานะ 4 ออกเท่านั้น
+            return status != 4 && status != 0; // กรองไม่เอา 0 และ 4
           }).toList();
 
           return filteredData;
@@ -120,7 +125,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
         eventsByDay[dateKey]!.add(item);
       }
     }
-    // 💡 setState ที่นี่เพื่ออัปเดต UI หลังจากจัดกลุ่มข้อมูลเสร็จ
     if (mounted) {
       setState(() {});
     }
@@ -163,7 +167,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
   }
 
   final ButtonStyle bookingButtonStyle = ElevatedButton.styleFrom(
-    backgroundColor: Colors.blue,
+    backgroundColor: Color.fromARGB(255, 33, 148, 255),
     foregroundColor: Colors.white,
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     shape: RoundedRectangleBorder(
@@ -174,105 +178,227 @@ class _PlanAndHistoryState extends State<PlanPage> {
       fontWeight: FontWeight.bold,
     ),
   );
+  // สร้าง Widget ใหม่สำหรับแสดงข้อมูลเจ้าของรถและข้อมูลรถ
+  Widget _buildConAndVehicleInfo() {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _conFuture,
+      builder: (context, snapshot) {
+        // โค้ดแสดงสถานะการโหลดหรือข้อผิดพลาด
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return const Center(child: Text('ไม่สามารถโหลดข้อมูลเจ้าของรถได้'));
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: Text('ไม่พบข้อมูลเจ้าของรถ'));
+        }
 
-  Widget _buildPlanTab() {
-    return Column(
-      children: [
-        TableCalendar(
-          locale: 'th_TH',
-          focusedDay: _selectedDay,
-          firstDay: DateTime(_displayYear - 1),
-          lastDay: DateTime(_displayYear + 1),
-          startingDayOfWeek: StartingDayOfWeek.monday,
-          selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-          calendarStyle: const CalendarStyle(
-            cellMargin: EdgeInsets.all(5.0),
-            markerSize: 8.0,
-            cellAlignment: Alignment.center,
-            defaultTextStyle: TextStyle(fontSize: 14.0),
-            weekendTextStyle: TextStyle(fontSize: 14.0, color: Colors.red),
-            todayTextStyle: TextStyle(fontSize: 14.0, color: Colors.white),
-            selectedTextStyle: TextStyle(fontSize: 14.0, color: Colors.white),
-            outsideDaysVisible: false,
-            todayDecoration: BoxDecoration(
-              color: Colors.orangeAccent,
-              shape: BoxShape.circle,
-            ),
-            selectedDecoration: BoxDecoration(
-              color: Colors.green,
-              shape: BoxShape.circle,
-            ),
-          ),
-          headerStyle: const HeaderStyle(
-            titleCentered: true,
-            formatButtonVisible: false,
-            titleTextStyle:
-                TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-            leftChevronIcon: Icon(Icons.chevron_left, size: 24.0),
-            rightChevronIcon: Icon(Icons.chevron_right, size: 24.0),
-          ),
-          // 💡 eventLoader ใช้ข้อมูล eventsByDay ที่ถูกจัดกลุ่มไว้แล้ว
-          eventLoader: (day) =>
-              eventsByDay[DateTime(day.year, day.month, day.day)] ?? [],
-          onDaySelected: (selectedDay, focusedDay) {
-            setState(() {
-              _selectedDay = DateTime(
-                  selectedDay.year, selectedDay.month, selectedDay.day);
-            });
-          },
-        ),
-        const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildStatusButton(
-                text: 'ผู้รับจ้างไม่ว่าง',
-                isSelected: _showPending,
-                onPressed: () {
-                  setState(() {
-                    _showPending = !_showPending;
-                  });
-                },
-              ),
-              _buildStatusButton(
-                text: 'รอยืนยันการจอง',
-                isSelected: _showNotAvailable,
-                onPressed: () {
-                  setState(() {
-                    _showNotAvailable = !_showNotAvailable;
-                  });
-                },
+        final conData = snapshot.data!;
+        final vihicleData = widget.vihicleData;
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 10),
-        Expanded(
-          child: SingleChildScrollView(
-            child: _buildScheduleTab(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 10),
+              Text(
+                conData['username'] ?? 'ไม่ระบุชื่อ',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green.shade800,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      vihicleData?['image_vehicle'] ??
+                          'https://via.placeholder.com/150',
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          vihicleData?['name_vehicle'] ?? 'ไม่ระบุชื่อรถ',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          vihicleData?['detail'] ?? 'ไม่มีรายละเอียด',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ),
-      ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPlanTab() {
+    return SingleChildScrollView(
+      // 💡 ห่อหุ้มด้วย SingleChildScrollView
+      child: Column(
+        children: [
+          _buildConAndVehicleInfo(),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildStatusButton(
+                  text: 'ทั้งหมด',
+                  status: StatusFilter.all,
+                  onPressed: () {
+                    setState(() {
+                      _selectedStatus = StatusFilter.all;
+                    });
+                  },
+                ),
+                _buildStatusButton(
+                  text: 'ผู้รับจ้างไม่ว่าง',
+                  status: StatusFilter.notAvailable,
+                  onPressed: () {
+                    setState(() {
+                      _selectedStatus = StatusFilter.notAvailable;
+                    });
+                  },
+                ),
+                _buildStatusButton(
+                  text: 'รอการยืนยัน',
+                  status: StatusFilter.pending,
+                  onPressed: () {
+                    setState(() {
+                      _selectedStatus = StatusFilter.pending;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+          TableCalendar(
+            locale: 'th_TH',
+            focusedDay: _selectedDay,
+            firstDay: DateTime(_displayYear - 1),
+            lastDay: DateTime(_displayYear + 1),
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+            calendarStyle: const CalendarStyle(
+              cellMargin: EdgeInsets.all(5.0),
+              markerSize: 8.0,
+              cellAlignment: Alignment.center,
+              defaultTextStyle: TextStyle(fontSize: 14.0),
+              weekendTextStyle: TextStyle(fontSize: 14.0, color: Colors.red),
+              todayTextStyle: TextStyle(fontSize: 14.0, color: Colors.white),
+              selectedTextStyle: TextStyle(fontSize: 14.0, color: Colors.white),
+              outsideDaysVisible: false,
+              todayDecoration: BoxDecoration(
+                color: Colors.orangeAccent,
+                shape: BoxShape.circle,
+              ),
+              selectedDecoration: BoxDecoration(
+                color: Colors.green,
+                shape: BoxShape.circle,
+              ),
+            ),
+            headerStyle: const HeaderStyle(
+              titleCentered: true,
+              formatButtonVisible: false,
+              titleTextStyle:
+                  TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+              leftChevronIcon: Icon(Icons.chevron_left, size: 24.0),
+              rightChevronIcon: Icon(Icons.chevron_right, size: 24.0),
+            ),
+            eventLoader: (day) =>
+                eventsByDay[DateTime(day.year, day.month, day.day)] ?? [],
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = DateTime(
+                    selectedDay.year, selectedDay.month, selectedDay.day);
+              });
+            },
+          ),
+          const SizedBox(height: 10),
+          _buildScheduleTab(), // 💡 เรียกใช้ _buildScheduleTab โดยตรง
+        ],
+      ),
     );
   }
 
   Widget _buildStatusButton({
     required String text,
-    required bool isSelected,
+    required StatusFilter status,
     required VoidCallback onPressed,
   }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? Colors.blue : Colors.grey,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+    final bool isSelected = status == _selectedStatus;
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor:
+                isSelected ? Colors.green.shade300 : Colors.grey.shade300,
+            foregroundColor: Colors.black87,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              if (isSelected) ...{
+                const Icon(Icons.check, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+              },
+              Flexible(
+                child: Text(
+                  text,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      child: Text(text),
     );
   }
 
@@ -291,17 +417,31 @@ class _PlanAndHistoryState extends State<PlanPage> {
 
         final scheduleList = snapshot.data!;
 
-        // 💡 กรองข้อมูลตามวันปัจจุบัน (หรือวันทีเลือก)
+        // 💡 3. แก้ไขเงื่อนไขการกรองข้อมูลตามสถานะที่เลือก
         List<dynamic> filteredList = scheduleList.where((item) {
-          final isPending = item['progress_status'] == null;
-          final isNotAvailable = ['1', '2', '3', '5']
-              .contains(item['progress_status']?.toString());
           final isSelectedDay = isSameDay(
               DateTime.parse(item['date_start']).toLocal(), _selectedDay);
+          final progressStatus = item['progress_status'];
 
-          return isSelectedDay &&
-              ((_showNotAvailable && isNotAvailable) ||
-                  (_showPending && isPending));
+          if (!isSelectedDay) {
+            return false;
+          }
+
+          if (_selectedStatus == StatusFilter.all) {
+            // แสดงทั้งหมด
+            return true;
+          }
+          if (_selectedStatus == StatusFilter.pending) {
+            // สถานะ 'รอยืนยันการจอง' คือ progress_status เป็น null
+            return progressStatus == null;
+          }
+          if (_selectedStatus == StatusFilter.notAvailable) {
+            // สถานะ 'ผู้รับจ้างไม่ว่าง' คือ progress_status เป็น 1, 2, 3 หรือ 5
+            return progressStatus != null &&
+                ['1', '2', '3', '5'].contains(progressStatus.toString());
+          }
+
+          return false;
         }).toList();
 
         if (filteredList.isEmpty) {
@@ -309,17 +449,19 @@ class _PlanAndHistoryState extends State<PlanPage> {
         }
 
         String getStatusText(dynamic status) {
-          if (['1', '2', '3', '5'].contains(status?.toString())) {
+          if (status != null &&
+              ['1', '2', '3', '5'].contains(status.toString())) {
             return 'ผู้รับจ้างไม่ว่าง';
           }
           if (status == null) {
-            return 'รอผู้จ้างยืนยันการจอง';
+            return 'รอยืนยันการจอง';
           }
           return '';
         }
 
         Color getStatusColor(dynamic status) {
-          if (['1', '2', '3', '5'].contains(status?.toString())) {
+          if (status != null &&
+              ['1', '2', '3', '5'].contains(status.toString())) {
             return Colors.green;
           }
           if (status == null) {
@@ -328,129 +470,126 @@ class _PlanAndHistoryState extends State<PlanPage> {
           return Colors.transparent;
         }
 
-        return Column(
-          children: [
-            ListView.builder(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: filteredList.length,
-              itemBuilder: (context, index) {
-                final item = filteredList[index];
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          shrinkWrap: true, // 💡 สำคัญ: ต้องใส่ shrinkWrap: true
+          physics:
+              const NeverScrollableScrollPhysics(), // 💡 สำคัญ: ต้องใส่ NeverScrollableScrollPhysics()
+          itemCount: filteredList.length,
+          itemBuilder: (context, index) {
+            final item = filteredList[index];
 
-                return Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF3E0),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFFFFCC80),
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.orange.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+            return Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF3E0),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFFFFCC80),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orange.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
                   ),
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                ],
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                item['name_rs'] ?? '-',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
+                        Flexible(
+                          child: Text(
+                            item['name_rs'] ?? '-',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             ),
-                            Row(
-                              children: [
-                                Icon(Icons.circle,
-                                    color:
-                                        getStatusColor(item['progress_status']),
-                                    size: 10),
-                                const SizedBox(width: 4),
-                                Text(
-                                  getStatusText(item['progress_status']),
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color:
-                                        getStatusColor(item['progress_status']),
-                                  ),
-                                ),
-                              ],
-                            )
-                          ],
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                         ),
-                        const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(Icons.directions_car,
-                                size: 16, color: Colors.blueGrey),
+                            Icon(Icons.circle,
+                                color: getStatusColor(item['progress_status']),
+                                size: 10),
                             const SizedBox(width: 4),
                             Text(
-                              'รถ: ${item['name_vehicle'] ?? '-'}',
-                              style: const TextStyle(
-                                fontSize: 14,
+                              getStatusText(item['progress_status']),
+                              style: TextStyle(
+                                fontSize: 13,
                                 fontWeight: FontWeight.w500,
+                                color: getStatusColor(item['progress_status']),
                               ),
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on,
-                                size: 16, color: Colors.orange),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                item['name_farm'] ?? '-',
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.access_time, size: 16),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                _formatDateRange(
-                                    item['date_start'], item['date_end']),
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
+                        )
                       ],
                     ),
-                  ),
-                );
-              },
-            ),
-          ],
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.directions_car,
+                            size: 16, color: Colors.blueGrey),
+                        const SizedBox(width: 4),
+                        Text(
+                          'รถ: ${item['name_vehicle'] ?? '-'}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on,
+                            size: 16, color: Colors.orange),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            item['subdistrict'] != null
+                                ? '${item['subdistrict']} ${item['district']} ${item['province']}'
+                                : 'ไม่ระบุที่อยู่',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.access_time, size: 16),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            _formatDateRange(
+                                item['date_start'], item['date_end']),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );

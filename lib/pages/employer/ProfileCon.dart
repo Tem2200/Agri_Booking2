@@ -519,6 +519,19 @@ class _ProfileConState extends State<ProfileCon> {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  const Icon(Icons.description,
+                                      size: 20, color: Colors.redAccent),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(member['other'] ?? '-',
+                                        softWrap: true),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                                   const Icon(Icons.location_on,
                                       size: 20, color: Colors.orange),
                                   const SizedBox(width: 6),

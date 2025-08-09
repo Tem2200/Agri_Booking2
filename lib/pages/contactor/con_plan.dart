@@ -194,7 +194,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
                 case '4':
                   return 'เสร็จสิ้น';
                 default:
-                  return 'ยังไม่ระบุ';
+                  return 'รอผู้รับจ้างยืนยัน';
               }
             }
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -344,9 +345,9 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
     if (confirmed != true) return;
 
     // ✉️ ส่งอีเมลแจ้งยกเลิก ถ้าเลือกสถานะยกเลิก
-    if (newStatus == 0) {
-      await sendEmail(data!); // ต้องไม่ลืม await
-    }
+    // if (newStatus == 0) {
+    //   await sendEmail(data!); // ต้องไม่ลืม await
+    // }
 
     final url = Uri.parse(
         'http://projectnodejs.thammadalok.com/AGribooking/update_progress');
@@ -476,7 +477,17 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
           color: Colors.white,
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // ✅ กลับหน้าก่อนหน้า
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TabbarCar(
+                  value: 0,
+                  mid: data!['contractor_mid'],
+                  month: DateTime.now().month,
+                  year: DateTime.now().year,
+                ),
+              ),
+            );
           },
         ),
       ),
@@ -1068,7 +1079,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                         size: 18, color: Colors.orange),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'ราคา: ${data!['price']} ${data!['unit_price']}',
+                                      'ราคา: ${data!['price']} บาท/ ${data!['unit_price']}',
                                       style: const TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w500,

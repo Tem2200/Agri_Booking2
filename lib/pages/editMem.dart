@@ -24,6 +24,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
   late TextEditingController provinceController;
   late TextEditingController districtController;
   late TextEditingController subdistrictController;
+  late TextEditingController otherController;
 
   double? _selectedLat;
   double? _selectedLng;
@@ -56,6 +57,8 @@ class _EditMemberPageState extends State<EditMemberPage> {
         TextEditingController(text: widget.memberData['district'] ?? '');
     subdistrictController =
         TextEditingController(text: widget.memberData['subdistrict'] ?? '');
+    otherController =
+        TextEditingController(text: widget.memberData['other'] ?? '');
 
     _selectedLat = widget.memberData['latitude'];
     _selectedLng = widget.memberData['longitude'];
@@ -188,6 +191,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
       "detail_address": addressController.text,
       "latitude": _selectedLat,
       "longitude": _selectedLng,
+      "other": otherController.text,
       "type_member": widget.memberData['type_member'],
     };
 
@@ -453,6 +457,17 @@ class _EditMemberPageState extends State<EditMemberPage> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'กรุณากรอกรายละเอียดที่อยู่';
+                  }
+                  return null;
+                },
+              ),
+              buildInput(
+                otherController,
+                'ข้อมูลเพิ่มเติม (ถ้ามี)',
+                readOnly: false,
+                validator: (value) {
+                  if (value != null && value.isNotEmpty && value.length > 255) {
+                    return 'ข้อมูลเพิ่มเติมต้องไม่เกิน 255 ตัวอักษร';
                   }
                   return null;
                 },

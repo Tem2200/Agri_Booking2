@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 class TabbarCar extends StatefulWidget {
   final int value;
-  final dynamic mid; // รับข้อมูลจาก Login
+  final dynamic mid;
   final int month;
   final int year;
 
@@ -28,6 +28,8 @@ class _TabbarCarState extends State<TabbarCar> {
   late Widget currentPage;
   late int _displayMonth;
   late int _displayYear;
+  int _notificationCount = 0; // เพิ่มตัวแปรเก็บจำนวนการแจ้งเตือน
+  bool _isLoading = true; // เพิ่มตัวแปรสถานะการโหลด
 
   @override
   void initState() {
@@ -36,6 +38,7 @@ class _TabbarCarState extends State<TabbarCar> {
     _displayYear = widget.year;
     value = widget.value;
     switchPage(value);
+    fetchData(); // เรียกใช้ fetchData เมื่อหน้าจอถูกสร้าง
   }
 
   void switchPage(int index) {
@@ -49,10 +52,49 @@ class _TabbarCarState extends State<TabbarCar> {
         );
       } else if (index == 1) {
         currentPage = NontiPage(mid: widget.mid);
+        fetchData(); // เรียก fetchData อีกครั้งเมื่อเปลี่ยนไปหน้านี้
       } else if (index == 2) {
         currentPage = HomePage(mid: widget.mid);
       }
     });
+  }
+
+  // ฟังก์ชันที่คุณต้องการเพิ่ม
+  Future<void> fetchData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final scheduleList = await fetchSchedule(widget.mid);
+      setState(() {
+        _notificationCount = scheduleList.length;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching schedule: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<List<dynamic>> fetchSchedule(int mid) async {
+    final url = Uri.parse(
+        'http://projectnodejs.thammadalok.com/AGribooking/get_ConReservingNonti/$mid');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        if (response.body.isNotEmpty) {
+          return jsonDecode(response.body);
+        } else {
+          return [];
+        }
+      } else {
+        throw Exception('Failed to load schedule: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Connection error: $e');
+    }
   }
 
   @override
@@ -62,16 +104,22 @@ class _TabbarCarState extends State<TabbarCar> {
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
         currentIndex: value,
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
             label: 'ตารางงาน',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
+            icon: Badge(
+              // ใช้ Widget Badge หุ้มไอคอน
+              isLabelVisible:
+                  _notificationCount > 0, // แสดงเมื่อมีตัวเลขมากกว่า 0
+              label: Text('$_notificationCount'),
+              child: const Icon(Icons.chat),
+            ),
             label: 'แจ้งเตือน',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'ฉัน',
           ),

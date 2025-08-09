@@ -30,6 +30,8 @@ class _RegisterState extends State<Register> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController otherController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   String? imageUrl; // URL รูปภาพจาก imagebb
   double? latitude;
@@ -46,6 +48,8 @@ class _RegisterState extends State<Register> {
   String? selectedProvince;
   String? selectedAmphoe;
   String? selectedDistrict;
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   @override
   void initState() {
@@ -342,6 +346,39 @@ class _RegisterState extends State<Register> {
     }
   }
 
+  // bool validatePassword() {
+  //   String password = passwordController.text;
+  //   String confirmPassword = confirmPasswordController.text;
+
+  //   // 1. ตรวจสอบว่ารหัสผ่านตรงกัน
+  //   if (password != confirmPassword) {
+  //     // แสดงข้อความผิดพลาด เช่น 'รหัสผ่านไม่ตรงกัน'
+  //     return false;
+  //   }
+
+  //   // 2. ตรวจสอบความปลอดภัยของรหัสผ่าน (อย่างน้อย 8 ตัวอักษร)
+  //   if (password.length < 8) {
+  //     // แสดงข้อความผิดพลาด เช่น 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร'
+  //     return false;
+  //   }
+
+  //   // 3. ตรวจสอบว่ามีอักษรพิมพ์ใหญ่, พิมพ์เล็ก, ตัวเลข, และอักขระพิเศษ
+  //   RegExp uppercase = RegExp(r'[A-Z]');
+  //   RegExp lowercase = RegExp(r'[a-z]');
+  //   RegExp digit = RegExp(r'[0-9]');
+  //   RegExp specialChar = RegExp(r'[!@#\$&*~]');
+
+  //   if (!uppercase.hasMatch(password) ||
+  //       !lowercase.hasMatch(password) ||
+  //       !digit.hasMatch(password) ||
+  //       !specialChar.hasMatch(password)) {
+  //     // แสดงข้อความผิดพลาด เช่น 'รหัสผ่านต้องมีทั้งพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษ'
+  //     return false;
+  //   }
+
+  //   // ถ้าทุกอย่างถูกต้อง
+  //   return true;
+  // }
   // อย่าลืม import
 
   @override
@@ -462,9 +499,35 @@ class _RegisterState extends State<Register> {
                               'กรุณากรอก username *'),
                           _buildTextField(
                               "อีเมล *", emailController, 'กรุณากรอก email *'),
-                          _buildTextField("รหัสผ่าน *", passwordController,
-                              'กรุณากรอก password *',
-                              obscure: true),
+                          _buildTextField(
+                            "รหัสผ่าน *",
+                            passwordController,
+                            'กรุณากรอกรหัสผ่าน *',
+                            obscure: !_isPasswordVisible,
+                            onToggleVisibility: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+
+                            // เพิ่ม hintText นี้
+                            hintText:
+                                'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร มีทั้งอักษรพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษ !@#\$&*~',
+                            validator: (value) => validatePassword(),
+                          ),
+
+                          _buildTextField(
+                            "ยืนยันรหัสผ่าน *",
+                            confirmPasswordController,
+                            'กรุณายืนยันรหัสผ่าน *',
+                            obscure: !_isConfirmPasswordVisible,
+                            onToggleVisibility: () {
+                              setState(() {
+                                _isConfirmPasswordVisible =
+                                    !_isConfirmPasswordVisible;
+                              });
+                            },
+                          ),
                           _buildTextField("เบอร์โทร *", phoneController,
                               'กรุณากรอกเบอร์โทร *',
                               keyboardType: TextInputType.number,
@@ -664,6 +727,53 @@ class _RegisterState extends State<Register> {
     );
   }
 
+  String? validatePassword() {
+    String password = passwordController.text;
+    String confirmPassword = confirmPasswordController.text;
+
+    // 1. ตรวจสอบว่ามีข้อมูลหรือไม่
+    if (password.isEmpty) {
+      return 'กรุณากรอกรหัสผ่าน';
+    }
+
+    // 2. ตรวจสอบความยาว
+    if (password.length < 8) {
+      return 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';
+    }
+
+    // 3. ตรวจสอบอักษรพิมพ์ใหญ่
+    RegExp hasUppercase = RegExp(r'[A-Z]');
+    if (!hasUppercase.hasMatch(password)) {
+      return 'รหัสผ่านต้องมีอักษรพิมพ์ใหญ่อย่างน้อย 1 ตัว';
+    }
+
+    // 4. ตรวจสอบอักษรพิมพ์เล็ก
+    RegExp hasLowercase = RegExp(r'[a-z]');
+    if (!hasLowercase.hasMatch(password)) {
+      return 'รหัสผ่านต้องมีอักษรพิมพ์เล็กอย่างน้อย 1 ตัว';
+    }
+
+    // 5. ตรวจสอบตัวเลข
+    RegExp hasDigit = RegExp(r'[0-9]');
+    if (!hasDigit.hasMatch(password)) {
+      return 'รหัสผ่านต้องมีตัวเลขอย่างน้อย 1 ตัว';
+    }
+
+    // 6. ตรวจสอบอักขระพิเศษ
+    RegExp hasSpecialChar = RegExp(r'[!@#\$&*~]');
+    if (!hasSpecialChar.hasMatch(password)) {
+      return 'รหัสผ่านต้องมีอักขระพิเศษอย่างน้อย 1 ตัว เช่น !@#\$&*~';
+    }
+
+    // 7. ตรวจสอบรหัสผ่านที่ยืนยันว่าตรงกันหรือไม่
+    if (password != confirmPassword) {
+      return 'รหัสผ่านไม่ตรงกัน';
+    }
+
+    // ถ้าผ่านทุกเงื่อนไข ให้ส่งค่า null กลับไป
+    return null;
+  }
+
   Widget _buildTextField(
     String label,
     TextEditingController controller,
@@ -671,58 +781,84 @@ class _RegisterState extends State<Register> {
     bool obscure = false,
     TextInputType keyboardType = TextInputType.text,
     int? maxLength,
+    Function()? onToggleVisibility,
+    String? hintText,
+    String? Function(String?)? validator, // เพิ่มพารามิเตอร์นี้
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // เงาด้านในจำลอง
-          Container(
-            height: 60,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.white,
-                  offset: Offset(-2, -2),
-                  blurRadius: 4,
-                  spreadRadius: 1,
+          Stack(
+            children: [
+              Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.white,
+                      offset: Offset(-2, -2),
+                      blurRadius: 4,
+                      spreadRadius: 1,
+                    ),
+                    BoxShadow(
+                      color: Color.fromARGB(246, 69, 62, 62),
+                      offset: Offset(2, 2),
+                      blurRadius: 4,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
-                BoxShadow(
-                  color: Color.fromARGB(246, 69, 62, 62),
-                  offset: Offset(2, 2),
-                  blurRadius: 4,
-                  spreadRadius: 1,
+              ),
+              TextFormField(
+                controller: controller,
+                obscureText: obscure,
+                keyboardType: keyboardType,
+                maxLength: maxLength,
+                decoration: InputDecoration(
+                  labelText: label,
+                  labelStyle: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 16,
+                    fontFamily: 'Roboto',
+                  ),
+                  filled: true,
+                  fillColor: const Color.fromARGB(255, 255, 255, 255),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  counterText: '',
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  suffixIcon: onToggleVisibility != null
+                      ? IconButton(
+                          icon: Icon(
+                            obscure ? Icons.visibility_off : Icons.visibility,
+                            color: Colors.grey,
+                          ),
+                          onPressed: onToggleVisibility,
+                        )
+                      : null,
                 ),
-              ],
-            ),
-          ),
-          // TextFormField อยู่ชั้นบนสุด
-          TextFormField(
-            controller: controller,
-            obscureText: obscure,
-            keyboardType: keyboardType,
-            maxLength: maxLength,
-            decoration: InputDecoration(
-              labelText: label,
-              labelStyle: TextStyle(
-                color: Colors.grey[700],
-                fontSize: 16,
-                fontFamily: 'Roboto',
+                validator: validator, // ใช้ validator ที่ส่งเข้ามา
               ),
-              filled: true,
-              fillColor: const Color.fromARGB(255, 255, 255, 255),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              counterText: '',
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            ),
-            validator: (v) => v!.isEmpty ? validatorText : null,
+            ],
           ),
+          if (hintText != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 16.0),
+              child: Text(
+                hintText,
+                style: GoogleFonts.prompt(
+                  color: const Color.fromARGB(255, 0, 0, 0),
+                  fontSize: 12,
+                ),
+              ),
+            ),
         ],
       ),
     );

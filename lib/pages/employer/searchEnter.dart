@@ -31,6 +31,7 @@ class _SearchEnterState extends State<SearchEnter> {
   bool sortByDistance = false;
   TextEditingController _searchController = TextEditingController();
   String searchQuery = "";
+  String currentSortBy = "price";
 
   double? userLat;
   double? userLng;
@@ -48,17 +49,83 @@ class _SearchEnterState extends State<SearchEnter> {
     userLat = widget.payload["latitude"];
     userLng = widget.payload["longitude"];
     searchQuery = widget.payload["keyword"] ?? "";
-    // _searchController.addListener(() {
-    //   if (_debounce?.isActive ?? false) _debounce!.cancel();
-    //   _debounce = Timer(const Duration(milliseconds: 500), () {
-    //     setState(() {
-    //       searchQuery = _searchController.text;
-    //     });
-    //     _searchVehicle();
-    //   });
-    // });
+    _searchController.text = widget.payload["keyword"].toString();
+    fetchVehicles(searchKeyword: searchQuery);
+    //_searchVehicle();
+  }
 
-    _searchVehicle();
+  // void _toggleReviewOrder() {
+  //   setState(() {
+  //     sortByDistance = false;
+  //     // เรียงจากมากไปน้อย (desc) เป็นค่าเริ่มต้น
+  //     vehicles.sort((a, b) {
+  //       final aReview = double.tryParse(a['avg_review_point'] ?? '0') ?? 0.0;
+  //       final bReview = double.tryParse(b['avg_review_point'] ?? '0') ?? 0.0;
+  //       // สลับการเรียงลำดับ
+  //       return currentOrder == "asc"
+  //           ? aReview.compareTo(bReview)
+  //           : bReview.compareTo(aReview);
+  //     });
+  //     currentOrder = currentOrder == "asc" ? "desc" : "asc";
+  //   });
+  // }
+
+  // void _sortByPriceAscending() {
+  //   setState(() {
+  //     sortByDistance = false;
+  //     vehicles.sort((a, b) {
+  //       final aPrice = double.tryParse(a['price']?.toString() ?? '0') ?? 0.0;
+  //       final bPrice = double.tryParse(b['price']?.toString() ?? '0') ?? 0.0;
+  //       return aPrice.compareTo(bPrice);
+  //     });
+  //     currentOrder = "asc"; // กำหนดให้เป็น น้อย -> มาก
+  //   });
+  // }
+
+  // void _sortByPriceDescending() {
+  //   setState(() {
+  //     sortByDistance = false;
+  //     vehicles.sort((a, b) {
+  //       final aPrice = double.tryParse(a['price']?.toString() ?? '0') ?? 0.0;
+  //       final bPrice = double.tryParse(b['price']?.toString() ?? '0') ?? 0.0;
+  //       return bPrice.compareTo(aPrice);
+  //     });
+  //     currentOrder = "desc"; // กำหนดให้เป็น มาก -> น้อย
+  //   });
+  // }
+
+  void _togglePriceOrder() {
+    setState(() {
+      currentSortBy = "price"; // ตั้งค่าสถานะการเรียงปัจจุบันเป็นราคา
+      // สลับทิศทางการเรียง
+      currentOrder = currentOrder == "asc" ? "desc" : "asc";
+      // เรียงข้อมูลตามราคา
+      vehicles.sort((a, b) {
+        final aPrice = double.tryParse(a['price']?.toString() ?? '0') ?? 0.0;
+        final bPrice = double.tryParse(b['price']?.toString() ?? '0') ?? 0.0;
+        return currentOrder == "asc"
+            ? aPrice.compareTo(bPrice)
+            : bPrice.compareTo(aPrice);
+      });
+    });
+  }
+
+  void _toggleReviewOrder() {
+    setState(() {
+      currentSortBy = "review"; // ตั้งค่าสถานะการเรียงปัจจุบันเป็นรีวิว
+      // สลับทิศทางการเรียง
+      currentOrder = currentOrder == "asc" ? "desc" : "asc";
+      // เรียงข้อมูลตามคะแนนรีวิว
+      vehicles.sort((a, b) {
+        final aReview =
+            double.tryParse(a['avg_review_point']?.toString() ?? '0') ?? 0.0;
+        final bReview =
+            double.tryParse(b['avg_review_point']?.toString() ?? '0') ?? 0.0;
+        return currentOrder == "asc"
+            ? aReview.compareTo(bReview)
+            : bReview.compareTo(aReview);
+      });
+    });
   }
 
   Future<void> _searchVehicle() async {
@@ -100,6 +167,34 @@ class _SearchEnterState extends State<SearchEnter> {
     }
   }
 
+  Future<void> fetchVehicles({required String searchKeyword}) async {
+    setState(() => isLoading = true);
+    final url = Uri.parse(
+        'http://projectnodejs.thammadalok.com/AGribooking/search_vehicle');
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "keyword": searchKeyword,
+          "order": currentOrder,
+        }),
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          vehicles = data;
+          isLoading = false;
+        });
+      } else {
+        throw Exception('โหลดข้อมูลไม่สำเร็จ');
+      }
+    } catch (e) {
+      print("เกิดข้อผิดพลาด: $e");
+      setState(() => isLoading = false);
+    }
+  }
+
   Future<void> _calculateDistances() async {
     if (userLat == null || userLng == null) return;
 
@@ -137,13 +232,13 @@ class _SearchEnterState extends State<SearchEnter> {
     setState(() {});
   }
 
-  void _togglePriceOrder() {
-    setState(() {
-      sortByDistance = false;
-      currentOrder = currentOrder == "asc" ? "desc" : "asc";
-    });
-    _searchVehicle();
-  }
+  // void _togglePriceOrder() {
+  //   setState(() {
+  //     sortByDistance = false;
+  //     currentOrder = currentOrder == "asc" ? "desc" : "asc";
+  //   });
+  //   _searchVehicle();
+  // }
 
   void _sortByDistance() {
     setState(() {
@@ -219,17 +314,43 @@ class _SearchEnterState extends State<SearchEnter> {
                   child: Row(
                     children: [
                       // ช่องกรอก TextField
+                      // Expanded(
+                      //   flex: 3,
+                      //   child: TextField(
+                      //     controller: _searchController,
+                      //     decoration: InputDecoration(
+                      //       hintText: 'ค้นหาชื่อรถหรือผู้รับจ้าง',
+                      //       prefixIcon: Icon(Icons.search),
+                      //       border: OutlineInputBorder(
+                      //         borderRadius: BorderRadius.circular(12),
+                      //       ),
+                      //     ),
+                      //     onSubmitted: (value) {
+                      //       FocusScope.of(context).unfocus(); // ปิดแป้นพิมพ์
+                      //       setState(() {
+                      //         searchQuery = _searchController.text;
+                      //       });
+                      //       _searchVehicle();
+                      //     },
+                      //   ),
+                      // ),
                       Expanded(
-                        flex: 3,
                         child: TextField(
                           controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText: 'ค้นหาชื่อรถหรือผู้รับจ้าง',
+                          decoration: const InputDecoration(
+                            labelText: 'ค้นหารถ เช่น ชื่อรถ หรือจังหวัด',
+                            border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
                           ),
+                          onSubmitted: (value) {
+                            final keyword = _searchController.text.trim();
+                            if ((widget.payload['keyword']
+                                    .toString()
+                                    .isNotEmpty) ||
+                                searchQuery.isNotEmpty) {
+                              fetchVehicles(searchKeyword: keyword);
+                            }
+                          },
                         ),
                       ),
 
@@ -249,42 +370,16 @@ class _SearchEnterState extends State<SearchEnter> {
                           setState(() {
                             searchQuery = _searchController.text;
                           });
-                          _searchVehicle();
+                          fetchVehicles(searchKeyword: searchQuery);
                         },
                       ),
                     ],
                   ),
                 ),
-                // Padding(
-                //   padding: const EdgeInsets.all(16),
-                //   child: TextField(
-                //     controller: _searchController,
-                //     decoration: InputDecoration(
-                //       hintText: 'ค้นหาชื่อรถหรือผู้รับจ้าง',
-                //       prefixIcon: Icon(Icons.search),
-                //       border: OutlineInputBorder(
-                //         borderRadius: BorderRadius.circular(12),
-                //       ),
-                //     ),
-                //   ),
+                // Text(
+                //   'ค้นหาด้วย: $searchQuery',
+                //   style: const TextStyle(fontSize: 16, color: Colors.grey),
                 // ),
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(horizontal: 16),
-                //   child: SizedBox(
-                //     width: double.infinity,
-                //     child: ElevatedButton.icon(
-                //       icon: const Icon(Icons.search),
-                //       label: const Text('ค้นหา'),
-                //       onPressed: () {
-                //         setState(() {
-                //           searchQuery = _searchController.text;
-                //         });
-                //         _searchVehicle();
-                //       },
-                //     ),
-                //   ),
-                // ),
-
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Align(
@@ -293,68 +388,63 @@ class _SearchEnterState extends State<SearchEnter> {
                       spacing: 12,
                       runSpacing: 12,
                       children: [
+                        // 💡 ปุ่มเรียงราคา: มีแค่ปุ่มเดียวและสลับสถานะ
                         ElevatedButton.icon(
                           onPressed: _togglePriceOrder,
                           icon: Icon(
-                            currentOrder == "desc"
+                            currentSortBy == "price" && currentOrder == "desc"
                                 ? Icons.arrow_upward
                                 : Icons.arrow_downward,
                           ),
                           label: Text(
-                            currentOrder == "desc"
+                            currentSortBy == "price" && currentOrder == "desc"
                                 ? "ราคา: มาก → น้อย"
                                 : "ราคา: น้อย → มาก",
                           ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                currentSortBy == "price" ? Colors.green : null,
+                            foregroundColor:
+                                currentSortBy == "price" ? Colors.white : null,
+                          ),
                         ),
-                        // เพิ่มปุ่มอื่นในนี้ได้ตามต้องการ
+
+                        // 💡 ปุ่มเรียงรีวิว: สลับสถานะเหมือนกัน
+                        ElevatedButton.icon(
+                          onPressed: _toggleReviewOrder,
+                          icon: Icon(
+                            currentSortBy == "review" && currentOrder == "desc"
+                                ? Icons.arrow_upward
+                                : Icons.arrow_downward,
+                          ),
+                          label: Text(
+                            currentSortBy == "review" && currentOrder == "desc"
+                                ? "รีวิว: มาก → น้อย"
+                                : "รีวิว: น้อย → มาก",
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                currentSortBy == "review" ? Colors.green : null,
+                            foregroundColor:
+                                currentSortBy == "review" ? Colors.white : null,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
-
-                //เอาไว้ก่อนปุ่มระยะทางกับราคา
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.center,
-                //   children: [
-                //     OutlinedButton(
-                //       onPressed: _sortByDistance,
-                //       style: OutlinedButton.styleFrom(
-                //         shape: RoundedRectangleBorder(
-                //           borderRadius: BorderRadius.circular(20),
-                //         ),
-                //         side: const BorderSide(color: Colors.orange),
-                //         padding: const EdgeInsets.symmetric(
-                //             horizontal: 16, vertical: 12),
-                //       ),
-                //       child: const Row(
-                //         children: [
-                //           Text("ระยะทาง",
-                //               style: TextStyle(color: Colors.black)),
-                //           SizedBox(width: 4),
-                //           Icon(Icons.swap_vert, color: Colors.black, size: 18),
-                //         ],
-                //       ),
-                //     ),
-                //     const SizedBox(width: 12),
-                //     OutlinedButton(
-                //       onPressed: _togglePriceOrder,
-                //       style: OutlinedButton.styleFrom(
-                //         shape: RoundedRectangleBorder(
-                //           borderRadius: BorderRadius.circular(20),
-                //         ),
-                //         side: const BorderSide(color: Colors.orange),
-                //         padding: const EdgeInsets.symmetric(
-                //             horizontal: 16, vertical: 12),
-                //       ),
-                //       child: const Row(
-                //         children: [
-                //           Text("ราคา", style: TextStyle(color: Colors.black)),
-                //           SizedBox(width: 4),
-                //           Icon(Icons.swap_vert, color: Colors.black, size: 18),
-                //         ],
-                //       ),
-                //     ),
-                //   ],
+                // ElevatedButton.icon(
+                //   onPressed: _togglePriceOrder,
+                //   icon: Icon(
+                //     currentOrder == "desc"
+                //         ? Icons.arrow_upward
+                //         : Icons.arrow_downward,
+                //   ),
+                //   label: Text(
+                //     currentOrder == "desc"
+                //         ? "ราคา: มาก → น้อย"
+                //         : "ราคา: น้อย → มาก",
+                //   ),
                 // ),
 
                 Expanded(
@@ -364,60 +454,6 @@ class _SearchEnterState extends State<SearchEnter> {
                           itemCount: vehicles.length,
                           itemBuilder: (context, index) {
                             final v = vehicles[index];
-                            // return Card(
-                            //   margin: const EdgeInsets.symmetric(
-                            //       vertical: 8, horizontal: 16),
-                            //   child: ListTile(
-                            //     leading: v['image'] != null
-                            //         ? Image.network(
-                            //             v['image'],
-                            //             width: 60,
-                            //             height: 60,
-                            //             fit: BoxFit.cover,
-                            //             errorBuilder: (_, __, ___) =>
-                            //                 const Icon(
-                            //                     Icons.image_not_supported),
-                            //           )
-                            //         : const Icon(Icons.agriculture, size: 50),
-                            //     title: Text(v['name_vehicle'] ?? '-'),
-                            //     subtitle: Column(
-                            //       crossAxisAlignment: CrossAxisAlignment.start,
-                            //       children: [
-                            //         Text(
-                            //             'ผู้รับจ้าง: ${v['username_contractor'] ?? '-'}'),
-                            //         Text(
-                            //             'คะแนนเฉลี่ยรีวิว: ${v['avg_review_point'] ?? '-'}'),
-                            //         Text('ราคา: ${v['price'] ?? '-'} บาท'),
-                            //         if (v['distance_text'] != null)
-                            //           Text('ระยะทาง: ${v['distance_text']}'),
-                            //         const SizedBox(height: 8),
-                            //         OutlinedButton(
-                            //           onPressed: () {
-                            //             Navigator.push(
-                            //               context,
-                            //               MaterialPageRoute(
-                            //                 builder: (context) => DetailvehcEmp(
-                            //                   vid: v['vid'] ?? 0,
-                            //                   mid: widget.mid,
-                            //                   fid: (widget.payload['farm'] !=
-                            //                               null &&
-                            //                           widget.payload['farm']
-                            //                                   ['fid'] !=
-                            //                               null)
-                            //                       ? widget.payload['farm']
-                            //                           ['fid'] as int
-                            //                       : 0,
-                            //                   farm: widget.payload["farm"],
-                            //                 ),
-                            //               ),
-                            //             );
-                            //           },
-                            //           child: const Text('รายละเอียดเพิ่มเติม'),
-                            //         ),
-                            //       ],
-                            //     ),
-                            //   ),
-                            // );
 
                             return Padding(
                               padding: const EdgeInsets.fromLTRB(15, 0, 15, 25),
