@@ -108,18 +108,6 @@ class _HomeGeState extends State<HomeGe> {
             ],
           ),
         ),
-        // actions: [
-        //   Text('เข้าสู่ระบบ'),
-        //   IconButton(
-        //     icon: const Icon(Icons.login),
-        //     onPressed: () {
-        //       Navigator.push(
-        //         context,
-        //         MaterialPageRoute(builder: (_) => const Login()),
-        //       );
-        //     },
-        //   ),
-        // ],
       ),
       body: Column(
         children: [
