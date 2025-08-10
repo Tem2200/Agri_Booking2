@@ -6,8 +6,6 @@ import 'package:intl/intl.dart';
 
 // import หน้า EditVehicle และ Home (แก้ path ตามจริงของคุณ)
 import 'editvehicle.dart';
-import 'home.dart';
-import 'con_plan.dart'; // แก้เป็น con_plan.dart ตามที่คุณอัปเดต
 
 class Detailvehicle extends StatefulWidget {
   final int vid;
