@@ -1,18 +1,13 @@
-import 'dart:convert';
-
-import 'package:agri_booking2/firebase_options.dart';
 import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
-import 'package:agri_booking2/pages/send_email.dart';
 import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:agri_booking2/pages/login.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
-import 'package:agri_booking2/pages/employer/DetailReserving.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 // Future<void> _backgroundMessaginf(RemoteMessage message) async {
@@ -64,6 +59,30 @@ void main() async {
 
   runApp(MyApp(home: startPage));
 }
+
+class MyApp extends StatelessWidget {
+  final Widget home;
+
+  const MyApp({super.key, required this.home});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'Agri Booking',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+
+          // ⬅️ ใช้ฟอนต์ Mitr ทั้งแอป
+          textTheme: GoogleFonts.mitrTextTheme(),
+        ),
+        navigatorKey: navigatorKey,
+        home: TabbarGenaralUser(value: 0)); //const SendEmailPage());
+    //
+  }
+}
+
+
 
 // Future<void> initializeNotification(
 //     FlutterLocalNotificationsPlugin plugin) async {
@@ -121,22 +140,3 @@ void main() async {
 //     payload: jsonEncode(message.data),
 //   );
 // }
-
-class MyApp extends StatelessWidget {
-  final Widget home;
-
-  const MyApp({super.key, required this.home});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'Agri Booking',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        navigatorKey: navigatorKey,
-        home: TabbarGenaralUser(value: 0)); //const SendEmailPage());
-    //
-  }
-}

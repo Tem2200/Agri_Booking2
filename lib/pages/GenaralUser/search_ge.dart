@@ -267,13 +267,13 @@ class _SearchGeState extends State<SearchGe> {
                                     child: Image.network(
                                       vehicle['image'] ?? '',
                                       width: 120,
-                                      height: 180,
+                                      height: 140,
                                       fit: BoxFit.cover,
                                       errorBuilder:
                                           (context, error, stackTrace) =>
                                               const SizedBox(
                                         width: 100,
-                                        height: 180,
+                                        height: 140,
                                         child: Icon(Icons.broken_image,
                                             size: 48, color: Colors.grey),
                                       ),
@@ -293,6 +293,7 @@ class _SearchGeState extends State<SearchGe> {
                                             fontWeight: FontWeight.bold,
                                             color: Color(0xFF333333),
                                           ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                         const SizedBox(height: 4),
                                         Row(
@@ -306,6 +307,7 @@ class _SearchGeState extends State<SearchGe> {
                                                 'ผู้รับจ้าง: ${vehicle['username']}',
                                                 style: const TextStyle(
                                                     fontSize: 15),
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
                                           ],
@@ -316,12 +318,19 @@ class _SearchGeState extends State<SearchGe> {
                                             const Icon(Icons.attach_money,
                                                 size: 18, color: Colors.green),
                                             const SizedBox(width: 6),
-                                            Text(
-                                              '${vehicle['price']} บาท/${vehicle['unit_price']}',
-                                              style: const TextStyle(
-                                                fontSize: 15,
-                                                color: Colors.green,
-                                                fontWeight: FontWeight.w600,
+                                            Expanded(
+                                              child: Text(
+                                                '${vehicle['price']} บาท/${vehicle['unit_price']}',
+                                                style: const TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.green,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                overflow: TextOverflow
+                                                    .ellipsis, // ตัดเป็น ...
+                                                maxLines:
+                                                    1, // ให้แสดงแค่บรรทัดเดียว
+                                                softWrap: false, // ไม่ตัดบรรทัด
                                               ),
                                             ),
                                           ],
@@ -335,7 +344,9 @@ class _SearchGeState extends State<SearchGe> {
                                             const SizedBox(width: 6),
                                             Expanded(
                                               child: Text(
-                                                '${vehicle['subdistrict']} ,${vehicle['district']} ,${vehicle['province']}',
+                                                '${vehicle['province']},${vehicle['district']},${vehicle['subdistrict']}',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(
                                                     fontSize: 15),
                                               ),

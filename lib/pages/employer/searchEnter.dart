@@ -483,7 +483,7 @@ class _SearchEnterState extends State<SearchEnter> {
                                           ? CachedNetworkImage(
                                               imageUrl: v['image'],
                                               width: 120,
-                                              height: 180,
+                                              height: 200,
                                               fit: BoxFit.cover,
                                               placeholder: (context, url) =>
                                                   const Center(
@@ -502,7 +502,7 @@ class _SearchEnterState extends State<SearchEnter> {
                                             )
                                           : Container(
                                               width: 120,
-                                              height: 180,
+                                              height: 200,
                                               color: Colors.grey[200],
                                               alignment: Alignment.center,
                                               child: const Icon(
@@ -592,8 +592,10 @@ class _SearchEnterState extends State<SearchEnter> {
                                               const SizedBox(width: 6),
                                               Expanded(
                                                 child: Text(
-                                                  '${v['subdistrict']} ,${v['district']} ,${v['province']}',
+                                                  '${v['province']},${v['district']},${v['subdistrict']}',
                                                   maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: const TextStyle(
                                                       fontSize: 15),
                                                 ),

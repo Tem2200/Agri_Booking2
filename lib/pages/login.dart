@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:agri_booking2/pages/contactor/home.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
@@ -7,7 +6,7 @@ import 'package:agri_booking2/pages/employer/homeEmp.dart';
 import 'package:agri_booking2/pages/register.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 class Login extends StatefulWidget {
@@ -269,7 +268,7 @@ class _LoginState extends State<Login> {
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                             color: Color.fromARGB(255, 13, 164, 3), // สีเขียวสด
-                            fontFamily: 'Roboto',
+
                             shadows: [
                               Shadow(
                                 offset: Offset(1.5, 1.5),
@@ -303,36 +302,33 @@ class _LoginState extends State<Login> {
                           child: ElevatedButton(
                             style: ButtonStyle(
                               backgroundColor:
-                                  WidgetStateProperty.resolveWith<Color>(
+                                  MaterialStateProperty.resolveWith<Color>(
                                       (states) {
                                 if (states.contains(MaterialState.disabled)) {
-                                  return const Color.fromARGB(255, 7, 172,
-                                      15); // สีเขียวอ่อนเวลาปุ่ม disable
+                                  return const Color.fromARGB(255, 7, 172, 15);
                                 }
-                                return const Color.fromARGB(
-                                    255, 7, 172, 15); // สีเขียวปกติ
+                                return const Color.fromARGB(255, 7, 172, 15);
                               }),
                               foregroundColor:
-                                  WidgetStateProperty.all(Colors.white),
-                              elevation: WidgetStateProperty.all(10),
-                              shadowColor: WidgetStateProperty.all(
+                                  MaterialStateProperty.all(Colors.white),
+                              elevation: MaterialStateProperty.all(10),
+                              shadowColor: MaterialStateProperty.all(
                                   const Color.fromARGB(255, 7, 172, 15)),
-                              padding: WidgetStateProperty.all(
+                              padding: MaterialStateProperty.all(
                                   const EdgeInsets.symmetric(vertical: 14)),
-                              shape: WidgetStateProperty.all(
+                              shape: MaterialStateProperty.all(
                                 RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8)),
                               ),
-                              textStyle: WidgetStateProperty.all(
-                                const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Roboto',
-                                ),
-                              ),
                             ),
                             onPressed: isFormValid ? login : null,
-                            child: const Text('เข้าสู่ระบบ'),
+                            child: const Text(
+                              'เข้าสู่ระบบ',
+                              style: TextStyle(
+                                fontSize: 18, // ขนาดใหญ่ขึ้น
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
 
@@ -354,7 +350,6 @@ class _LoginState extends State<Login> {
                               fontWeight: FontWeight.w600,
                               fontStyle: FontStyle.italic,
                               color: Colors.black87,
-                              fontFamily: 'Roboto',
                             ),
                           ),
                         ),
@@ -366,12 +361,27 @@ class _LoginState extends State<Login> {
                   if (message.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 16),
-                      child: Text(
-                        message,
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 16,
-                          fontFamily: 'Roboto',
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Text(
+                          message,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),
@@ -417,11 +427,10 @@ class _LoginState extends State<Login> {
           labelStyle: TextStyle(
             color: Colors.grey[700],
             fontSize: 16,
-            fontFamily: 'Roboto',
           ),
           floatingLabelStyle: const TextStyle(
             fontSize: 18,
-            height: 50, // ทำให้ลอยสูงขึ้น
+            height: 60, // ทำให้ลอยสูงขึ้น
             // color: Colors.green,
           ),
           filled: true,

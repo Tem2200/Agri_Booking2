@@ -417,7 +417,7 @@ class _SearchEmpState extends State<SearchEmp> {
                                                 ? CachedNetworkImage(
                                                     imageUrl: v['image'],
                                                     width: 120,
-                                                    height: 180,
+                                                    height: 220,
                                                     fit: BoxFit.cover,
                                                     placeholder:
                                                         (context, url) =>
@@ -438,7 +438,7 @@ class _SearchEmpState extends State<SearchEmp> {
                                                   )
                                                 : Container(
                                                     width: 120,
-                                                    height: 180,
+                                                    height: 220,
                                                     color: Colors.grey[200],
                                                     alignment: Alignment.center,
                                                     child: const Icon(
@@ -500,17 +500,22 @@ class _SearchEmpState extends State<SearchEmp> {
                                                         size: 18,
                                                         color: Colors.green),
                                                     const SizedBox(width: 6),
-                                                    Text(
-                                                      '${v['price']} บาท / ${v['unit_price']}',
-                                                      style: const TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.green,
+                                                    Expanded(
+                                                      child: Text(
+                                                        '${v['price']} บาท/${v['unit_price']}',
+                                                        style: const TextStyle(
+                                                          fontSize: 15,
+                                                          color: Colors.green,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis, // ตัดเป็น ...
+                                                        maxLines:
+                                                            1, // ให้แสดงแค่บรรทัดเดียว
+                                                        softWrap:
+                                                            false, // ไม่ตัดบรรทัด
                                                       ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 1,
                                                     ),
                                                   ],
                                                 ),
@@ -524,16 +529,21 @@ class _SearchEmpState extends State<SearchEmp> {
                                                         size: 18,
                                                         color: Colors.amber),
                                                     const SizedBox(width: 6),
-                                                    Text(
-                                                      'คะแนนเฉลี่ยรีวิว: ${v['avg_review_point'] ?? '-'}',
-                                                      style: const TextStyle(
-                                                          fontSize: 14),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 1,
+                                                    Expanded(
+                                                      // ครอบเพื่อจำกัดพื้นที่
+                                                      child: Text(
+                                                        'คะแนนเฉลี่ย: ${v['avg_review_point'] ?? '-'}',
+                                                        style: const TextStyle(
+                                                            fontSize: 14),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 1,
+                                                        softWrap: false,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
+
                                                 const SizedBox(height: 4),
                                                 Row(
                                                   children: [
@@ -545,8 +555,10 @@ class _SearchEmpState extends State<SearchEmp> {
                                                     const SizedBox(width: 6),
                                                     Expanded(
                                                       child: Text(
-                                                        '${v['subdistrict']} ,${v['district']} ,${v['province']}',
+                                                        '${v['province']},${v['district']},${v['subdistrict']}',
                                                         maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                         style: const TextStyle(
                                                             fontSize: 15),
                                                       ),

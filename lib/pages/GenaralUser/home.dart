@@ -243,13 +243,13 @@ class _HomeGeState extends State<HomeGe> {
                                       child: Image.network(
                                         vehicle['image'] ?? '',
                                         width: 120,
-                                        height: 180,
+                                        height: 140,
                                         fit: BoxFit.cover,
                                         errorBuilder:
                                             (context, error, stackTrace) =>
                                                 const SizedBox(
                                           width: 120,
-                                          height: 180,
+                                          height: 140,
                                           child: Icon(
                                             Icons.broken_image,
                                             size: 48,
@@ -272,6 +272,7 @@ class _HomeGeState extends State<HomeGe> {
                                               fontWeight: FontWeight.bold,
                                               color: Color(0xFF333333),
                                             ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                           Row(
                                             children: [
@@ -284,6 +285,8 @@ class _HomeGeState extends State<HomeGe> {
                                                   'ผู้รับจ้าง: ${vehicle['username_contractor']}',
                                                   style: const TextStyle(
                                                       fontSize: 15),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               ),
                                             ],
@@ -295,12 +298,20 @@ class _HomeGeState extends State<HomeGe> {
                                                   size: 18,
                                                   color: Colors.green),
                                               const SizedBox(width: 6),
-                                              Text(
-                                                '${vehicle['price']} บาท/${vehicle['unit_price']}',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  color: Colors.green,
-                                                  fontWeight: FontWeight.w600,
+                                              Expanded(
+                                                child: Text(
+                                                  '${vehicle['price']} บาท/${vehicle['unit_price']}',
+                                                  style: const TextStyle(
+                                                    fontSize: 15,
+                                                    color: Colors.green,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                  overflow: TextOverflow
+                                                      .ellipsis, // ตัดเป็น ...
+                                                  maxLines:
+                                                      1, // ให้แสดงแค่บรรทัดเดียว
+                                                  softWrap:
+                                                      false, // ไม่ตัดบรรทัด
                                                 ),
                                               ),
                                             ],
@@ -313,7 +324,10 @@ class _HomeGeState extends State<HomeGe> {
                                               const SizedBox(width: 6),
                                               Expanded(
                                                 child: Text(
-                                                  '${vehicle['subdistrict']} ,${vehicle['district']} ,${vehicle['province']}',
+                                                  '${vehicle['province']},${vehicle['district']},${vehicle['subdistrict']}',
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: const TextStyle(
                                                       fontSize: 15),
                                                 ),

@@ -1028,12 +1028,19 @@ class _HomePageState extends State<HomePage> {
                                     const Icon(Icons.attach_money,
                                         size: 18, color: Colors.green),
                                     const SizedBox(width: 6),
-                                    Text(
-                                      '${vehicle['price']} บาท / ${vehicle['unit_price']}',
-                                      style: const TextStyle(
-                                          fontSize: 14,
+                                    Expanded(
+                                      child: Text(
+                                        '${vehicle['price']} บาท/${vehicle['unit_price']}',
+                                        style: const TextStyle(
+                                          fontSize: 15,
                                           color: Colors.green,
-                                          fontWeight: FontWeight.bold),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        overflow: TextOverflow
+                                            .ellipsis, // ตัดเป็น ...
+                                        maxLines: 1, // ให้แสดงแค่บรรทัดเดียว
+                                        softWrap: false, // ไม่ตัดบรรทัด
+                                      ),
                                     ),
                                   ],
                                 ),

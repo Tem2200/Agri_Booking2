@@ -2,10 +2,7 @@ import 'dart:convert';
 
 import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
-import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/addFarm.dart';
-import 'package:agri_booking2/pages/employer/addFarm2.dart';
-import 'package:agri_booking2/pages/login.dart';
 import 'package:agri_booking2/pages/map_register.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:agri_booking2/pages/assets/location_data.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -823,7 +821,6 @@ class _RegisterState extends State<Register> {
                   labelStyle: TextStyle(
                     color: Colors.grey[700],
                     fontSize: 16,
-                    fontFamily: 'Roboto',
                   ),
                   filled: true,
                   fillColor: const Color.fromARGB(255, 255, 255, 255),

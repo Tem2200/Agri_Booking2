@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 // import 'package:shared_preferences/shared_preferences.dart'; // ไม่ใช้ SharedPreferences แล้ว
+import 'package:google_fonts/google_fonts.dart';
 
 class MapEdit extends StatefulWidget {
   // เพิ่มตัวแปรสำหรับรับค่าละติจูดและลองจิจูดเริ่มต้น

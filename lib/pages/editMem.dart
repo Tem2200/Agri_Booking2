@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart'; // Assuming you have a file with location data
+import 'package:google_fonts/google_fonts.dart';
 
 class EditMemberPage extends StatefulWidget {
   final Map<String, dynamic> memberData;
@@ -527,8 +528,18 @@ class _EditMemberPageState extends State<EditMemberPage> {
       child: TextFormField(
         controller: controller,
         readOnly: readOnly,
+        style: GoogleFonts.mitr(
+          // ✅ ฟอนต์ตัวอักษรที่พิมพ์
+          fontSize: 16,
+          color: Colors.black,
+        ),
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: GoogleFonts.mitr(
+            // ✅ ฟอนต์ของ label
+            fontSize: 14,
+            color: Colors.grey[800],
+          ),
           filled: true,
           fillColor: const Color(0xFFE0E0E0),
           border: const OutlineInputBorder(borderSide: BorderSide.none),
