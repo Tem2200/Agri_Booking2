@@ -28,8 +28,8 @@ class _TabbarCarState extends State<TabbarCar> {
   late Widget currentPage;
   late int _displayMonth;
   late int _displayYear;
-  int _notificationCount = 0; // เพิ่มตัวแปรเก็บจำนวนการแจ้งเตือน
-  bool _isLoading = true; // เพิ่มตัวแปรสถานะการโหลด
+  int _notificationCount = 0;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -38,7 +38,7 @@ class _TabbarCarState extends State<TabbarCar> {
     _displayYear = widget.year;
     value = widget.value;
     switchPage(value);
-    fetchData(); // เรียกใช้ fetchData เมื่อหน้าจอถูกสร้าง
+    fetchData(); // เรียก fetchData ใน initState
   }
 
   void switchPage(int index) {
@@ -51,34 +51,49 @@ class _TabbarCarState extends State<TabbarCar> {
           year: widget.year,
         );
       } else if (index == 1) {
+        fetchData();
         currentPage = NontiPage(mid: widget.mid);
-        fetchData(); // เรียก fetchData อีกครั้งเมื่อเปลี่ยนไปหน้านี้
+        // เรียก fetchData อีกครั้งเมื่อเปลี่ยนไปหน้านี้
       } else if (index == 2) {
         currentPage = HomePage(mid: widget.mid);
       }
     });
   }
 
-  // ฟังก์ชันที่คุณต้องการเพิ่ม
+  // 💡 แก้ไข fetchData() ให้เป็น Async และรอผลลัพธ์
   Future<void> fetchData() async {
+    // 💡 ตั้งค่า isLoading เป็น true ก่อนเริ่มโหลด
     setState(() {
       _isLoading = true;
     });
+
     try {
-      final scheduleList = await fetchSchedule(widget.mid);
+      // 💡 ใช้ await เพื่อรอผลลัพธ์จาก fetchSchedule
+      final schedules = await fetchSchedule(widget.mid);
+
+      // 💡 กรองเฉพาะรายการที่ยังไม่ได้ยืนยัน
+      final nonConfirmedSchedules = schedules.where((item) {
+        // ตรวจสอบค่า progress_status ที่เป็น 0 หรือ null (รอการยืนยัน)
+        return item['progress_status'] == null ||
+            item['progress_status'] == '0';
+      }).toList();
+
+      // 💡 อัปเดต state เมื่อข้อมูลพร้อมใช้งาน
       setState(() {
-        _notificationCount = scheduleList.length;
+        _notificationCount = nonConfirmedSchedules.length;
         _isLoading = false;
       });
     } catch (e) {
       print('Error fetching schedule: $e');
       setState(() {
         _isLoading = false;
+        _notificationCount = 0; // หากเกิดข้อผิดพลาด ให้จำนวนแจ้งเตือนเป็น 0
       });
     }
   }
 
   Future<List<dynamic>> fetchSchedule(int mid) async {
+    print("Fetching schedule for mid: $mid");
     final url = Uri.parse(
         'http://projectnodejs.thammadalok.com/AGribooking/get_ConReservingNonti/$mid');
     try {
@@ -112,8 +127,7 @@ class _TabbarCarState extends State<TabbarCar> {
           BottomNavigationBarItem(
             icon: Badge(
               // ใช้ Widget Badge หุ้มไอคอน
-              isLabelVisible:
-                  _notificationCount > 0, // แสดงเมื่อมีตัวเลขมากกว่า 0
+              isLabelVisible: _notificationCount > 0 && !_isLoading,
               label: Text('$_notificationCount'),
               child: const Icon(Icons.chat),
             ),

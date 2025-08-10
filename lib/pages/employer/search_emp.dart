@@ -245,7 +245,7 @@ class _SearchEmpState extends State<SearchEmp> {
         child: Column(
           children: [
             const Text(
-              'เลือกที่นาที่ต้องการค้นหารถรับจ้าง',
+              'เลือกที่นาเพื่อหารถที่อยู่ใกล้ที่สุด',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
@@ -371,6 +371,21 @@ class _SearchEmpState extends State<SearchEmp> {
                                     padding:
                                         const EdgeInsets.fromLTRB(0, 0, 0, 25),
                                     child: Container(
+                                      // decoration: BoxDecoration(
+                                      //   color: Colors.orange[50],
+                                      //   border:
+                                      //       Border.all(color: Colors.orange),
+                                      //   borderRadius: BorderRadius.circular(12),
+                                      //   boxShadow: [
+                                      //     BoxShadow(
+                                      //       color:
+                                      //           Colors.orange.withOpacity(0.3),
+                                      //       spreadRadius: 1,
+                                      //       blurRadius: 8,
+                                      //       offset: const Offset(0, 4),
+                                      //     ),
+                                      //   ],
+                                      // ),
                                       decoration: BoxDecoration(
                                         color: Colors.orange[50],
                                         border:

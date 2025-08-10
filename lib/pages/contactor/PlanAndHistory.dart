@@ -101,15 +101,37 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
     }
   }
 
+  // void _groupEventsByDay(List<dynamic> scheduleList) {
+  //   eventsByDay.clear();
+  //   for (var item in scheduleList) {
+  //     final dateStart = DateTime.parse(item['date_start']).toLocal();
+  //     final dateKey = DateTime(dateStart.year, dateStart.month, dateStart.day);
+  //     if (eventsByDay[dateKey] == null) {
+  //       eventsByDay[dateKey] = [item];
+  //     } else {
+  //       eventsByDay[dateKey]!.add(item);
+  //     }
+  //   }
+  //   setState(() {});
+  // }
+
   void _groupEventsByDay(List<dynamic> scheduleList) {
     eventsByDay.clear();
     for (var item in scheduleList) {
       final dateStart = DateTime.parse(item['date_start']).toLocal();
-      final dateKey = DateTime(dateStart.year, dateStart.month, dateStart.day);
-      if (eventsByDay[dateKey] == null) {
-        eventsByDay[dateKey] = [item];
-      } else {
-        eventsByDay[dateKey]!.add(item);
+      final dateEnd = DateTime.parse(item['date_end']).toLocal();
+      print(item);
+
+      // วนลูปเพิ่มทุกวันในช่วงงาน
+      for (DateTime date =
+              DateTime(dateStart.year, dateStart.month, dateStart.day);
+          !date.isAfter(dateEnd);
+          date = date.add(const Duration(days: 1))) {
+        if (eventsByDay[date] == null) {
+          eventsByDay[date] = [item];
+        } else {
+          eventsByDay[date]!.add(item);
+        }
       }
     }
     setState(() {});
@@ -144,15 +166,6 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
     if (dailySchedule.isEmpty) {
       return [const Center(child: Text('ไม่มีคิวงานในวันนี้'))];
     }
-
-    // final filteredSchedule = dailySchedule.where((item) {
-    //   final status = int.tryParse(item['progress_status'].toString());
-    //   if (_selectedStatus == -1) {
-    //     return status != 4; // ดูงานทั้งหมดที่ยังไม่เสร็จ
-    //   } else {
-    //     return status == _selectedStatus;
-    //   }
-    // }).toList();
 
     final filteredSchedule = dailySchedule.where((item) {
       final status = int.tryParse(item['progress_status'].toString());
@@ -207,19 +220,32 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
       }
 
       return Container(
+        // decoration: BoxDecoration(
+        //   color: const Color(0xFFFFF3E0),
+        //   borderRadius: BorderRadius.circular(12),
+        //   border: Border.all(
+        //     color: const Color(0xFFFFCC80),
+        //     width: 1.5,
+        //   ),
+        //   boxShadow: [
+        //     BoxShadow(
+        //       color: Colors.orange.withOpacity(0.2),
+        //       spreadRadius: 2,
+        //       blurRadius: 8,
+        //       offset: const Offset(0, 4),
+        //     ),
+        //   ],
+        // ),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFF3E0),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: const Color(0xFFFFCC80),
-            width: 1.5,
-          ),
+          color: Color.fromARGB(255, 255, 255, 255), // พื้นหลังโทนเดิม
+          borderRadius: BorderRadius.circular(12), // มุมโค้ง
           boxShadow: [
             BoxShadow(
-              color: Colors.orange.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+              color:
+                  Color.fromARGB(255, 251, 229, 196).withOpacity(0.3), // สีเงา
+              spreadRadius: 1, // กระจายเงา
+              blurRadius: 6, // ความฟุ้งของเงา
+              offset: const Offset(0, 3), // ตำแหน่งเงา
             ),
           ],
         ),
@@ -284,8 +310,11 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      item['name_farm'] ?? '-',
+                      'ที่อยู่: ต.${item['subdistrict'] ?? ''} อ.${item['district'] ?? ''} จ.${item['province'] ?? ''}',
                       style: const TextStyle(fontSize: 14),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
                     ),
                   ),
                 ],
@@ -364,6 +393,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                 _buildStatusChip('ยืนยันการจอง', 1),
                 _buildStatusChip('กำลังเดินทาง', 2),
                 _buildStatusChip('กำลังทำงาน', 3),
+                _buildStatusChip('งานที่ยกเลิก', 0),
               ],
             ),
           ),
@@ -485,22 +515,36 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
           itemBuilder: (context, index) {
             final item = scheduleList[index];
             return Container(
+              // decoration: BoxDecoration(
+              //   color: const Color(0xFFFFF3E0),
+              //   borderRadius: BorderRadius.circular(12),
+              //   border: Border.all(
+              //     color: const Color(0xFFFFCC80),
+              //     width: 1.5,
+              //   ),
+              //   boxShadow: [
+              //     BoxShadow(
+              //       color: Colors.orange.withOpacity(0.2),
+              //       spreadRadius: 2,
+              //       blurRadius: 8,
+              //       offset: const Offset(0, 4),
+              //     ),
+              //   ],
+              // ),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF3E0),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFFFCC80),
-                  width: 1.5,
-                ),
+                color: Color.fromARGB(255, 255, 255, 255), // พื้นหลังโทนเดิม
+                borderRadius: BorderRadius.circular(12), // มุมโค้ง
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.orange.withOpacity(0.2),
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                    color: Color.fromARGB(255, 251, 229, 196)
+                        .withOpacity(0.3), // สีเงา
+                    spreadRadius: 1, // กระจายเงา
+                    blurRadius: 6, // ความฟุ้งของเงา
+                    offset: const Offset(0, 3), // ตำแหน่งเงา
                   ),
                 ],
               ),
+
               margin: const EdgeInsets.symmetric(vertical: 8),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -562,11 +606,26 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                             size: 16, color: Colors.orange),
                         const SizedBox(width: 4),
                         Expanded(
-                          child: Text(
-                            item['name_farm'] ?? '-',
-                            style: const TextStyle(fontSize: 14),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Text(
+                              //   item['name_farm'] ?? '-',
+                              //   style: const TextStyle(fontSize: 14),
+                              //   maxLines: 1,
+                              //   overflow: TextOverflow.ellipsis,
+                              //   softWrap: false,
+                              // ),
+                              Text(
+                                'ที่อยู่: ต.${item['subdistrict'] ?? ''} อ.${item['district'] ?? ''} จ.${item['province'] ?? ''}',
+                                style: const TextStyle(fontSize: 14),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: false,
+                              ),
+                            ],
                           ),
-                        ),
+                        )
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -646,7 +705,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: const Text(
-            'คิวงานทั้งหมด',
+            'ตารางงานและประวัติการทำงาน',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -710,7 +769,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                       Tab(
                         child: SizedBox(
                           width: 120,
-                          child: Center(child: Text('ประวัติการรับงาน')),
+                          child: Center(child: Text('ประวัติการทำงาน')),
                         ),
                       ),
                     ],

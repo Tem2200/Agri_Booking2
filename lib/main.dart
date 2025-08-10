@@ -15,9 +15,9 @@ import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/DetailReserving.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-Future<void> _backgroundMessaginf(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
-}
+// Future<void> _backgroundMessaginf(RemoteMessage message) async {
+//   print("Handling a background message: ${message.messageId}");
+// }
 
 List<dynamic> bookings = [];
 late Timer _timer;
@@ -65,62 +65,62 @@ void main() async {
   runApp(MyApp(home: startPage));
 }
 
-Future<void> initializeNotification(
-    FlutterLocalNotificationsPlugin plugin) async {
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
+// Future<void> initializeNotification(
+//     FlutterLocalNotificationsPlugin plugin) async {
+//   const AndroidInitializationSettings initializationSettingsAndroid =
+//       AndroidInitializationSettings('@mipmap/ic_launcher');
 
-  const InitializationSettings initializationSettings =
-      InitializationSettings(android: initializationSettingsAndroid);
+//   const InitializationSettings initializationSettings =
+//       InitializationSettings(android: initializationSettingsAndroid);
 
-  await plugin.initialize(
-    initializationSettings,
-  );
-}
+//   await plugin.initialize(
+//     initializationSettings,
+//   );
+// }
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  print("Handling background message: ${message.data}");
-}
+// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   await Firebase.initializeApp(
+//     options: DefaultFirebaseOptions.currentPlatform,
+//   );
+//   print("Handling background message: ${message.data}");
+// }
 
-void _handleMessage(RemoteMessage message) {
-  print("User tapped notification: ${message.data}");
+// void _handleMessage(RemoteMessage message) {
+//   print("User tapped notification: ${message.data}");
 
-  if (message.data.containsKey('rsid')) {
-    final rsidStr = message.data['rsid'];
-    final rsid = int.tryParse(rsidStr ?? '') ?? 0;
+//   if (message.data.containsKey('rsid')) {
+//     final rsidStr = message.data['rsid'];
+//     final rsid = int.tryParse(rsidStr ?? '') ?? 0;
 
-    navigatorKey.currentState?.push(
-      MaterialPageRoute(
-        builder: (context) => DetailReserving(rsid: rsid),
-      ),
-    );
-  }
-}
+//     navigatorKey.currentState?.push(
+//       MaterialPageRoute(
+//         builder: (context) => DetailReserving(rsid: rsid),
+//       ),
+//     );
+//   }
+// }
 
-Future<void> _showNotification(
-    FlutterLocalNotificationsPlugin plugin, RemoteMessage message) async {
-  const AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-    'your_channel_id',
-    'your_channel_name',
-    importance: Importance.max,
-    priority: Priority.high,
-  );
+// Future<void> _showNotification(
+//     FlutterLocalNotificationsPlugin plugin, RemoteMessage message) async {
+//   const AndroidNotificationDetails androidPlatformChannelSpecifics =
+//       AndroidNotificationDetails(
+//     'your_channel_id',
+//     'your_channel_name',
+//     importance: Importance.max,
+//     priority: Priority.high,
+//   );
 
-  const NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidPlatformChannelSpecifics);
+//   const NotificationDetails platformChannelSpecifics =
+//       NotificationDetails(android: androidPlatformChannelSpecifics);
 
-  await plugin.show(
-    message.hashCode,
-    message.notification?.title ?? '',
-    message.notification?.body ?? '',
-    platformChannelSpecifics,
-    payload: jsonEncode(message.data),
-  );
-}
+//   await plugin.show(
+//     message.hashCode,
+//     message.notification?.title ?? '',
+//     message.notification?.body ?? '',
+//     platformChannelSpecifics,
+//     payload: jsonEncode(message.data),
+//   );
+// }
 
 class MyApp extends StatelessWidget {
   final Widget home;

@@ -492,7 +492,7 @@ class _NontiPageState extends State<NontiPage> {
                         ),
                         if (item['employee_username'] != null)
                           Text(
-                            'ผู้รับจ้าง: ${item['employee_username']} (${item['employee_phone'] ?? '-'})',
+                            'ผู้จ้าง: ${item['employee_username']} (${item['employee_phone'] ?? '-'})',
                             style: const TextStyle(fontSize: 16),
                           ),
                       ],

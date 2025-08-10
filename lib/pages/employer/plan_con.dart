@@ -271,9 +271,9 @@ class _PlanAndHistoryState extends State<PlanPage> {
     );
   }
 
+  // 💡 แก้ไข _buildPlanTab
   Widget _buildPlanTab() {
     return SingleChildScrollView(
-      // 💡 ห่อหุ้มด้วย SingleChildScrollView
       child: Column(
         children: [
           _buildConAndVehicleInfo(),
@@ -313,130 +313,218 @@ class _PlanAndHistoryState extends State<PlanPage> {
               ],
             ),
           ),
-          TableCalendar(
-            locale: 'th_TH',
-            focusedDay: _selectedDay,
-            firstDay: DateTime(_displayYear - 1),
-            lastDay: DateTime(_displayYear + 1),
-            startingDayOfWeek: StartingDayOfWeek.monday,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            calendarStyle: const CalendarStyle(
-              cellMargin: EdgeInsets.all(5.0),
-              markerSize: 8.0,
-              cellAlignment: Alignment.center,
-              defaultTextStyle: TextStyle(fontSize: 14.0),
-              weekendTextStyle: TextStyle(fontSize: 14.0, color: Colors.red),
-              todayTextStyle: TextStyle(fontSize: 14.0, color: Colors.white),
-              selectedTextStyle: TextStyle(fontSize: 14.0, color: Colors.white),
-              outsideDaysVisible: false,
-              todayDecoration: BoxDecoration(
-                color: Colors.orangeAccent,
-                shape: BoxShape.circle,
-              ),
-              selectedDecoration: BoxDecoration(
-                color: Colors.green,
-                shape: BoxShape.circle,
-              ),
-            ),
-            headerStyle: const HeaderStyle(
-              titleCentered: true,
-              formatButtonVisible: false,
-              titleTextStyle:
-                  TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-              leftChevronIcon: Icon(Icons.chevron_left, size: 24.0),
-              rightChevronIcon: Icon(Icons.chevron_right, size: 24.0),
-            ),
-            eventLoader: (day) =>
-                eventsByDay[DateTime(day.year, day.month, day.day)] ?? [],
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = DateTime(
-                    selectedDay.year, selectedDay.month, selectedDay.day);
-              });
+          // FutureBuilder<List<dynamic>>(
+          //   future: _scheduleFuture,
+          //   builder: (context, snapshot) {
+          //     if (snapshot.connectionState == ConnectionState.waiting) {
+          //       return const Center(child: CircularProgressIndicator());
+          //     } else if (snapshot.hasError) {
+          //       return const Center(
+          //           child: Text('ไม่สามารถโหลดข้อมูลได้, กรุณาลองใหม่'));
+          //     } else if (!snapshot.hasData) {
+          //       return const Center(child: Text('ไม่มีคิวงาน'));
+          //     }
+          //     // 💡 สร้าง list ที่ใช้ในการ eventLoader จาก snapshot
+          //     final allSchedules = snapshot.data!;
+
+          //     return TableCalendar(
+          //       // ... (โค้ด TableCalendar ส่วนอื่น ๆ เหมือนเดิม) ...
+          //       locale: 'th_TH',
+          //       focusedDay: _selectedDay,
+          //       firstDay: DateTime(_displayYear - 1),
+          //       lastDay: DateTime(_displayYear + 1),
+          //       startingDayOfWeek: StartingDayOfWeek.monday,
+          //       selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+          //       calendarStyle: const CalendarStyle(
+          //         cellMargin: EdgeInsets.all(5.0),
+          //         markerSize: 8.0,
+          //         cellAlignment: Alignment.center,
+          //         defaultTextStyle: TextStyle(fontSize: 14.0),
+          //         weekendTextStyle:
+          //             TextStyle(fontSize: 14.0, color: Colors.red),
+          //         todayTextStyle:
+          //             TextStyle(fontSize: 14.0, color: Colors.white),
+          //         selectedTextStyle:
+          //             TextStyle(fontSize: 14.0, color: Colors.white),
+          //         outsideDaysVisible: false,
+          //         todayDecoration: BoxDecoration(
+          //           color: Colors.orangeAccent,
+          //           shape: BoxShape.circle,
+          //         ),
+          //         selectedDecoration: BoxDecoration(
+          //           color: Colors.green,
+          //           shape: BoxShape.circle,
+          //         ),
+          //       ),
+          //       headerStyle: const HeaderStyle(
+          //         titleCentered: true,
+          //         formatButtonVisible: false,
+          //         titleTextStyle:
+          //             TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+          //         leftChevronIcon: Icon(Icons.chevron_left, size: 24.0),
+          //         rightChevronIcon: Icon(Icons.chevron_right, size: 24.0),
+          //       ),
+          //       onDaySelected: (selectedDay, focusedDay) {
+          //         setState(() {
+          //           _selectedDay = DateTime(
+          //               selectedDay.year, selectedDay.month, selectedDay.day);
+          //         });
+          //       },
+          //       // 💡 แก้ไข eventLoader ที่นี่
+          //       eventLoader: (day) {
+          //         return allSchedules.where((item) {
+          //           final dateStart =
+          //               DateTime.parse(item['date_start']).toLocal();
+          //           final dateEnd = DateTime.parse(item['date_end']).toLocal();
+          //           final normalizedDateStart = DateTime(
+          //               dateStart.year, dateStart.month, dateStart.day);
+          //           final normalizedDateEnd =
+          //               DateTime(dateEnd.year, dateEnd.month, dateEnd.day);
+
+          //           // 💡 ตรวจสอบว่า `day` อยู่ในช่วงวันที่ของงานหรือไม่
+          //           return (day.isAfter(normalizedDateStart) ||
+          //                   isSameDay(day, normalizedDateStart)) &&
+          //               (day.isBefore(normalizedDateEnd) ||
+          //                   isSameDay(day, normalizedDateEnd));
+          //         }).toList();
+          //       },
+          //     );
+          //   },
+          // ),
+
+          FutureBuilder<List<dynamic>>(
+            future: _scheduleFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              // else if (snapshot.hasError) {
+              //   return const Center(
+              //     // แสดงข้อความที่เหมาะสมเมื่อเกิดข้อผิดพลาดในการโหลด
+              //     child: Text('เกิดข้อผิดพลาดในการโหลดข้อมูล'),
+              //   );
+              // }
+
+              // 💡 ย้ายโค้ดปฏิทินมาที่นี่ เพื่อให้แสดงผลเสมอหลังจากโหลดเสร็จ
+              // หากไม่มีข้อมูล, `allSchedules` จะเป็นรายการว่างเปล่า
+              final allSchedules = snapshot.data ?? [];
+
+              return TableCalendar(
+                // ... (โค้ด TableCalendar ส่วนอื่น ๆ เหมือนเดิม) ...
+                locale: 'th_TH',
+                focusedDay: _selectedDay,
+                firstDay: DateTime(_displayYear - 1),
+                lastDay: DateTime(_displayYear + 1),
+                startingDayOfWeek: StartingDayOfWeek.monday,
+                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                calendarStyle: const CalendarStyle(
+                  cellMargin: EdgeInsets.all(5.0),
+                  markerSize: 8.0,
+                  cellAlignment: Alignment.center,
+                  defaultTextStyle: TextStyle(fontSize: 14.0),
+                  weekendTextStyle:
+                      TextStyle(fontSize: 14.0, color: Colors.red),
+                  todayTextStyle:
+                      TextStyle(fontSize: 14.0, color: Colors.white),
+                  selectedTextStyle:
+                      TextStyle(fontSize: 14.0, color: Colors.white),
+                  outsideDaysVisible: false,
+                  todayDecoration: BoxDecoration(
+                    color: Colors.orangeAccent,
+                    shape: BoxShape.circle,
+                  ),
+                  selectedDecoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                headerStyle: const HeaderStyle(
+                  titleCentered: true,
+                  formatButtonVisible: false,
+                  titleTextStyle:
+                      TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                  leftChevronIcon: Icon(Icons.chevron_left, size: 24.0),
+                  rightChevronIcon: Icon(Icons.chevron_right, size: 24.0),
+                ),
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = DateTime(
+                        selectedDay.year, selectedDay.month, selectedDay.day);
+                  });
+                },
+                eventLoader: (day) {
+                  return allSchedules.where((item) {
+                    final dateStart =
+                        DateTime.parse(item['date_start']).toLocal();
+                    final dateEnd = DateTime.parse(item['date_end']).toLocal();
+                    final normalizedDateStart = DateTime(
+                        dateStart.year, dateStart.month, dateStart.day);
+                    final normalizedDateEnd =
+                        DateTime(dateEnd.year, dateEnd.month, dateEnd.day);
+                    return (day.isAfter(normalizedDateStart) ||
+                            isSameDay(day, normalizedDateStart)) &&
+                        (day.isBefore(normalizedDateEnd) ||
+                            isSameDay(day, normalizedDateEnd));
+                  }).toList();
+                },
+              );
             },
           ),
           const SizedBox(height: 10),
-          _buildScheduleTab(), // 💡 เรียกใช้ _buildScheduleTab โดยตรง
+          _buildScheduleList(), // 💡 เปลี่ยนชื่อเป็น _buildScheduleList
         ],
       ),
     );
   }
 
-  Widget _buildStatusButton({
-    required String text,
-    required StatusFilter status,
-    required VoidCallback onPressed,
-  }) {
-    final bool isSelected = status == _selectedStatus;
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        child: ElevatedButton(
-          onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-                isSelected ? Colors.green.shade300 : Colors.grey.shade300,
-            foregroundColor: Colors.black87,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              if (isSelected) ...{
-                const Icon(Icons.check, color: Colors.white, size: 20),
-                const SizedBox(width: 8),
-              },
-              Flexible(
-                child: Text(
-                  text,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildScheduleTab() {
+// 💡 แก้ไข _buildScheduleList
+  Widget _buildScheduleList() {
     return FutureBuilder<List<dynamic>>(
       future: _scheduleFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return const Center(
-              child: Text('ไม่สามารถโหลดข้อมูลได้, กรุณาลองใหม่'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        }
+        // else if (snapshot.hasError) {
+        //   return const Center(
+        //       child: Text('ไม่สามารถโหลดข้อมูลได้, กรุณาลองใหม่'));
+        // }
+        else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('ไม่มีคิวงาน'));
         }
 
         final scheduleList = snapshot.data!;
 
-        // 💡 3. แก้ไขเงื่อนไขการกรองข้อมูลตามสถานะที่เลือก
+        // 💡 แก้ไขเงื่อนไขการกรองข้อมูลใน filteredList
         List<dynamic> filteredList = scheduleList.where((item) {
-          final isSelectedDay = isSameDay(
-              DateTime.parse(item['date_start']).toLocal(), _selectedDay);
+          final dateStart = DateTime.parse(item['date_start']).toLocal();
+          final dateEnd = DateTime.parse(item['date_end']).toLocal();
           final progressStatus = item['progress_status'];
 
-          if (!isSelectedDay) {
+          final normalizedDateStart =
+              DateTime(dateStart.year, dateStart.month, dateStart.day);
+          final normalizedDateEnd =
+              DateTime(dateEnd.year, dateEnd.month, dateEnd.day);
+
+          // 💡 เงื่อนไขใหม่: ตรวจสอบว่าวันที่เลือก (_selectedDay) อยู่ในช่วงของงานหรือไม่
+          final isSelectedDayInRage =
+              (_selectedDay.isAfter(normalizedDateStart) ||
+                      isSameDay(_selectedDay, normalizedDateStart)) &&
+                  (_selectedDay.isBefore(normalizedDateEnd) ||
+                      isSameDay(_selectedDay, normalizedDateEnd));
+
+          if (!isSelectedDayInRage) {
             return false;
           }
 
+          // เงื่อนไขการกรองตามสถานะยังคงเหมือนเดิม
           if (_selectedStatus == StatusFilter.all) {
-            // แสดงทั้งหมด
             return true;
           }
           if (_selectedStatus == StatusFilter.pending) {
-            // สถานะ 'รอยืนยันการจอง' คือ progress_status เป็น null
             return progressStatus == null;
           }
           if (_selectedStatus == StatusFilter.notAvailable) {
-            // สถานะ 'ผู้รับจ้างไม่ว่าง' คือ progress_status เป็น 1, 2, 3 หรือ 5
             return progressStatus != null &&
                 ['1', '2', '3', '5'].contains(progressStatus.toString());
           }
@@ -444,6 +532,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
           return false;
         }).toList();
 
+        // ... (โค้ดส่วนอื่น ๆ ของ _buildScheduleList เหมือนเดิม) ...
         if (filteredList.isEmpty) {
           return const Center(child: Text('วันนี้ไม่มีสถานะนี้'));
         }
@@ -472,27 +561,39 @@ class _PlanAndHistoryState extends State<PlanPage> {
 
         return ListView.builder(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-          shrinkWrap: true, // 💡 สำคัญ: ต้องใส่ shrinkWrap: true
-          physics:
-              const NeverScrollableScrollPhysics(), // 💡 สำคัญ: ต้องใส่ NeverScrollableScrollPhysics()
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: filteredList.length,
           itemBuilder: (context, index) {
             final item = filteredList[index];
 
             return Container(
+              // decoration: BoxDecoration(
+              //   color: const Color(0xFFFFF3E0),
+              //   borderRadius: BorderRadius.circular(12),
+              //   border: Border.all(
+              //     color: const Color(0xFFFFCC80),
+              //     width: 1.5,
+              //   ),
+              //   boxShadow: [
+              //     BoxShadow(
+              //       color: Colors.orange.withOpacity(0.2),
+              //       spreadRadius: 2,
+              //       blurRadius: 8,
+              //       offset: const Offset(0, 4),
+              //     ),
+              //   ],
+              // ),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF3E0),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFFFCC80),
-                  width: 1.5,
-                ),
+                color: Color.fromARGB(255, 255, 255, 255), // พื้นหลังโทนเดิม
+                borderRadius: BorderRadius.circular(12), // มุมโค้ง
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.orange.withOpacity(0.2),
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                    color: Color.fromARGB(255, 251, 229, 196)
+                        .withOpacity(0.3), // สีเงา
+                    spreadRadius: 1, // กระจายเงา
+                    blurRadius: 6, // ความฟุ้งของเงา
+                    offset: const Offset(0, 3), // ตำแหน่งเงา
                   ),
                 ],
               ),
@@ -595,6 +696,46 @@ class _PlanAndHistoryState extends State<PlanPage> {
     );
   }
 
+  Widget _buildStatusButton({
+    required String text,
+    required StatusFilter status,
+    required VoidCallback onPressed,
+  }) {
+    final bool isSelected = status == _selectedStatus;
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor:
+                isSelected ? Colors.green.shade300 : Colors.grey.shade300,
+            foregroundColor: Colors.black87,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              if (isSelected) ...{
+                const Icon(Icons.check, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+              },
+              Flexible(
+                child: Text(
+                  text,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_isLocaleInitialized) {
@@ -678,24 +819,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import 'dart:convert';
 // import 'package:agri_booking2/pages/contactor/DetailWork.dart';

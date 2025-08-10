@@ -927,6 +927,24 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                                 ),
                                               ),
                                               const SizedBox(height: 20),
+                                              Text(
+                                                data!['employee_email'] ??
+                                                    'ไม่พบอีเมล',
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.black54,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 20),
+                                              Text(
+                                                data!['employee_other'] ??
+                                                    'ไม่พบช่องทางติดต่ออื่นๆ',
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.black54,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 20),
 
                                               // ปุ่มปิด
                                               ElevatedButton.icon(
@@ -1016,42 +1034,29 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
 
                                 // 🚜 ฟาร์ม
                                 Row(
+                                  crossAxisAlignment: CrossAxisAlignment
+                                      .start, // ทำให้ไอคอนอยู่บนสุด
                                   children: [
-                                    const Icon(Icons.agriculture,
+                                    const Icon(Icons.location_on,
                                         size: 18, color: Colors.brown),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'ฟาร์ม: ${data!['name_farm']} (${data!['village']}, ${data!['subdistrict']})',
+                                        'ที่อยู่: (${data!['name_farm']}, หมู่บ้าน ${data!['village']}), '
+                                        'ต.${data!['subdistrict']}, อ.${data!['district']} จ.${data!['province']},\n'
+                                        'รายละเอียดที่อยู่: ${(data!['detail']?.toString().trim().isEmpty ?? true) ? 'ไม่มี' : data!['detail']}',
                                         style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w500,
                                           color: Colors.black87,
                                         ),
+                                        textAlign:
+                                            TextAlign.start, // จัดชิดซ้าย
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 8),
 
-                                // 📍 ที่อยู่
-                                Row(
-                                  children: [
-                                    const Icon(Icons.location_on,
-                                        size: 18, color: Colors.redAccent),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        'ที่อยู่: ${data!['district']} จ.${data!['province']}',
-                                        style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
                                 const SizedBox(height: 8),
 
                                 // 📞 เบอร์โทร
@@ -1099,7 +1104,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'รายละเอียด: ${data!['detail']}',
+                                        'รายละเอียด: ${(data!['detail']?.toString().trim().isEmpty ?? true) ? 'ไม่มีรายละเอียดงาน' : data!['detail']}',
                                         style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w400,
