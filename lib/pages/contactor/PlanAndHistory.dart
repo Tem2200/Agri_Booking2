@@ -93,7 +93,11 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
         } else {
           return [];
         }
+      } else if (response.statusCode == 404) {
+        // ถ้า status code เป็น 404 (Not Found) ก็ให้คืนค่า List ว่าง
+        return [];
       } else {
+        // สำหรับ status code อื่น ๆ ที่ไม่ใช่ 200 หรือ 404 ให้โยน Exception ตามปกติ
         throw Exception('Failed to load schedule: ${response.statusCode}');
       }
     } catch (e) {
