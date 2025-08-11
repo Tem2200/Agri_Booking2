@@ -33,11 +33,11 @@ class _FarmsPageState extends State<FarmsPage> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      print("ข้อมูลฟาร์ม: $data");
+      print("ข้อมูลไร่นา: $data");
       return data;
     } else {
       Fluttertoast.showToast(
-        msg: 'ไม่พบข้อมูลฟาร์ม',
+        msg: 'ไม่พบข้อมูลไร่นา',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
         timeInSecForIosWeb: 2,
@@ -53,8 +53,11 @@ class _FarmsPageState extends State<FarmsPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('ยืนยันการลบ'),
-        content: const Text('คุณต้องการลบฟาร์มนี้หรือไม่?'),
+        title: const Text(
+          'ยืนยันการลบ',
+          textAlign: TextAlign.center,
+        ),
+        content: const Text('คุณต้องการลบไร่นานี้หรือไม่?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -78,7 +81,7 @@ class _FarmsPageState extends State<FarmsPage> {
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('ลบฟาร์มสำเร็จ')),
+          const SnackBar(content: Text('ลบไร่นาสำเร็จ')),
         );
         setState(() {
           farmsFuture = fetchFarms(widget.mid);
@@ -122,7 +125,7 @@ class _FarmsPageState extends State<FarmsPage> {
         ),
         //iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
-          'ที่นาของฉัน',
+          'ไร่นาของฉัน',
           style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -149,7 +152,7 @@ class _FarmsPageState extends State<FarmsPage> {
                   return Center(
                       child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('ไม่มีข้อมูลฟาร์ม'));
+                  return const Center(child: Text('ไม่มีข้อมูลไร่นา'));
                 }
 
                 final farms = snapshot.data!;
@@ -238,7 +241,7 @@ class _FarmsPageState extends State<FarmsPage> {
                                 icon: const Icon(Icons.edit),
                                 color:
                                     Colors.blue.shade700, // สีน้ำเงินเข้มสบายตา
-                                tooltip: 'แก้ไขข้อมูลฟาร์ม',
+                                tooltip: 'แก้ไขข้อมูลไร่นา',
                                 onPressed: () async {
                                   final result = await Navigator.push(
                                     context,
@@ -259,7 +262,7 @@ class _FarmsPageState extends State<FarmsPage> {
                               IconButton(
                                 icon: const Icon(Icons.delete),
                                 color: Colors.red.shade700, // สีแดงเข้ม
-                                tooltip: 'ลบฟาร์ม',
+                                tooltip: 'ลบไร่นา',
                                 onPressed: () => deleteFarm(farm['fid']),
                               ),
                             ],

@@ -4,6 +4,7 @@ import 'package:agri_booking2/pages/employer/plan_con.dart';
 import 'package:agri_booking2/pages/employer/reservingForNF.dart';
 import 'package:agri_booking2/pages/employer/reserving_emp.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/painting.dart';
 import 'package:intl/intl.dart';
@@ -235,9 +236,9 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10),
     ),
-    textStyle: const TextStyle(
+    textStyle: GoogleFonts.mitr(
       fontSize: 20,
-      fontWeight: FontWeight.bold, // ✅ ตัวหนา
+      fontWeight: FontWeight.w600,
     ),
   );
 
@@ -479,19 +480,18 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 8),
-                              textStyle: const TextStyle(
-                                  fontSize: 12), // ลดขนาดตัวหนังสือ
+                              // ลดขนาดตัวหนังสือ
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8)),
                               backgroundColor: Colors.green,
                               foregroundColor: Colors.white,
                               minimumSize:
-                                  const Size(80, 36), // กำหนดขนาดปุ่มให้เล็กลง
+                                  const Size(70, 36), // กำหนดขนาดปุ่มให้เล็กลง
                             ),
                             child: const Text('ตารางงาน'),
                           ),
 
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 5),
                           OutlinedButton(
                             onPressed: () {
                               Navigator.push(

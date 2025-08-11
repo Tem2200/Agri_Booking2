@@ -391,7 +391,7 @@ class _ProfileConState extends State<ProfileCon> {
           centerTitle: true,
           //automaticallyImplyLeading: false,
           title: const Text(
-            'จองคิวรถ',
+            'โปรไฟล์ผู้รับจ้าง',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -523,8 +523,16 @@ class _ProfileConState extends State<ProfileCon> {
                                       size: 20, color: Colors.redAccent),
                                   const SizedBox(width: 6),
                                   Expanded(
-                                    child: Text(member['other'] ?? '-',
-                                        softWrap: true),
+                                    child: Text(
+                                      (member['other'] != null &&
+                                              member['other']
+                                                  .toString()
+                                                  .trim()
+                                                  .isNotEmpty)
+                                          ? member['other']
+                                          : '-',
+                                      softWrap: true,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -593,10 +601,15 @@ class _ProfileConState extends State<ProfileCon> {
                           labelColor: Colors.white,
                           unselectedLabelColor: Colors.black87,
                           indicatorSize: TabBarIndicatorSize.tab,
-                          labelStyle: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          labelStyle:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                          unselectedLabelStyle:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    fontSize: 14,
+                                  ),
                           tabs: const [
                             Tab(
                               child: SizedBox(
@@ -913,12 +926,12 @@ class _ProfileConState extends State<ProfileCon> {
                               vehicle['image'].toString().isNotEmpty
                           ? Image.network(
                               vehicle['image'],
-                              height: 180,
+                              height: 150,
                               width: 120,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
                                   Container(
-                                height: 180,
+                                height: 150,
                                 width: 120,
                                 color: Colors.grey[300],
                                 alignment: Alignment.center,
@@ -926,7 +939,7 @@ class _ProfileConState extends State<ProfileCon> {
                               ),
                             )
                           : Container(
-                              height: 180,
+                              height: 150,
                               width: 120,
                               color: Colors.grey[200],
                               alignment: Alignment.center,
@@ -999,8 +1012,6 @@ class _ProfileConState extends State<ProfileCon> {
                               // 🔹 ปุ่มรายละเอียดเพิ่มเติมแบบนูน
                               Container(
                                 decoration: BoxDecoration(
-                                  // color:
-                                  //     Color.fromARGB(255, 255, 244, 210),
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: const [
                                     BoxShadow(
@@ -1022,25 +1033,37 @@ class _ProfileConState extends State<ProfileCon> {
                                     elevation:
                                         0, // ปิดเงา ElevatedButton เพื่อใช้เงาจาก Container แทน
                                     backgroundColor: const Color(0xFFF8A100),
-
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 5, vertical: 5),
-                                    textStyle: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold),
+
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                   onPressed: () {
+                                    // แสดง SnackBar แจ้งเตือนถ้าไร่ยังไม่มีข้อมูล
+                                    // if (widget.farm == null ||
+                                    //     widget.farm['fid'] == null) {
+                                    //   ScaffoldMessenger.of(context)
+                                    //       .showSnackBar(
+                                    //     const SnackBar(
+                                    //       content: Text(
+                                    //           'ขณะนี้คุณไม่มีไร่นาที่เพิ่มไว้ กรุณาเพิ่มไร่นาก่อนจองคิวรถ หรือเพิ่มระหว่างจองคิวรถ'),
+                                    //       backgroundColor:
+                                    //           Color.fromARGB(255, 255, 110, 84),
+                                    //       duration: Duration(seconds: 10),
+                                    //     ),
+                                    //   );
+                                    // }
+                                    // เข้าไปหน้ารายละเอียดได้ปกติเลย
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => DetailvehcEmp(
                                           vid: vehicle['vid'] ?? 0,
                                           mid: widget.mid_emp,
-                                          fid: widget.farm['fid'] ?? 0,
+                                          fid: widget.farm?['fid'] ?? 0,
                                           farm: widget.farm,
                                         ),
                                       ),

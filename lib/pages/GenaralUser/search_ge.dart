@@ -167,7 +167,7 @@ class _SearchGeState extends State<SearchGe> {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton.icon(
-                  icon: const Icon(Icons.search),
+                  //icon: const Icon(Icons.search),
                   label: const Text("ค้นหา"),
                   onPressed: () {
                     final keyword = _searchController.text.trim();
@@ -180,53 +180,113 @@ class _SearchGeState extends State<SearchGe> {
             ),
           ),
           // 💡 ส่วนนี้คือปุ่มเรียงลำดับที่เพิ่มเข้ามา
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: Wrap(
+          //     spacing: 8.0,
+          //     runSpacing: 8.0,
+          //     children: [
+          //       ElevatedButton.icon(
+          //         onPressed: _togglePriceOrder,
+          //         icon: Icon(
+          //           currentSortBy == "price" && currentOrder == "asc"
+          //               ? Icons.arrow_downward
+          //               : Icons.arrow_upward,
+          //         ),
+          //         label: Text(
+          //           currentSortBy == "price" && currentOrder == "asc"
+          //               ? "ราคา: น้อย → มาก"
+          //               : "ราคา: มาก → น้อย",
+          //         ),
+          //         style: ElevatedButton.styleFrom(
+          //           backgroundColor:
+          //               currentSortBy == "price" ? Colors.green : null,
+          //           foregroundColor:
+          //               currentSortBy == "price" ? Colors.white : null,
+          //         ),
+          //       ),
+          //       ElevatedButton.icon(
+          //         onPressed: _toggleReviewOrder,
+          //         icon: Icon(
+          //           currentSortBy == "review" && currentOrder == "desc"
+          //               ? Icons.arrow_downward
+          //               : Icons.arrow_upward,
+          //         ),
+          //         label: Text(
+          //           currentSortBy == "review" && currentOrder == "desc"
+          //               ? "รีวิว: มาก → น้อย"
+          //               : "รีวิว: น้อย → มาก",
+          //         ),
+          //         style: ElevatedButton.styleFrom(
+          //           backgroundColor:
+          //               currentSortBy == "review" ? Colors.green : null,
+          //           foregroundColor:
+          //               currentSortBy == "review" ? Colors.white : null,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          const SizedBox(height: 16),
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Wrap(
-              spacing: 8.0,
-              runSpacing: 8.0,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
               children: [
-                ElevatedButton.icon(
-                  onPressed: _togglePriceOrder,
-                  icon: Icon(
-                    currentSortBy == "price" && currentOrder == "asc"
-                        ? Icons.arrow_downward
-                        : Icons.arrow_upward,
-                  ),
-                  label: Text(
-                    currentSortBy == "price" && currentOrder == "asc"
-                        ? "ราคา: น้อย → มาก"
-                        : "ราคา: มาก → น้อย",
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        currentSortBy == "price" ? Colors.green : null,
-                    foregroundColor:
-                        currentSortBy == "price" ? Colors.white : null,
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _togglePriceOrder,
+                    icon: Icon(
+                      currentSortBy == "price" && currentOrder == "asc"
+                          ? Icons.arrow_downward
+                          : Icons.arrow_upward,
+                    ),
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        currentSortBy == "price" && currentOrder == "asc"
+                            ? "ราคา: น้อย → มาก"
+                            : "ราคา: มาก → น้อย",
+                        maxLines: 1,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          currentSortBy == "price" ? Colors.green : null,
+                      foregroundColor:
+                          currentSortBy == "price" ? Colors.white : null,
+                    ),
                   ),
                 ),
-                ElevatedButton.icon(
-                  onPressed: _toggleReviewOrder,
-                  icon: Icon(
-                    currentSortBy == "review" && currentOrder == "desc"
-                        ? Icons.arrow_downward
-                        : Icons.arrow_upward,
-                  ),
-                  label: Text(
-                    currentSortBy == "review" && currentOrder == "desc"
-                        ? "รีวิว: มาก → น้อย"
-                        : "รีวิว: น้อย → มาก",
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        currentSortBy == "review" ? Colors.green : null,
-                    foregroundColor:
-                        currentSortBy == "review" ? Colors.white : null,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _toggleReviewOrder,
+                    icon: Icon(
+                      currentSortBy == "review" && currentOrder == "desc"
+                          ? Icons.arrow_downward
+                          : Icons.arrow_upward,
+                    ),
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        currentSortBy == "review" && currentOrder == "desc"
+                            ? "รีวิว: มาก → น้อย"
+                            : "รีวิว: น้อย → มาก",
+                        maxLines: 1,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          currentSortBy == "review" ? Colors.green : null,
+                      foregroundColor:
+                          currentSortBy == "review" ? Colors.white : null,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
+
           const SizedBox(height: 16),
           Expanded(
             child: isLoading

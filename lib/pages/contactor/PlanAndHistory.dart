@@ -759,10 +759,15 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                     labelColor: Colors.white,
                     unselectedLabelColor: Colors.black87,
                     indicatorSize: TabBarIndicatorSize.tab,
-                    labelStyle: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    labelStyle:
+                        Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                    unselectedLabelStyle:
+                        Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 14,
+                            ),
                     tabs: const [
                       Tab(
                         child: SizedBox(

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:agri_booking2/pages/contactor/DetailWork.dart';
 import 'package:agri_booking2/pages/employer/reservingForNF.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -167,17 +168,18 @@ class _PlanAndHistoryState extends State<PlanPage> {
   }
 
   final ButtonStyle bookingButtonStyle = ElevatedButton.styleFrom(
-    backgroundColor: Color.fromARGB(255, 33, 148, 255),
+    backgroundColor: Colors.blue,
     foregroundColor: Colors.white,
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10),
     ),
-    textStyle: const TextStyle(
+    textStyle: GoogleFonts.mitr(
       fontSize: 20,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w600,
     ),
   );
+
   // สร้าง Widget ใหม่สำหรับแสดงข้อมูลเจ้าของรถและข้อมูลรถ
   Widget _buildConAndVehicleInfo() {
     return FutureBuilder<Map<String, dynamic>>(
@@ -215,7 +217,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 10),
+              // const SizedBox(height: 10),
               Text(
                 conData['username'] ?? 'ไม่ระบุชื่อ',
                 style: TextStyle(
@@ -276,6 +278,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
     return SingleChildScrollView(
       child: Column(
         children: [
+          const SizedBox(height: 10),
           _buildConAndVehicleInfo(),
           const SizedBox(height: 10),
           Padding(

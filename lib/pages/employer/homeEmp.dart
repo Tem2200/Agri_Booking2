@@ -234,7 +234,7 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                   },
                                   child: buildMenuItem(
                                     'https://cdn-icons-png.flaticon.com/512/854/854878.png',
-                                    'แก้ไขข้อมูลไร่',
+                                    'แก้ไขข้อมูลไร่นา',
                                   ),
                                 ),
                                 GestureDetector(

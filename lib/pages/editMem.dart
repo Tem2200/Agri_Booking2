@@ -285,7 +285,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               // Input fields
               buildInput(
@@ -298,20 +298,9 @@ class _EditMemberPageState extends State<EditMemberPage> {
                   return null;
                 },
               ),
-
-              TextFormField(
-                controller: phoneController,
-                keyboardType: TextInputType.number,
-                maxLength: 10,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-                decoration: const InputDecoration(
-                  labelText: 'เบอร์โทร',
-                  filled: true,
-                  fillColor: Color(0xFFE0E0E0),
-                  border: OutlineInputBorder(borderSide: BorderSide.none),
-                ),
+              buildInputPhone(
+                phoneController,
+                'เบอร์โทร',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'กรุณากรอกเบอร์โทร';
@@ -322,18 +311,10 @@ class _EditMemberPageState extends State<EditMemberPage> {
                   return null;
                 },
               ),
-
-              DropdownButtonFormField<String>(
+              buildDropdownInput(
+                label: 'จังหวัด',
                 value: selectedProvince,
-                decoration: const InputDecoration(
-                  labelText: 'จังหวัด',
-                  filled: true,
-                  fillColor: Color(0xFFE0E0E0),
-                  border: OutlineInputBorder(borderSide: BorderSide.none),
-                ),
-                items: provinces
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
+                items: provinces,
                 onChanged: (value) {
                   setState(() {
                     selectedProvince = value;
@@ -350,20 +331,14 @@ class _EditMemberPageState extends State<EditMemberPage> {
                     districts = [];
                   });
                 },
+                validator: (value) =>
+                    value == null ? 'กรุณาเลือกจังหวัด' : null,
               ),
-              const SizedBox(height: 12),
 
-              DropdownButtonFormField<String>(
+              buildDropdownInput(
+                label: 'อำเภอ',
                 value: selectedAmphoe,
-                decoration: const InputDecoration(
-                  labelText: 'อำเภอ',
-                  filled: true,
-                  fillColor: Color(0xFFE0E0E0),
-                  border: OutlineInputBorder(borderSide: BorderSide.none),
-                ),
-                items: amphoes
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
+                items: amphoes,
                 onChanged: (value) {
                   setState(() {
                     selectedAmphoe = value;
@@ -379,27 +354,22 @@ class _EditMemberPageState extends State<EditMemberPage> {
                       ..sort();
                   });
                 },
+                validator: (value) => value == null ? 'กรุณาเลือกอำเภอ' : null,
               ),
-              const SizedBox(height: 12),
 
-              DropdownButtonFormField<String>(
+              buildDropdownInput(
+                label: 'ตำบล',
                 value: selectedDistrict,
-                decoration: const InputDecoration(
-                  labelText: 'ตำบล',
-                  filled: true,
-                  fillColor: Color(0xFFE0E0E0),
-                  border: OutlineInputBorder(borderSide: BorderSide.none),
-                ),
-                items: districts
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
+                items: districts,
                 onChanged: (value) {
                   setState(() {
                     selectedDistrict = value;
                   });
                 },
+                validator: (value) => value == null ? 'กรุณาเลือกตำบล' : null,
               ),
-              const SizedBox(height: 12),
+
+              const SizedBox(height: 16),
 
               // ElevatedButton(
               //   onPressed: _selectLocationOnMap,
@@ -462,6 +432,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
                   return null;
                 },
               ),
+              //const SizedBox(height: 10),
               buildInput(
                 otherController,
                 'ข้อมูลติดต่อเพิ่มเติม (ถ้ามี)',
@@ -473,7 +444,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
                   return null;
                 },
               ),
-
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Expanded(
@@ -524,29 +495,176 @@ class _EditMemberPageState extends State<EditMemberPage> {
     String? Function(String?)? validator,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: TextFormField(
-        controller: controller,
-        readOnly: readOnly,
-        style: GoogleFonts.mitr(
-          // ✅ ฟอนต์ตัวอักษรที่พิมพ์
-          fontSize: 16,
-          color: Colors.black,
-        ),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: GoogleFonts.mitr(
-            // ✅ ฟอนต์ของ label
-            fontSize: 14,
-            color: Colors.grey[800],
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ชื่อช่องอยู่บนสุด
+          Text(
+            label,
+            style: GoogleFonts.mitr(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: const Color.fromARGB(255, 0, 0, 0),
+            ),
           ),
-          filled: true,
-          fillColor: const Color(0xFFE0E0E0),
-          border: const OutlineInputBorder(borderSide: BorderSide.none),
-        ),
-        validator: validator,
-        maxLines: label == 'รายละเอียดที่อยู่' ? 4 : 1,
-        maxLength: label == 'รายละเอียดที่อยู่' ? 255 : null,
+          const SizedBox(height: 6),
+          TextFormField(
+            controller: controller,
+            readOnly: readOnly,
+            style: GoogleFonts.mitr(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: const Color(0xFFE0E0E0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.black),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.black),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: Color.fromARGB(255, 255, 170, 0),
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+              // ไม่ใส่ labelText หรือ floatingLabelBehavior ใด ๆ
+            ),
+            validator: validator,
+            maxLines: label == 'รายละเอียดที่อยู่' ? 1 : 1,
+            maxLength: label == 'รายละเอียดที่อยู่' ? 255 : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildDropdownInput({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required void Function(String?) onChanged,
+    String? Function(String?)? validator,
+    bool enabled = true,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ชื่อช่องอยู่บนสุด
+          Text(
+            label,
+            style: GoogleFonts.mitr(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: const Color.fromARGB(255, 0, 0, 0),
+            ),
+          ),
+          const SizedBox(height: 6),
+          DropdownButtonFormField<String>(
+            value: value,
+            items: items
+                .map((e) => DropdownMenuItem(
+                      value: e,
+                      child: Text(
+                        e,
+                        style:
+                            GoogleFonts.mitr(fontSize: 16, color: Colors.black),
+                      ),
+                    ))
+                .toList(),
+            onChanged: enabled ? onChanged : null,
+            validator: validator,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: const Color(0xFFE0E0E0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.black),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.black),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: Color.fromARGB(255, 255, 170, 0),
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+            ),
+            dropdownColor: const Color(0xFFE0E0E0),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildInputPhone(
+    TextEditingController controller,
+    String label, {
+    bool readOnly = false,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.mitr(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: const Color.fromARGB(255, 0, 0, 0),
+            ),
+          ),
+          const SizedBox(height: 6),
+          TextFormField(
+            controller: controller,
+            readOnly: readOnly,
+            style: GoogleFonts.mitr(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+            keyboardType: label == 'เบอร์โทร' ? TextInputType.number : null,
+            inputFormatters: label == 'เบอร์โทร'
+                ? [FilteringTextInputFormatter.digitsOnly]
+                : null,
+            maxLength: label == 'เบอร์โทร' ? 10 : null,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: const Color(0xFFE0E0E0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.black),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.black),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: const Color.fromARGB(255, 255, 170, 0),
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+            ),
+            validator: validator,
+          ),
+        ],
       ),
     );
   }

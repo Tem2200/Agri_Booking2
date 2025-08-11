@@ -151,8 +151,10 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('ยืนยันการแก้ไข'),
-        content: const Text('คุณต้องการบันทึกการแก้ไขฟาร์มใช่หรือไม่?'),
+        title: const Center(
+          child: Text('ยืนยันการแก้ไข'),
+        ),
+        content: const Text('คุณต้องการบันทึกการแก้ไขไร่นาใช่หรือไม่?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -194,7 +196,7 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('แก้ไขฟาร์มสำเร็จ')),
+          const SnackBar(content: Text('แก้ไขไร่นาสำเร็จ')),
         );
         Navigator.pop(context, true);
       } else {
@@ -265,9 +267,9 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
             children: [
               TextFormField(
                 controller: nameFarmCtrl,
-                decoration: customInputDecoration('ชื่อฟาร์ม*'),
+                decoration: customInputDecoration('ชื่อไร่นา*'),
                 validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกชื่อฟาร์ม*' : null,
+                    val == null || val.isEmpty ? 'กรุณากรอกชื่อไร่นา*' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(

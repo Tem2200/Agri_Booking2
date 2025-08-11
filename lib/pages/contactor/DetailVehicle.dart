@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/painting.dart';
 import 'package:intl/intl.dart';
@@ -438,16 +439,22 @@ class _DetailvehicleState extends State<Detailvehicle> {
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 8),
-                              textStyle: const TextStyle(
-                                  fontSize: 12), // ลดขนาดตัวหนังสือ
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8)),
                               backgroundColor: Colors.orange,
                               foregroundColor: Colors.white,
                               minimumSize: const Size(80, 36),
                             ),
-                            child: const Text('แก้ไขรถ'),
-                          ),
+                            child: Text(
+                              'แก้ไขรถ',
+                              style: GoogleFonts.mitr(
+                                // หรือ GoogleFonts.prompt ตามที่แอปใช้
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
                         ],
                       ),
 

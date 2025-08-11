@@ -107,7 +107,7 @@ class _AddFarmPageState extends State<AddFarmPage> {
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('เพิ่มฟาร์มสำเร็จ')),
+          const SnackBar(content: Text('เพิ่มไร่นาสำเร็จ')),
         );
         Navigator.push(
           context,
@@ -204,7 +204,7 @@ class _AddFarmPageState extends State<AddFarmPage> {
                   focusedErrorBorder: errorBorder,
                 ),
                 validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกชื่อฟาร์ม*' : null,
+                    val == null || val.isEmpty ? 'กรุณากรอกชื่อไร่นา*' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(

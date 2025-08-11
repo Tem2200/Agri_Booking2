@@ -127,7 +127,7 @@ class _HomeGeState extends State<HomeGe> {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton.icon(
-                  icon: const Icon(Icons.search),
+                  //icon: const Icon(Icons.search),
                   label: const Text("ค้นหา"),
                   onPressed: () {
                     final keyword = _searchController.text.trim();

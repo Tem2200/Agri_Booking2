@@ -126,7 +126,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('เพิ่มฟาร์มสำเร็จ')),
+          const SnackBar(content: Text('เพิ่มไร่นาสำเร็จ')),
         );
 
         Navigator.pop(context, true);
@@ -355,15 +355,15 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'กรุณากรอกข้อมูลฟาร์มของคุณเพื่อใช้ในการจองงาน',
+                'กรุณากรอกข้อมูลไร่นาของคุณเพื่อใช้ในการจองงาน',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
               ),
               const SizedBox(height: 20),
               TextFormField(
                 controller: nameFarmCtrl,
-                decoration: inputDecoration.copyWith(labelText: 'ชื่อฟาร์ม*'),
+                decoration: inputDecoration.copyWith(labelText: 'ชื่อไร่นา*'),
                 validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกชื่อฟาร์ม*' : null,
+                    val == null || val.isEmpty ? 'กรุณากรอกชื่อไร่นา*' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -592,7 +592,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                             ),
                           )
                         : const Text(
-                            'บันทึกฟาร์ม',
+                            'เพิ่มไร่นา',
                             style: TextStyle(fontSize: 16),
                           ),
                   ),

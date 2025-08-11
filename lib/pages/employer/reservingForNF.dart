@@ -46,7 +46,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
     'ตารางเมตร',
     'อื่นๆ'
   ];
-  String? selectedUnit = 'ตารางวา';
+  String? selectedUnit;
   bool isCustomUnit = false;
 
   // @override
@@ -462,74 +462,107 @@ class _ReservingForNFState extends State<ReservingForNF> {
                   children: [
                     Container(
                         child: Card(
-                      elevation: 8, // เงาชัดเจน
+                      elevation: 8,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16), // มุมโค้งมนสวย
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       margin: const EdgeInsets.symmetric(
-                          horizontal: 2, vertical: 2), // เว้นขอบการ์ด
-                      shadowColor: Colors.black54, // เงาสีเข้มขึ้นเล็กน้อย
+                          horizontal: 12, vertical: 8), // เว้นขอบกว้างขึ้น
+                      shadowColor: Colors.black54,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 12), // ระยะห่างในการ์ด
-                        child: ListTile(
-                          leading: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              widget.vihicleData['image_vehicle'] ?? '',
-                              width: 120,
-                              height: 180,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const SizedBox(
-                                width: 100,
-                                height: 180,
-                                child: Icon(Icons.broken_image,
-                                    size: 48, color: Colors.grey),
+                        padding: const EdgeInsets.all(12), // ระยะห่างรอบๆ การ์ด
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // รูปด้านซ้าย
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                widget.vihicleData['image_vehicle'] ?? '',
+                                width: 120,
+                                height: 120,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                  width: 120,
+                                  height: 120,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.broken_image,
+                                      size: 48, color: Colors.grey),
+                                ),
                               ),
                             ),
-                          ),
-                          title: Text(
-                            widget.vihicleData['name_vehicle'],
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black12,
-                                  offset: Offset(1, 1),
-                                  blurRadius: 2,
-                                ),
-                              ],
+                            const SizedBox(
+                                width: 12), // เว้นช่องว่างระหว่างรูปกับข้อความ
+                            // ข้อความด้านขวา
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    widget.vihicleData['name_vehicle'] ??
+                                        'ไม่มีชื่อรถ',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.black12,
+                                          offset: Offset(1, 1),
+                                          blurRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'ผู้รับจ้าง: ${widget.vihicleData['username'] ?? '-'}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color.fromARGB(255, 70, 70, 70),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${widget.vihicleData['price'] ?? '-'} บาท / ${widget.vihicleData['unit_price'] ?? '-'}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Color.fromARGB(255, 95, 95, 95),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    widget.vihicleData['detail'] ?? '-',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Color.fromARGB(200, 100, 100, 100),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          subtitle: Text(
-                            'ผู้รับจ้าง: ${widget.vihicleData['username']}\n${widget.vihicleData['price']} บาท/ ${widget.vihicleData['unit_price']}, ${widget.vihicleData['detail']}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Color.fromARGB(255, 95, 95, 95),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 0), // จัดระยะห่างภายใน ListTile
+                          ],
                         ),
                       ),
                     )),
                     const SizedBox(height: 16),
                     _buildTextField(
-                        label: 'ชื่อการจอง', controller: nameController),
+                        label: 'ชื่อการจอง*', controller: nameController),
                     const SizedBox(height: 16),
                     _buildTextField(
-                      label: 'จำนวนพื้นที่',
+                      label: 'จำนวนพื้นที่*',
                       controller: areaAmountController,
                       inputType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty)
-                          return 'กรุณากรอกจำนวนพื้นที่';
+                          return 'กรุณากรอกจำนวนพื้นที่*';
                         if (int.tryParse(value) == null)
-                          return 'กรุณากรอกเป็นตัวเลข';
+                          return 'กรุณากรอกเป็นตัวเลข*';
                         return null;
                       },
                     ),
@@ -549,7 +582,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                         });
                       },
                       decoration: const InputDecoration(
-                        labelText: 'หน่วยพื้นที่',
+                        labelText: 'หน่วยพื้นที่*',
                         border: OutlineInputBorder(),
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -561,18 +594,12 @@ class _ReservingForNFState extends State<ReservingForNF> {
                     if (isCustomUnit) ...[
                       const SizedBox(height: 16),
                       _buildTextField(
-                          label: 'ระบุหน่วยพื้นที่เอง',
+                          label: 'ระบุหน่วยพื้นที่เอง*',
                           controller: customUnitController),
                     ],
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      label: 'รายละเอียด',
-                      controller: detailController,
-                      maxLines: 3,
-                      isOptional: true,
-                    ),
+
                     const SizedBox(height: 20),
-                    Text("เลือกวันและเวลาทำงาน", style: _sectionTitleStyle),
+                    Text("เลือกวันและเวลาทำงาน*", style: _sectionTitleStyle),
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -605,7 +632,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                     DropdownButtonFormField<dynamic>(
                       value: selectedFarm,
                       decoration: const InputDecoration(
-                        labelText: 'เลือกที่นา',
+                        labelText: 'เลือกที่นา*',
                         border: OutlineInputBorder(),
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -622,7 +649,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                         });
                       },
                       validator: (value) =>
-                          value == null ? 'กรุณาเลือกที่นา' : null,
+                          value == null ? 'กรุณาเลือกที่นา*' : null,
                     ),
                     const SizedBox(height: 16),
                     // if (selectedFarm != null) ...[
@@ -804,6 +831,13 @@ class _ReservingForNFState extends State<ReservingForNF> {
                       ),
                       const Divider(height: 32, thickness: 1),
                     ],
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      label: 'รายละเอียดงาน',
+                      controller: detailController,
+                      maxLines: 2,
+                      isOptional: true,
+                    ),
                     const SizedBox(height: 28),
                     SizedBox(
                       width: double.infinity,
@@ -814,7 +848,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           textStyle: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         child: const Text('ยืนยันจอง'),
                       ),

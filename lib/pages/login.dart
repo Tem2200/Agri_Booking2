@@ -286,7 +286,7 @@ class _LoginState extends State<Login> {
                               controller: emailController,
                               label: 'ชื่อผู้ใช้ / อีเมล',
                             ),
-                            const SizedBox(height: 25),
+                            // const SizedBox(height: 1),
                             buildInnerShadowTextField(
                               controller: passwordController,
                               label: 'รหัสผ่าน',
@@ -399,51 +399,63 @@ class _LoginState extends State<Login> {
     required String label,
     bool obscureText = false,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromARGB(255, 176, 171, 171),
-            offset: Offset(-2, -2),
-            blurRadius: 4,
-            spreadRadius: 1,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ชื่อช่องแยกออกมา
+          Text(
+            label,
+            style: TextStyle(
+              color: const Color.fromARGB(255, 5, 5, 5),
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          BoxShadow(
-            color: Color.fromARGB(31, 87, 85, 85),
-            offset: Offset(2, 2),
-            blurRadius: 4,
-            spreadRadius: 1,
+          const SizedBox(height: 6),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color.fromARGB(255, 176, 171, 171),
+                  offset: Offset(-2, -2),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+                BoxShadow(
+                  color: Color.fromARGB(31, 87, 85, 85),
+                  offset: Offset(2, 2),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: TextField(
+              controller: controller,
+              obscureText: obscureText,
+              decoration: InputDecoration(
+                floatingLabelBehavior: FloatingLabelBehavior.never,
+                filled: true,
+                fillColor: Colors.transparent, // ใช้สีจาก Container
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+              ),
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
           ),
         ],
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        decoration: InputDecoration(
-          labelText: label,
-          floatingLabelBehavior: FloatingLabelBehavior.auto,
-          labelStyle: TextStyle(
-            color: Colors.grey[700],
-            fontSize: 16,
-          ),
-          floatingLabelStyle: const TextStyle(
-            fontSize: 18,
-            height: 60, // ทำให้ลอยสูงขึ้น
-            // color: Colors.green,
-          ),
-          filled: true,
-          fillColor: Colors.transparent, // ใช้สีจาก Container
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16, // ปรับระยะห่างระหว่างข้อความกับขอบ
-          ),
-        ),
       ),
     );
   }

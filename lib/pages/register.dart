@@ -350,7 +350,7 @@ class _RegisterState extends State<Register> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         elevation: 0,
         title: Text(
           'สมัครสมาชิก',
@@ -548,27 +548,18 @@ class _RegisterState extends State<Register> {
                             });
                           }),
                           // ช่องกรอก
-                          TextFormField(
-                            controller: otherController,
+                          _buildTextField(
+                            'ช่องทางติดต่อเพิ่มเติม',
+                            otherController,
+                            '',
                             maxLength: 500,
-                            maxLines:
-                                null, // เปลี่ยนตรงนี้ให้เป็น null เพื่อให้รองรับข้อความหลายบรรทัด
                             keyboardType: TextInputType.multiline,
-                            decoration: InputDecoration(
-                              labelText: 'ช่องทางติดต่อเพิ่มเติม',
-                              hintText: 'เช่น Line, Facebook, Instagram',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              filled: true,
-                              fillColor:
-                                  const Color.fromARGB(255, 255, 255, 255),
-                              // แก้ไขตรงนี้ เพื่อให้แสดงตัวนับที่ถูกต้อง
-                              counterText: '${otherController.text.length}/500',
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 26),
-                            ),
+                            hintText: 'เช่น Line, Facebook, Instagram',
+                            validator: (value) {
+                              if (value != null && value.length > 500)
+                                return 'ต้องไม่เกิน 500 ตัวอักษร';
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 10),
                           ElevatedButton(
@@ -601,53 +592,23 @@ class _RegisterState extends State<Register> {
                             child: Stack(
                               children: [
                                 // เงาจำลองให้ช่องดูลึก
-                                Container(
-                                  height:
-                                      80, // ปรับความสูงเพื่อรองรับเนื้อหาที่มากขึ้น
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        color: Colors.white,
-                                        offset: Offset(-2, -2),
-                                        blurRadius: 4,
-                                        spreadRadius: 1,
-                                      ),
-                                      BoxShadow(
-                                        color: Color.fromARGB(246, 69, 62, 62),
-                                        offset: Offset(2, 2),
-                                        blurRadius: 4,
-                                        spreadRadius: 1,
-                                      ),
-                                    ],
-                                  ),
-                                ),
 
                                 // ช่องกรอก
-                                TextFormField(
-                                  controller: addressController,
+                                _buildTextField(
+                                  'ที่อยู่ *',
+                                  addressController,
+                                  'กรุณากรอกที่อยู่',
                                   maxLength: 500,
-                                  maxLines:
-                                      null, // แก้ไขตรงนี้เพื่อให้รองรับการพิมพ์หลายบรรทัด
                                   keyboardType: TextInputType.multiline,
-                                  decoration: InputDecoration(
-                                    labelText: 'ที่อยู่ *',
-                                    hintText:
-                                        'เช่น บ้านเลขที่ หมู่บ้าน ซอย ถนน ตำบล อำเภอ จังหวัด',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    filled: true,
-                                    fillColor: const Color.fromARGB(
-                                        255, 255, 255, 255),
-                                    // แก้ไขตรงนี้ให้แสดงตัวนับที่ถูกต้อง
-                                    counterText:
-                                        '${addressController.text.length}/500',
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 26),
-                                  ),
+                                  hintText:
+                                      'เช่น บ้านเลขที่ หมู่บ้าน ซอย ถนน ตำบล อำเภอ จังหวัด',
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty)
+                                      return 'กรุณากรอกที่อยู่';
+                                    if (value.length > 500)
+                                      return 'ต้องไม่เกิน 500 ตัวอักษร';
+                                    return null;
+                                  },
                                 ),
                               ],
                             ),
@@ -761,14 +722,24 @@ class _RegisterState extends State<Register> {
     TextInputType keyboardType = TextInputType.text,
     int? maxLength,
     Function()? onToggleVisibility,
-    String? hintText,
-    String? Function(String?)? validator, // เพิ่มพารามิเตอร์นี้
+    String? hintText, // ข้อความอธิบายที่จะแสดงด้านล่างช่องกรอก
+    String? Function(String?)? validator,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ชื่อช่อง (Label) แยกออกมาอยู่นอก Stack
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6), // ช่องว่างระหว่างชื่อกับช่องกรอก
           Stack(
             children: [
               Container(
@@ -798,11 +769,7 @@ class _RegisterState extends State<Register> {
                 keyboardType: keyboardType,
                 maxLength: maxLength,
                 decoration: InputDecoration(
-                  labelText: label,
-                  labelStyle: TextStyle(
-                    color: Colors.grey[700],
-                    fontSize: 16,
-                  ),
+                  labelText: null, // ลบ labelText ออก
                   filled: true,
                   fillColor: const Color.fromARGB(255, 255, 255, 255),
                   border: OutlineInputBorder(
@@ -811,7 +778,7 @@ class _RegisterState extends State<Register> {
                   ),
                   counterText: '',
                   contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   suffixIcon: onToggleVisibility != null
                       ? IconButton(
                           icon: Icon(
@@ -822,18 +789,20 @@ class _RegisterState extends State<Register> {
                         )
                       : null,
                 ),
-                validator: validator, // ใช้ validator ที่ส่งเข้ามา
+                validator: validator,
               ),
             ],
           ),
+          // แสดงข้อความอธิบายใต้ช่องกรอก ถ้า hintText ไม่เป็น null
           if (hintText != null)
             Padding(
-              padding: const EdgeInsets.only(top: 8.0, left: 16.0),
+              padding: const EdgeInsets.only(top: 8, left: 4),
               child: Text(
                 hintText,
-                style: GoogleFonts.prompt(
-                  color: const Color.fromARGB(255, 0, 0, 0),
-                  fontSize: 12,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey[700],
+                  fontStyle: FontStyle.italic,
                 ),
               ),
             ),
@@ -850,50 +819,63 @@ class _RegisterState extends State<Register> {
   ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // เงาด้านใน
-          Container(
-            height: 60,
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 92, 85, 85),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.white,
-                  offset: Offset(-2, -2),
-                  blurRadius: 4,
-                  spreadRadius: 1,
-                ),
-                BoxShadow(
-                  color: Color.fromARGB(246, 69, 62, 62),
-                  offset: Offset(2, 2),
-                  blurRadius: 4,
-                  spreadRadius: 1,
-                ),
-              ],
+          // ชื่อช่อง (Label) แยกออกมา
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
             ),
           ),
-
-          // Dropdown วางทับ
-          DropdownButtonFormField<String>(
-            value: value,
-            decoration: InputDecoration(
-              labelText: label,
-              filled: true,
-              fillColor: const Color.fromARGB(255, 255, 252, 252),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+          const SizedBox(height: 6), // เว้นระยะห่างระหว่างชื่อช่องกับ Dropdown
+          Stack(
+            children: [
+              Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 92, 85, 85),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.white,
+                      offset: Offset(-2, -2),
+                      blurRadius: 4,
+                      spreadRadius: 1,
+                    ),
+                    BoxShadow(
+                      color: Color.fromARGB(246, 69, 62, 62),
+                      offset: Offset(2, 2),
+                      blurRadius: 4,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
               ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            ),
-            items: items
-                .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                .toList(),
-            onChanged: onChanged,
-            validator: (v) => v == null ? 'กรุณาเลือก $label' : null,
+              DropdownButtonFormField<String>(
+                value: value,
+                decoration: InputDecoration(
+                  // ลบ labelText เพราะเรากำหนดชื่อช่องไว้แยกแล้ว
+                  labelText: null,
+                  filled: true,
+                  fillColor: const Color.fromARGB(255, 255, 252, 252),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                ),
+                items: items
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: onChanged,
+                validator: (v) => v == null ? 'กรุณาเลือก $label' : null,
+              ),
+            ],
           ),
         ],
       ),
@@ -911,7 +893,7 @@ class _RegisterState extends State<Register> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
         decoration: BoxDecoration(
           color: isSelected
               ? const Color.fromARGB(255, 13, 161, 40)

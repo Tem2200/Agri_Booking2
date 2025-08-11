@@ -711,12 +711,12 @@ class _ReservingEmpState extends State<ReservingEmp> {
                           TextFormField(
                             controller: customUnitController,
                             decoration: const InputDecoration(
-                              labelText: 'ระบุหน่วยพื้นที่เอง',
+                              labelText: 'ระบุหน่วยพื้นที่เอง*',
                               border: OutlineInputBorder(),
                             ),
                             validator: (value) =>
                                 (value == null || value.isEmpty)
-                                    ? 'กรุณากรอกหน่วยพื้นที่เอง'
+                                    ? 'กรุณากรอกหน่วยพื้นที่เอง*'
                                     : null,
                           ),
                         ],
@@ -730,7 +730,8 @@ class _ReservingEmpState extends State<ReservingEmp> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text("เลือกวันและเวลาทำงาน", style: _sectionTitleStyle),
+                        Text("เลือกวันและเวลาทำงาน*",
+                            style: _sectionTitleStyle),
                         const SizedBox(height: 8),
                         Row(
                           children: [

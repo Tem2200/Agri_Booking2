@@ -359,12 +359,12 @@ class _SearchEnterState extends State<SearchEnter> {
 
                       // ปุ่มค้นหา
                       ElevatedButton.icon(
-                        icon: const Icon(Icons.search),
+                        // icon: const Icon(Icons.search),
                         label: const Text('ค้นหา'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 18),
-                        ),
+                        // style: ElevatedButton.styleFrom(
+                        //     // padding: const EdgeInsets.symmetric(
+                        //     //     horizontal: 16, vertical: 8),
+                        //     ),
                         onPressed: () {
                           FocusScope.of(context).unfocus(); // ปิดแป้นพิมพ์
                           setState(() {
@@ -380,26 +380,80 @@ class _SearchEnterState extends State<SearchEnter> {
                 //   'ค้นหาด้วย: $searchQuery',
                 //   style: const TextStyle(fontSize: 16, color: Colors.grey),
                 // ),
+                // Padding(
+                //   padding: const EdgeInsets.all(10.0),
+                //   child: Align(
+                //     alignment: Alignment.centerLeft, // จัดให้ชิดซ้าย
+                //     child: Wrap(
+                //       spacing: 12,
+                //       runSpacing: 12,
+                //       children: [
+                //         // 💡 ปุ่มเรียงราคา: มีแค่ปุ่มเดียวและสลับสถานะ
+                //         ElevatedButton.icon(
+                //           onPressed: _togglePriceOrder,
+                //           icon: Icon(
+                //             currentSortBy == "price" && currentOrder == "desc"
+                //                 ? Icons.arrow_upward
+                //                 : Icons.arrow_downward,
+                //           ),
+                //           label: Text(
+                //             currentSortBy == "price" && currentOrder == "desc"
+                //                 ? "ราคา: มาก → น้อย"
+                //                 : "ราคา: น้อย → มาก",
+                //           ),
+                //           style: ElevatedButton.styleFrom(
+                //             backgroundColor:
+                //                 currentSortBy == "price" ? Colors.green : null,
+                //             foregroundColor:
+                //                 currentSortBy == "price" ? Colors.white : null,
+                //           ),
+                //         ),
+
+                //         // 💡 ปุ่มเรียงรีวิว: สลับสถานะเหมือนกัน
+                //         ElevatedButton.icon(
+                //           onPressed: _toggleReviewOrder,
+                //           icon: Icon(
+                //             currentSortBy == "review" && currentOrder == "desc"
+                //                 ? Icons.arrow_upward
+                //                 : Icons.arrow_downward,
+                //           ),
+                //           label: Text(
+                //             currentSortBy == "review" && currentOrder == "desc"
+                //                 ? "รีวิว: มาก → น้อย"
+                //                 : "รีวิว: น้อย → มาก",
+                //           ),
+                //           style: ElevatedButton.styleFrom(
+                //             backgroundColor:
+                //                 currentSortBy == "review" ? Colors.green : null,
+                //             foregroundColor:
+                //                 currentSortBy == "review" ? Colors.white : null,
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: 1),
                 Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft, // จัดให้ชิดซ้าย
-                    child: Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: [
-                        // 💡 ปุ่มเรียงราคา: มีแค่ปุ่มเดียวและสลับสถานะ
-                        ElevatedButton.icon(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
                           onPressed: _togglePriceOrder,
                           icon: Icon(
                             currentSortBy == "price" && currentOrder == "desc"
                                 ? Icons.arrow_upward
                                 : Icons.arrow_downward,
                           ),
-                          label: Text(
-                            currentSortBy == "price" && currentOrder == "desc"
-                                ? "ราคา: มาก → น้อย"
-                                : "ราคา: น้อย → มาก",
+                          label: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              currentSortBy == "price" && currentOrder == "desc"
+                                  ? "ราคา: มาก → น้อย"
+                                  : "ราคา: น้อย → มาก",
+                              maxLines: 1,
+                            ),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
@@ -408,19 +462,25 @@ class _SearchEnterState extends State<SearchEnter> {
                                 currentSortBy == "price" ? Colors.white : null,
                           ),
                         ),
-
-                        // 💡 ปุ่มเรียงรีวิว: สลับสถานะเหมือนกัน
-                        ElevatedButton.icon(
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
                           onPressed: _toggleReviewOrder,
                           icon: Icon(
                             currentSortBy == "review" && currentOrder == "desc"
                                 ? Icons.arrow_upward
                                 : Icons.arrow_downward,
                           ),
-                          label: Text(
-                            currentSortBy == "review" && currentOrder == "desc"
-                                ? "รีวิว: มาก → น้อย"
-                                : "รีวิว: น้อย → มาก",
+                          label: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              currentSortBy == "review" &&
+                                      currentOrder == "desc"
+                                  ? "รีวิว: มาก → น้อย"
+                                  : "รีวิว: น้อย → มาก",
+                              maxLines: 1,
+                            ),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
@@ -429,10 +489,11 @@ class _SearchEnterState extends State<SearchEnter> {
                                 currentSortBy == "review" ? Colors.white : null,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(height: 16),
                 // ElevatedButton.icon(
                 //   onPressed: _togglePriceOrder,
                 //   icon: Icon(

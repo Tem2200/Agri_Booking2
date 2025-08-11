@@ -6,6 +6,7 @@ import 'package:agri_booking2/pages/editMem.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 //defjrogtgt
@@ -628,8 +629,16 @@ class _HomePageState extends State<HomePage> {
                                       size: 20, color: Colors.redAccent),
                                   const SizedBox(width: 6),
                                   Expanded(
-                                    child: Text(member['other'] ?? '-',
-                                        softWrap: true),
+                                    child: Text(
+                                      (member['other'] != null &&
+                                              member['other']
+                                                  .toString()
+                                                  .trim()
+                                                  .isNotEmpty)
+                                          ? member['other']
+                                          : '-',
+                                      softWrap: true,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -687,7 +696,7 @@ class _HomePageState extends State<HomePage> {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
-                            boxShadow: [
+                            boxShadow: const [
                               BoxShadow(
                                 color: Colors.black26,
                                 blurRadius: 4,
@@ -698,10 +707,15 @@ class _HomePageState extends State<HomePage> {
                           labelColor: Colors.white,
                           unselectedLabelColor: Colors.black87,
                           indicatorSize: TabBarIndicatorSize.tab,
-                          labelStyle: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          labelStyle:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                          unselectedLabelStyle:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    fontSize: 14,
+                                  ),
                           tabs: const [
                             Tab(
                               child: SizedBox(
@@ -1054,8 +1068,6 @@ class _HomePageState extends State<HomePage> {
                                     // 🔹 ปุ่มรายละเอียดเพิ่มเติมแบบนูน
                                     Container(
                                       decoration: BoxDecoration(
-                                        // color:
-                                        //     Color.fromARGB(255, 255, 244, 210),
                                         borderRadius: BorderRadius.circular(12),
                                         boxShadow: const [
                                           BoxShadow(
@@ -1074,17 +1086,12 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       child: ElevatedButton(
                                         style: ElevatedButton.styleFrom(
-                                          elevation:
-                                              0, // ปิดเงา ElevatedButton เพื่อใช้เงาจาก Container แทน
+                                          elevation: 0, // ปิดเงา ElevatedButton
                                           backgroundColor:
                                               const Color(0xFFF8A100),
-
                                           foregroundColor: Colors.white,
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 5, vertical: 5),
-                                          textStyle: const TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold),
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(12),
@@ -1099,8 +1106,16 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           );
                                         },
-                                        child:
-                                            const Text('รายละเอียดเพิ่มเติม'),
+                                        child: Text(
+                                          'รายละเอียดเพิ่มเติม',
+                                          style: GoogleFonts.mitr(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight
+                                                .w600, // ถ้าต้องการความหนา
+                                            color: Colors
+                                                .white, // ใช้สีเดียวกับ foregroundColor
+                                          ),
+                                        ),
                                       ),
                                     ),
 
