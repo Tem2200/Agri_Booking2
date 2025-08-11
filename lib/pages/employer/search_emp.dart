@@ -532,7 +532,7 @@ class _SearchEmpState extends State<SearchEmp> {
                                                     Expanded(
                                                       // ครอบเพื่อจำกัดพื้นที่
                                                       child: Text(
-                                                        'คะแนนเฉลี่ย: ${v['avg_review_point'] ?? '-'}',
+                                                        'คะแนนเฉลี่ย: ${(v['avg_review_point'] is num) ? (v['avg_review_point'] as num).toStringAsFixed(2) : '0.00'}',
                                                         style: const TextStyle(
                                                             fontSize: 14),
                                                         overflow: TextOverflow

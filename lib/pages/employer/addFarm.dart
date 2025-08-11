@@ -188,7 +188,7 @@ class _AddFarmPageState extends State<AddFarmPage> {
               TextFormField(
                 controller: nameFarmCtrl,
                 decoration: InputDecoration(
-                  labelText: 'ชื่อฟาร์ม *',
+                  labelText: 'ชื่อไร่นา *',
                   filled: true,
                   fillColor: const Color.fromARGB(248, 255, 249, 221)
                       .withOpacity(0.15),
@@ -530,8 +530,14 @@ class _AddFarmPageState extends State<AddFarmPage> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: detailCtrl,
+                maxLength: 500,
+                maxLines: null,
+                // เพิ่มบรรทัดนี้: อัปเดต UI ทุกครั้งที่มีการเปลี่ยนแปลงข้อความ
+                onChanged: (text) {
+                  setState(() {});
+                },
                 decoration: InputDecoration(
-                  labelText: 'รายละเอียด (ไม่บังคับ)',
+                  labelText: 'รายละเอียดที่อยู่ (ไม่บังคับ)',
                   filled: true,
                   fillColor: const Color.fromARGB(248, 255, 249, 221)
                       .withOpacity(0.15),
@@ -544,6 +550,8 @@ class _AddFarmPageState extends State<AddFarmPage> {
                   focusedBorder: focusedBorder,
                   errorBorder: errorBorder,
                   focusedErrorBorder: errorBorder,
+                  // counterText ที่ถูกต้อง
+                  counterText: '${detailCtrl.text.length}/500',
                 ),
               ),
               const SizedBox(height: 40),

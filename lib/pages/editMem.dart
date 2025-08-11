@@ -464,7 +464,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
               ),
               buildInput(
                 otherController,
-                'ข้อมูลเพิ่มเติม (ถ้ามี)',
+                'ข้อมูลติดต่อเพิ่มเติม (ถ้ามี)',
                 readOnly: false,
                 validator: (value) {
                   if (value != null && value.isNotEmpty && value.length > 255) {

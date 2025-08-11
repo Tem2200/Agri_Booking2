@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/addFarm.dart';
@@ -11,6 +10,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:agri_booking2/pages/assets/location_data.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'package:flutter/services.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -154,8 +155,8 @@ class _RegisterState extends State<Register> {
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
-              title: const Text('สำเร็จ'),
-              content: Text('สมัครสมาชิกสำเร็จ MID: $mid'),
+              title: const Text('สมัครสมาชิกสำเร็จ'),
+              content: Text('ยินดีต้อนรับคุณ ${data['username']}'),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -328,7 +329,7 @@ class _RegisterState extends State<Register> {
         context: context,
         builder: (_) => AlertDialog(
           title: const Text('เกิดข้อผิดพลาด'),
-          content: Text('ไม่สามารถอัปโหลดรูปได้: $e'),
+          content: Text('ไม่สามารถอัปโหลดรูปได้'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -343,41 +344,6 @@ class _RegisterState extends State<Register> {
       });
     }
   }
-
-  // bool validatePassword() {
-  //   String password = passwordController.text;
-  //   String confirmPassword = confirmPasswordController.text;
-
-  //   // 1. ตรวจสอบว่ารหัสผ่านตรงกัน
-  //   if (password != confirmPassword) {
-  //     // แสดงข้อความผิดพลาด เช่น 'รหัสผ่านไม่ตรงกัน'
-  //     return false;
-  //   }
-
-  //   // 2. ตรวจสอบความปลอดภัยของรหัสผ่าน (อย่างน้อย 8 ตัวอักษร)
-  //   if (password.length < 8) {
-  //     // แสดงข้อความผิดพลาด เช่น 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร'
-  //     return false;
-  //   }
-
-  //   // 3. ตรวจสอบว่ามีอักษรพิมพ์ใหญ่, พิมพ์เล็ก, ตัวเลข, และอักขระพิเศษ
-  //   RegExp uppercase = RegExp(r'[A-Z]');
-  //   RegExp lowercase = RegExp(r'[a-z]');
-  //   RegExp digit = RegExp(r'[0-9]');
-  //   RegExp specialChar = RegExp(r'[!@#\$&*~]');
-
-  //   if (!uppercase.hasMatch(password) ||
-  //       !lowercase.hasMatch(password) ||
-  //       !digit.hasMatch(password) ||
-  //       !specialChar.hasMatch(password)) {
-  //     // แสดงข้อความผิดพลาด เช่น 'รหัสผ่านต้องมีทั้งพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษ'
-  //     return false;
-  //   }
-
-  //   // ถ้าทุกอย่างถูกต้อง
-  //   return true;
-  // }
-  // อย่าลืม import
 
   @override
   Widget build(BuildContext context) {
@@ -493,8 +459,13 @@ class _RegisterState extends State<Register> {
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
-                          _buildTextField("ชื่อผู้ใช้ *", usernameController,
-                              'กรุณากรอก username *'),
+                          _buildTextField(
+                            "ชื่อผู้ใช้ *",
+                            usernameController,
+                            'กรุณากรอก username *',
+                            keyboardType: TextInputType.text,
+                            maxLength: 30,
+                          ),
                           _buildTextField(
                               "อีเมล *", emailController, 'กรุณากรอก email *'),
                           _buildTextField(
@@ -510,7 +481,7 @@ class _RegisterState extends State<Register> {
 
                             // เพิ่ม hintText นี้
                             hintText:
-                                'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร มีทั้งอักษรพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษ !@#\$&*~',
+                                'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร มีทั้งอักษรพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษ !@#\$&*~.',
                             validator: (value) => validatePassword(),
                           ),
 
@@ -526,10 +497,13 @@ class _RegisterState extends State<Register> {
                               });
                             },
                           ),
-                          _buildTextField("เบอร์โทร *", phoneController,
-                              'กรุณากรอกเบอร์โทร *',
-                              keyboardType: TextInputType.number,
-                              maxLength: 10),
+                          _buildTextField(
+                            "เบอร์โทร *",
+                            phoneController,
+                            'กรุณากรอกเบอร์โทร *',
+                            keyboardType: TextInputType.number,
+                            maxLength: 10,
+                          ),
                           //const SizedBox(height: 12),
                           _buildDropdown(
                               "จังหวัด *", selectedProvince, provinces,
@@ -577,18 +551,21 @@ class _RegisterState extends State<Register> {
                           TextFormField(
                             controller: otherController,
                             maxLength: 500,
-                            maxLines: 1,
+                            maxLines:
+                                null, // เปลี่ยนตรงนี้ให้เป็น null เพื่อให้รองรับข้อความหลายบรรทัด
                             keyboardType: TextInputType.multiline,
                             decoration: InputDecoration(
-                              labelText: 'ช่องทางติดต่อเพิ่มเตฺิม',
+                              labelText: 'ช่องทางติดต่อเพิ่มเติม',
                               hintText: 'เช่น Line, Facebook, Instagram',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
                               ),
                               filled: true,
-                              fillColor: Colors.grey[200],
-                              counterText: '',
+                              fillColor:
+                                  const Color.fromARGB(255, 255, 255, 255),
+                              // แก้ไขตรงนี้ เพื่อให้แสดงตัวนับที่ถูกต้อง
+                              counterText: '${otherController.text.length}/500',
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 26),
                             ),
@@ -651,7 +628,8 @@ class _RegisterState extends State<Register> {
                                 TextFormField(
                                   controller: addressController,
                                   maxLength: 500,
-                                  maxLines: 1,
+                                  maxLines:
+                                      null, // แก้ไขตรงนี้เพื่อให้รองรับการพิมพ์หลายบรรทัด
                                   keyboardType: TextInputType.multiline,
                                   decoration: InputDecoration(
                                     labelText: 'ที่อยู่ *',
@@ -662,8 +640,11 @@ class _RegisterState extends State<Register> {
                                       borderSide: BorderSide.none,
                                     ),
                                     filled: true,
-                                    fillColor: Colors.grey[200],
-                                    counterText: '',
+                                    fillColor: const Color.fromARGB(
+                                        255, 255, 255, 255),
+                                    // แก้ไขตรงนี้ให้แสดงตัวนับที่ถูกต้อง
+                                    counterText:
+                                        '${addressController.text.length}/500',
                                     contentPadding: const EdgeInsets.symmetric(
                                         horizontal: 16, vertical: 26),
                                   ),
@@ -758,9 +739,9 @@ class _RegisterState extends State<Register> {
     }
 
     // 6. ตรวจสอบอักขระพิเศษ
-    RegExp hasSpecialChar = RegExp(r'[!@#\$&*~]');
+    RegExp hasSpecialChar = RegExp(r'[!@#\$&*~.]');
     if (!hasSpecialChar.hasMatch(password)) {
-      return 'รหัสผ่านต้องมีอักขระพิเศษอย่างน้อย 1 ตัว เช่น !@#\$&*~';
+      return 'รหัสผ่านต้องมีอักขระพิเศษอย่างน้อย 1 ตัว เช่น !@#\$&*~.';
     }
 
     // 7. ตรวจสอบรหัสผ่านที่ยืนยันว่าตรงกันหรือไม่

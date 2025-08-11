@@ -17,7 +17,10 @@ class _MapFarmState extends State<MapFarm> {
   Marker? _selectedMarker;
   LatLng? _initialPosition;
   TextEditingController searchController = TextEditingController();
+  Set<Marker> _placesMarkers = {};
 
+  // ใส่ API Key Google Places API ของคุณตรงนี้
+  final String googleApiKey = 'AIzaSyCjle5TSSjk8BnEI_mBrwAtVxrefVCMJAU';
   @override
   void initState() {
     super.initState();
@@ -69,21 +72,101 @@ class _MapFarmState extends State<MapFarm> {
     });
   }
 
+  // Future<void> _searchPlace(String query) async {
+  //   try {
+  //     List<Location> locations = await locationFromAddress(query);
+  //     if (locations.isNotEmpty) {
+  //       final location = locations.first;
+  //       LatLng latLng = LatLng(location.latitude, location.longitude);
+
+  //       final controller = await _controller.future;
+  //       controller.animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
+
+  //       _onMapTap(latLng); // ใช้ _onMapTap เพื่อบันทึกหมุดและแสดง
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('ไม่พบสถานที่: $e')),
+  //     );
+  //   }
+  // }
   Future<void> _searchPlace(String query) async {
     try {
       List<Location> locations = await locationFromAddress(query);
-      if (locations.isNotEmpty) {
+      if (locations.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('ไม่พบสถานที่')),
+        );
+        return;
+      }
+
+      if (locations.length == 1) {
         final location = locations.first;
         LatLng latLng = LatLng(location.latitude, location.longitude);
-
         final controller = await _controller.future;
         controller.animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
+        _onMapTap(latLng);
+      } else {
+        // Multiple locations found
+        showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context) {
+            return FutureBuilder<List<Placemark>>(
+              future: Future.wait(locations.map((loc) async {
+                final placemarks =
+                    await placemarkFromCoordinates(loc.latitude, loc.longitude);
+                return placemarks.first;
+              })),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-        _onMapTap(latLng); // ใช้ _onMapTap เพื่อบันทึกหมุดและแสดง
+                final placemarks = snapshot.data!;
+                return ListView.builder(
+                  itemCount: locations.length,
+                  itemBuilder: (context, index) {
+                    final location = locations[index];
+                    final placemark = placemarks[index];
+                    return ListTile(
+                      title: Text(placemark.name ?? 'ไม่ทราบชื่อสถานที่'),
+                      subtitle: Text([
+                        placemark.subLocality,
+                        placemark.locality,
+                        placemark.administrativeArea,
+                        placemark.country,
+                      ].where((s) => s != null && s.isNotEmpty).join(', ')),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        LatLng latLng =
+                            LatLng(location.latitude, location.longitude);
+                        final controller = await _controller.future;
+                        controller.animateCamera(
+                            CameraUpdate.newLatLngZoom(latLng, 15));
+                        _onMapTap(latLng);
+                      },
+                    );
+                  },
+                );
+              },
+            );
+          },
+        );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('ไม่พบสถานที่: $e')),
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('ข้อผิดพลาด'),
+          content: const Text(
+              'เกิดข้อผิดพลาดในการค้นหา โปรดเจาะจงชื่อสถานที่ให้ชัดเจน'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('ตกลง'),
+            ),
+          ],
+        ),
       );
     }
   }
@@ -171,16 +254,30 @@ class _MapFarmState extends State<MapFarm> {
                   ),
                 ),
                 Expanded(
+                  // child: GoogleMap(
+                  //   mapType: MapType.satellite,
+                  //   initialCameraPosition:
+                  //       CameraPosition(target: _initialPosition!, zoom: 15),
+                  //   onMapCreated: (controller) =>
+                  //       _controller.complete(controller),
+                  //   onTap: _onMapTap,
+                  //   markers: _selectedMarker != null
+                  //       ? {_selectedMarker!}
+                  //       : <Marker>{},
+                  //   myLocationEnabled: true,
+                  //   myLocationButtonEnabled: true,
+                  // ),
                   child: GoogleMap(
-                    mapType: MapType.satellite,
+                    mapType: MapType.hybrid,
                     initialCameraPosition:
                         CameraPosition(target: _initialPosition!, zoom: 15),
                     onMapCreated: (controller) =>
                         _controller.complete(controller),
                     onTap: _onMapTap,
-                    markers: _selectedMarker != null
-                        ? {_selectedMarker!}
-                        : <Marker>{},
+                    markers: {
+                      if (_selectedMarker != null) _selectedMarker!,
+                      ..._placesMarkers,
+                    },
                     myLocationEnabled: true,
                     myLocationButtonEnabled: true,
                   ),

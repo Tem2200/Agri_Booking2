@@ -36,6 +36,26 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
   final List<String> unitOptions = ['ไร่', 'งาน', 'ตารางวา', 'อื่นๆ'];
   String? selectedUnit;
   bool _isSubmitting = false;
+  // ประกาศตัวแปรสำหรับ border
+  final inputBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(12),
+    borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+  );
+
+  final enabledBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(12),
+    borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+  );
+
+  final focusedBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(12),
+    borderSide: const BorderSide(color: Colors.blue, width: 2),
+  );
+
+  final errorBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(12),
+    borderSide: const BorderSide(color: Colors.red, width: 2),
+  );
 
   @override
   void initState() {
@@ -454,8 +474,29 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: detailCtrl,
-                decoration: inputDecoration.copyWith(
-                    labelText: 'รายละเอียด (ไม่บังคับ)'),
+                maxLength: 500,
+                maxLines: null,
+                // เพิ่มบรรทัดนี้: อัปเดต UI ทุกครั้งที่มีการเปลี่ยนแปลงข้อความ
+                onChanged: (text) {
+                  setState(() {});
+                },
+                decoration: InputDecoration(
+                  labelText: 'รายละเอียดที่อยู่ (ไม่บังคับ)',
+                  filled: true,
+                  fillColor: const Color.fromARGB(248, 255, 249, 221)
+                      .withOpacity(0.15),
+                  labelStyle: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.w600),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  border: inputBorder,
+                  enabledBorder: enabledBorder,
+                  focusedBorder: focusedBorder,
+                  errorBorder: errorBorder,
+                  focusedErrorBorder: errorBorder,
+                  // counterText ที่ถูกต้อง
+                  counterText: '${detailCtrl.text.length}/500',
+                ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
