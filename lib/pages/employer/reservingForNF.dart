@@ -519,18 +519,18 @@ class _ReservingForNFState extends State<ReservingForNF> {
                                   Text(
                                     'ผู้รับจ้าง: ${widget.vihicleData['username'] ?? '-'}',
                                     style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color.fromARGB(255, 70, 70, 70),
+                                      fontSize: 13,
+                                      //fontWeight: FontWeight.w600,
+                                      color: Color.fromARGB(200, 100, 100, 100),
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     '${widget.vihicleData['price'] ?? '-'} บาท / ${widget.vihicleData['unit_price'] ?? '-'}',
                                     style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Color.fromARGB(255, 95, 95, 95),
-                                      fontWeight: FontWeight.w500,
+                                      fontSize: 13,
+                                      color: Color.fromARGB(200, 100, 100, 100),
+                                      //fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
@@ -722,33 +722,43 @@ class _ReservingForNFState extends State<ReservingForNF> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                   vertical: 8, horizontal: 12),
-                              child: ListTile(
-                                title: Text(
-                                  selectedFarm['name_farm'],
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                    shadows: [
-                                      Shadow(
-                                        color: Colors.black12,
-                                        offset: Offset(1, 1),
-                                        blurRadius: 2,
-                                      ),
-                                    ],
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'ชื่อ: ${selectedFarm['name_farm'] ?? '-'}',
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.black12,
+                                          offset: Offset(1, 1),
+                                          blurRadius: 2,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                subtitle: Text(
-                                  '${selectedFarm['village']}, ${selectedFarm['subdistrict']}, ${selectedFarm['district']}, ${selectedFarm['province']}, ${selectedFarm['area_amount']} ${selectedFarm['unit_area']}\n'
-                                  '${selectedFarm['detail'] ?? 'ไม่มีรายละเอียดอื่นๆ'}',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Color.fromARGB(255, 95, 95, 95),
-                                    fontWeight: FontWeight.w500,
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'ที่อยู่: ${selectedFarm['village']}, ${selectedFarm['subdistrict']}, ${selectedFarm['district']}, ${selectedFarm['province']}, ${selectedFarm['area_amount']} ${selectedFarm['unit_area']}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Color.fromARGB(255, 95, 95, 95),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                ),
-                                contentPadding:
-                                    const EdgeInsets.symmetric(horizontal: 0),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'รายละเอียด: ${selectedFarm['detail'] ?? 'ไม่มีรายละเอียดอื่นๆ'}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Color.fromARGB(255, 95, 95, 95),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

@@ -282,6 +282,8 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
         // แปลงสถานะตัวเลขเป็นข้อความ
         String getStatusText(int status) {
           switch (status) {
+            case 1:
+              return 'สถานะยืนยันการรับงาน';
             case 2:
               return 'กำลังเดินทางมา';
             case 3:

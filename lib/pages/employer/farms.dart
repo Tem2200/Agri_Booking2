@@ -36,15 +36,16 @@ class _FarmsPageState extends State<FarmsPage> {
       print("ข้อมูลไร่นา: $data");
       return data;
     } else {
-      Fluttertoast.showToast(
-        msg: 'ไม่พบข้อมูลไร่นา',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        timeInSecForIosWeb: 2,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
+      // Fluttertoast.showToast(
+      //   msg: 'ไม่พบข้อมูลไร่นา',
+      //   toastLength: Toast.LENGTH_SHORT,
+      //   gravity: ToastGravity.CENTER, // แสดงตรงกลางจอ
+      //   //gravity: ToastGravity.TOP,
+      //   timeInSecForIosWeb: 2,
+      //   backgroundColor: Colors.red,
+      //   textColor: Colors.white,
+      //   fontSize: 16.0,
+      // );
       return []; // หรือ [] แล้วแต่ฟังก์ชันคุณรองรับอะไร
     }
   }

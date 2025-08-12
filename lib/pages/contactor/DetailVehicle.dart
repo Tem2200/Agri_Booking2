@@ -319,11 +319,55 @@ class _DetailvehicleState extends State<Detailvehicle> {
                       const SizedBox(height: 8),
                       Text(
                           'ราคา: ${vehicleData?['price'] ?? '-'} / ${vehicleData?['unit_price'] ?? '-'}',
-                          style: const TextStyle(fontSize: 16)),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                          )),
                       const SizedBox(height: 8),
-                      Text('รายละเอียด: ${vehicleData?['detail'] ?? '-'}'),
+                      RichText(
+                        text: TextSpan(
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black, // สีข้อความปกติของแอป
+                          ),
+                          children: [
+                            const TextSpan(
+                              text: 'รายละเอียด: ',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold), // ตัวหนา
+                            ),
+                            TextSpan(
+                              text: vehicleData?['detail'] ?? '-',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.normal), // ตัวบาง
+                            ),
+                          ],
+                        ),
+                      ),
+
                       const SizedBox(height: 8),
-                      Text('ทะเบียนรถ: ${vehicleData?['plate_number'] ?? '-'}'),
+                      RichText(
+                        text: TextSpan(
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black, // สีข้อความปกติของแอป
+                          ),
+                          children: [
+                            const TextSpan(
+                              text: 'ทะเบียนรถ: ',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold), // ตัวหนา
+                            ),
+                            TextSpan(
+                              text: vehicleData?['plate_number'] ?? '-',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.normal), // ตัวบาง
+                            ),
+                          ],
+                        ),
+                      ),
+
                       const SizedBox(height: 8),
                       Text(
                         'สถานะ: ${vehicleData?['status_vehicle'] == 1 ? 'พร้อมใช้งาน' : 'ไม่พร้อม'}',
@@ -332,6 +376,7 @@ class _DetailvehicleState extends State<Detailvehicle> {
                               ? Colors.green
                               : Colors.red,
                           fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
                       ),
                       const Divider(height: 32),
@@ -636,8 +681,7 @@ class _DetailvehicleState extends State<Detailvehicle> {
                                                 ],
                                               ),
                                               const SizedBox(height: 4),
-                                              Text(
-                                                  'ข้อความ: ${review['text'] ?? '-'}'),
+                                              Text('${review['text'] ?? '-'}'),
                                               if (review['image'] != null &&
                                                   review['image'].isNotEmpty)
                                                 Padding(
@@ -689,8 +733,8 @@ class _DetailvehicleState extends State<Detailvehicle> {
                                                                 horizontal: 12,
                                                                 vertical: 6),
                                                         textStyle:
-                                                            const TextStyle(
-                                                                fontSize: 10),
+                                                            GoogleFonts.mitr(
+                                                                fontSize: 12),
                                                         shape:
                                                             RoundedRectangleBorder(
                                                           borderRadius:
@@ -698,8 +742,11 @@ class _DetailvehicleState extends State<Detailvehicle> {
                                                                   .circular(8),
                                                         ),
                                                       ),
-                                                      child: const Text(
-                                                          'รายงานรีวิวไม่เหมาะสม'),
+                                                      child: Text(
+                                                        'รายงานรีวิว',
+                                                        style:
+                                                            GoogleFonts.mitr(),
+                                                      ),
                                                     ),
                                                   ),
                                                 ),

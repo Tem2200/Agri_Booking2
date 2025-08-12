@@ -154,6 +154,29 @@ class _EditVehicleState extends State<EditVehicle> {
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
+      // if (response.statusCode == 200) {
+      //   showDialog(
+      //     context: context,
+      //     builder: (_) => AlertDialog(
+      //       title: const Text('อัปเดตข้อมูลรถสำเร็จ'),
+      //       content: const Text('ข้อมูลรถของคุณได้รับการอัปเดตแล้ว'),
+      //       actions: [
+      //         TextButton(
+      //           onPressed: () {
+      //             Navigator.pop(context);
+      //             Navigator.pushReplacement(
+      //               context,
+      //               MaterialPageRoute(
+      //                 builder: (context) => Detailvehicle(vid: _currentVid),
+      //               ),
+      //             );
+      //           },
+      //           child: const Text('ตกลง'),
+      //         ),
+      //       ],
+      //     ),
+      //   );
+      // }
       if (response.statusCode == 200) {
         showDialog(
           context: context,
@@ -163,13 +186,9 @@ class _EditVehicleState extends State<EditVehicle> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Detailvehicle(vid: _currentVid),
-                    ),
-                  );
+                  Navigator.pop(context); // ปิด Dialog ก่อน
+                  Navigator.pop(
+                      context, true); // กลับไปหน้าก่อนหน้า พร้อมส่งค่า true
                 },
                 child: const Text('ตกลง'),
               ),
@@ -362,7 +381,7 @@ class _EditVehicleState extends State<EditVehicle> {
                                       fillColor: Colors
                                           .white, // ✅ กำหนดสีพื้นหลังเป็นสีขาว
                                       border: OutlineInputBorder(),
-                                      hintText: '500',
+                                      //hintText: '500',
                                       contentPadding: EdgeInsets.symmetric(
                                           horizontal: 12, vertical: 8),
                                     ),

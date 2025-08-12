@@ -426,6 +426,98 @@ class _HomePageState extends State<HomePage> {
           ),
 
           actions: [
+            // PopupMenuButton<String>(
+            //   icon: const Icon(Icons.menu, color: Colors.white),
+            //   onSelected: (value) async {
+            //     int currentMonth = DateTime.now().month;
+            //     int currentYear = DateTime.now().year;
+            //     if (value == 'edit') {
+            //       try {
+            //         final data = await fetchCon(widget.mid);
+            //         if (!context.mounted) return;
+            //         Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //             builder: (context) => EditMemberPage(memberData: data),
+            //           ),
+            //         );
+            //       } catch (e) {
+            //         print('เกิดข้อผิดพลาดในการโหลดข้อมูลสมาชิก: $e');
+            //         ScaffoldMessenger.of(context).showSnackBar(
+            //           const SnackBar(
+            //               content: Text('ไม่สามารถโหลดข้อมูลสมาชิกได้')),
+            //         );
+            //       }
+            //     } else if (value == 'mode') {
+            //       try {
+            //         final response = await updateTypeMember(widget.mid, 3);
+            //         if (response['type_member'] == 3) {
+            //           if (!context.mounted) return;
+            //           Navigator.pushReplacement(
+            //             context,
+            //             MaterialPageRoute(
+            //               builder: (context) => Tabbar(
+            //                 mid: widget.mid,
+            //                 value: 0,
+            //                 month: currentMonth,
+            //                 year: currentYear,
+            //               ),
+            //             ),
+            //           );
+            //         } else {
+            //           throw Exception('อัปเดตไม่สำเร็จ');
+            //         }
+            //       } catch (e) {
+            //         print('เกิดข้อผิดพลาดในการอัปเดต: $e');
+            //         ScaffoldMessenger.of(context).showSnackBar(
+            //           const SnackBar(
+            //               content: Text('ไม่สามารถอัปเดตโหมดผู้รับจ้างได้')),
+            //         );
+            //       }
+            //     } else if (value == 'logout') {
+            //       Navigator.pushAndRemoveUntil(
+            //         context,
+            //         MaterialPageRoute(
+            //             builder: (context) => TabbarGenaralUser(value: 0)),
+            //         (route) => false,
+            //       );
+            //     }
+            //   },
+            //   itemBuilder: (context) => [
+            //     const PopupMenuItem(
+            //       value: 'edit',
+            //       child: Row(
+            //         children: [
+            //           Icon(Icons.edit, color: Colors.blue),
+            //           SizedBox(width: 8),
+            //           Text('แก้ไขข้อมูลส่วนตัว'),
+            //         ],
+            //       ),
+            //     ),
+            //     const PopupMenuItem(
+            //       value: 'mode',
+            //       child: Row(
+            //         children: [
+            //           Icon(Icons.work, color: Colors.green),
+            //           SizedBox(width: 8),
+            //           Text('โหมดผู้จ้าง'),
+            //         ],
+            //       ),
+            //     ),
+            //     const PopupMenuDivider(),
+            //     const PopupMenuItem(
+            //       value: 'logout',
+            //       child: Row(
+            //         children: [
+            //           Icon(Icons.logout, color: Colors.red),
+            //           SizedBox(width: 8),
+            //           Text('ออกจากระบบ'),
+            //         ],
+            //       ),
+            //     ),
+            //   ],
+            // ),
+
             PopupMenuButton<String>(
               icon: const Icon(Icons.menu, color: Colors.white),
               onSelected: (value) async {
@@ -450,9 +542,106 @@ class _HomePageState extends State<HomePage> {
                   }
                 } else if (value == 'mode') {
                   try {
+                    // ดึงข้อมูลสมาชิกปัจจุบัน
+                    final memberData = await fetchCon(widget.mid);
+                    int currentType = memberData['type_member'];
+
+                    if (!context.mounted) return;
+
+                    // ถ้าเป็น 1 แสดง Dialog ถามก่อน
+                    if (currentType == 1) {
+                      String currentRoleText = 'ผู้รับจ้าง';
+                      String targetRoleText = 'ทั้งผู้รับจ้างและผู้จ้าง';
+
+                      bool? confirmChange = await showDialog<bool>(
+                          context: context,
+                          // builder: (_) => AlertDialog(
+                          //   title: const Text('ยืนยันการสมัครสมาชิก'),
+                          //   content: Text(
+                          //     'ตอนนี้คุณเป็น "$currentRoleText"\n'
+                          //     'คุณต้องการสมัครเป็น "$targetRoleText" หรือไม่?',
+                          //   ),
+                          //   actions: [
+                          //     TextButton(
+                          //       onPressed: () => Navigator.pop(context, false),
+                          //       child: const Text('ยกเลิก'),
+                          //     ),
+                          //     TextButton(
+                          //       onPressed: () => Navigator.pop(context, true),
+                          //       child: const Text('ตกลง'),
+                          //     ),
+                          //   ],
+                          // ),
+                          builder: (_) => AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                title: Center(
+                                  child: Text(
+                                    'ยืนยันการสมัครสมาชิก',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      color: Colors.deepPurple,
+                                    ),
+                                  ),
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.person_add_alt_1,
+                                      color: Colors.deepPurple,
+                                      size: 48,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'ตอนนี้คุณเป็น "$currentRoleText"\n'
+                                      'คุณต้องการสมัครเป็น "$targetRoleText" หรือไม่?',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                                actionsAlignment: MainAxisAlignment.spaceEvenly,
+                                actions: [
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.grey[300],
+                                      foregroundColor: Colors.black,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 12),
+                                    ),
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text('ยกเลิก'),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.deepPurple,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 12),
+                                    ),
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: const Text('ตกลง'),
+                                  ),
+                                ],
+                              ));
+
+                      if (confirmChange != true) return; // ถ้าไม่ตกลงก็หยุดเลย
+                    }
+
+                    // ถ้า currentType != 1 หรือยืนยันแล้ว → อัปเดตเป็น 3 ทันที
                     final response = await updateTypeMember(widget.mid, 3);
                     if (response['type_member'] == 3) {
-                      if (!context.mounted) return;
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -470,8 +659,7 @@ class _HomePageState extends State<HomePage> {
                   } catch (e) {
                     print('เกิดข้อผิดพลาดในการอัปเดต: $e');
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('ไม่สามารถอัปเดตโหมดผู้รับจ้างได้')),
+                      const SnackBar(content: Text('ไม่สามารถอัปเดตโหมดได้')),
                     );
                   }
                 } else if (value == 'logout') {
@@ -500,7 +688,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Icon(Icons.work, color: Colors.green),
                       SizedBox(width: 8),
-                      Text('โหมดผู้จ้าง'),
+                      Text('ไปโหมดผู้จ้าง'),
                     ],
                   ),
                 ),
@@ -1365,7 +1553,8 @@ class _HomePageState extends State<HomePage> {
                   final isReported = reportedList.contains(_currentMid);
 
                   return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 8, horizontal: 12), // เพิ่ม margin แนวนอน
                     child: Padding(
                       padding: const EdgeInsets.all(12),
                       child: Column(
@@ -1417,9 +1606,11 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
 
-                          // ข้อความรีวิว
+                          // ข้อความรีวิว (ย่อ 2 บรรทัด)
                           Text(
                             review['text'] ?? '-',
+                            // maxLines: 2,
+                            //overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontSize: 16),
                           ),
 
@@ -1443,7 +1634,10 @@ class _HomePageState extends State<HomePage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                  'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}'),
+                                'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}',
+                                style: const TextStyle(
+                                    color: Colors.grey), // สีเทา
+                              ),
                             ],
                           ),
 
@@ -1459,7 +1653,10 @@ class _HomePageState extends State<HomePage> {
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 8),
-                                textStyle: const TextStyle(fontSize: 10),
+                                textStyle: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(fontSize: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -1467,7 +1664,7 @@ class _HomePageState extends State<HomePage> {
                               child: Text(
                                   isReported ? 'รายงานแล้ว' : 'รายงานรีวิว'),
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ),

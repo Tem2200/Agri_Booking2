@@ -274,7 +274,7 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
           color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว
         ),
         title: const Text(
-          'รายละเอียดรถ',
+          'รายละเอียดรถจ้าา',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -340,55 +340,53 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                       ),
 
                       const SizedBox(height: 8),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            const TextSpan(
-                              text: 'ราคา: ',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: Colors.black),
-                            ),
-                            TextSpan(
-                              text:
-                                  '${vehicleData?['price'] ?? '-'} บาท/${vehicleData?['unit_price'] ?? '-'}',
-                              style: const TextStyle(
-                                  fontSize: 16, color: Colors.green),
-                            ),
-                          ],
-                        ),
-                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                          'ราคา: ${vehicleData?['price'] ?? '-'} / ${vehicleData?['unit_price'] ?? '-'}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                          )),
                       const SizedBox(height: 8),
                       RichText(
                         text: TextSpan(
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black, // สีข้อความปกติของแอป
+                          ),
                           children: [
                             const TextSpan(
                               text: 'รายละเอียด: ',
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
+                                  fontWeight: FontWeight.bold), // ตัวหนา
                             ),
                             TextSpan(
-                              text: '${vehicleData?['detail'] ?? '-'}',
-                              style: const TextStyle(color: Colors.black),
+                              text: vehicleData?['detail'] ?? '-',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.normal), // ตัวบาง
                             ),
                           ],
                         ),
                       ),
+
                       const SizedBox(height: 8),
                       RichText(
                         text: TextSpan(
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black, // สีข้อความปกติของแอป
+                          ),
                           children: [
                             const TextSpan(
                               text: 'ทะเบียนรถ: ',
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
+                                  fontWeight: FontWeight.bold), // ตัวหนา
                             ),
                             TextSpan(
-                              text: '${vehicleData?['plate_number'] ?? '-'}',
-                              style: const TextStyle(color: Colors.black),
+                              text: vehicleData?['plate_number'] ?? '-',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.normal), // ตัวบาง
                             ),
                           ],
                         ),
@@ -741,8 +739,12 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                                                                 horizontal: 12,
                                                                 vertical: 6),
                                                         textStyle:
-                                                            const TextStyle(
-                                                                fontSize: 10),
+                                                            Theme.of(context)
+                                                                .textTheme
+                                                                .bodySmall
+                                                                ?.copyWith(
+                                                                    fontSize:
+                                                                        12),
                                                         shape:
                                                             RoundedRectangleBorder(
                                                           borderRadius:
@@ -750,8 +752,15 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                                                                   .circular(8),
                                                         ),
                                                       ),
-                                                      child: const Text(
-                                                          'รายงานรีวิวไม่เหมาะสม'),
+                                                      child: Text(
+                                                        'รายงานรีวิว',
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .bodySmall
+                                                            ?.copyWith(
+                                                                color: Colors
+                                                                    .white),
+                                                      ),
                                                     ),
                                                   ),
                                                 ),

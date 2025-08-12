@@ -795,7 +795,7 @@ class _DetailReservingState extends State<DetailReserving> {
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'รายละเอียด: ${data!['detail']}',
+                                        'รายละเอียด: ${data!['detail']?.isNotEmpty == true ? data!['datail'] : '-'}',
                                         style: const TextStyle(fontSize: 15),
                                       ),
                                     ),
