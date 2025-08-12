@@ -88,8 +88,26 @@ class _FarmsPageState extends State<FarmsPage> {
           farmsFuture = fetchFarms(widget.mid);
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('เกิดข้อผิดพลาด: ${response.body}')),
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text('เกิดข้อผิดพลาด: ${response.body}')),
+        // );
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('ไม่สามารถลบไร่นาได้'),
+              content: Text(
+                  'เนื่องจากมีการจองที่ยังไม่เสร็จสิ้นหรือกำลังดำเนินงานอยู่'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // ปิดป๊อปอัพ
+                  },
+                  child: const Text('ปิด'),
+                ),
+              ],
+            );
+          },
         );
       }
     } catch (e) {

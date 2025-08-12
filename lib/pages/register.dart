@@ -595,17 +595,22 @@ class _RegisterState extends State<Register> {
 
                                 // ช่องกรอก
                                 _buildTextField(
-                                  'ที่อยู่ *',
+                                  'รายละเอียดที่อยู่ที่อยู่',
                                   addressController,
                                   'กรุณากรอกที่อยู่',
                                   maxLength: 500,
                                   keyboardType: TextInputType.multiline,
                                   hintText:
                                       'เช่น บ้านเลขที่ หมู่บ้าน ซอย ถนน ตำบล อำเภอ จังหวัด',
+                                  // validator: (value) {
+                                  //   if (value == null || value.isEmpty)
+                                  //     return 'กรุณากรอกที่อยู่';
+                                  //   if (value.length > 500)
+                                  //     return 'ต้องไม่เกิน 500 ตัวอักษร';
+                                  //   return null;
+                                  // },
                                   validator: (value) {
-                                    if (value == null || value.isEmpty)
-                                      return 'กรุณากรอกที่อยู่';
-                                    if (value.length > 500)
+                                    if (value != null && value.length > 500)
                                       return 'ต้องไม่เกิน 500 ตัวอักษร';
                                     return null;
                                   },

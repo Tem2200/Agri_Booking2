@@ -28,7 +28,7 @@ class _TabbarCarState extends State<TabbarCar> {
   late Widget currentPage;
   late int _displayMonth;
   late int _displayYear;
-  int _notificationCount = 0;
+  int _notificationCount = 0; // ตัวแปรสำหรับเก็บจำนวนแจ้งเตือน
   bool _isLoading = true;
 
   @override
@@ -41,44 +41,19 @@ class _TabbarCarState extends State<TabbarCar> {
     fetchData(); // เรียก fetchData ใน initState
   }
 
-  void switchPage(int index) {
-    setState(() {
-      value = index;
-      if (index == 0) {
-        currentPage = PlanAndHistory(
-          mid: widget.mid,
-          month: widget.month,
-          year: widget.year,
-        );
-      } else if (index == 1) {
-        fetchData();
-        currentPage = NontiPage(mid: widget.mid);
-        // เรียก fetchData อีกครั้งเมื่อเปลี่ยนไปหน้านี้
-      } else if (index == 2) {
-        currentPage = HomePage(mid: widget.mid);
-      }
-    });
-  }
-
-  // 💡 แก้ไข fetchData() ให้เป็น Async และรอผลลัพธ์
   Future<void> fetchData() async {
-    // 💡 ตั้งค่า isLoading เป็น true ก่อนเริ่มโหลด
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // 💡 ใช้ await เพื่อรอผลลัพธ์จาก fetchSchedule
-      final schedules = await fetchSchedule(widget.mid);
+      final schedules = await fetchSchedule(int.parse(widget.mid.toString()));
 
-      // 💡 กรองเฉพาะรายการที่ยังไม่ได้ยืนยัน
       final nonConfirmedSchedules = schedules.where((item) {
-        // ตรวจสอบค่า progress_status ที่เป็น 0 หรือ null (รอการยืนยัน)
-        return item['progress_status'] == null ||
-            item['progress_status'] == '0';
+        final status = (item['progress_status'] ?? '').toString().trim();
+        return status == '' || status == '5';
       }).toList();
 
-      // 💡 อัปเดต state เมื่อข้อมูลพร้อมใช้งาน
       setState(() {
         _notificationCount = nonConfirmedSchedules.length;
         _isLoading = false;
@@ -87,7 +62,7 @@ class _TabbarCarState extends State<TabbarCar> {
       print('Error fetching schedule: $e');
       setState(() {
         _isLoading = false;
-        _notificationCount = 0; // หากเกิดข้อผิดพลาด ให้จำนวนแจ้งเตือนเป็น 0
+        _notificationCount = 0;
       });
     }
   }
@@ -100,6 +75,7 @@ class _TabbarCarState extends State<TabbarCar> {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         if (response.body.isNotEmpty) {
+          print("Fetched schedule: ${response.body}");
           return jsonDecode(response.body);
         } else {
           return [];
@@ -110,6 +86,24 @@ class _TabbarCarState extends State<TabbarCar> {
     } catch (e) {
       throw Exception('Connection error: $e');
     }
+  }
+
+  void switchPage(int index) {
+    setState(() {
+      value = index;
+      fetchData(); // เรียกทุกครั้งเมื่อเปลี่ยน tab
+      if (index == 0) {
+        currentPage = PlanAndHistory(
+          mid: widget.mid,
+          month: widget.month,
+          year: widget.year,
+        );
+      } else if (index == 1) {
+        currentPage = NontiPage(mid: widget.mid);
+      } else if (index == 2) {
+        currentPage = HomePage(mid: widget.mid);
+      }
+    });
   }
 
   @override
@@ -126,8 +120,7 @@ class _TabbarCarState extends State<TabbarCar> {
           ),
           BottomNavigationBarItem(
             icon: Badge(
-              // ใช้ Widget Badge หุ้มไอคอน
-              isLabelVisible: _notificationCount > 0 && !_isLoading,
+              isLabelVisible: _notificationCount > 0, // ตัด !_isLoading ออก
               label: Text('$_notificationCount'),
               child: const Icon(Icons.chat),
             ),
@@ -145,3 +138,109 @@ class _TabbarCarState extends State<TabbarCar> {
     );
   }
 }
+
+//   void switchPage(int index) {
+//     setState(() {
+//       value = index;
+//       if (index == 0) {
+//         currentPage = PlanAndHistory(
+//           mid: widget.mid,
+//           month: widget.month,
+//           year: widget.year,
+//         );
+//       } else if (index == 1) {
+//         fetchData();
+//         currentPage = NontiPage(mid: widget.mid);
+//         // เรียก fetchData อีกครั้งเมื่อเปลี่ยนไปหน้านี้
+//       } else if (index == 2) {
+//         currentPage = HomePage(mid: widget.mid);
+//       }
+//     });
+//   }
+
+//   // 💡 แก้ไข fetchData() ให้เป็น Async และรอผลลัพธ์
+//   Future<void> fetchData() async {
+//     // 💡 ตั้งค่า isLoading เป็น true ก่อนเริ่มโหลด
+//     setState(() {
+//       _isLoading = true;
+//     });
+
+//     try {
+//       // 💡 ใช้ await เพื่อรอผลลัพธ์จาก fetchSchedule
+//       final schedules = await fetchSchedule(widget.mid);
+
+//       // 💡 กรองเฉพาะรายการที่ยังไม่ได้ยืนยัน
+//       final nonConfirmedSchedules = schedules.where((item) {
+//         // ตรวจสอบค่า progress_status ที่เป็น 0 หรือ null (รอการยืนยัน)
+//         return item['progress_status'] == null ||
+//             item['progress_status'] == '0';
+//       }).toList();
+
+//       // 💡 อัปเดต state เมื่อข้อมูลพร้อมใช้งาน
+//       setState(() {
+//         _notificationCount = nonConfirmedSchedules.length;
+//         _isLoading = false;
+//       });
+//     } catch (e) {
+//       print('Error fetching schedule: $e');
+//       setState(() {
+//         _isLoading = false;
+//         _notificationCount = 0; // หากเกิดข้อผิดพลาด ให้จำนวนแจ้งเตือนเป็น 0
+//       });
+//     }
+//   }
+
+//   Future<List<dynamic>> fetchSchedule(int mid) async {
+//     print("Fetching schedule for mid: $mid");
+//     final url = Uri.parse(
+//         'http://projectnodejs.thammadalok.com/AGribooking/get_ConReservingNonti/$mid');
+//     try {
+//       final response = await http.get(url);
+//       if (response.statusCode == 200) {
+//         if (response.body.isNotEmpty) {
+//           print("Fetched schedule: ${response.body}");
+//           return jsonDecode(response.body);
+//         } else {
+//           return [];
+//         }
+//       } else {
+//         throw Exception('Failed to load schedule: ${response.statusCode}');
+//       }
+//     } catch (e) {
+//       throw Exception('Connection error: $e');
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: currentPage,
+//       bottomNavigationBar: BottomNavigationBar(
+//         backgroundColor: Colors.white,
+//         currentIndex: value,
+//         items: [
+//           const BottomNavigationBarItem(
+//             icon: Icon(Icons.calendar_today),
+//             label: 'ตารางงาน',
+//           ),
+//           BottomNavigationBarItem(
+//             icon: Badge(
+//               // ใช้ Widget Badge หุ้มไอคอน
+//               isLabelVisible: _notificationCount > 0 && !_isLoading,
+//               label: Text('$_notificationCount'),
+//               child: const Icon(Icons.chat),
+//             ),
+//             label: 'แจ้งเตือน',
+//           ),
+//           const BottomNavigationBarItem(
+//             icon: Icon(Icons.person),
+//             label: 'ฉัน',
+//           ),
+//         ],
+//         onTap: switchPage,
+//         selectedItemColor: const Color(0xFFEF6C00),
+//         unselectedItemColor: Colors.black,
+//       ),
+//     );
+//   }
+// }

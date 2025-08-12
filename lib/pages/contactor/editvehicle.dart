@@ -481,9 +481,9 @@ class _EditVehicleState extends State<EditVehicle> {
                                 contentPadding: EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 8),
                               ),
-                              validator: (v) => v == null || v.isEmpty
-                                  ? 'กรุณากรอกรายละเอียด'
-                                  : null,
+                              // validator: (v) => v == null || v.isEmpty
+                              //     ? 'กรุณากรอกรายละเอียด'
+                              //     : null,
                             ),
                             const SizedBox(height: 16),
 

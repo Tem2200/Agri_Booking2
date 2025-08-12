@@ -426,9 +426,9 @@ class _EditMemberPageState extends State<EditMemberPage> {
                 addressController,
                 'รายละเอียดที่อยู่',
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'กรุณากรอกรายละเอียดที่อยู่';
-                  }
+                  // if (value == null || value.isEmpty) {
+                  //   return 'กรุณากรอกรายละเอียดที่อยู่';
+                  // }
                   return null;
                 },
               ),
@@ -454,12 +454,58 @@ class _EditMemberPageState extends State<EditMemberPage> {
                     ),
                   ),
                   const SizedBox(width: 16),
+                  // Expanded(
+                  //   child: ElevatedButton(
+                  //     onPressed: _imageUploaded
+                  //         ? () {
+                  //             if (_formKey.currentState?.validate() ?? false) {
+                  //               _submit();
+                  //             }
+                  //           }
+                  //         : null,
+                  //     style: ElevatedButton.styleFrom(
+                  //       backgroundColor: Colors.green,
+                  //       foregroundColor: Colors.white,
+                  //     ),
+                  //     child: const Text('ตกลง'),
+                  //   ),
+                  // ),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _imageUploaded
                           ? () {
                               if (_formKey.currentState?.validate() ?? false) {
-                                _submit();
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('ยืนยันการแก้ไข'),
+                                      content: const Text(
+                                          'คุณต้องการแก้ไขข้อมูลใช่หรือไม่?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pop(); // ปิด dialog
+                                          },
+                                          child: const Text('ยกเลิก'),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pop(); // ปิด dialog
+                                            _submit(); // เรียกฟังก์ชัน submit
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.green,
+                                            foregroundColor: Colors.white,
+                                          ),
+                                          child: const Text('ยืนยัน'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
                               }
                             }
                           : null,

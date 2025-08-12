@@ -444,7 +444,7 @@ class _AddVehicleState extends State<AddVehicle> {
                         const SizedBox(height: 16),
 
                         // ✅ รายละเอียด
-                        Text('รายละเอียดรถ *', style: labelStyle),
+                        Text('รายละเอียดรถ', style: labelStyle),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: detailController,
@@ -458,9 +458,9 @@ class _AddVehicleState extends State<AddVehicle> {
                             contentPadding: EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
                           ),
-                          validator: (v) => v == null || v.isEmpty
-                              ? 'กรุณากรอกรายละเอียด*'
-                              : null,
+                          // validator: (v) => v == null || v.isEmpty
+                          //     ? 'กรุณากรอกรายละเอียด*'
+                          //     : null,
                         ),
 
                         const SizedBox(height: 16),
