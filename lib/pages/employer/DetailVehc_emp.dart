@@ -274,7 +274,7 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
           color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว
         ),
         title: const Text(
-          'รายละเอียดรถจ้าา',
+          'รายละเอียดรถ',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,

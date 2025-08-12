@@ -131,20 +131,62 @@ class _PlanAndHistoryState extends State<PlanPage> {
     }
   }
 
-  String _formatDateRange(String? startDate, String? endDate) {
-    if (startDate == null || endDate == null) return 'ไม่ระบุวันที่';
+  // ฟังก์ชันแปลงวันที่ทั่วไป (ใช้กับ date_reserve)
+  String formatDateReserveThai(String? dateReserve) {
+    if (dateReserve == null || dateReserve.isEmpty) return '-';
     try {
-      final startUtc = DateTime.parse(startDate);
-      final endUtc = DateTime.parse(endDate);
-
-      final startThai = startUtc.add(const Duration(hours: 7));
-      final endThai = endUtc.add(const Duration(hours: 7));
-
-      final formatter = DateFormat('dd/MM/yyyy \t\tเวลา HH:mm น.');
-
-      return 'เริ่มงาน: ${formatter.format(startThai)}\nสิ้นสุด: ${formatter.format(endThai)}';
+      DateTime utcDate = DateTime.parse(dateReserve);
+      DateTime localDate = utcDate.toUtc().add(const Duration(hours: 7));
+      final formatter = DateFormat("d MMM yyyy เวลา HH:mm ", "th_TH");
+      String formatted = formatter.format(localDate);
+      // แปลงปี ค.ศ. → พ.ศ.
+      String yearString = localDate.year.toString();
+      String buddhistYear = (localDate.year + 543).toString();
+      return formatted.replaceFirst(yearString, buddhistYear);
     } catch (e) {
-      return 'รูปแบบวันที่ไม่ถูกต้อง';
+      return '-';
+    }
+  }
+
+// ฟังก์ชันแปลงช่วงวันที่เริ่ม-สิ้นสุดงาน
+  String formatDateRangeThai(String? startDate, String? endDate) {
+    if (startDate == null ||
+        startDate.isEmpty ||
+        endDate == null ||
+        endDate.isEmpty) {
+      return 'ไม่ระบุวันที่';
+    }
+
+    try {
+      DateTime startUtc = DateTime.parse(startDate);
+      DateTime endUtc = DateTime.parse(endDate);
+
+      DateTime startThai = startUtc.toUtc().add(const Duration(hours: 7));
+      DateTime endThai = endUtc.toUtc().add(const Duration(hours: 7));
+
+      final formatter = DateFormat('dd/MM/yyyy เวลา HH:mm', "th_TH");
+
+      String toBuddhistYearFormat(DateTime date) {
+        String formatted = formatter.format(date);
+        String yearString = date.year.toString();
+        String buddhistYear = (date.year + 543).toString();
+        return formatted.replaceFirst(yearString, buddhistYear);
+      }
+
+      const labelStart = 'เริ่มงาน:';
+      const labelEnd = 'สิ้นสุด:';
+      final maxLabelLength =
+          [labelStart.length, labelEnd.length].reduce((a, b) => a > b ? a : b);
+
+      String alignLabel(String label) {
+        final spaces = ' ' * (maxLabelLength - label.length);
+        return '$label$spaces';
+      }
+
+      return '${alignLabel(labelStart)} ${toBuddhistYearFormat(startThai)}\n'
+          '${alignLabel(labelEnd)} ${toBuddhistYearFormat(endThai)}';
+    } catch (e) {
+      return 'กำลังโหลดข้อมูล...';
     }
   }
 
@@ -554,10 +596,10 @@ class _PlanAndHistoryState extends State<PlanPage> {
         Color getStatusColor(dynamic status) {
           if (status != null &&
               ['1', '2', '3', '5'].contains(status.toString())) {
-            return Colors.green;
+            return const Color.fromARGB(255, 255, 0, 0);
           }
           if (status == null) {
-            return const Color.fromARGB(255, 255, 0, 0);
+            return const Color.fromARGB(255, 91, 91, 91);
           }
           return Colors.transparent;
         }
@@ -663,7 +705,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
                         Expanded(
                           child: Text(
                             item['subdistrict'] != null
-                                ? '${item['subdistrict']} ${item['district']} ${item['province']}'
+                                ? 'ที่นา: ${item['name_farm']} (ต.${item['subdistrict']} อ.${item['district']} จ.${item['province']})'
                                 : 'ไม่ระบุที่อยู่',
                             style: const TextStyle(fontSize: 14),
                           ),
@@ -671,22 +713,71 @@ class _PlanAndHistoryState extends State<PlanPage> {
                       ],
                     ),
                     const SizedBox(height: 8),
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 1,
+                      height: 24,
+                    ),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.access_time, size: 16),
-                        const SizedBox(width: 4),
-                        Expanded(
+                        const SizedBox(
+                          width: 65,
                           child: Text(
-                            _formatDateRange(
-                                item['date_start'], item['date_end']),
-                            style: const TextStyle(
+                            'วันที่จอง:',
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
+                              color: Colors.grey, // กำหนดสีเทา
                             ),
                           ),
                         ),
+                        Text(
+                          formatDateReserveThai(item['date_reserve']),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey, // กำหนดสีเทา
+                          ),
+                        ),
                       ],
+                    ),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 65,
+                          child: Text(
+                            'เริ่มงาน:',
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Text(
+                          formatDateReserveThai(
+                              item['date_start']), // ใช้ฟังก์ชันที่รับ 1 ตัว
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 65,
+                          child: Text(
+                            'สิ้นสุด:',
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Text(
+                          formatDateReserveThai(
+                              item['date_end']), // ใช้ฟังก์ชันที่รับ 1 ตัว
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ],
+                    ),
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 1,
+                      height: 24,
                     ),
                     const SizedBox(height: 8),
                   ],
@@ -757,7 +848,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
             color: Colors.white,
           ),
           title: const Text(
-            'คิวงานทั้งหมด',
+            'ตารางงานทั้งหมด',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,

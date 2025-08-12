@@ -1120,108 +1120,123 @@ class _ProfileConState extends State<ProfileCon> {
             //     child: Text(isReported ? "รายงานแล้ว" : "รายงาน"),
             //   ),
             // );
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // รูปภาพรีวิว (ถ้ามี)
-                    if (review['image_url'] != null &&
-                        review['image_url'].toString().isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Image.network(
-                          review['image_url'],
-                          height: 150,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Text('โหลดรูปไม่สำเร็จ'),
-                        ),
-                      ),
-
-                    // ผู้รีวิว + ดาว
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.person, color: Colors.grey, size: 20),
-                        const SizedBox(width: 6),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: List.generate(5, (i) {
-                            return Icon(
-                              i < (review['point'] ?? 0)
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: Colors.amber,
-                              size: 20,
-                            );
-                          }),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${review['point'] ?? '-'} / 5',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+            return Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 12, vertical: 8), // เว้นขอบซ้ายขวา
+              child: Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // รูปภาพรีวิว (ถ้ามี)
+                      if (review['image_url'] != null &&
+                          review['image_url'].toString().isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Image.network(
+                            review['image_url'],
+                            height: 150,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Text('โหลดรูปไม่สำเร็จ'),
                           ),
                         ),
-                      ],
-                    ),
 
-                    // ข้อความรีวิว
-                    Text(
-                      review['text'] ?? '-',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-
-                    const SizedBox(height: 6),
-
-                    if (review['image'] != null && review['image'].isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Image.network(
-                          review['image'],
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.image_not_supported),
-                        ),
+                      // ผู้รีวิว + ดาว
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.person,
+                              color: Colors.grey, size: 20),
+                          const SizedBox(width: 6),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: List.generate(5, (i) {
+                              return Icon(
+                                i < (review['point'] ?? 0)
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                color: Colors.amber,
+                                size: 20,
+                              );
+                            }),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${review['point'] ?? '-'} / 5',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
                       ),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                            'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}'),
-                      ],
-                    ),
+                      // ข้อความรีวิว
+                      Text(
+                        review['text'] ?? '-',
+                        style: const TextStyle(fontSize: 16),
+                      ),
 
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        onPressed: isReported
-                            ? null
-                            : () => _reportReview(review['rid']),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              isReported ? Colors.grey : Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          textStyle: const TextStyle(fontSize: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      const SizedBox(height: 6),
+
+                      if (review['image'] != null && review['image'].isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Image.network(
+                            review['image'],
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.image_not_supported),
                           ),
                         ),
-                        child: Text(isReported ? 'รายงานแล้ว' : 'รายงานรีวิว'),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}',
+                            style:
+                                const TextStyle(color: Colors.grey), // ใส่สีเทา
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
+                          onPressed: isReported
+                              ? null
+                              : () => _reportReview(review['rid']),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                isReported ? Colors.grey : Colors.red,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            isReported ? 'รายงานแล้ว' : 'รายงานรีวิว',
+                            style: const TextStyle(
+                                fontSize:
+                                    14), // กำหนดขนาดถ้าต้องการ แต่ไม่กำหนด fontFamily
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

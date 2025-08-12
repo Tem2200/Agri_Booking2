@@ -479,7 +479,12 @@ class _EditMemberPageState extends State<EditMemberPage> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: const Text('ยืนยันการแก้ไข'),
+                                      title: const Center(
+                                        child: Text(
+                                          'ยืนยันการแก้ไข',
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
                                       content: const Text(
                                           'คุณต้องการแก้ไขข้อมูลใช่หรือไม่?'),
                                       actions: [

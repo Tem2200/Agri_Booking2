@@ -141,20 +141,62 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
     setState(() {});
   }
 
-  String _formatDateRange(
-      String? date_reserve, String? startDate, String? endDate) {
-    if (date_reserve == null || startDate == null || endDate == null)
-      return 'ไม่ระบุวันที่';
+  // ฟังก์ชันแปลงวันที่ทั่วไป (ใช้กับ date_reserve)
+  String formatDateReserveThai(String? dateReserve) {
+    if (dateReserve == null || dateReserve.isEmpty) return '-';
     try {
-      final reserveThai =
-          DateTime.parse(date_reserve).add(const Duration(hours: 7));
-      final startThai = DateTime.parse(startDate).add(const Duration(hours: 7));
-      final endThai = DateTime.parse(endDate).add(const Duration(hours: 7));
-
-      final formatter = DateFormat('dd/MM/yyyy \t\tเวลา HH:mm น.');
-      return 'จองเข้ามา:${formatter.format(reserveThai)}\n เริ่มงาน: ${formatter.format(startThai)}\nสิ้นสุด: ${formatter.format(endThai)}';
+      DateTime utcDate = DateTime.parse(dateReserve);
+      DateTime localDate = utcDate.toUtc().add(const Duration(hours: 7));
+      final formatter = DateFormat("d MMM yyyy เวลา HH:mm ", "th_TH");
+      String formatted = formatter.format(localDate);
+      // แปลงปี ค.ศ. → พ.ศ.
+      String yearString = localDate.year.toString();
+      String buddhistYear = (localDate.year + 543).toString();
+      return formatted.replaceFirst(yearString, buddhistYear);
     } catch (e) {
-      return 'รูปแบบวันที่ไม่ถูกต้อง';
+      return '-';
+    }
+  }
+
+// ฟังก์ชันแปลงช่วงวันที่เริ่ม-สิ้นสุดงาน
+  String formatDateRangeThai(String? startDate, String? endDate) {
+    if (startDate == null ||
+        startDate.isEmpty ||
+        endDate == null ||
+        endDate.isEmpty) {
+      return 'ไม่ระบุวันที่';
+    }
+
+    try {
+      DateTime startUtc = DateTime.parse(startDate);
+      DateTime endUtc = DateTime.parse(endDate);
+
+      DateTime startThai = startUtc.toUtc().add(const Duration(hours: 7));
+      DateTime endThai = endUtc.toUtc().add(const Duration(hours: 7));
+
+      final formatter = DateFormat('dd/MM/yyyy เวลา HH:mm', "th_TH");
+
+      String toBuddhistYearFormat(DateTime date) {
+        String formatted = formatter.format(date);
+        String yearString = date.year.toString();
+        String buddhistYear = (date.year + 543).toString();
+        return formatted.replaceFirst(yearString, buddhistYear);
+      }
+
+      const labelStart = 'เริ่มงาน:';
+      const labelEnd = 'สิ้นสุด:';
+      final maxLabelLength =
+          [labelStart.length, labelEnd.length].reduce((a, b) => a > b ? a : b);
+
+      String alignLabel(String label) {
+        final spaces = ' ' * (maxLabelLength - label.length);
+        return '$label$spaces';
+      }
+
+      return '${alignLabel(labelStart)} ${toBuddhistYearFormat(startThai)}\n'
+          '${alignLabel(labelEnd)} ${toBuddhistYearFormat(endThai)}';
+    } catch (e) {
+      return 'กำลังโหลดข้อมูล...';
     }
   }
 
@@ -211,7 +253,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
           case '0':
             return Colors.red;
           case '1':
-            return Colors.blueGrey;
+            return const Color.fromARGB(255, 0, 169, 253);
           case '2':
             return Colors.pinkAccent;
           case '3':
@@ -314,8 +356,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      'ที่อยู่: ต.${item['subdistrict'] ?? ''} อ.${item['district'] ?? ''} จ.${item['province'] ?? ''}',
-                      style: const TextStyle(fontSize: 14),
+                      'ที่นา: ${item['name_farm'] ?? ''} (ต.${item['subdistrict'] ?? ''} อ.${item['district'] ?? ''} จ.${item['province'] ?? ''})',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       softWrap: false,
@@ -323,24 +364,92 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const Divider(
+                color: Colors.grey,
+                thickness: 1,
+                height: 24,
+              ),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.access_time, size: 16),
-                  const SizedBox(width: 4),
-                  Expanded(
+                  const SizedBox(
+                    width: 65,
                     child: Text(
-                      _formatDateRange(item['date_reserve'], item['date_start'],
-                          item['date_end']),
-                      style: const TextStyle(
+                      'วันที่จอง:',
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
+                        color: Colors.grey, // กำหนดสีเทา
                       ),
+                    ),
+                  ),
+                  Text(
+                    formatDateReserveThai(item['date_reserve']),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey, // กำหนดสีเทา
                     ),
                   ),
                 ],
               ),
+
+              Row(
+                children: [
+                  const SizedBox(
+                    width: 65,
+                    child: Text(
+                      'เริ่มงาน:',
+                      style:
+                          TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Text(
+                    formatDateReserveThai(
+                        item['date_start']), // ใช้ฟังก์ชันที่รับ 1 ตัว
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  const SizedBox(
+                    width: 65,
+                    child: Text(
+                      'สิ้นสุด:',
+                      style:
+                          TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Text(
+                    formatDateReserveThai(
+                        item['date_end']), // ใช้ฟังก์ชันที่รับ 1 ตัว
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ],
+              ),
+              const Divider(
+                color: Colors.grey,
+                thickness: 1,
+                height: 24,
+              ),
+              const SizedBox(height: 8),
+              //วันที่จองเข้ามา
+              // Row(
+              //   children: [
+              //     const SizedBox(
+              //       width: 65,
+              //       child: Text(
+              //         'จองเข้ามา:',
+              //         style:
+              //             TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+              //       ),
+              //     ),
+              //     Text(
+              //       formatDateReserveThai(
+              //           item['date_reserve']), // เรียกวันที่จอง
+              //       style: const TextStyle(fontSize: 13),
+              //     ),
+              //   ],
+              // ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -621,7 +730,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                               //   softWrap: false,
                               // ),
                               Text(
-                                'ที่อยู่: ต.${item['subdistrict'] ?? ''} อ.${item['district'] ?? ''} จ.${item['province'] ?? ''}',
+                                'ที่นา: ${item['name_farm'] ?? ''} (ต.${item['subdistrict'] ?? ''} อ.${item['district'] ?? ''} จ.${item['province'] ?? ''})',
                                 style: const TextStyle(fontSize: 14),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -632,24 +741,93 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                         )
                       ],
                     ),
-                    const SizedBox(height: 8),
+
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 1,
+                      height: 24,
+                    ),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.access_time, size: 16),
-                        const SizedBox(width: 4),
-                        Expanded(
+                        const SizedBox(
+                          width: 65,
                           child: Text(
-                            _formatDateRange(item['date_reserve'],
-                                item['date_start'], item['date_end']),
-                            style: const TextStyle(
+                            'วันที่จอง:',
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
+                              color: Colors.grey, // กำหนดสีเทา
                             ),
+                          ),
+                        ),
+                        Text(
+                          formatDateReserveThai(item['date_reserve']),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey, // กำหนดสีเทา
                           ),
                         ),
                       ],
                     ),
+
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 65,
+                          child: Text(
+                            'เริ่มงาน:',
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Text(
+                          formatDateReserveThai(
+                              item['date_start']), // ใช้ฟังก์ชันที่รับ 1 ตัว
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 65,
+                          child: Text(
+                            'สิ้นสุด:',
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Text(
+                          formatDateReserveThai(
+                              item['date_end']), // ใช้ฟังก์ชันที่รับ 1 ตัว
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ],
+                    ),
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 1,
+                      height: 24,
+                    ),
+                    const SizedBox(height: 8),
+                    //วันที่จองเข้ามา
+                    // Row(
+                    //   children: [
+                    //     const SizedBox(
+                    //       width: 65,
+                    //       child: Text(
+                    //         'จองเข้ามา:',
+                    //         style: TextStyle(
+                    //             fontSize: 13, fontWeight: FontWeight.bold),
+                    //       ),
+                    //     ),
+                    //     Text(
+                    //       formatDateReserveThai(
+                    //           item['date_reserve']), // เรียกวันที่จอง
+                    //       style: const TextStyle(fontSize: 13),
+                    //     ),
+                    //   ],
+                    // ),
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,

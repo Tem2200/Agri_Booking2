@@ -433,20 +433,60 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
   }
 
   //วันที่และเวลา
-  String _formatDateRange(String? startDate, String? endDate) {
-    if (startDate == null || endDate == null) return 'ไม่ระบุวันที่';
+  String formatDateThai(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return '-';
     try {
-      final startUtc = DateTime.parse(startDate);
-      final endUtc = DateTime.parse(endDate);
-
-      final startThai = startUtc.add(const Duration(hours: 7));
-      final endThai = endUtc.add(const Duration(hours: 7));
-
-      final formatter = DateFormat('dd/MM/yyyy \t\tเวลา HH:mm น.');
-
-      return 'เริ่มงาน: ${formatter.format(startThai)}\nสิ้นสุด: ${formatter.format(endThai)}';
+      DateTime utcDate = DateTime.parse(dateStr);
+      DateTime localDate = utcDate.toUtc().add(const Duration(hours: 7));
+      final formatter = DateFormat("d MMM yyyy 'เวลา' HH:mm", "th_TH");
+      String formatted = formatter.format(localDate);
+      // แปลงปี ค.ศ. → พ.ศ.
+      String yearString = localDate.year.toString();
+      String buddhistYear = (localDate.year + 543).toString();
+      return formatted.replaceFirst(yearString, buddhistYear);
     } catch (e) {
-      return 'รูปแบบวันที่ไม่ถูกต้อง';
+      return '-';
+    }
+  }
+
+  String formatDateRangeThai(String? startDate, String? endDate) {
+    if (startDate == null ||
+        startDate.isEmpty ||
+        endDate == null ||
+        endDate.isEmpty) {
+      return 'ไม่ระบุวันที่';
+    }
+
+    try {
+      DateTime startUtc = DateTime.parse(startDate);
+      DateTime endUtc = DateTime.parse(endDate);
+
+      DateTime startThai = startUtc.toUtc().add(const Duration(hours: 7));
+      DateTime endThai = endUtc.toUtc().add(const Duration(hours: 7));
+
+      final formatter = DateFormat('dd/MM/yyyy เวลา HH:mm', "th_TH");
+
+      String toBuddhistYearFormat(DateTime date) {
+        String formatted = formatter.format(date);
+        String yearString = date.year.toString();
+        String buddhistYear = (date.year + 543).toString();
+        return formatted.replaceFirst(yearString, buddhistYear) + '  น.';
+      }
+
+      const labelStart = 'เริ่มงาน:';
+      const labelEnd = 'สิ้นสุด:';
+      final maxLabelLength =
+          [labelStart.length, labelEnd.length].reduce((a, b) => a > b ? a : b);
+
+      String alignLabel(String label) {
+        final spaces = ' ' * (maxLabelLength - label.length);
+        return '$label$spaces';
+      }
+
+      return '${alignLabel(labelStart)} ${toBuddhistYearFormat(startThai)}\n'
+          '${alignLabel(labelEnd)} ${toBuddhistYearFormat(endThai)}';
+    } catch (e) {
+      return 'กำลังโหลดข้อมูล...';
     }
   }
 
@@ -673,7 +713,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                         case '0':
                           return Colors.red;
                         case '1':
-                          return Colors.blueGrey;
+                          return const Color.fromARGB(255, 0, 169, 253);
                         case '2':
                           return Colors.pinkAccent;
                         case '3':
@@ -981,7 +1021,6 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                     ),
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 16, vertical: 8),
-                                    textStyle: const TextStyle(fontSize: 14),
                                   ),
                                   child: const Text('ข้อมูลผู้จ้าง'),
                                 ),
@@ -990,135 +1029,190 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
 
                             // 📅 วันที่และเวลาจ้างงาน
                             const SizedBox(height: 16),
+                            const Divider(
+                              color: Colors.grey, // สีของเส้น
+                              thickness: 1, // ความหนา
+                              height: 20, // ความสูงของพื้นที่รอบเส้น
+                            ),
                             Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(Icons.access_time,
-                                    size: 18, color: Colors.amber),
-                                const SizedBox(width: 6),
-                                Expanded(
+                                const SizedBox(
+                                  width: 70,
                                   child: Text(
-                                    _formatDateRange(
-                                        data!['date_start'], data!['date_end']),
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
-                                    ),
+                                    'เริ่มงาน:',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold),
                                   ),
+                                ),
+                                Text(
+                                  formatDateThai(data![
+                                      'date_start']), // ใช้ฟังก์ชันสำหรับวันเดียว
+                                  style: const TextStyle(fontSize: 13),
                                 ),
                               ],
                             ),
-
+                            Row(
+                              children: [
+                                const SizedBox(
+                                  width: 70,
+                                  child: Text(
+                                    'สิ้นสุด:',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Text(
+                                  formatDateThai(data![
+                                      'date_end']), // ใช้ฟังก์ชันสำหรับวันเดียว
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ],
+                            ),
+                            const Divider(
+                              color: Colors.grey, // สีของเส้น
+                              thickness: 1, // ความหนา
+                              height: 20, // ความสูงของพื้นที่รอบเส้น
+                            ),
                             const SizedBox(height: 14),
 
-// 📝 ข้อมูลเพิ่มเติม
+                            // 📝 ข้อมูลเพิ่มเติม
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // 🌾 พื้นที่
+                                // พื้นที่
                                 Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Icon(Icons.landscape,
                                         size: 18, color: Colors.green),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      'พื้นที่: ${data!['area_amount']} ${data!['unit_area']}',
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black87,
+                                    const SizedBox(
+                                      width: 45,
+                                      child: Text(
+                                        'พื้นที่:',
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-
-                                // 🚜 ฟาร์ม
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment
-                                      .start, // ทำให้ไอคอนอยู่บนสุด
-                                  children: [
-                                    const Icon(Icons.location_on,
-                                        size: 18, color: Colors.brown),
-                                    const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'ที่อยู่: (${data!['name_farm']}, หมู่บ้าน ${data!['village']}), '
-                                        'ต.${data!['subdistrict']}, อ.${data!['district']} จ.${data!['province']},\n'
-                                        'รายละเอียดที่อยู่: ${(data!['detail']?.toString().trim().isEmpty ?? true) ? 'ไม่มี' : data!['detail']}',
-                                        style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.black87,
-                                        ),
-                                        textAlign:
-                                            TextAlign.start, // จัดชิดซ้าย
+                                        '${data!['area_amount']} ${data!['unit_area']}',
+                                        style: const TextStyle(fontSize: 15),
                                       ),
                                     ),
                                   ],
                                 ),
+                                const SizedBox(height: 6),
 
-                                const SizedBox(height: 8),
-
-                                // 📞 เบอร์โทร
+                                // ฟาร์ม
                                 Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(Icons.phone,
-                                        size: 18, color: Colors.blue),
+                                    const Icon(Icons.agriculture,
+                                        size: 18, color: Colors.brown),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      'เบอร์โทร: ${data!['employee_phone']}',
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black87,
+                                    const SizedBox(
+                                      width: 45,
+                                      child: Text(
+                                        'ที่นา:',
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        '${data!['name_farm']} (หมู่บ้าน${data!['village']} ต.${data!['subdistrict']} อ.${data!['district']} จ.${data!['province']})\n' +
+                                            (data!['detail']?.isNotEmpty == true
+                                                ? data!['detail']
+                                                : 'ไม่มี'),
+                                        style: const TextStyle(fontSize: 15),
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 8),
 
-                                // 💰 ราคา
+                                const SizedBox(height: 6),
+
+                                // ราคา
                                 Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Icon(Icons.attach_money,
                                         size: 18, color: Colors.orange),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      'ราคา: ${data!['price']} บาท/ ${data!['unit_price']}',
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black87,
+                                    const SizedBox(
+                                      width: 45,
+                                      child: Text(
+                                        'ราคา:',
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        '${data!['price']} ${data!['unit_price']}',
+                                        style: const TextStyle(fontSize: 15),
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 12),
 
-                                // 📄 รายละเอียด
+                                // เบอร์โทร (ไม่มี SizedBox กว้าง)
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(Icons.notes,
-                                        size: 18, color: Colors.deepPurple),
+                                    const Icon(Icons.phone,
+                                        size: 18, color: Colors.blue),
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      'เบอร์โทร:',
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'รายละเอียด: ${(data!['detail']?.toString().trim().isEmpty ?? true) ? 'ไม่มีรายละเอียดงาน' : data!['detail']}',
-                                        style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.black87,
-                                        ),
+                                        '${data!['employee_phone']}',
+                                        style: const TextStyle(fontSize: 15),
                                       ),
                                     ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+
+                                // รายละเอียดงาน (ไม่มี SizedBox กว้าง)
+                                const Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(Icons.notes,
+                                        size: 18, color: Colors.deepPurple),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'รายละเอียดงาน:',
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(width: 8),
+                                    // Expanded(
+                                    //   child: Text(
+                                    //     data!['detail']?.isNotEmpty == true
+                                    //         ? data!['detail']
+                                    //         : 'ไม่มี',
+                                    //     style: const TextStyle(fontSize: 15),
+                                    //   ),
+                                    // ),
                                   ],
                                 ),
                               ],
                             ),
-
 // 🔻 เส้นคั่น
                             const Divider(
                               color: Colors.grey,

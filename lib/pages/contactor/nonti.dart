@@ -94,20 +94,62 @@ class _NontiPageState extends State<NontiPage> {
     }
   }
 
-  String _formatDateRange(String? reDate, String? startDate, String? endDate) {
-    if (reDate == null || startDate == null || endDate == null)
+// ฟังก์ชันแปลงวันที่ทั่วไป (ใช้กับ date_reserve)
+  String formatDateReserveThai(String? dateReserve) {
+    if (dateReserve == null || dateReserve.isEmpty) return '-';
+    try {
+      DateTime utcDate = DateTime.parse(dateReserve);
+      DateTime localDate = utcDate.toUtc().add(const Duration(hours: 7));
+      final formatter = DateFormat("d MMM yyyy เวลา HH:mm ", "th_TH");
+      String formatted = formatter.format(localDate);
+      // แปลงปี ค.ศ. → พ.ศ.
+      String yearString = localDate.year.toString();
+      String buddhistYear = (localDate.year + 543).toString();
+      return formatted.replaceFirst(yearString, buddhistYear);
+    } catch (e) {
+      return '-';
+    }
+  }
+
+// ฟังก์ชันแปลงช่วงวันที่เริ่ม-สิ้นสุดงาน
+  String formatDateRangeThai(String? startDate, String? endDate) {
+    if (startDate == null ||
+        startDate.isEmpty ||
+        endDate == null ||
+        endDate.isEmpty) {
       return 'ไม่ระบุวันที่';
+    }
 
     try {
-      final reserveUtc = DateTime.parse(reDate);
-      final start = DateTime.parse(startDate);
-      final end = DateTime.parse(endDate);
+      DateTime startUtc = DateTime.parse(startDate);
+      DateTime endUtc = DateTime.parse(endDate);
 
-      final formatter = DateFormat('dd/MM/yyyy HH:mm', 'th_TH'); // ✅ เพิ่มเวลา
+      DateTime startThai = startUtc.toUtc().add(const Duration(hours: 7));
+      DateTime endThai = endUtc.toUtc().add(const Duration(hours: 7));
 
-      return 'จองเข้ามา: ${formatter.format(reserveUtc)}\nเริ่ม${formatter.format(start)}\nถึง ${formatter.format(end)}';
+      final formatter = DateFormat('dd/MM/yyyy เวลา HH:mm', "th_TH");
+
+      String toBuddhistYearFormat(DateTime date) {
+        String formatted = formatter.format(date);
+        String yearString = date.year.toString();
+        String buddhistYear = (date.year + 543).toString();
+        return formatted.replaceFirst(yearString, buddhistYear);
+      }
+
+      const labelStart = 'เริ่มงาน:';
+      const labelEnd = 'สิ้นสุด:';
+      final maxLabelLength =
+          [labelStart.length, labelEnd.length].reduce((a, b) => a > b ? a : b);
+
+      String alignLabel(String label) {
+        final spaces = ' ' * (maxLabelLength - label.length);
+        return '$label$spaces';
+      }
+
+      return '${alignLabel(labelStart)} ${toBuddhistYearFormat(startThai)}\n'
+          '${alignLabel(labelEnd)} ${toBuddhistYearFormat(endThai)}';
     } catch (e) {
-      return 'รูปแบบวันที่ไม่ถูกต้อง';
+      return 'กำลังโหลดข้อมูล...';
     }
   }
 
@@ -153,8 +195,8 @@ class _NontiPageState extends State<NontiPage> {
                       borderRadius: BorderRadius.circular(8),
                       gradient: LinearGradient(
                         colors: [
-                          Color.fromARGB(255, 190, 255, 189),
-                          Color.fromARGB(255, 37, 189, 35),
+                          const Color.fromARGB(255, 190, 255, 189),
+                          const Color.fromARGB(255, 37, 189, 35),
                           Colors.green[800]!,
                         ],
                         begin: Alignment.topLeft,
@@ -220,15 +262,22 @@ class _NontiPageState extends State<NontiPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text('แจ้งยกเลิกงาน'),
+                                const Flexible(
+                                  // ใช้ Flexible ครอบ Text
+                                  child: Text(
+                                    'แจ้งยกเลิกงาน',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: TextStyle(),
+                                  ),
+                                ),
                                 if (_cancelledJobsCount > 0) ...[
                                   const SizedBox(width: 8),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: Colors
-                                          .red, // 💡 ใช้สีแดงเพื่อให้เด่นชัด
+                                      color: Colors.red,
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Text(
@@ -459,7 +508,9 @@ class _NontiPageState extends State<NontiPage> {
                   );
                 },
                 child: Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 8.0,
+                      horizontal: 12.0), // เพิ่ม margin ด้านซ้ายขวา
                   elevation: 2.0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
@@ -470,7 +521,7 @@ class _NontiPageState extends State<NontiPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
+                          '${item['name_rs'] ?? '-'}',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -478,27 +529,167 @@ class _NontiPageState extends State<NontiPage> {
                           ),
                         ),
                         const SizedBox(height: 8.0),
-                        Text(
-                          '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
-                          style: const TextStyle(fontSize: 16),
+                        // Text(
+                        //   '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
+                        //   style: const TextStyle(fontSize: 16),
+                        // ),
+
+                        // รถ
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 50,
+                              child: Text(
+                                'รถ:',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                '${item['name_vehicle'] ?? '-'}',
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
-                          style: const TextStyle(fontSize: 16),
+                        const SizedBox(height: 6),
+
+                        // ที่นา
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 50,
+                              child: Text(
+                                'ที่นา:',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                '${item['name_farm'] ?? '-'} (ต.${item['farm_subdistrict'] ?? '-'}, อ.${item['farm_district'] ?? '-'}, จ.${item['farm_province'] ?? '-'})',
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'ฟาร์ม: ${item['name_farm'] ?? '-'}, ${item['farm_district'] ?? '-'}, ${item['farm_province'] ?? '-'}',
-                          style: const TextStyle(fontSize: 16),
+                        const SizedBox(height: 6),
+
+                        // พื้นที่
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 50,
+                              child: Text(
+                                'พื้นที่:',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                '${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'จำนวนการจ้างงาน: ${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
+                        const SizedBox(height: 6),
+
+                        // ผู้จ้าง (ถ้ามี)
                         if (item['employee_username'] != null)
-                          Text(
-                            'ผู้จ้าง: ${item['employee_username']} (${item['employee_phone'] ?? '-'})',
-                            style: const TextStyle(fontSize: 16),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                width: 50,
+                                child: Text(
+                                  'ผู้จ้าง:',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '${item['employee_username']} (${item['employee_phone'] ?? '-'})',
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ),
+                            ],
                           ),
+
+                        const Divider(
+                          color: Colors.grey,
+                          thickness: 1,
+                          height: 24,
+                        ),
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 65,
+                              child: Text(
+                                'วันที่จอง:',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey, // กำหนดสีเทา
+                                ),
+                              ),
+                            ),
+                            Text(
+                              formatDateReserveThai(item['date_reserve']),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey, // กำหนดสีเทา
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 65,
+                              child: Text(
+                                'เริ่มงาน:',
+                                style: TextStyle(
+                                    fontSize: 13, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Text(
+                              formatDateReserveThai(item[
+                                  'date_start']), // ใช้ฟังก์ชันที่รับ 1 ตัว
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 65,
+                              child: Text(
+                                'สิ้นสุด:',
+                                style: TextStyle(
+                                    fontSize: 13, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Text(
+                              formatDateReserveThai(
+                                  item['date_end']), // ใช้ฟังก์ชันที่รับ 1 ตัว
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                          ],
+                        ),
+                        const Divider(
+                          color: Colors.grey,
+                          thickness: 1,
+                          height: 24,
+                        ),
                       ],
                     ),
                   ),
@@ -553,7 +744,9 @@ class _NontiPageState extends State<NontiPage> {
                   );
                 },
                 child: Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 8.0,
+                      horizontal: 12.0), // เพิ่ม margin ด้านซ้ายขวา
                   elevation: 2.0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
@@ -564,7 +757,7 @@ class _NontiPageState extends State<NontiPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
+                          '${item['name_rs'] ?? '-'}',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -572,13 +765,166 @@ class _NontiPageState extends State<NontiPage> {
                           ),
                         ),
                         const SizedBox(height: 8.0),
-                        Text(
-                          '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
-                          style: const TextStyle(fontSize: 16),
+                        // Text(
+                        //   '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
+                        //   style: const TextStyle(fontSize: 16),
+                        // ),
+
+                        // รถ
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 50,
+                              child: Text(
+                                'รถ:',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                '${item['name_vehicle'] ?? '-'}',
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
-                          style: const TextStyle(fontSize: 16),
+                        const SizedBox(height: 6),
+
+                        // ที่นา
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 50,
+                              child: Text(
+                                'ที่นา:',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                '${item['name_farm'] ?? '-'} (ต.${item['farm_subdistrict'] ?? '-'}, อ.${item['farm_district'] ?? '-'}, จ.${item['farm_province'] ?? '-'})',
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+
+                        // พื้นที่
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 50,
+                              child: Text(
+                                'พื้นที่:',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                '${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+
+                        // ผู้จ้าง (ถ้ามี)
+                        if (item['employee_username'] != null)
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                width: 50,
+                                child: Text(
+                                  'ผู้จ้าง:',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '${item['employee_username']} (${item['employee_phone'] ?? '-'})',
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                        const Divider(
+                          color: Colors.grey,
+                          thickness: 1,
+                          height: 24,
+                        ),
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 65,
+                              child: Text(
+                                'วันที่จอง:',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey, // กำหนดสีเทา
+                                ),
+                              ),
+                            ),
+                            Text(
+                              formatDateReserveThai(item['date_reserve']),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey, // กำหนดสีเทา
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 65,
+                              child: Text(
+                                'เริ่มงาน:',
+                                style: TextStyle(
+                                    fontSize: 13, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Text(
+                              formatDateReserveThai(item[
+                                  'date_start']), // ใช้ฟังก์ชันที่รับ 1 ตัว
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 65,
+                              child: Text(
+                                'สิ้นสุด:',
+                                style: TextStyle(
+                                    fontSize: 13, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Text(
+                              formatDateReserveThai(
+                                  item['date_end']), // ใช้ฟังก์ชันที่รับ 1 ตัว
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                          ],
+                        ),
+                        const Divider(
+                          color: Colors.grey,
+                          thickness: 1,
+                          height: 24,
                         ),
                       ],
                     ),

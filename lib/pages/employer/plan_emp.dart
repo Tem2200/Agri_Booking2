@@ -1524,16 +1524,16 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
       DateTime localDate = utcDate.toUtc().add(const Duration(hours: 7));
       final formatter = DateFormat("d MMM yyyy 'เวลา' HH:mm", "th_TH");
       String formatted = formatter.format(localDate);
+      // แปลงปี ค.ศ. → พ.ศ.
       String yearString = localDate.year.toString();
       String buddhistYear = (localDate.year + 543).toString();
-      formatted = formatted.replaceFirst(yearString, buddhistYear);
-      return formatted;
+      return formatted.replaceFirst(yearString, buddhistYear);
     } catch (e) {
       return '-';
     }
   }
 
-  String _formatDateRange(String? startDate, String? endDate) {
+  String formatDateRangeThai(String? startDate, String? endDate) {
     if (startDate == null ||
         startDate.isEmpty ||
         endDate == null ||
@@ -1542,17 +1542,51 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
     }
 
     try {
-      final startUtc = DateTime.parse(startDate);
-      final endUtc = DateTime.parse(endDate);
+      DateTime startUtc = DateTime.parse(startDate);
+      DateTime endUtc = DateTime.parse(endDate);
 
-      final startThai = startUtc.toUtc().add(const Duration(hours: 7));
-      final endThai = endUtc.toUtc().add(const Duration(hours: 7));
+      DateTime startThai = startUtc.toUtc().add(const Duration(hours: 7));
+      DateTime endThai = endUtc.toUtc().add(const Duration(hours: 7));
 
-      final formatter = DateFormat('dd/MM/yyyy เวลา HH:mm น.');
+      final formatter = DateFormat('dd/MM/yyyy เวลา HH:mm', "th_TH");
 
-      return 'เริ่มงาน: ${formatter.format(startThai)}\nสิ้นสุด: ${formatter.format(endThai)}';
+      String toBuddhistYearFormat(DateTime date) {
+        String formatted = formatter.format(date);
+        String yearString = date.year.toString();
+        String buddhistYear = (date.year + 543).toString();
+        return formatted.replaceFirst(yearString, buddhistYear) + '  น.';
+      }
+
+      const labelStart = 'เริ่มงาน:';
+      const labelEnd = 'สิ้นสุด:';
+      final maxLabelLength =
+          [labelStart.length, labelEnd.length].reduce((a, b) => a > b ? a : b);
+
+      String alignLabel(String label) {
+        final spaces = ' ' * (maxLabelLength - label.length);
+        return '$label$spaces';
+      }
+
+      return '${alignLabel(labelStart)} ${toBuddhistYearFormat(startThai)}\n'
+          '${alignLabel(labelEnd)} ${toBuddhistYearFormat(endThai)}';
     } catch (e) {
-      return 'รูปแบบวันที่ไม่ถูกต้อง';
+      return 'กำลังโหลดข้อมูล...';
+    }
+  }
+
+  String formatDateReserveThai(String? dateReserve) {
+    if (dateReserve == null || dateReserve.isEmpty) return '-';
+    try {
+      DateTime utcDate = DateTime.parse(dateReserve);
+      DateTime localDate = utcDate.toUtc().add(const Duration(hours: 7));
+      final formatter = DateFormat("d MMM yyyy เวลา HH:mm น.", "th_TH");
+      String formatted = formatter.format(localDate);
+      // แปลงปี ค.ศ. → พ.ศ.
+      String yearString = localDate.year.toString();
+      String buddhistYear = (localDate.year + 543).toString();
+      return formatted.replaceFirst(yearString, buddhistYear);
+    } catch (e) {
+      return '-';
     }
   }
 
@@ -1717,27 +1751,75 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                             ],
                           ),
                           //วันที่และเวลาจ้างงาน
-                          const SizedBox(height: 16),
+
+                          const Divider(
+                            color: Colors.grey,
+                            thickness: 1,
+                            height: 24,
+                          ),
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.access_time, size: 16),
-                              const SizedBox(width: 4),
-                              Expanded(
+                              const SizedBox(
+                                width: 65,
                                 child: Text(
-                                  _formatDateRange(
-                                    rs['date_start'],
-                                    rs['date_end'],
-                                  ),
-                                  style: const TextStyle(
+                                  'วันที่จอง:',
+                                  style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
+                                    color: Colors.grey, // กำหนดสีเทา
                                   ),
+                                ),
+                              ),
+                              Text(
+                                formatDateReserveThai(rs['date_reserve']),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey, // กำหนดสีเทา
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              const SizedBox(
+                                width: 65,
+                                child: Text(
+                                  'เริ่มงาน:',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              Text(
+                                formatDateThai(rs[
+                                    'date_start']), // ใช้ฟังก์ชันสำหรับวันเดียว
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              const SizedBox(
+                                width: 65,
+                                child: Text(
+                                  'สิ้นสุด:',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              Text(
+                                formatDateThai(rs[
+                                    'date_end']), // ใช้ฟังก์ชันสำหรับวันเดียว
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ],
+                          ),
+                          const Divider(
+                            color: Colors.grey,
+                            thickness: 1,
+                            height: 24,
+                          ),
 
                           // ปุ่ม
                           Row(
@@ -1750,7 +1832,9 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                                     showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
-                                        title: const Text('ยืนยันการยกเลิก'),
+                                        title: const Center(
+                                          child: Text('ยืนยันการยกเลิก'),
+                                        ),
                                         content: const Text(
                                             'คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการจองนี้?'),
                                         actions: [

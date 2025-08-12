@@ -751,7 +751,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'รายละเอียด: ${selectedFarm['detail'] ?? 'ไม่มีรายละเอียดอื่นๆ'}',
+                                    'รายละเอียดไร่นา: ${selectedFarm['detail'] ?? 'ไม่มีรายละเอียดอื่นๆ'}',
                                     style: const TextStyle(
                                       fontSize: 14,
                                       color: Color.fromARGB(255, 95, 95, 95),
