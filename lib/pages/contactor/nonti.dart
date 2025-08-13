@@ -100,7 +100,7 @@ class _NontiPageState extends State<NontiPage> {
     try {
       DateTime utcDate = DateTime.parse(dateReserve);
       DateTime localDate = utcDate.toUtc().add(const Duration(hours: 7));
-      final formatter = DateFormat("d MMM yyyy เวลา HH:mm ", "th_TH");
+      final formatter = DateFormat("d MMM yyyy เวลา HH:mm น.", "th_TH");
       String formatted = formatter.format(localDate);
       // แปลงปี ค.ศ. → พ.ศ.
       String yearString = localDate.year.toString();
@@ -473,7 +473,7 @@ class _NontiPageState extends State<NontiPage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return const Center(child: Text('ขณะนี้ยังไม่มีการแจ้งเตือนค่ะ'));
+          return const Center(child: Text('ขณะนี้ยังไม่มีการแจ้งเตือน'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('ไม่มีคิวงาน'));
         }
@@ -709,7 +709,7 @@ class _NontiPageState extends State<NontiPage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return const Center(child: Text('ขณะนี้ยังไม่มีการแจ้งเตือนค่ะ'));
+          return const Center(child: Text('ขณะนี้ยังไม่มีการแจ้งเตือน'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('ไม่มีคิวที่ถูกยกเลิก'));
         }

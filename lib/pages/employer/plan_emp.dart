@@ -1522,7 +1522,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
     try {
       DateTime utcDate = DateTime.parse(dateStr);
       DateTime localDate = utcDate.toUtc().add(const Duration(hours: 7));
-      final formatter = DateFormat("d MMM yyyy 'เวลา' HH:mm", "th_TH");
+      final formatter = DateFormat("d MMM yyyy 'เวลา' HH:mm น.", "th_TH");
       String formatted = formatter.format(localDate);
       // แปลงปี ค.ศ. → พ.ศ.
       String yearString = localDate.year.toString();
@@ -1548,7 +1548,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
       DateTime startThai = startUtc.toUtc().add(const Duration(hours: 7));
       DateTime endThai = endUtc.toUtc().add(const Duration(hours: 7));
 
-      final formatter = DateFormat('dd/MM/yyyy เวลา HH:mm', "th_TH");
+      final formatter = DateFormat('dd/MM/yyyy เวลา HH:mm น.', "th_TH");
 
       String toBuddhistYearFormat(DateTime date) {
         String formatted = formatter.format(date);

@@ -147,7 +147,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
     try {
       DateTime utcDate = DateTime.parse(dateReserve);
       DateTime localDate = utcDate.toUtc().add(const Duration(hours: 7));
-      final formatter = DateFormat("d MMM yyyy เวลา HH:mm ", "th_TH");
+      final formatter = DateFormat("d MMM yyyy เวลา HH:mm น.", "th_TH");
       String formatted = formatter.format(localDate);
       // แปลงปี ค.ศ. → พ.ศ.
       String yearString = localDate.year.toString();

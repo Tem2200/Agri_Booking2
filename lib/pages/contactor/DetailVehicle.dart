@@ -370,7 +370,7 @@ class _DetailvehicleState extends State<Detailvehicle> {
 
                       const SizedBox(height: 8),
                       Text(
-                        'สถานะ: ${vehicleData?['status_vehicle'] == 1 ? 'พร้อมใช้งาน' : 'ไม่พร้อม'}',
+                        'สถานะ: ${vehicleData?['status_vehicle'] == 1 ? 'พร้อมให้บริการ' : 'งดให้บริการ'}',
                         style: TextStyle(
                           color: vehicleData?['status_vehicle'] == 1
                               ? Colors.green

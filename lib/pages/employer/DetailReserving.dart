@@ -663,10 +663,20 @@ class _DetailReservingState extends State<DetailReserving> {
                                           ),
                                   ),
                                   Text(
-                                    'รถ: ${data!['name_vehicle']}',
+                                    '🚗 รถ: ${data!['name_vehicle']}',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
                                   ),
                                   Text(
-                                    'ทะเบียนรถ: ${data!['plate_number'] != null && data!['plate_number'].toString().isNotEmpty ? data!['plate_number'] : 'ไม่มี'}',
+                                    '📄 ทะเบียนรถ: ${data!['plate_number'] != null && data!['plate_number'].toString().isNotEmpty ? data!['plate_number'] : 'ไม่มี'}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black54,
+                                      fontStyle: FontStyle.italic,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -824,7 +834,7 @@ class _DetailReservingState extends State<DetailReserving> {
                                         '${data!['name_farm']} (หมู่บ้าน${data!['village']} ต.${data!['subdistrict']} อ.${data!['district']} จ.${data!['province']})\n' +
                                             (data!['detail']?.isNotEmpty == true
                                                 ? data!['detail']
-                                                : 'ไม่มี'),
+                                                : ''),
                                         style: const TextStyle(fontSize: 15),
                                       ),
                                     ),
@@ -909,7 +919,7 @@ class _DetailReservingState extends State<DetailReserving> {
                                 const SizedBox(height: 12),
 
                                 // รายละเอียดงาน (ไม่มี SizedBox กว้าง)
-                                const Row(
+                                Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Icon(Icons.notes,
@@ -922,14 +932,15 @@ class _DetailReservingState extends State<DetailReserving> {
                                           fontWeight: FontWeight.bold),
                                     ),
                                     SizedBox(width: 8),
-                                    // Expanded(
-                                    //   child: Text(
-                                    //     data!['detail']?.isNotEmpty == true
-                                    //         ? data!['detail']
-                                    //         : 'ไม่มี',
-                                    //     style: const TextStyle(fontSize: 15),
-                                    //   ),
-                                    // ),
+                                    Expanded(
+                                      child: Text(
+                                        data!['reserving_detail']?.isNotEmpty ==
+                                                true
+                                            ? data!['reserving_detail']
+                                            : 'ไม่มีรายละเอียด',
+                                        style: const TextStyle(fontSize: 15),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ],

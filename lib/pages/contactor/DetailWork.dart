@@ -438,7 +438,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
     try {
       DateTime utcDate = DateTime.parse(dateStr);
       DateTime localDate = utcDate.toUtc().add(const Duration(hours: 7));
-      final formatter = DateFormat("d MMM yyyy 'เวลา' HH:mm", "th_TH");
+      final formatter = DateFormat("d MMM yyyy 'เวลา' HH:mm น.", "th_TH");
       String formatted = formatter.format(localDate);
       // แปลงปี ค.ศ. → พ.ศ.
       String yearString = localDate.year.toString();
@@ -464,7 +464,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
       DateTime startThai = startUtc.toUtc().add(const Duration(hours: 7));
       DateTime endThai = endUtc.toUtc().add(const Duration(hours: 7));
 
-      final formatter = DateFormat('dd/MM/yyyy เวลา HH:mm', "th_TH");
+      final formatter = DateFormat('dd/MM/yyyy เวลา HH:mm น.', "th_TH");
 
       String toBuddhistYearFormat(DateTime date) {
         String formatted = formatter.format(date);
@@ -1128,7 +1128,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                         '${data!['name_farm']} (หมู่บ้าน${data!['village']} ต.${data!['subdistrict']} อ.${data!['district']} จ.${data!['province']})\n' +
                                             (data!['detail']?.isNotEmpty == true
                                                 ? data!['detail']
-                                                : 'ไม่มี'),
+                                                : ''),
                                         style: const TextStyle(fontSize: 15),
                                       ),
                                     ),
@@ -1188,7 +1188,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                 const SizedBox(height: 12),
 
                                 // รายละเอียดงาน (ไม่มี SizedBox กว้าง)
-                                const Row(
+                                Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Icon(Icons.notes,
@@ -1201,14 +1201,15 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                           fontWeight: FontWeight.bold),
                                     ),
                                     SizedBox(width: 8),
-                                    // Expanded(
-                                    //   child: Text(
-                                    //     data!['detail']?.isNotEmpty == true
-                                    //         ? data!['detail']
-                                    //         : 'ไม่มี',
-                                    //     style: const TextStyle(fontSize: 15),
-                                    //   ),
-                                    // ),
+                                    Expanded(
+                                      child: Text(
+                                        data!['reserving_detail']?.isNotEmpty ==
+                                                true
+                                            ? data!['reserving_detail']
+                                            : 'ไม่มีรายละเอียด',
+                                        style: const TextStyle(fontSize: 15),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ],
