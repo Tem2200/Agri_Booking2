@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/ForgetPassword.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:agri_booking2/pages/contactor/home.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
@@ -291,6 +292,34 @@ class _LoginState extends State<Login> {
                               controller: passwordController,
                               label: 'รหัสผ่าน',
                               obscureText: true,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end, // ชิดขวา
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const Forgetpassword(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                'ลืมรหัสผ่าน?',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  fontStyle: FontStyle.italic,
+                                  color: Color.fromARGB(221, 46, 179, 255),
+                                  decoration: TextDecoration.underline,
+                                  decorationColor:
+                                      Color.fromARGB(221, 46, 179, 255),
+                                ),
+                              ),
                             ),
                           ],
                         ),
