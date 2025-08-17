@@ -572,15 +572,15 @@ class _EditMemberPageState extends State<EditMemberPage> {
               fillColor: const Color(0xFFE0E0E0),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.black),
+                borderSide: const BorderSide(color: Colors.black),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.black),
+                borderSide: const BorderSide(color: Colors.black),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: Color.fromARGB(255, 255, 170, 0),
                   width: 2,
                 ),
@@ -698,16 +698,16 @@ class _EditMemberPageState extends State<EditMemberPage> {
               fillColor: const Color(0xFFE0E0E0),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.black),
+                borderSide: const BorderSide(color: Colors.black),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.black),
+                borderSide: const BorderSide(color: Colors.black),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: const Color.fromARGB(255, 255, 170, 0),
+                borderSide: const BorderSide(
+                  color: Color.fromARGB(255, 255, 170, 0),
                   width: 2,
                 ),
               ),

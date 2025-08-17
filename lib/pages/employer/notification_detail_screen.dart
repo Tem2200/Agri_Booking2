@@ -29,12 +29,12 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
           children: [
             Text(
               widget.title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(widget.body),
           ],
         ),

@@ -24,6 +24,7 @@ class _LoginState extends State<Login> {
   bool isLoading = false;
   String message = '';
   bool isFormValid = false;
+  @override
   void initState() {
     super.initState();
     emailController.addListener(_validateForm);
@@ -331,21 +332,21 @@ class _LoginState extends State<Login> {
                           child: ElevatedButton(
                             style: ButtonStyle(
                               backgroundColor:
-                                  MaterialStateProperty.resolveWith<Color>(
+                                  WidgetStateProperty.resolveWith<Color>(
                                       (states) {
-                                if (states.contains(MaterialState.disabled)) {
+                                if (states.contains(WidgetState.disabled)) {
                                   return const Color.fromARGB(255, 7, 172, 15);
                                 }
                                 return const Color.fromARGB(255, 7, 172, 15);
                               }),
                               foregroundColor:
-                                  MaterialStateProperty.all(Colors.white),
-                              elevation: MaterialStateProperty.all(10),
-                              shadowColor: MaterialStateProperty.all(
+                                  WidgetStateProperty.all(Colors.white),
+                              elevation: WidgetStateProperty.all(10),
+                              shadowColor: WidgetStateProperty.all(
                                   const Color.fromARGB(255, 7, 172, 15)),
-                              padding: MaterialStateProperty.all(
+                              padding: WidgetStateProperty.all(
                                   const EdgeInsets.symmetric(vertical: 14)),
-                              shape: MaterialStateProperty.all(
+                              shape: WidgetStateProperty.all(
                                 RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8)),
                               ),
@@ -436,8 +437,8 @@ class _LoginState extends State<Login> {
           // ชื่อช่องแยกออกมา
           Text(
             label,
-            style: TextStyle(
-              color: const Color.fromARGB(255, 5, 5, 5),
+            style: const TextStyle(
+              color: Color.fromARGB(255, 5, 5, 5),
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -478,7 +479,7 @@ class _LoginState extends State<Login> {
                   vertical: 16,
                 ),
               ),
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.black,
               ),

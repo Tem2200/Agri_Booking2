@@ -39,7 +39,7 @@ class _EditVehicleState extends State<EditVehicle> {
   );
 
 // กำหนด style สำหรับข้อความในปุ่มเพิ่มรถ
-  static const TextStyle submitButtonTextStyle = const TextStyle(
+  static const TextStyle submitButtonTextStyle = TextStyle(
     color: Colors.white,
     fontWeight: FontWeight.w600,
   );
@@ -217,7 +217,7 @@ class _EditVehicleState extends State<EditVehicle> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 255, 217, 180),
+      backgroundColor: const Color.fromARGB(255, 255, 217, 180),
       appBar: AppBar(
         //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
         backgroundColor: const Color.fromARGB(255, 18, 143, 9),

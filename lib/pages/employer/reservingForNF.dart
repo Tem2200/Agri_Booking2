@@ -40,6 +40,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
   List<dynamic> farmList = [];
   dynamic selectedFarm;
   late WebSocket _ws;
+  bool _wsConnected = false;
 
   final List<String> unitOptions = [
     'ตารางวา',
@@ -53,6 +54,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
   @override
   void initState() {
     super.initState();
+    _connectWebSocket();
 
     print("ฟาร์มที่เลือก: ${widget.farm}");
 
@@ -73,6 +75,114 @@ class _ReservingForNFState extends State<ReservingForNF> {
     }
 
     _loadFarms();
+  }
+
+  Future<void> _connectWebSocket() async {
+    try {
+      _ws = await WebSocket.connect(
+          'ws://projectnodejs.thammadalok.com:80/AGribooking');
+
+      setState(() => _wsConnected = true);
+      print("✅ WebSocket connected");
+
+      _ws.listen((message) {
+        print("📩 ได้รับจาก WS: $message");
+      }, onDone: () {
+        print("🔌 WebSocket ปิดแล้ว");
+        setState(() => _wsConnected = false);
+      }, onError: (err) {
+        print("⚠️ WS error: $err");
+        setState(() => _wsConnected = false);
+      });
+    } catch (e) {
+      print("❌ ไม่สามารถเชื่อมต่อ WS ได้: $e");
+      setState(() => _wsConnected = false);
+    }
+  }
+
+  Future<void> _submitReservation() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (selectedFarm == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('กรุณาเลือกที่นา')),
+      );
+      return;
+    }
+    if (dateStart == null || dateEnd == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('กรุณาเลือกวันที่เริ่มและสิ้นสุด')),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    final String finalUnit =
+        isCustomUnit ? customUnitController.text.trim() : selectedUnit ?? '';
+
+    final Map<String, dynamic> body = {
+      "name_rs": nameController.text.trim(),
+      "area_amount": int.tryParse(areaAmountController.text.trim()) ?? 0,
+      "unit_area": finalUnit,
+      "detail": detailController.text.trim().isEmpty
+          ? 'ไม่มีรายละเอียดการจอง'
+          : detailController.text.trim(),
+      "date_start":
+          "${dateStart!.toIso8601String().split('T')[0]} ${dateStart!.hour.toString().padLeft(2, '0')}:${dateStart!.minute.toString().padLeft(2, '0')}:00",
+      "date_end":
+          "${dateEnd!.toIso8601String().split('T')[0]} ${dateEnd!.hour.toString().padLeft(2, '0')}:${dateEnd!.minute.toString().padLeft(2, '0')}:00",
+      "progress_status": null,
+      "mid_employee": widget.mid,
+      "vid": widget.vid,
+      "fid": selectedFarm!['fid'],
+    };
+
+    try {
+      // ส่ง HTTP POST
+      final response = await http.post(
+        Uri.parse('http://projectnodejs.thammadalok.com/AGribooking/reserve'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('จองสำเร็จ')),
+        );
+
+        // ✅ ส่งผ่าน WebSocket
+        if (_wsConnected && _ws.readyState == WebSocket.open) {
+          _ws.add(jsonEncode({
+            "event": "reservation_update",
+            "mid": widget.mid,
+            "data": body,
+          }));
+          print("📤 ส่ง WS สำเร็จ");
+        }
+
+        int currentMonth = DateTime.now().month;
+        int currentYear = DateTime.now().year;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Tabbar(
+              mid: widget.mid,
+              value: 1,
+              month: currentMonth,
+              year: currentYear,
+            ),
+          ),
+        );
+      } else {
+        print("❌ Error ${response.statusCode} : ${response.body}");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 
   Future<void> _loadFarms() async {
@@ -118,7 +228,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
     if (pickedDate != null) {
       final TimeOfDay? pickedTime = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay(hour: 9, minute: 0),
+        initialTime: const TimeOfDay(hour: 9, minute: 0),
       );
 
       if (pickedTime != null) {
@@ -138,7 +248,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
         } else {
           // แจ้งเตือนถ้าเลือกเวลาย้อนหลัง
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
                 content: Text('กรุณาเลือกวันที่และเวลาที่มากกว่าปัจจุบัน')),
           );
         }
@@ -190,114 +300,6 @@ class _ReservingForNFState extends State<ReservingForNF> {
           );
         }
       }
-    }
-  }
-
-  Future<void> _submitReservation() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (selectedFarm == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('กรุณาเลือกที่นา')),
-      );
-      return;
-    }
-    if (dateStart == null || dateEnd == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('กรุณาเลือกวันที่เริ่มและสิ้นสุด')),
-      );
-      return;
-    }
-
-    setState(() => isLoading = true);
-
-    final String finalUnit =
-        isCustomUnit ? customUnitController.text.trim() : selectedUnit ?? '';
-
-    final Map<String, dynamic> body = {
-      "name_rs": nameController.text.trim(),
-      "area_amount": int.tryParse(areaAmountController.text.trim()) ?? 0,
-      "unit_area": finalUnit,
-      "detail": detailController.text.trim() ?? 'ไม่มีรายละเอียดการจอง',
-      "date_start":
-          "${dateStart!.toIso8601String().split('T')[0]} ${dateStart!.hour.toString().padLeft(2, '0')}:${dateStart!.minute.toString().padLeft(2, '0')}:00",
-      "date_end":
-          "${dateEnd!.toIso8601String().split('T')[0]} ${dateEnd!.hour.toString().padLeft(2, '0')}:${dateEnd!.minute.toString().padLeft(2, '0')}:00",
-      "progress_status": null,
-      "mid_employee": widget.mid,
-      "vid": widget.vid,
-      "fid": selectedFarm['fid'],
-    };
-
-    try {
-      // ส่ง HTTP POST
-      final response = await http.post(
-        Uri.parse('http://projectnodejs.thammadalok.com/AGribooking/reserve'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(body),
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('จองสำเร็จ')),
-        );
-
-        // 💡 ส่ง WebSocket event ให้ client อัปเดตแบบเรียลไทม์
-        if (_ws.readyState == WebSocket.open) {
-          _ws.add(jsonEncode({
-            "event": "reservation_update",
-            "mid": widget.mid,
-            "data": body,
-          }));
-        }
-
-        int currentMonth = DateTime.now().month;
-        int currentYear = DateTime.now().year;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Tabbar(
-              mid: widget.mid,
-              value: 1,
-              month: currentMonth,
-              year: currentYear,
-            ),
-          ),
-        );
-      } else {
-        // 💡 ดึงข้อความ error จาก response
-        String errorMessage = 'เกิดข้อผิดพลาดไม่ทราบสาเหตุ';
-        try {
-          final decoded = jsonDecode(response.body);
-          if (decoded['error'] != null) errorMessage = decoded['error'];
-          if (decoded['message'] != null) errorMessage = decoded['message'];
-        } catch (_) {}
-
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Row(
-              children: [
-                Icon(Icons.warning, color: Colors.red),
-                SizedBox(width: 10),
-                Text("เกิดข้อผิดพลาด"),
-              ],
-            ),
-            content: Text(errorMessage),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("ปิด"),
-              ),
-            ],
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
-      );
-    } finally {
-      setState(() => isLoading = false);
     }
   }
 
@@ -610,10 +612,12 @@ class _ReservingForNFState extends State<ReservingForNF> {
                       controller: areaAmountController,
                       inputType: TextInputType.number,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'กรุณากรอกจำนวนพื้นที่*';
-                        if (int.tryParse(value) == null)
+                        }
+                        if (int.tryParse(value) == null) {
                           return 'กรุณากรอกเป็นตัวเลข*';
+                        }
                         return null;
                       },
                     ),

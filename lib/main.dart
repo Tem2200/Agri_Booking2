@@ -77,7 +77,7 @@ class MyApp extends StatelessWidget {
           textTheme: GoogleFonts.mitrTextTheme(),
         ),
         navigatorKey: navigatorKey,
-        home: TabbarGenaralUser(value: 0)); //const SendEmailPage());
+        home: const TabbarGenaralUser(value: 0)); //const SendEmailPage());
     //
   }
 }

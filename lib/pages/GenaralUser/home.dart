@@ -354,7 +354,7 @@ class _HomeGeState extends State<HomeGe> {
                                 ),
                               ),
                             );
-                          }).toList(),
+                          }),
                         ],
                       ),
           )

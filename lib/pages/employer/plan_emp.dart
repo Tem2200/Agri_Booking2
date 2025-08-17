@@ -1281,18 +1281,67 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late WebSocket _ws;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   Intl.defaultLocale = "th_TH";
+  //   _tabController = TabController(length: 2, vsync: this);
+  //   fetchReservings();
+  // }
+
+  // @override
+  // void dispose() {
+  //   _tabController.dispose();
+  //   super.dispose();
+  // }
   @override
   void initState() {
     super.initState();
     Intl.defaultLocale = "th_TH";
     _tabController = TabController(length: 2, vsync: this);
     fetchReservings();
+    connectWebSocket(); // ✅ เพิ่มบรรทัดนี้เพื่อเชื่อมต่อ WebSocket
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    if (_ws.readyState == WebSocket.open) {
+      // ✅ เพิ่มการปิดการเชื่อมต่อ
+      _ws.close();
+    }
     super.dispose();
+  }
+
+  void connectWebSocket() async {
+    try {
+      // URL สำหรับการเชื่อมต่อ WebSocket ต้องตรงกับเซิร์ฟเวอร์
+      _ws = await WebSocket.connect(
+          'ws://projectnodejs.thammadalok.com/AGribooking');
+
+      _ws.listen(
+        (message) {
+          // ส่วนนี้คือการฟังข้อมูลจากเซิร์ฟเวอร์
+          // สามารถเพิ่ม logic การอัปเดต UI ที่นี่ได้หากเซิร์ฟเวอร์ส่งข้อมูลกลับมา
+          print("Received message from server: $message");
+          fetchReservings(); // เรียก fetch อีกครั้งเมื่อมีข้อมูลอัปเดตจากเซิร์ฟเวอร์
+        },
+        onDone: () {
+          print('WebSocket closed, retry in 5 sec');
+          Future.delayed(const Duration(seconds: 5), connectWebSocket);
+        },
+        onError: (e) {
+          print('WebSocket error: $e, retry in 5 sec');
+          Future.delayed(const Duration(seconds: 5), connectWebSocket);
+        },
+      );
+
+      // ส่งข้อความไปบอกเซิร์ฟเวอร์ว่า client นี้คือใคร
+      _ws.add(jsonEncode({"action": "client_connect", "mid": widget.mid}));
+    } catch (e) {
+      print('WebSocket connection error: $e, retry in 5 sec');
+      Future.delayed(const Duration(seconds: 5), connectWebSocket);
+    }
   }
 
   Future<void> sendEmail(Map<String, dynamic> rs) async {
@@ -1305,8 +1354,8 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
     }
 
     final emailContractor = rs['email_contractor'];
-    final fromName = 'ระบบจองคิว AgriBooking';
-    final toName = 'ผู้รับจ้าง';
+    const fromName = 'ระบบจองคิว AgriBooking';
+    const toName = 'ผู้รับจ้าง';
 
     final nameRs = rs['name_rs'];
     final areaAmount = rs['area_amount'];
@@ -1605,7 +1654,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
         String formatted = formatter.format(date);
         String yearString = date.year.toString();
         String buddhistYear = (date.year + 543).toString();
-        return formatted.replaceFirst(yearString, buddhistYear) + '  น.';
+        return '${formatted.replaceFirst(yearString, buddhistYear)}  น.';
       }
 
       const labelStart = 'เริ่มงาน:';
@@ -2063,14 +2112,14 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                       borderRadius: BorderRadius.circular(12),
                       gradient: LinearGradient(
                         colors: [
-                          Color.fromARGB(255, 190, 255, 189),
-                          Color.fromARGB(255, 37, 189, 35),
+                          const Color.fromARGB(255, 190, 255, 189),
+                          const Color.fromARGB(255, 37, 189, 35),
                           Colors.green[800]!,
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black26,
                           blurRadius: 4,

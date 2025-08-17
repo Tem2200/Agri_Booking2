@@ -31,56 +31,43 @@ class _DetailvehicleState extends State<Detailvehicle> {
 
   Future<void> fetchVehicleDetail() async {
     setState(() {
-      isLoading = true; // ตั้งสถานะว่ากำลังโหลด
-      error = null; // ล้างข้อผิดพลาดเก่า
+      isLoading = true;
+      error = null;
     });
+
     try {
-      // --- ล้างแคชรูปภาพของ Flutter เพื่อบังคับโหลดใหม่ ---
+      // ล้างแคชรูปภาพ
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.clearLiveImages();
-      // ----------------------------------------------------
 
       final url = Uri.parse(
           'http://projectnodejs.thammadalok.com/AGribooking/get_vid/${widget.vid}');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        final List data = jsonDecode(response.body);
-        if (data.isNotEmpty) {
-          setState(() {
-            vehicleData = data[0];
-            // กำหนดค่า _currentMid เมื่อข้อมูลรถถูกโหลดสำเร็จ
-            _currentMid = vehicleData!['mid'] ?? 0;
-            isLoading = false;
+        final Map<String, dynamic> data = jsonDecode(response.body);
 
-            // หลังจากได้ _currentMid แล้ว ให้เรียก fetchReviews
-            if (_currentMid != 0) {
-              _reviewFuture = fetchReviews(_currentMid);
-            } else {
-              _reviewFuture =
-                  Future.value([]); // ถ้า mid เป็น 0 ถือว่าไม่มีรีวิว
-            }
-          });
-        } else {
-          setState(() {
-            error = 'ไม่พบข้อมูลรถ';
-            isLoading = false;
-            _reviewFuture = Future.value([]); // ถ้าไม่พบข้อมูลรถ ก็ไม่มีรีวิว
-          });
-        }
+        setState(() {
+          vehicleData = data; // ใช้ Map ตรง ๆ
+          _currentMid = vehicleData!['mid'] ?? 0;
+          isLoading = false;
+
+          // เรียก fetchReviews ตาม mid
+          _reviewFuture =
+              (_currentMid != 0) ? fetchReviews(_currentMid) : Future.value([]);
+        });
       } else {
         setState(() {
           error = 'โหลดข้อมูลรถล้มเหลว: ${response.statusCode}';
           isLoading = false;
-          _reviewFuture = Future.error(
-              'Failed to load vehicle data'); // แจ้ง error กับ review future ด้วย
+          _reviewFuture = Future.value([]);
         });
       }
     } catch (e) {
       setState(() {
         error = 'เกิดข้อผิดพลาดในการเชื่อมต่อ: $e';
         isLoading = false;
-        _reviewFuture = Future.error(e); // แจ้ง error กับ review future ด้วย
+        _reviewFuture = Future.error(e);
       });
     }
   }
@@ -522,7 +509,7 @@ class _DetailvehicleState extends State<Detailvehicle> {
                           ),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Color(0xFFFFC107), // ขอบสีส้มทอง
+                            color: const Color(0xFFFFC107), // ขอบสีส้มทอง
                           ),
                         ),
                         child: Column(

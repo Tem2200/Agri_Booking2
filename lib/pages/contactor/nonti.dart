@@ -3,6 +3,7 @@ import 'package:agri_booking2/pages/contactor/DetailWork.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'dart:io'; // อย่าลืม import WebSocket
 
 class NontiPage extends StatefulWidget {
   final int mid;
@@ -17,17 +18,67 @@ class _NontiPageState extends State<NontiPage> {
   Future<List<dynamic>>? _scheduleFuture;
   int _newJobsCount = 0; // จำนวนงานใหม่ (progress_status = null)
   int _cancelledJobsCount = 0; // จำนวนงานที่ถูกยกเลิก (progress_status = 5)
+  late WebSocket _ws; // ✅ เพิ่มตัวแปร WebSocket
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   print("MID: ${widget.mid}");
+  //   setState(() {
+  //     _scheduleFuture = fetchAndCountSchedule(widget.mid);
+  //     //_scheduleFuture = fetchSchedule(widget.mid); // ✅ แก้ตรงนี้
+  //     print("_scheduleFuture: $_scheduleFuture");
+  //     // ✅ ไม่ใช้ month/year แล้ว
+  //   });
+  // }
 
   @override
   void initState() {
     super.initState();
     print("MID: ${widget.mid}");
-    setState(() {
-      _scheduleFuture = fetchAndCountSchedule(widget.mid);
-      //_scheduleFuture = fetchSchedule(widget.mid); // ✅ แก้ตรงนี้
-      print("_scheduleFuture: $_scheduleFuture");
-      // ✅ ไม่ใช้ month/year แล้ว
-    });
+    _scheduleFuture = fetchAndCountSchedule(widget.mid);
+    connectWebSocket(); // ✅ เพิ่มบรรทัดนี้เพื่อเชื่อมต่อ WS
+  }
+
+  @override
+  void dispose() {
+    if (_ws.readyState == WebSocket.open) {
+      // ✅ เพิ่มการปิดการเชื่อมต่อ
+      _ws.close();
+    }
+    super.dispose();
+  }
+
+  void connectWebSocket() async {
+    try {
+      _ws = await WebSocket.connect(
+          'ws://projectnodejs.thammadalok.com:80/AGribooking'); // ✅ แก้ไขตรงนี้
+
+      _ws.listen(
+        (message) {
+          final data = jsonDecode(message);
+          // ตรวจสอบ event ที่เกี่ยวข้องกับการแจ้งเตือน
+          if (data['event'] == 'con_reserving_update' &&
+              data['mid'].toString() == widget.mid.toString()) {
+            print("Received WebSocket update, fetching data...");
+            // เรียกฟังก์ชันเพื่อดึงข้อมูลใหม่ทันที
+            setState(() {
+              _scheduleFuture = fetchAndCountSchedule(widget.mid);
+            });
+          }
+        },
+        onDone: () {
+          print('WebSocket closed, retry in 5 sec');
+          Future.delayed(const Duration(seconds: 5), connectWebSocket);
+        },
+        onError: (e) {
+          print('WebSocket error: $e, retry in 5 sec');
+          Future.delayed(const Duration(seconds: 5), connectWebSocket);
+        },
+      );
+    } catch (e) {
+      print('ฮือๆๆๆๆๆWebSocket connection error: $e, retry in 5 sec');
+      Future.delayed(const Duration(seconds: 5), connectWebSocket);
+    }
   }
 
   Future<List<dynamic>> fetchAndCountSchedule(int mid) async {

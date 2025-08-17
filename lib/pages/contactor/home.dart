@@ -55,9 +55,9 @@ class _HomePageState extends State<HomePage> {
 
   // --- ฟังก์ชันสำหรับดึงข้อมูลสมาชิก ---
   Future<Map<String, dynamic>> fetchCon(int mid) async {
-    final url_con = Uri.parse(
+    final urlCon = Uri.parse(
         'http://projectnodejs.thammadalok.com/AGribooking/members/$mid');
-    final response = await http.get(url_con);
+    final response = await http.get(urlCon);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -576,10 +576,10 @@ class _HomePageState extends State<HomePage> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                title: Center(
+                                title: const Center(
                                   child: Text(
                                     'ยืนยันการสมัครสมาชิก',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20,
                                       color: Colors.deepPurple,
@@ -666,7 +666,8 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => TabbarGenaralUser(value: 0)),
+                        builder: (context) =>
+                            const TabbarGenaralUser(value: 0)),
                     (route) => false,
                   );
                 }
@@ -873,8 +874,8 @@ class _HomePageState extends State<HomePage> {
                             borderRadius: BorderRadius.circular(8),
                             gradient: LinearGradient(
                               colors: [
-                                Color.fromARGB(255, 190, 255, 189)!,
-                                Color.fromARGB(255, 37, 189, 35)!,
+                                const Color.fromARGB(255, 190, 255, 189),
+                                const Color.fromARGB(255, 37, 189, 35),
                                 Colors.green[800]!,
 
                                 // Color.fromARGB(255, 255, 244, 189)!,
@@ -1094,8 +1095,8 @@ class _HomePageState extends State<HomePage> {
               'เพิ่มรถ',
               style: TextStyle(fontSize: 14), // ตัวหนังสือเล็กลง
             ),
-            backgroundColor: Color.fromARGB(255, 88, 196, 26),
-            foregroundColor: Color.fromARGB(255, 255, 255, 255),
+            backgroundColor: const Color.fromARGB(255, 88, 196, 26),
+            foregroundColor: const Color.fromARGB(255, 255, 255, 255),
             tooltip: 'เพิ่มรถ',
             materialTapTargetSize:
                 MaterialTapTargetSize.shrinkWrap, // ลดพื้นที่รอบปุ่ม

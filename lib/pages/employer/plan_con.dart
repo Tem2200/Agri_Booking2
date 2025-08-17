@@ -57,7 +57,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
     _displayMonth = widget.month;
     _displayYear = widget.year;
     print("vihicleData: ${widget.vihicleData}");
-    _conFuture = fetchCon(this.widget.mid);
+    _conFuture = fetchCon(widget.mid);
     initializeDateFormatting('th', null).then((_) {
       setState(() {
         _isLocaleInitialized = true;
@@ -72,9 +72,9 @@ class _PlanAndHistoryState extends State<PlanPage> {
 
   // ... (โค้ด fetchCon, fetchSchedule, groupEventsByDay, _formatDateRange, _changeMonth ส่วนเดิม) ...
   Future<Map<String, dynamic>> fetchCon(int mid) async {
-    final url_con = Uri.parse(
+    final urlCon = Uri.parse(
         'http://projectnodejs.thammadalok.com/AGribooking/members/$mid');
-    final response = await http.get(url_con);
+    final response = await http.get(urlCon);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -630,11 +630,12 @@ class _PlanAndHistoryState extends State<PlanPage> {
               //   ],
               // ),
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 255, 255, 255), // พื้นหลังโทนเดิม
+                color:
+                    const Color.fromARGB(255, 255, 255, 255), // พื้นหลังโทนเดิม
                 borderRadius: BorderRadius.circular(12), // มุมโค้ง
                 boxShadow: [
                   BoxShadow(
-                    color: Color.fromARGB(255, 251, 229, 196)
+                    color: const Color.fromARGB(255, 251, 229, 196)
                         .withOpacity(0.3), // สีเงา
                     spreadRadius: 1, // กระจายเงา
                     blurRadius: 6, // ความฟุ้งของเงา

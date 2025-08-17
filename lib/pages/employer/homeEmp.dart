@@ -19,9 +19,9 @@ class HomeEmpPage extends StatefulWidget {
 
 class _HomeEmpPageState extends State<HomeEmpPage> {
   Future<Map<String, dynamic>> fetchCon(int mid) async {
-    final url_con = Uri.parse(
+    final urlCon = Uri.parse(
         'http://projectnodejs.thammadalok.com/AGribooking/members/$mid');
-    final response = await http.get(url_con);
+    final response = await http.get(urlCon);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -355,10 +355,10 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                               borderRadius:
                                                   BorderRadius.circular(16),
                                             ),
-                                            title: Center(
+                                            title: const Center(
                                               child: Text(
                                                 'ยืนยันการสมัครสมาชิก',
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 20,
                                                   color: Colors.deepPurple,
@@ -428,8 +428,9 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                           ),
                                         );
 
-                                        if (confirmChange != true)
+                                        if (confirmChange != true) {
                                           return; // ถ้าไม่ตกลงก็หยุด
+                                        }
                                       }
 
                                       // อัปเดตเป็นโหมดทั้งสอง (3)

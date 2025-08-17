@@ -370,14 +370,18 @@ class _ForgetpasswordState extends State<Forgetpassword> {
 
     if (password.isEmpty) return 'กรุณากรอกรหัสผ่าน';
     if (password.length < 8) return 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';
-    if (!RegExp(r'[A-Z]').hasMatch(password))
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
       return 'รหัสผ่านต้องมีอักษรพิมพ์ใหญ่อย่างน้อย 1 ตัว';
-    if (!RegExp(r'[a-z]').hasMatch(password))
+    }
+    if (!RegExp(r'[a-z]').hasMatch(password)) {
       return 'รหัสผ่านต้องมีอักษรพิมพ์เล็กอย่างน้อย 1 ตัว';
-    if (!RegExp(r'[0-9]').hasMatch(password))
+    }
+    if (!RegExp(r'[0-9]').hasMatch(password)) {
       return 'รหัสผ่านต้องมีตัวเลขอย่างน้อย 1 ตัว';
-    if (!RegExp(r'[!@#\$&*~.]').hasMatch(password))
+    }
+    if (!RegExp(r'[!@#\$&*~.]').hasMatch(password)) {
       return 'รหัสผ่านต้องมีอักขระพิเศษอย่างน้อย 1 ตัว เช่น !@#\$&*~.';
+    }
     if (password != confirmPassword) return 'รหัสผ่านไม่ตรงกัน';
 
     return null;

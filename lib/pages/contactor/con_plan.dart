@@ -32,7 +32,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
     super.initState();
     _displayMonth = widget.month;
     _displayYear = widget.year;
-    fetchCon(this.widget.mid);
+    fetchCon(widget.mid);
     // ✅ เรียก initializeDateFormatting ก่อนโหลดข้อมูล
     initializeDateFormatting('th', null).then((_) {
       setState(() {
@@ -44,9 +44,9 @@ class _PlanAndHistoryState extends State<PlanPage> {
   }
 
   Future<Map<String, dynamic>> fetchCon(int mid) async {
-    final url_con = Uri.parse(
+    final urlCon = Uri.parse(
         'http://projectnodejs.thammadalok.com/AGribooking/members/$mid');
-    final response = await http.get(url_con);
+    final response = await http.get(urlCon);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -155,7 +155,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(
+          return const Center(
             // child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'),
             child: Text('ขออภัยค่ะ ขณะนี้ยังไม่มีการจองคิวรถในเดือนนี้'),
           );

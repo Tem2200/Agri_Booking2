@@ -15,7 +15,7 @@ class MapRegister extends StatefulWidget {
 }
 
 class _MapRegisterState extends State<MapRegister> {
-  Completer<GoogleMapController> _controller = Completer();
+  final Completer<GoogleMapController> _controller = Completer();
   Marker? _selectedMarker;
   LatLng? _initialPosition;
   TextEditingController searchController = TextEditingController();

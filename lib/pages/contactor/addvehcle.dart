@@ -40,7 +40,7 @@ class _AddVehicleState extends State<AddVehicle> {
   );
 
 // กำหนด style สำหรับข้อความในปุ่มเพิ่มรถ
-  static const TextStyle submitButtonTextStyle = const TextStyle(
+  static const TextStyle submitButtonTextStyle = TextStyle(
     color: Colors.white,
     fontWeight: FontWeight.w600,
   );
@@ -144,7 +144,7 @@ class _AddVehicleState extends State<AddVehicle> {
               title: const Center(
                 child: Text('เพิ่มรถสำเร็จ'),
               ),
-              content: Text('ข้อมูลรถของคุณถูกบันทึกเรียบร้อย'),
+              content: const Text('ข้อมูลรถของคุณถูกบันทึกเรียบร้อย'),
               // content: Text('รหัสรถ (VID): $vid'),
               actions: [
                 TextButton(

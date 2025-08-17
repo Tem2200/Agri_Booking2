@@ -239,7 +239,7 @@ class _DetailReservingState extends State<DetailReserving> {
     double endLat,
     double endLng,
   ) async {
-    final apiKey =
+    const apiKey =
         'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImMyOWE5ZDkxMmUyZDQzMDc4ODNlZWQ0MjQzZDQ2NTk1IiwiaCI6Im11cm11cjY0In0='; // <-- ใส่ API Key ของคุณที่นี่
     final url = Uri.parse(
       'https://api.openrouteservice.org/v2/directions/driving-car?api_key=$apiKey&start=$startLng,$startLat&end=$endLng,$endLat',
@@ -301,7 +301,7 @@ class _DetailReservingState extends State<DetailReserving> {
         String formatted = formatter.format(date);
         String yearString = date.year.toString();
         String buddhistYear = (date.year + 543).toString();
-        return formatted.replaceFirst(yearString, buddhistYear) + '  น.';
+        return '${formatted.replaceFirst(yearString, buddhistYear)}  น.';
       }
 
       const labelStart = 'เริ่มงาน:';
@@ -367,7 +367,7 @@ class _DetailReservingState extends State<DetailReserving> {
                     TileLayer(
                       urlTemplate:
                           'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-                      subdomains: ['a', 'b', 'c'],
+                      subdomains: const ['a', 'b', 'c'],
                       userAgentPackageName: 'com.example.yourapp',
                     ),
                     // MarkerLayer(
@@ -491,8 +491,8 @@ class _DetailReservingState extends State<DetailReserving> {
                       _openInGoogleMaps(data!['latitude'], data!['longitude']);
                     },
                     backgroundColor: Colors.blue,
-                    child: const Icon(Icons.map),
                     tooltip: 'เปิด Google Maps',
+                    child: const Icon(Icons.map),
                   ),
                 ),
 
@@ -922,16 +922,16 @@ class _DetailReservingState extends State<DetailReserving> {
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Icon(Icons.notes,
+                                    const Icon(Icons.notes,
                                         size: 18, color: Colors.deepPurple),
-                                    SizedBox(width: 8),
-                                    Text(
+                                    const SizedBox(width: 8),
+                                    const Text(
                                       'รายละเอียดงาน:',
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold),
                                     ),
-                                    SizedBox(width: 8),
+                                    const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
                                         data!['reserving_detail']?.isNotEmpty ==

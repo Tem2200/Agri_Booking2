@@ -222,7 +222,7 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
       ),
       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       filled: true,
-      fillColor: Color.fromARGB(80, 222, 222, 212),
+      fillColor: const Color.fromARGB(80, 222, 222, 212),
       enabledBorder: const OutlineInputBorder(
         borderSide:
             BorderSide(color: Color.fromARGB(255, 155, 155, 155), width: 1.5),

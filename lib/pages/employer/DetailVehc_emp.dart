@@ -54,27 +54,25 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        final List data = jsonDecode(response.body);
+        final Map<String, dynamic> data = jsonDecode(response.body);
+
         if (data.isNotEmpty) {
           setState(() {
-            vehicleData = data[0];
-            // กำหนดค่า _currentMid เมื่อข้อมูลรถถูกโหลดสำเร็จ
+            vehicleData = data;
             _currentMid = vehicleData!['mid'] ?? 0;
             isLoading = false;
 
-            // หลังจากได้ _currentMid แล้ว ให้เรียก fetchReviews
             if (_currentMid != 0) {
               _reviewFuture = fetchReviews(_currentMid);
             } else {
-              _reviewFuture =
-                  Future.value([]); // ถ้า mid เป็น 0 ถือว่าไม่มีรีวิว
+              _reviewFuture = Future.value([]);
             }
           });
         } else {
           setState(() {
             error = 'ไม่พบข้อมูลรถ';
             isLoading = false;
-            _reviewFuture = Future.value([]); // ถ้าไม่พบข้อมูลรถ ก็ไม่มีรีวิว
+            _reviewFuture = Future.value([]);
           });
         }
       } else {
@@ -268,7 +266,7 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
       appBar: AppBar(
         //title: Text(vehicleData?['name_vehicle'] ?? 'รายละเอียดรถ'),
         // backgroundColor: Color.fromARGB(255, 255, 158, 60),
-        backgroundColor: Color.fromARGB(255, 18, 143, 9),
+        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         centerTitle: true,
         iconTheme: const IconThemeData(
           color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว
@@ -527,7 +525,7 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                           ),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Color(0xFFFFC107), // ขอบสีส้มทอง
+                            color: const Color(0xFFFFC107), // ขอบสีส้มทอง
                           ),
                         ),
                         child: Column(

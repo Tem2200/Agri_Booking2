@@ -52,6 +52,7 @@ dependencies:
   fluttertoast: ^8.2.4
   table_calendar: ^3.0.9
   google_fonts: ^6.2.1  # ใช้เวอร์ชันล่าสุด
+  web_socket_channel: ^2.4.0
    
 dev_dependencies:
   flutter_test:

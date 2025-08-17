@@ -13,11 +13,11 @@ class MapFarm extends StatefulWidget {
 }
 
 class _MapFarmState extends State<MapFarm> {
-  Completer<GoogleMapController> _controller = Completer();
+  final Completer<GoogleMapController> _controller = Completer();
   Marker? _selectedMarker;
   LatLng? _initialPosition;
   TextEditingController searchController = TextEditingController();
-  Set<Marker> _placesMarkers = {};
+  final Set<Marker> _placesMarkers = {};
 
   // ใส่ API Key Google Places API ของคุณตรงนี้
   final String googleApiKey = 'AIzaSyCjle5TSSjk8BnEI_mBrwAtVxrefVCMJAU';

@@ -96,7 +96,7 @@ class _FarmsPageState extends State<FarmsPage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('ไม่สามารถลบไร่นาได้'),
-              content: Text(
+              content: const Text(
                   'เนื่องจากมีการจองที่ยังไม่เสร็จสิ้นหรือกำลังดำเนินงานอยู่'),
               actions: <Widget>[
                 TextButton(
@@ -143,9 +143,9 @@ class _FarmsPageState extends State<FarmsPage> {
           },
         ),
         //iconTheme: const IconThemeData(color: Colors.white),
-        title: Text(
+        title: const Text(
           'ไร่นาของฉัน',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
             color: Color.fromARGB(255, 255, 255, 255),

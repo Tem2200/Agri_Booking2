@@ -579,8 +579,8 @@ class _ProfileConState extends State<ProfileCon> {
                             borderRadius: BorderRadius.circular(8),
                             gradient: LinearGradient(
                               colors: [
-                                Color.fromARGB(255, 190, 255, 189)!,
-                                Color.fromARGB(255, 37, 189, 35)!,
+                                const Color.fromARGB(255, 190, 255, 189),
+                                const Color.fromARGB(255, 37, 189, 35),
                                 Colors.green[800]!,
 
                                 // Color.fromARGB(255, 255, 244, 189)!,
@@ -590,7 +590,7 @@ class _ProfileConState extends State<ProfileCon> {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
-                            boxShadow: [
+                            boxShadow: const [
                               BoxShadow(
                                 color: Colors.black26,
                                 blurRadius: 4,

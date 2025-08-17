@@ -119,14 +119,14 @@ class _RegisterState extends State<Register> {
       "email": email,
       "password": passwordController.text,
       "phone": phoneController.text,
-      "image": imageUrl ?? null,
-      "detail_address": addressController.text ?? null,
+      "image": imageUrl,
+      "detail_address": addressController.text,
       "province": selectedProvince,
       "district": selectedAmphoe,
       "subdistrict": selectedDistrict,
       "latitude": latitude,
       "longitude": longitude,
-      "other": otherController.text ?? null,
+      "other": otherController.text,
       "type_member": typeMember,
     };
 
@@ -245,7 +245,7 @@ class _RegisterState extends State<Register> {
 
 // ฟังก์ชันตรวจสอบอีเมลจริงด้วย Abstract API
   Future<bool> isRealEmail(String email) async {
-    final apiKey = 'f1be6dd55f1043dd9fb0794725d344a1';
+    const apiKey = 'f1be6dd55f1043dd9fb0794725d344a1';
     final url = Uri.parse(
         'https://emailvalidation.abstractapi.com/v1/?api_key=$apiKey&email=$email');
 
@@ -329,7 +329,7 @@ class _RegisterState extends State<Register> {
         context: context,
         builder: (_) => AlertDialog(
           title: const Text('เกิดข้อผิดพลาด'),
-          content: Text('ไม่สามารถอัปโหลดรูปได้'),
+          content: const Text('ไม่สามารถอัปโหลดรูปได้'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -365,7 +365,7 @@ class _RegisterState extends State<Register> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) => TabbarGenaralUser(value: 1)),
+                  builder: (context) => const TabbarGenaralUser(value: 1)),
             );
           },
         ),
@@ -450,7 +450,8 @@ class _RegisterState extends State<Register> {
 
                   // Card โปร่งใส
                   Card(
-                    color: Color.fromRGBO(255, 249, 249, 1).withOpacity(0.8),
+                    color:
+                        const Color.fromRGBO(255, 249, 249, 1).withOpacity(0.8),
                     elevation: 8,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -556,8 +557,9 @@ class _RegisterState extends State<Register> {
                             keyboardType: TextInputType.multiline,
                             hintText: 'เช่น Line, Facebook, Instagram',
                             validator: (value) {
-                              if (value != null && value.length > 500)
+                              if (value != null && value.length > 500) {
                                 return 'ต้องไม่เกิน 500 ตัวอักษร';
+                              }
                               return null;
                             },
                           ),
@@ -610,8 +612,9 @@ class _RegisterState extends State<Register> {
                                   //   return null;
                                   // },
                                   validator: (value) {
-                                    if (value != null && value.length > 500)
+                                    if (value != null && value.length > 500) {
                                       return 'ต้องไม่เกิน 500 ตัวอักษร';
+                                    }
                                     return null;
                                   },
                                 ),
@@ -738,7 +741,7 @@ class _RegisterState extends State<Register> {
           // ชื่อช่อง (Label) แยกออกมาอยู่นอก Stack
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.black,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -830,7 +833,7 @@ class _RegisterState extends State<Register> {
           // ชื่อช่อง (Label) แยกออกมา
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.black,
               fontSize: 16,
               fontWeight: FontWeight.w600,

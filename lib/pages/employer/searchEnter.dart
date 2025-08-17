@@ -29,7 +29,7 @@ class _SearchEnterState extends State<SearchEnter> {
   List<dynamic> vehicles = [];
   String currentOrder = "asc";
   bool sortByDistance = false;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String searchQuery = "";
   String currentSortBy = "price";
 

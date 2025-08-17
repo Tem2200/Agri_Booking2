@@ -182,11 +182,11 @@ class _MapEditState extends State<MapEdit> {
   //   // ไม่ต้องตั้งค่า _selectedMarker ที่นี่อีก เพราะทำใน initState หรือ _getCurrentLocation แล้ว
   //   // และการเลื่อนกล้องไปยังตำแหน่งเริ่มต้นก็ทำใน initState หรือ _getCurrentLocation
   // }
-  Completer<GoogleMapController> _controller = Completer();
+  final Completer<GoogleMapController> _controller = Completer();
   Marker? _selectedMarker;
   LatLng? _initialPosition;
   TextEditingController searchController = TextEditingController();
-  Set<Marker> _placesMarkers = {};
+  final Set<Marker> _placesMarkers = {};
 
   // ใส่ API Key Google Places API ของคุณตรงนี้
   final String googleApiKey = 'AIzaSyCjle5TSSjk8BnEI_mBrwAtVxrefVCMJAU';
