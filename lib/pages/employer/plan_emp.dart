@@ -1264,6 +1264,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'dart:io';
 
 class PlanEmp extends StatefulWidget {
   final int mid;
@@ -1278,6 +1279,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
   List<dynamic> history = [];
   bool isLoading = false;
   late TabController _tabController;
+  late WebSocket _ws;
 
   @override
   void initState() {
@@ -1464,26 +1466,77 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
     }
   }
 
+  // Future<void> updateProgressStatus(dynamic rsid) async {
+  //   print(rsid);
+  //   final url = Uri.parse(
+  //     'http://projectnodejs.thammadalok.com/AGribooking/update_progress',
+  //   );
+
+  //   try {
+  //     final response = await http.put(
+  //       url,
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode({
+  //         'rsid': rsid,
+  //         'progress_status': 5,
+  //       }),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       // โชว์ toast ที่ด้านบน
+  //       Fluttertoast.showToast(
+  //         msg: 'อัปเดตสถานะสำเร็จ',
+  //         toastLength: Toast.LENGTH_SHORT,
+  //         gravity: ToastGravity.TOP,
+  //         timeInSecForIosWeb: 2,
+  //         backgroundColor: Colors.green,
+  //         textColor: Colors.white,
+  //         fontSize: 16.0,
+  //       );
+
+  //       // รีเฟรชหน้าหรือโหลดข้อมูลใหม่
+  //       setState(() {
+  //         // เรียกฟังก์ชันโหลดข้อมูลใหม่ เช่น
+  //         fetchReservings(); // สมมุติชื่อฟังก์ชันโหลดข้อมูล
+  //       });
+  //     } else {
+  //       showDialog(
+  //         context: context,
+  //         builder: (context) => AlertDialog(
+  //           title: const Text("อัปเดตล้มเหลว"),
+  //           content: Text("รหัสสถานะ: ${response.statusCode}"),
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     showDialog(
+  //       context: context,
+  //       builder: (context) => AlertDialog(
+  //         title: const Text("เกิดข้อผิดพลาด"),
+  //         content: Text("ไม่สามารถเชื่อมต่อ: $e"),
+  //       ),
+  //     );
+  //   }
+  // }
+
   Future<void> updateProgressStatus(dynamic rsid) async {
-    print(rsid);
-    final url = Uri.parse(
-      'http://projectnodejs.thammadalok.com/AGribooking/update_progress',
-    );
+    print('Updating rsid: $rsid');
 
     try {
-      final response = await http.put(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+      // ส่งข้อมูลผ่าน WebSocket แทน HTTP
+      if (_ws.readyState == WebSocket.open) {
+        final message = jsonEncode({
+          'event': 'update_progress',
           'rsid': rsid,
           'progress_status': 5,
-        }),
-      );
+          'mid': widget.mid, // ส่ง mid ของผู้ใช้งานด้วย
+        });
 
-      if (response.statusCode == 200) {
-        // โชว์ toast ที่ด้านบน
+        _ws.add(message);
+
+        // แสดง toast ว่าส่งข้อมูลเรียบร้อย
         Fluttertoast.showToast(
-          msg: 'อัปเดตสถานะสำเร็จ',
+          msg: 'อัปเดตสถานะสำเร็จ (ส่งผ่าน WS)',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 2,
@@ -1492,18 +1545,16 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
           fontSize: 16.0,
         );
 
-        // รีเฟรชหน้าหรือโหลดข้อมูลใหม่
-        setState(() {
-          // เรียกฟังก์ชันโหลดข้อมูลใหม่ เช่น
-          fetchReservings(); // สมมุติชื่อฟังก์ชันโหลดข้อมูล
-        });
+        // 💡 ไม่ต้องเรียก fetchReservings() อีก
+        // Server จะส่ง event กลับมาทาง WebSocket และ UI จะอัปเดตเอง
       } else {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text("อัปเดตล้มเหลว"),
-            content: Text("รหัสสถานะ: ${response.statusCode}"),
-          ),
+        Fluttertoast.showToast(
+          msg: 'WebSocket ยังไม่เชื่อมต่อ',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       }
     } catch (e) {
@@ -1511,7 +1562,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text("เกิดข้อผิดพลาด"),
-          content: Text("ไม่สามารถเชื่อมต่อ: $e"),
+          content: Text("ไม่สามารถส่งข้อมูล: $e"),
         ),
       );
     }

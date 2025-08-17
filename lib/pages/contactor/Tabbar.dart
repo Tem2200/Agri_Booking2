@@ -4,6 +4,7 @@ import 'package:agri_booking2/pages/contactor/home.dart';
 import 'package:agri_booking2/pages/contactor/nonti.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:io';
 
 class TabbarCar extends StatefulWidget {
   final int value;
@@ -30,7 +31,18 @@ class _TabbarCarState extends State<TabbarCar> {
   late int _displayYear;
   int _notificationCount = 0; // ตัวแปรสำหรับเก็บจำนวนแจ้งเตือน
   bool _isLoading = true;
+  late WebSocket _ws;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _displayMonth = widget.month;
+  //   _displayYear = widget.year;
+  //   value = widget.value;
+  //   switchPage(value);
+  //   connectWebSocket();
+  //   fetchData(); // เรียก fetchData ใน initState
+  // }
   @override
   void initState() {
     super.initState();
@@ -38,7 +50,14 @@ class _TabbarCarState extends State<TabbarCar> {
     _displayYear = widget.year;
     value = widget.value;
     switchPage(value);
-    fetchData(); // เรียก fetchData ใน initState
+    fetchData(); // fetch ครั้งแรก
+    connectWebSocket(); // เชื่อม WS
+  }
+
+  @override
+  void dispose() {
+    _ws.close();
+    super.dispose();
   }
 
   Future<void> fetchData() async {
@@ -104,6 +123,42 @@ class _TabbarCarState extends State<TabbarCar> {
         currentPage = HomePage(mid: widget.mid);
       }
     });
+  }
+
+  void connectWebSocket() async {
+    try {
+      // เปลี่ยน http:// เป็น ws://
+      _ws = await WebSocket.connect(
+          'ws://projectnodejs.thammadalok.com/ConReservingNonti/${widget.mid}');
+
+      _ws.listen((message) {
+        final data = jsonDecode(message);
+        // ตรวจสอบว่าเป็น event ของ mid เรา
+        if (data['event'] == 'reserving_list' &&
+            data['mid'].toString() == widget.mid.toString()) {
+          final schedules = data['data'] as List<dynamic>;
+
+          final nonConfirmedSchedules = schedules.where((item) {
+            final status = (item['progress_status'] ?? '').toString().trim();
+            return status == '' || status == '5';
+          }).toList();
+          print(
+              'Received WebSocket message: ${data['event']} for mid: ${widget.mid}');
+          setState(() {
+            _notificationCount = nonConfirmedSchedules.length;
+          });
+        }
+      }, onDone: () {
+        print('WebSocket closed, retry in 5 sec');
+        Future.delayed(Duration(seconds: 5), connectWebSocket);
+      }, onError: (e) {
+        print('WebSocket error: $e, retry in 5 sec');
+        Future.delayed(Duration(seconds: 5), connectWebSocket);
+      });
+    } catch (e) {
+      print('WebSocket connection error: $e, retry in 5 sec');
+      Future.delayed(Duration(seconds: 5), connectWebSocket);
+    }
   }
 
   @override
