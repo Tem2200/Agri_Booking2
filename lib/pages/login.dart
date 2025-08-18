@@ -312,13 +312,12 @@ class _LoginState extends State<Login> {
                               child: const Text(
                                 'ลืมรหัสผ่าน?',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   fontStyle: FontStyle.italic,
-                                  color: Color.fromARGB(221, 46, 179, 255),
+                                  color: Color.fromARGB(221, 1, 1, 1),
                                   decoration: TextDecoration.underline,
-                                  decorationColor:
-                                      Color.fromARGB(221, 46, 179, 255),
+                                  decorationColor: Color.fromARGB(221, 1, 1, 1),
                                 ),
                               ),
                             ),
