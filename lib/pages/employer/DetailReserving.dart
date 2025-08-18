@@ -781,7 +781,7 @@ class _DetailReservingState extends State<DetailReserving> {
                               thickness: 1, // ความหนา
                               height: 20, // ความสูงของพื้นที่รอบเส้น
                             ),
-                            const SizedBox(height: 5),
+                            const SizedBox(height: 8),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -866,7 +866,7 @@ class _DetailReservingState extends State<DetailReserving> {
                                 //     ),
                                 //   ],
                                 // ),
-                                const SizedBox(height: 6),
+                                //const SizedBox(height: 6),
 
                                 // ราคา
                                 Row(
@@ -925,27 +925,39 @@ class _DetailReservingState extends State<DetailReserving> {
                                     const Icon(Icons.notes,
                                         size: 18, color: Colors.deepPurple),
                                     const SizedBox(width: 8),
-                                    const Text(
-                                      'รายละเอียดงาน:',
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(width: 8),
                                     Expanded(
-                                      child: Text(
-                                        data!['reserving_detail']?.isNotEmpty ==
-                                                true
-                                            ? data!['reserving_detail']
-                                            : 'ไม่มีรายละเอียด',
-                                        style: const TextStyle(fontSize: 15),
+                                      child: Text.rich(
+                                        TextSpan(
+                                          children: [
+                                            const TextSpan(
+                                              text: 'รายละเอียดงาน: ',
+                                              style: TextStyle(
+                                                fontWeight:
+                                                    FontWeight.bold, // ตัวหนา
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: data!['reserving_detail']
+                                                          ?.isNotEmpty ==
+                                                      true
+                                                  ? data!['reserving_detail']
+                                                  : 'ไม่มีรายละเอียด',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight
+                                                    .normal, // ตัวธรรมดา
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
-                                ),
+                                )
                               ],
                             ),
-
+                            const SizedBox(height: 8),
                             const Divider(
                               color: Colors.grey, // สีของเส้น
                               thickness: 1, // ความหนา

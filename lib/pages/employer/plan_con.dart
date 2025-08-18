@@ -271,16 +271,30 @@ class _PlanAndHistoryState extends State<PlanPage> {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      vihicleData?['image_vehicle'] ??
-                          'https://via.placeholder.com/150',
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                  vihicleData?['image_vehicle'] != null &&
+                          vihicleData!['image_vehicle'].toString().isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            vihicleData!['image_vehicle'],
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            size: 40,
+                            color: Colors.grey,
+                          ),
+                        ),
                   const SizedBox(width: 15),
                   Expanded(
                     child: Column(
@@ -649,67 +663,119 @@ class _PlanAndHistoryState extends State<PlanPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Flexible(
-                          child: Text(
-                            item['name_rs'] ?? '-',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ),
+                        // ชื่อรายการ + สถานะ
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Icon(Icons.circle,
-                                color: getStatusColor(item['progress_status']),
-                                size: 10),
-                            const SizedBox(width: 4),
-                            Text(
-                              getStatusText(item['progress_status']),
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: getStatusColor(item['progress_status']),
+                            Flexible(
+                              child: Text(
+                                item['name_rs'] ?? '-',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.circle,
+                                  color:
+                                      getStatusColor(item['progress_status']),
+                                  size: 10,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  getStatusText(item['progress_status']),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color:
+                                        getStatusColor(item['progress_status']),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+
+                        // รถ
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 65,
+                              child: Row(
+                                children: [
+                                  Icon(Icons.directions_car,
+                                      size: 16, color: Colors.blueGrey),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'รถ:',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                item['name_vehicle'] ?? '-',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.directions_car,
-                            size: 16, color: Colors.blueGrey),
-                        const SizedBox(width: 4),
-                        Text(
-                          'รถ: ${item['name_vehicle'] ?? '-'}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on,
-                            size: 16, color: Colors.orange),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            item['subdistrict'] != null
-                                ? 'ที่นา: ${item['name_farm']} (ต.${item['subdistrict']} อ.${item['district']} จ.${item['province']})'
-                                : 'ไม่ระบุที่อยู่',
-                            style: const TextStyle(fontSize: 14),
-                          ),
+                        const SizedBox(height: 4),
+
+                        // ที่นา
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 65,
+                              child: Row(
+                                children: [
+                                  Icon(Icons.location_on,
+                                      size: 16, color: Colors.orange),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'ที่นา:',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                item['subdistrict'] != null
+                                    ? '${item['name_farm']} (ต.${item['subdistrict']} อ.${item['district']} จ.${item['province']})'
+                                    : 'ไม่ระบุที่อยู่',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

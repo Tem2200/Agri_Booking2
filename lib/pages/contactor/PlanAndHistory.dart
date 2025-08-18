@@ -335,35 +335,108 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                 ],
               ),
               const SizedBox(height: 8),
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.directions_car,
-                      size: 16, color: Colors.blueGrey),
-                  const SizedBox(width: 4),
-                  Text(
-                    'รถ: ${item['name_vehicle'] ?? '-'}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 65,
+                        child: Row(
+                          children: [
+                            Icon(Icons.person, size: 16, color: Colors.indigo),
+                            SizedBox(width: 4),
+                            Text(
+                              'ผู้จ้าง:',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          item['employee_username'] ?? '-',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 65,
+                        child: Row(
+                          children: [
+                            Icon(Icons.directions_car,
+                                size: 16, color: Colors.blueGrey),
+                            SizedBox(width: 4),
+                            Text(
+                              'รถ:',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          item['name_vehicle'] ?? '-',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 65,
+                        child: Row(
+                          children: [
+                            Icon(Icons.location_on,
+                                size: 16, color: Colors.orange),
+                            SizedBox(width: 4),
+                            Text(
+                              'ที่นา:',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          '${item['name_farm'] ?? ''} (ต.${item['subdistrict'] ?? ''} อ.${item['district'] ?? ''} จ.${item['province'] ?? ''})',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Icon(Icons.location_on, size: 16, color: Colors.orange),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      'ที่นา: ${item['name_farm'] ?? ''} (ต.${item['subdistrict'] ?? ''} อ.${item['district'] ?? ''} จ.${item['province'] ?? ''})',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                    ),
-                  ),
-                ],
-              ),
+
               const Divider(
                 color: Colors.grey,
                 thickness: 1,
@@ -665,81 +738,143 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Flexible(
-                          child: Text(
-                            item['name_rs'] ?? '-',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Icon(Icons.circle,
-                                color: getStatusColor(item['progress_status']),
-                                size: 10),
-                            const SizedBox(width: 4),
-                            Text(
-                              getStatusText(item['progress_status']),
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: getStatusColor(item['progress_status']),
+                            Flexible(
+                              child: Text(
+                                item['name_rs'] ?? '-',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Icon(Icons.circle,
+                                    color:
+                                        getStatusColor(item['progress_status']),
+                                    size: 10),
+                                const SizedBox(width: 4),
+                                Text(
+                                  getStatusText(item['progress_status']),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color:
+                                        getStatusColor(item['progress_status']),
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // ใช้ Row + SizedBox เพื่อให้หัวข้อและเนื้อหาจัดตรงกัน
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 65, // กำหนดความกว้างหัวข้อให้เท่ากัน
+                              child: Row(
+                                children: [
+                                  Icon(Icons.person,
+                                      size: 16, color: Colors.indigo),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'ผู้จ้าง:',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                item['employee_username'] ?? '-',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.directions_car,
-                            size: 16, color: Colors.blueGrey),
-                        const SizedBox(width: 4),
-                        Text(
-                          'รถ: ${item['name_vehicle'] ?? '-'}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on,
-                            size: 16, color: Colors.orange),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Text(
-                              //   item['name_farm'] ?? '-',
-                              //   style: const TextStyle(fontSize: 14),
-                              //   maxLines: 1,
-                              //   overflow: TextOverflow.ellipsis,
-                              //   softWrap: false,
-                              // ),
-                              Text(
-                                'ที่นา: ${item['name_farm'] ?? ''} (ต.${item['subdistrict'] ?? ''} อ.${item['district'] ?? ''} จ.${item['province'] ?? ''})',
-                                style: const TextStyle(fontSize: 14),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: false,
+                        const SizedBox(height: 8),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 65,
+                              child: Row(
+                                children: [
+                                  Icon(Icons.directions_car,
+                                      size: 16, color: Colors.blueGrey),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'รถ:',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        )
+                            ),
+                            Expanded(
+                              child: Text(
+                                item['name_vehicle'] ?? '-',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 65,
+                              child: Row(
+                                children: [
+                                  Icon(Icons.location_on,
+                                      size: 16, color: Colors.orange),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'ที่นา:',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                '${item['name_farm'] ?? ''} (ต.${item['subdistrict'] ?? ''} อ.${item['district'] ?? ''} จ.${item['province'] ?? ''})',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                ),
+                                maxLines: 1, // จำกัด 1 บรรทัด
+                                overflow: TextOverflow
+                                    .ellipsis, // ถ้าเกินความกว้าง ตัดด้วย ...
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
 
@@ -888,7 +1023,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: const Text(
-            'ตารางงานและประวัติการทำงาน',
+            'ตารางงานทั้งหมด (ผู้รับจ้าง)',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,

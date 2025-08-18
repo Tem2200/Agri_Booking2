@@ -515,21 +515,28 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
             ],
           ),
         ),
+        // leading: IconButton(
+        //   color: Colors.white,
+        //   icon: const Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     Navigator.push(
+        //       context,
+        //       MaterialPageRoute(
+        //         builder: (context) => TabbarCar(
+        //           value: 0,
+        //           mid: data!['contractor_mid'],
+        //           month: DateTime.now().month,
+        //           year: DateTime.now().year,
+        //         ),
+        //       ),
+        //     );
+        //   },
+        // ),
         leading: IconButton(
           color: Colors.white,
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TabbarCar(
-                  value: 0,
-                  mid: data!['contractor_mid'],
-                  month: DateTime.now().month,
-                  year: DateTime.now().year,
-                ),
-              ),
-            );
+            Navigator.pop(context);
           },
         ),
       ),
@@ -1075,7 +1082,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                               thickness: 1, // ความหนา
                               height: 20, // ความสูงของพื้นที่รอบเส้น
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 8),
 
                             // 📝 ข้อมูลเพิ่มเติม
                             Column(
@@ -1161,7 +1168,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 8),
 
                                 // เบอร์โทร (ไม่มี SizedBox กว้าง)
                                 Row(
@@ -1187,33 +1194,43 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                 ),
                                 const SizedBox(height: 12),
 
-                                // รายละเอียดงาน (ไม่มี SizedBox กว้าง)
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Icon(Icons.notes,
                                         size: 18, color: Colors.deepPurple),
                                     const SizedBox(width: 8),
-                                    const Text(
-                                      'รายละเอียดงาน:',
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(width: 8),
                                     Expanded(
-                                      child: Text(
-                                        data!['reserving_detail']?.isNotEmpty ==
-                                                true
-                                            ? data!['reserving_detail']
-                                            : 'ไม่มีรายละเอียด',
-                                        style: const TextStyle(fontSize: 15),
+                                      child: Text.rich(
+                                        TextSpan(
+                                          children: [
+                                            const TextSpan(
+                                              text: 'รายละเอียดงาน: ',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: data!['reserving_detail']
+                                                          ?.isNotEmpty ==
+                                                      true
+                                                  ? data!['reserving_detail']
+                                                  : 'ไม่มีรายละเอียด',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.normal,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
-                                ),
+                                )
                               ],
                             ),
+                            const SizedBox(height: 8),
 // 🔻 เส้นคั่น
                             const Divider(
                               color: Colors.grey,

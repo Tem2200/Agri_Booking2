@@ -1812,44 +1812,117 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                               ),
                             ],
                           ),
-
                           const SizedBox(height: 8),
-
-                          // รถ
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.directions_car,
-                                  size: 16, color: Colors.blueGrey),
-                              const SizedBox(width: 6),
-                              Text(
-                                'รถ: ${rs['name_vehicle'] ?? '-'}',
-                                style: const TextStyle(fontSize: 14),
+                              // ผู้รับจ้าง
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(
+                                    width: 85,
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.person,
+                                            size: 16, color: Colors.indigo),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          'ผู้รับจ้าง:',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      rs['contractor_username'] ?? '-',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+
+                              // รถ
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(
+                                    width: 65,
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.directions_car,
+                                            size: 16, color: Colors.blueGrey),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          'รถ:',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      rs['name_vehicle'] ?? '-',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+
+                              // ฟาร์ม
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(
+                                    width: 65,
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.agriculture,
+                                            size: 16, color: Colors.green),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          'ที่นา:',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      '${rs['name_farm'] ?? '-'} (ต.${rs['farm_subdistrict'] ?? '-'}, อ.${rs['farm_district'] ?? '-'}, จ.${rs['farm_province'] ?? '-'})',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
 
-                          const SizedBox(height: 4),
-
-                          // ฟาร์ม
-                          Row(
-                            children: [
-                              const Icon(Icons.agriculture,
-                                  size: 16, color: Colors.green),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(
-                                  'ที่นา: ${rs['name_farm'] ?? '-'}'
-                                  ' (${rs['farm_subdistrict'] ?? '-'}, '
-                                  '${rs['farm_district'] ?? '-'}, '
-                                  '${rs['farm_province'] ?? '-'})',
-                                  style: const TextStyle(fontSize: 14),
-                                  maxLines: 1, // แสดงแค่บรรทัดเดียว
-                                  overflow: TextOverflow
-                                      .ellipsis, // ถ้ายาวเกินให้แสดง ...
-                                ),
-                              ),
-                            ],
-                          ),
                           //วันที่และเวลาจ้างงาน
 
                           const Divider(
@@ -2079,7 +2152,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: const Text(
-            'แผนการจองคิวรถทั้งหมด',
+            'แผนการจองคิวทั้งหมด (ผู้จ้าง)', //คำยาวไป
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,

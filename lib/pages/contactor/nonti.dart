@@ -214,7 +214,7 @@ class _NontiPageState extends State<NontiPage> {
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: const Text(
-            'การแจ้งเตือน',
+            'การแจ้งเตือน (ผู้รับจ้าง)',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -579,12 +579,31 @@ class _NontiPageState extends State<NontiPage> {
                             color: Color.fromARGB(255, 216, 103, 27),
                           ),
                         ),
-                        const SizedBox(height: 8.0),
-                        // Text(
-                        //   '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
-                        //   style: const TextStyle(fontSize: 16),
-                        // ),
+                        const SizedBox(height: 6),
 
+                        // ผู้จ้าง (ถ้ามี)
+                        if (item['employee_username'] != null)
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                width: 50,
+                                child: Text(
+                                  'ผู้จ้าง:',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '${item['employee_username']} (${item['employee_phone'] ?? '-'})',
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ),
+                            ],
+                          ),
+                        const SizedBox(height: 6),
                         // รถ
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -649,30 +668,6 @@ class _NontiPageState extends State<NontiPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
-
-                        // ผู้จ้าง (ถ้ามี)
-                        if (item['employee_username'] != null)
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(
-                                width: 50,
-                                child: Text(
-                                  'ผู้จ้าง:',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13),
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  '${item['employee_username']} (${item['employee_phone'] ?? '-'})',
-                                  style: const TextStyle(fontSize: 13),
-                                ),
-                              ),
-                            ],
-                          ),
 
                         const Divider(
                           color: Colors.grey,
@@ -815,6 +810,30 @@ class _NontiPageState extends State<NontiPage> {
                             color: Color.fromARGB(255, 216, 103, 27),
                           ),
                         ),
+                        const SizedBox(height: 6),
+
+                        // ผู้จ้าง (ถ้ามี)
+                        if (item['employee_username'] != null)
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                width: 50,
+                                child: Text(
+                                  'ผู้จ้าง:',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '${item['employee_username']} (${item['employee_phone'] ?? '-'})',
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ),
+                            ],
+                          ),
                         const SizedBox(height: 8.0),
                         // Text(
                         //   '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
@@ -885,30 +904,6 @@ class _NontiPageState extends State<NontiPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
-
-                        // ผู้จ้าง (ถ้ามี)
-                        if (item['employee_username'] != null)
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(
-                                width: 50,
-                                child: Text(
-                                  'ผู้จ้าง:',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13),
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  '${item['employee_username']} (${item['employee_phone'] ?? '-'})',
-                                  style: const TextStyle(fontSize: 13),
-                                ),
-                              ),
-                            ],
-                          ),
 
                         const Divider(
                           color: Colors.grey,

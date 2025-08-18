@@ -444,7 +444,7 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                           MaterialPageRoute(
                                             builder: (context) => TabbarCar(
                                               mid: widget.mid,
-                                              value: 0,
+                                              value: 2,
                                               month: currentMonth,
                                               year: currentYear,
                                             ),

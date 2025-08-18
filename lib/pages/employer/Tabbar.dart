@@ -66,7 +66,7 @@ class _TabbarCarState extends State<Tabbar> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
-            label: 'ตารางการจอง',
+            label: 'รถที่จอง',
           ),
           // BottomNavigationBarItem(
           //   icon: Icon(Icons.chat),

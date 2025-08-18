@@ -647,7 +647,7 @@ class _HomePageState extends State<HomePage> {
                         MaterialPageRoute(
                           builder: (context) => Tabbar(
                             mid: widget.mid,
-                            value: 0,
+                            value: 2,
                             month: currentMonth,
                             year: currentYear,
                           ),

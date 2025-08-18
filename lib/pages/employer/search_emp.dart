@@ -224,7 +224,7 @@ class _SearchEmpState extends State<SearchEmp> {
         iconTheme: const IconThemeData(color: Colors.white),
         automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
         title: const Text(
-          'หน้าแรก',
+          'หน้าแรก (ผู้จ้าง)',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
