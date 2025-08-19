@@ -207,7 +207,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
 
 //สถานะของปุ่ม
   Widget buildButtons(Map<String, dynamic> rs) {
-    if (progress_status == null || progress_status == 5) {
+    if (progress_status == null) {
       // ยังไม่มีสถานะ → แสดงปุ่มยกเลิก และ ยืนยัน
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -229,6 +229,22 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
             ),
             child: const Text('ยืนยัน'),
           ),
+        ],
+      );
+    } else if (progress_status == 5) {
+      // ยังไม่มีสถานะ → แสดงปุ่มยกเลิก และ ยืนยัน
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed: () => _updateProgress(0),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('ยกเลิก'),
+          ),
+          const SizedBox(width: 20),
         ],
       );
     }

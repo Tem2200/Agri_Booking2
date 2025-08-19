@@ -201,6 +201,40 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
     }
   }
 
+  String getStatusText(dynamic status) {
+    switch (status.toString()) {
+      case '0':
+        return 'ผู้รับจ้างยกเลิกงาน';
+      case '1':
+        return 'ผู้รับจ้างยืนยันการจอง';
+      case '2':
+        return 'กำลังเดินทาง';
+      case '3':
+        return 'กำลังทำงาน';
+      // case '4':
+      //   return 'เสร็จสิ้น';
+      default:
+        return 'รอผู้รับจ้างยืนยันการจอง';
+    }
+  }
+
+  Color getStatusColor(dynamic status) {
+    switch (status.toString()) {
+      case '0':
+        return Colors.red;
+      case '1':
+        return const Color.fromARGB(255, 0, 169, 253);
+      case '2':
+        return Colors.pinkAccent;
+      case '3':
+        return Colors.amber;
+      // case '4':
+      //   return Colors.green;
+      default:
+        return Colors.black45;
+    }
+  }
+
   // 💡 สร้าง List<Widget> สำหรับรายการจองของวันปัจจุบัน
   List<Widget> _buildDailyScheduleList() {
     final dailySchedule = eventsByDay[DateTime(
@@ -220,7 +254,8 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
       if (_selectedStatus == -1) {
         return status != 4; // ดูงานทั้งหมดที่ยังไม่เสร็จ (ไม่รวมสถานะเสร็จสิ้น)
       }
-      return status == _selectedStatus;
+      return status == _selectedStatus &&
+          status != 4; // กรองตามสถานะที่เลือก ยกเว้นสถานะเสร็จสิ้น
     }).toList();
 
     if (filteredSchedule.isEmpty) {
@@ -232,57 +267,8 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
     // สร้างรายการ Widget สำหรับ ListView.builder
     return List.generate(filteredSchedule.length, (index) {
       final item = filteredSchedule[index];
-      String getStatusText(dynamic status) {
-        switch (status.toString()) {
-          case '0':
-            return 'ผู้รับจ้างยกเลิกงาน';
-          case '1':
-            return 'ผู้รับจ้างยืนยันการจอง';
-          case '2':
-            return 'กำลังเดินทาง';
-          case '3':
-            return 'กำลังทำงาน';
-          case '4':
-            return 'เสร็จสิ้น';
-          default:
-            return 'รอผู้รับจ้างยืนยันการจอง';
-        }
-      }
-
-      Color getStatusColor(dynamic status) {
-        switch (status.toString()) {
-          case '0':
-            return Colors.red;
-          case '1':
-            return const Color.fromARGB(255, 0, 169, 253);
-          case '2':
-            return Colors.pinkAccent;
-          case '3':
-            return Colors.amber;
-          case '4':
-            return Colors.green;
-          default:
-            return Colors.black45;
-        }
-      }
 
       return Container(
-        // decoration: BoxDecoration(
-        //   color: const Color(0xFFFFF3E0),
-        //   borderRadius: BorderRadius.circular(12),
-        //   border: Border.all(
-        //     color: const Color(0xFFFFCC80),
-        //     width: 1.5,
-        //   ),
-        //   boxShadow: [
-        //     BoxShadow(
-        //       color: Colors.orange.withOpacity(0.2),
-        //       spreadRadius: 2,
-        //       blurRadius: 8,
-        //       offset: const Offset(0, 4),
-        //     ),
-        //   ],
-        // ),
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 255, 255, 255), // พื้นหลังโทนเดิม
           borderRadius: BorderRadius.circular(12), // มุมโค้ง
@@ -437,7 +423,6 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                   ),
                 ],
               ),
-
               const Divider(
                 color: Colors.grey,
                 thickness: 1,
@@ -465,7 +450,6 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                   ),
                 ],
               ),
-
               Row(
                 children: [
                   const SizedBox(
@@ -505,25 +489,6 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                 thickness: 1,
                 height: 24,
               ),
-              const SizedBox(height: 8),
-              //วันที่จองเข้ามา
-              // Row(
-              //   children: [
-              //     const SizedBox(
-              //       width: 65,
-              //       child: Text(
-              //         'จองเข้ามา:',
-              //         style:
-              //             TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-              //       ),
-              //     ),
-              //     Text(
-              //       formatDateReserveThai(
-              //           item['date_reserve']), // เรียกวันที่จอง
-              //       style: const TextStyle(fontSize: 13),
-              //     ),
-              //   ],
-              // ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -599,7 +564,19 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                   calendarFormat: _calendarFormat,
                   eventLoader: (day) {
                     final dateKey = DateTime(day.year, day.month, day.day);
-                    return eventsByDay[dateKey] ?? [];
+                    final eventsForDay = eventsByDay[dateKey] ?? [];
+
+                    // 🔹 กรองตามปุ่มสถานะ
+                    final filteredEvents = eventsForDay.where((e) {
+                      final status = e['progress_status'];
+                      if (status == 4) return false;
+                      if (_selectedStatus == -1) return true; // งานทั้งหมด
+                      if (_selectedStatus == null)
+                        return status == null; // รอการยืนยัน
+                      return status == _selectedStatus; // สถานะอื่น ๆ
+                    }).toList();
+
+                    return filteredEvents;
                   },
                   onDaySelected: (selectedDay, focusedDay) {
                     setState(() {
@@ -619,11 +596,28 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                   onPageChanged: (focusedDay) {
                     _focusedDay = focusedDay;
                   },
-                  calendarStyle: const CalendarStyle(
-                    markerDecoration: BoxDecoration(
-                      color: Colors.redAccent,
-                      shape: BoxShape.circle,
-                    ),
+                  calendarBuilders: CalendarBuilders(
+                    markerBuilder: (context, date, events) {
+                      if (events.isEmpty) return const SizedBox();
+
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: events.map((e) {
+                          final event =
+                              e as Map<String, dynamic>; // 👈 cast ก่อน
+                          final status = event['progress_status'];
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                            width: 7,
+                            height: 7,
+                            decoration: BoxDecoration(
+                              color: getStatusColor(status),
+                              shape: BoxShape.circle,
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
                   ),
                   headerStyle: const HeaderStyle(
                     formatButtonVisible: false,

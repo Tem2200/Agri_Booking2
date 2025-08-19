@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:agri_booking2/pages/contactor/DetailWork.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'dart:io'; // อย่าลืม import WebSocket
@@ -37,48 +38,122 @@ class _NontiPageState extends State<NontiPage> {
     super.initState();
     print("MID: ${widget.mid}");
     _scheduleFuture = fetchAndCountSchedule(widget.mid);
-    connectWebSocket(); // ✅ เพิ่มบรรทัดนี้เพื่อเชื่อมต่อ WS
+    //connectWebSocket(); // ✅ เพิ่มบรรทัดนี้เพื่อเชื่อมต่อ WS
   }
 
-  @override
-  void dispose() {
-    if (_ws.readyState == WebSocket.open) {
-      // ✅ เพิ่มการปิดการเชื่อมต่อ
-      _ws.close();
-    }
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   if (_ws.readyState == WebSocket.open) {
+  //     // ✅ เพิ่มการปิดการเชื่อมต่อ
+  //     _ws.close();
+  //   }
+  //   super.dispose();
+  // }
 
-  void connectWebSocket() async {
+  // void connectWebSocket() async {
+  //   try {
+  //     _ws = await WebSocket.connect(
+  //         'ws://projectnodejs.thammadalok.com:80/AGribooking'); // ✅ แก้ไขตรงนี้
+
+  //     _ws.listen(
+  //       (message) {
+  //         final data = jsonDecode(message);
+  //         // ตรวจสอบ event ที่เกี่ยวข้องกับการแจ้งเตือน
+  //         if (data['event'] == 'con_reserving_update' &&
+  //             data['mid'].toString() == widget.mid.toString()) {
+  //           print("Received WebSocket update, fetching data...");
+  //           // เรียกฟังก์ชันเพื่อดึงข้อมูลใหม่ทันที
+  //           setState(() {
+  //             _scheduleFuture = fetchAndCountSchedule(widget.mid);
+  //           });
+  //         }
+  //       },
+  //       onDone: () {
+  //         print('WebSocket closed, retry in 5 sec');
+  //         Future.delayed(const Duration(seconds: 5), connectWebSocket);
+  //       },
+  //       onError: (e) {
+  //         print('WebSocket error: $e, retry in 5 sec');
+  //         Future.delayed(const Duration(seconds: 5), connectWebSocket);
+  //       },
+  //     );
+  //   } catch (e) {
+  //     print('ฮือๆๆๆๆๆWebSocket connection error: $e, retry in 5 sec');
+  //     Future.delayed(const Duration(seconds: 5), connectWebSocket);
+  //   }
+  // }
+
+  Future<void> updateProgressStatus(dynamic rsid, int status) async {
+    final url = Uri.parse(
+      'http://projectnodejs.thammadalok.com/AGribooking/update_progress',
+    );
+
     try {
-      _ws = await WebSocket.connect(
-          'ws://projectnodejs.thammadalok.com:80/AGribooking'); // ✅ แก้ไขตรงนี้
-
-      _ws.listen(
-        (message) {
-          final data = jsonDecode(message);
-          // ตรวจสอบ event ที่เกี่ยวข้องกับการแจ้งเตือน
-          if (data['event'] == 'con_reserving_update' &&
-              data['mid'].toString() == widget.mid.toString()) {
-            print("Received WebSocket update, fetching data...");
-            // เรียกฟังก์ชันเพื่อดึงข้อมูลใหม่ทันที
-            setState(() {
-              _scheduleFuture = fetchAndCountSchedule(widget.mid);
-            });
-          }
-        },
-        onDone: () {
-          print('WebSocket closed, retry in 5 sec');
-          Future.delayed(const Duration(seconds: 5), connectWebSocket);
-        },
-        onError: (e) {
-          print('WebSocket error: $e, retry in 5 sec');
-          Future.delayed(const Duration(seconds: 5), connectWebSocket);
-        },
+      final response = await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'rsid': rsid,
+          'progress_status': status, // เปลี่ยนเป็น 0
+        }),
       );
+
+      if (response.statusCode == 200) {
+        if (status == 0) {
+          // ถ้าเปลี่ยนเป็น 0 แสดงว่ายกเลิกคิว
+          Fluttertoast.showToast(
+            msg: 'ยกเลิกคิวสำเร็จ',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        } else {
+          Fluttertoast.showToast(
+            msg: 'ยืนยันการจองคิวสำเร็จ',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
+
+        // // รีเฟรชข้อมูล
+        // setState(() {
+        //   _scheduleFuture = fetchSchedule(widget.mid);
+        // });
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TabbarCar(
+              mid: widget.mid,
+              value: 1, // ค่า value ที่ต้องการส่งไป
+              month: DateTime.now().month, // ใช้เดือนปัจจุบัน
+              year: DateTime.now().year, // ใช้ปีปัจจุบัน
+            ),
+          ),
+          (route) => false,
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("อัปเดตล้มเหลว"),
+            content: Text("รหัสสถานะ: ${response.statusCode}"),
+          ),
+        );
+      }
     } catch (e) {
-      print('ฮือๆๆๆๆๆWebSocket connection error: $e, retry in 5 sec');
-      Future.delayed(const Duration(seconds: 5), connectWebSocket);
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("เกิดข้อผิดพลาด"),
+          content: Text("ไม่สามารถเชื่อมต่อ: $e"),
+        ),
+      );
     }
   }
 
@@ -816,6 +891,76 @@ class _NontiPageState extends State<NontiPage> {
                           thickness: 1,
                           height: 24,
                         ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            // ปุ่มยกเลิก
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('ยืนยันการยกเลิก'),
+                                    content: const Text(
+                                        'คุณต้องการยกเลิกคิวนี้หรือไม่?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('ไม่ใช่'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          Navigator.pop(context);
+                                          await updateProgressStatus(
+                                              item['rsid'], 0); // เปลี่ยนเป็น 0
+                                        },
+                                        child: const Text('ใช่'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: const Text('ยกเลิก'),
+                            ),
+                            const SizedBox(width: 8),
+                            // ปุ่มยืนยัน
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('ยืนยันการจอง'),
+                                    content: const Text(
+                                        'คุณต้องการยืนยันคิวนี้หรือไม่?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('ไม่ใช่'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          Navigator.pop(context);
+                                          await updateProgressStatus(
+                                              item['rsid'], 1); // เปลี่ยนเป็น 1
+                                        },
+                                        child: const Text('ใช่'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: const Text('ยืนยัน'),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -1052,6 +1197,50 @@ class _NontiPageState extends State<NontiPage> {
                           thickness: 1,
                           height: 24,
                         ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                              ),
+                              onPressed: () {
+                                // แสดง dialog ยืนยัน
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('ยืนยันการยกเลิก'),
+                                    content: const Text(
+                                        'คุณต้องการยกเลิกคิวนี้หรือไม่?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(
+                                            context), // ยกเลิก dialog
+                                        child: const Text('ไม่ใช่'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          Navigator.pop(
+                                              context); // ปิด dialog ก่อน
+                                          await updateProgressStatus(
+                                              item['rsid'], 0);
+                                        },
+                                        child: const Text('ใช่'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: const Text('ยกเลิก'),
+                            ),
+                          ],
+                        )
                       ],
                     ),
                   ),

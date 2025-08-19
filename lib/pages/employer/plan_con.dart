@@ -372,84 +372,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
               ],
             ),
           ),
-          // FutureBuilder<List<dynamic>>(
-          //   future: _scheduleFuture,
-          //   builder: (context, snapshot) {
-          //     if (snapshot.connectionState == ConnectionState.waiting) {
-          //       return const Center(child: CircularProgressIndicator());
-          //     } else if (snapshot.hasError) {
-          //       return const Center(
-          //           child: Text('ไม่สามารถโหลดข้อมูลได้, กรุณาลองใหม่'));
-          //     } else if (!snapshot.hasData) {
-          //       return const Center(child: Text('ไม่มีคิวงาน'));
-          //     }
-          //     // 💡 สร้าง list ที่ใช้ในการ eventLoader จาก snapshot
-          //     final allSchedules = snapshot.data!;
-
-          //     return TableCalendar(
-          //       // ... (โค้ด TableCalendar ส่วนอื่น ๆ เหมือนเดิม) ...
-          //       locale: 'th_TH',
-          //       focusedDay: _selectedDay,
-          //       firstDay: DateTime(_displayYear - 1),
-          //       lastDay: DateTime(_displayYear + 1),
-          //       startingDayOfWeek: StartingDayOfWeek.monday,
-          //       selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-          //       calendarStyle: const CalendarStyle(
-          //         cellMargin: EdgeInsets.all(5.0),
-          //         markerSize: 8.0,
-          //         cellAlignment: Alignment.center,
-          //         defaultTextStyle: TextStyle(fontSize: 14.0),
-          //         weekendTextStyle:
-          //             TextStyle(fontSize: 14.0, color: Colors.red),
-          //         todayTextStyle:
-          //             TextStyle(fontSize: 14.0, color: Colors.white),
-          //         selectedTextStyle:
-          //             TextStyle(fontSize: 14.0, color: Colors.white),
-          //         outsideDaysVisible: false,
-          //         todayDecoration: BoxDecoration(
-          //           color: Colors.orangeAccent,
-          //           shape: BoxShape.circle,
-          //         ),
-          //         selectedDecoration: BoxDecoration(
-          //           color: Colors.green,
-          //           shape: BoxShape.circle,
-          //         ),
-          //       ),
-          //       headerStyle: const HeaderStyle(
-          //         titleCentered: true,
-          //         formatButtonVisible: false,
-          //         titleTextStyle:
-          //             TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-          //         leftChevronIcon: Icon(Icons.chevron_left, size: 24.0),
-          //         rightChevronIcon: Icon(Icons.chevron_right, size: 24.0),
-          //       ),
-          //       onDaySelected: (selectedDay, focusedDay) {
-          //         setState(() {
-          //           _selectedDay = DateTime(
-          //               selectedDay.year, selectedDay.month, selectedDay.day);
-          //         });
-          //       },
-          //       // 💡 แก้ไข eventLoader ที่นี่
-          //       eventLoader: (day) {
-          //         return allSchedules.where((item) {
-          //           final dateStart =
-          //               DateTime.parse(item['date_start']).toLocal();
-          //           final dateEnd = DateTime.parse(item['date_end']).toLocal();
-          //           final normalizedDateStart = DateTime(
-          //               dateStart.year, dateStart.month, dateStart.day);
-          //           final normalizedDateEnd =
-          //               DateTime(dateEnd.year, dateEnd.month, dateEnd.day);
-
-          //           // 💡 ตรวจสอบว่า `day` อยู่ในช่วงวันที่ของงานหรือไม่
-          //           return (day.isAfter(normalizedDateStart) ||
-          //                   isSameDay(day, normalizedDateStart)) &&
-          //               (day.isBefore(normalizedDateEnd) ||
-          //                   isSameDay(day, normalizedDateEnd));
-          //         }).toList();
-          //       },
-          //     );
-          //   },
-          // ),
 
           FutureBuilder<List<dynamic>>(
             future: _scheduleFuture,
@@ -457,12 +379,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
-              // else if (snapshot.hasError) {
-              //   return const Center(
-              //     // แสดงข้อความที่เหมาะสมเมื่อเกิดข้อผิดพลาดในการโหลด
-              //     child: Text('เกิดข้อผิดพลาดในการโหลดข้อมูล'),
-              //   );
-              // }
 
               // 💡 ย้ายโค้ดปฏิทินมาที่นี่ เพื่อให้แสดงผลเสมอหลังจากโหลดเสร็จ
               // หากไม่มีข้อมูล, `allSchedules` จะเป็นรายการว่างเปล่า
@@ -511,21 +427,86 @@ class _PlanAndHistoryState extends State<PlanPage> {
                         selectedDay.year, selectedDay.month, selectedDay.day);
                   });
                 },
+                // eventLoader: (day) {
+                //   return allSchedules.where((item) {
+                //     final dateStart =
+                //         DateTime.parse(item['date_start']).toLocal();
+                //     final dateEnd = DateTime.parse(item['date_end']).toLocal();
+                //     final normalizedDateStart = DateTime(
+                //         dateStart.year, dateStart.month, dateStart.day);
+                //     final normalizedDateEnd =
+                //         DateTime(dateEnd.year, dateEnd.month, dateEnd.day);
+                //     return (day.isAfter(normalizedDateStart) ||
+                //             isSameDay(day, normalizedDateStart)) &&
+                //         (day.isBefore(normalizedDateEnd) ||
+                //             isSameDay(day, normalizedDateEnd));
+                //   }).toList();
+                // },
+
                 eventLoader: (day) {
-                  return allSchedules.where((item) {
+                  // กรอง schedule ทั้งหมดในวันนั้น
+                  final eventsForDay = allSchedules.where((item) {
                     final dateStart =
                         DateTime.parse(item['date_start']).toLocal();
                     final dateEnd = DateTime.parse(item['date_end']).toLocal();
+                    final progressStatus = item['progress_status'];
+
                     final normalizedDateStart = DateTime(
                         dateStart.year, dateStart.month, dateStart.day);
                     final normalizedDateEnd =
                         DateTime(dateEnd.year, dateEnd.month, dateEnd.day);
-                    return (day.isAfter(normalizedDateStart) ||
+
+                    final isInRange = (day.isAfter(normalizedDateStart) ||
                             isSameDay(day, normalizedDateStart)) &&
                         (day.isBefore(normalizedDateEnd) ||
                             isSameDay(day, normalizedDateEnd));
+
+                    if (!isInRange) return false;
+
+                    // ✅ กรองตามปุ่มสถานะ
+                    if (_selectedStatus == StatusFilter.all) {
+                      return true;
+                    }
+                    if (_selectedStatus == StatusFilter.pending) {
+                      return progressStatus == null;
+                    }
+                    if (_selectedStatus == StatusFilter.notAvailable) {
+                      return progressStatus != null &&
+                          ['1', '2', '3', '5']
+                              .contains(progressStatus.toString());
+                    }
+                    return false;
                   }).toList();
+
+                  // จำนวน events จะถูกใช้กำหนด "จำนวนจุด" ที่ TableCalendar แสดง
+                  return eventsForDay;
                 },
+
+                calendarBuilders: CalendarBuilders(
+                  markerBuilder: (context, date, events) {
+                    if (events.isEmpty) return const SizedBox();
+
+                    return Positioned(
+                      bottom: 1,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: events.map((e) {
+                          final mapE = e as Map<String, dynamic>;
+                          final color = getStatusColor(mapE['progress_status']);
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                            width: 7,
+                            height: 7,
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.circle,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  },
+                ),
               );
             },
           ),
@@ -534,6 +515,26 @@ class _PlanAndHistoryState extends State<PlanPage> {
         ],
       ),
     );
+  }
+
+  String getStatusText(dynamic status) {
+    if (status != null && ['1', '2', '3', '5'].contains(status.toString())) {
+      return 'ผู้รับจ้างไม่ว่าง';
+    }
+    if (status == null) {
+      return 'รอยืนยันการจอง';
+    }
+    return '';
+  }
+
+  Color getStatusColor(dynamic status) {
+    if (status != null && ['1', '2', '3', '5'].contains(status.toString())) {
+      return const Color.fromARGB(255, 255, 0, 0);
+    }
+    if (status == null) {
+      return const Color.fromARGB(255, 91, 91, 91);
+    }
+    return Colors.transparent;
   }
 
 // 💡 แก้ไข _buildScheduleList
@@ -596,28 +597,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
           return const Center(child: Text('วันนี้ไม่มีสถานะนี้'));
         }
 
-        String getStatusText(dynamic status) {
-          if (status != null &&
-              ['1', '2', '3', '5'].contains(status.toString())) {
-            return 'ผู้รับจ้างไม่ว่าง';
-          }
-          if (status == null) {
-            return 'รอยืนยันการจอง';
-          }
-          return '';
-        }
-
-        Color getStatusColor(dynamic status) {
-          if (status != null &&
-              ['1', '2', '3', '5'].contains(status.toString())) {
-            return const Color.fromARGB(255, 255, 0, 0);
-          }
-          if (status == null) {
-            return const Color.fromARGB(255, 91, 91, 91);
-          }
-          return Colors.transparent;
-        }
-
         return ListView.builder(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           shrinkWrap: true,
@@ -627,22 +606,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
             final item = filteredList[index];
 
             return Container(
-              // decoration: BoxDecoration(
-              //   color: const Color(0xFFFFF3E0),
-              //   borderRadius: BorderRadius.circular(12),
-              //   border: Border.all(
-              //     color: const Color(0xFFFFCC80),
-              //     width: 1.5,
-              //   ),
-              //   boxShadow: [
-              //     BoxShadow(
-              //       color: Colors.orange.withOpacity(0.2),
-              //       spreadRadius: 2,
-              //       blurRadius: 8,
-              //       offset: const Offset(0, 4),
-              //     ),
-              //   ],
-              // ),
               decoration: BoxDecoration(
                 color:
                     const Color.fromARGB(255, 255, 255, 255), // พื้นหลังโทนเดิม

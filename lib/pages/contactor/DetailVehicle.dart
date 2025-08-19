@@ -45,17 +45,26 @@ class _DetailvehicleState extends State<Detailvehicle> {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = jsonDecode(response.body);
 
-        setState(() {
-          vehicleData = data; // ใช้ Map ตรง ๆ
-          _currentMid = vehicleData!['mid'] ?? 0;
-          isLoading = false;
+        if (data.isNotEmpty) {
+          setState(() {
+            vehicleData = data[0]; // ดึง element แรกเป็น Map
+            _currentMid = vehicleData!['mid'] ?? 0;
+            isLoading = false;
 
-          // เรียก fetchReviews ตาม mid
-          _reviewFuture =
-              (_currentMid != 0) ? fetchReviews(_currentMid) : Future.value([]);
-        });
+            // เรียก fetchReviews ตาม mid
+            _reviewFuture = (_currentMid != 0)
+                ? fetchReviews(_currentMid)
+                : Future.value([]);
+          });
+        } else {
+          setState(() {
+            error = 'ไม่พบข้อมูลรถ';
+            isLoading = false;
+            _reviewFuture = Future.value([]);
+          });
+        }
       } else {
         setState(() {
           error = 'โหลดข้อมูลรถล้มเหลว: ${response.statusCode}';

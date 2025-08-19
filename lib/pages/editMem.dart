@@ -154,11 +154,41 @@ class _EditMemberPageState extends State<EditMemberPage> {
     }
   }
 
+  // Future<void> _pickAndUploadImage() async {
+  //   final picker = ImagePicker();
+  //   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+  //   if (pickedFile != null) {
+  //     final imageFile = File(pickedFile.path);
+  //     final imageUrl = await uploadImageToImgbb(imageFile);
+
+  //     if (imageUrl != null) {
+  //       setState(() {
+  //         _imageUrl = imageUrl;
+  //         widget.memberData['image'] = imageUrl;
+  //         _imageUploaded = true;
+  //       });
+
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('อัปโหลดรูปสำเร็จ')),
+  //       );
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('อัปโหลดรูปไม่สำเร็จ')),
+  //       );
+  //     }
+  //   }
+  // }
+
+  bool _isUploadingImage = false;
+
   Future<void> _pickAndUploadImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
+      setState(() => _isUploadingImage = true);
+
       final imageFile = File(pickedFile.path);
       final imageUrl = await uploadImageToImgbb(imageFile);
 
@@ -168,7 +198,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
           widget.memberData['image'] = imageUrl;
           _imageUploaded = true;
         });
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('อัปโหลดรูปสำเร็จ')),
         );
@@ -177,6 +206,8 @@ class _EditMemberPageState extends State<EditMemberPage> {
           const SnackBar(content: Text('อัปโหลดรูปไม่สำเร็จ')),
         );
       }
+
+      setState(() => _isUploadingImage = false);
     }
   }
 
@@ -470,68 +501,121 @@ class _EditMemberPageState extends State<EditMemberPage> {
                   //     child: const Text('ตกลง'),
                   //   ),
                   // ),
+
+                  // Expanded(
+                  //   child: ElevatedButton(
+                  //     onPressed: _imageUploaded
+                  //         ? () {
+                  //             if (_formKey.currentState?.validate() ?? false) {
+                  //               showDialog(
+                  //                 context: context,
+                  //                 builder: (BuildContext context) {
+                  //                   return AlertDialog(
+                  //                     title: const Center(
+                  //                       child: Text(
+                  //                         'ยืนยันการแก้ไข',
+                  //                         textAlign: TextAlign.center,
+                  //                       ),
+                  //                     ),
+                  //                     content: const Text(
+                  //                         'คุณต้องการแก้ไขข้อมูลใช่หรือไม่?'),
+                  //                     actions: [
+                  //                       TextButton(
+                  //                         onPressed: () {
+                  //                           Navigator.of(context)
+                  //                               .pop(); // ปิด dialog
+                  //                         },
+                  //                         child: const Text('ยกเลิก'),
+                  //                       ),
+                  //                       ElevatedButton(
+                  //                         onPressed: () {
+                  //                           Navigator.of(context)
+                  //                               .pop(); // ปิด dialog
+                  //                           _submit(); // เรียกฟังก์ชัน submit
+                  //                         },
+                  //                         style: ElevatedButton.styleFrom(
+                  //                           backgroundColor: Colors.green,
+                  //                           foregroundColor: Colors.white,
+                  //                         ),
+                  //                         child: const Text('ยืนยัน'),
+                  //                       ),
+                  //                     ],
+                  //                   );
+                  //                 },
+                  //               );
+                  //             }
+                  //           }
+                  //         : null,
+                  //     style: ElevatedButton.styleFrom(
+                  //       backgroundColor: Colors.green,
+                  //       foregroundColor: Colors.white,
+                  //     ),
+                  //     child: const Text('ตกลง'),
+                  //   ),
+                  // ),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _imageUploaded
-                          ? () {
-                              if (_formKey.currentState?.validate() ?? false) {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Center(
-                                        child: Text(
-                                          'ยืนยันการแก้ไข',
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                      content: const Text(
-                                          'คุณต้องการแก้ไขข้อมูลใช่หรือไม่?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context)
-                                                .pop(); // ปิด dialog
-                                          },
-                                          child: const Text('ยกเลิก'),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.of(context)
-                                                .pop(); // ปิด dialog
-                                            _submit(); // เรียกฟังก์ชัน submit
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.green,
-                                            foregroundColor: Colors.white,
-                                          ),
-                                          child: const Text('ยืนยัน'),
-                                        ),
-                                      ],
-                                    );
+                      onPressed: () {
+                        if (_isUploadingImage) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('กรุณารอให้การอัปโหลดรูปเสร็จก่อน')),
+                          );
+                          return; // รอจนเสร็จ
+                        }
+
+                        if (_formKey.currentState?.validate() ?? false) {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('ยืนยันการแก้ไข'),
+                              content: const Text(
+                                  'คุณต้องการแก้ไขข้อมูลใช่หรือไม่?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('ยกเลิก'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    _submit();
                                   },
-                                );
-                              }
-                            }
-                          : null,
+                                  child: const Text('ยืนยัน'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text('ตกลง'),
+                      child: _isUploadingImage
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('ตกลง'),
                     ),
-                  ),
+                  )
                 ],
               ),
 
-              if (!_imageUploaded)
-                const Padding(
-                  padding: EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    '* กรุณาอัปโหลดรูปภาพก่อนกดตกลง',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
+              // if (!_imageUploaded)
+              //   const Padding(
+              //     padding: EdgeInsets.only(top: 8.0),
+              //     child: Text(
+              //       '* กรุณาอัปโหลดรูปภาพก่อนกดตกลง',
+              //       style: TextStyle(color: Colors.red),
+              //     ),
+              //   ),
             ],
           ),
         ),

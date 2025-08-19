@@ -1495,10 +1495,14 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
         final data = jsonDecode(res.body);
         print('นี่คือข้อมูล $data');
         // แยกเป็น 2 กลุ่ม
-        final current =
-            data.where((item) => item['progress_status'] != 4).toList();
-        final finished =
-            data.where((item) => item['progress_status'] == 4).toList();
+        final current = data
+            .where((item) =>
+                item['progress_status'] != 4 && item['progress_status'] != 0)
+            .toList();
+        final finished = data
+            .where((item) =>
+                item['progress_status'] == 4 || item['progress_status'] == 0)
+            .toList();
 
         setState(() {
           reservings = current;
@@ -1516,77 +1520,26 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
     }
   }
 
-  // Future<void> updateProgressStatus(dynamic rsid) async {
-  //   print(rsid);
-  //   final url = Uri.parse(
-  //     'http://projectnodejs.thammadalok.com/AGribooking/update_progress',
-  //   );
-
-  //   try {
-  //     final response = await http.put(
-  //       url,
-  //       headers: {'Content-Type': 'application/json'},
-  //       body: jsonEncode({
-  //         'rsid': rsid,
-  //         'progress_status': 5,
-  //       }),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       // โชว์ toast ที่ด้านบน
-  //       Fluttertoast.showToast(
-  //         msg: 'อัปเดตสถานะสำเร็จ',
-  //         toastLength: Toast.LENGTH_SHORT,
-  //         gravity: ToastGravity.TOP,
-  //         timeInSecForIosWeb: 2,
-  //         backgroundColor: Colors.green,
-  //         textColor: Colors.white,
-  //         fontSize: 16.0,
-  //       );
-
-  //       // รีเฟรชหน้าหรือโหลดข้อมูลใหม่
-  //       setState(() {
-  //         // เรียกฟังก์ชันโหลดข้อมูลใหม่ เช่น
-  //         fetchReservings(); // สมมุติชื่อฟังก์ชันโหลดข้อมูล
-  //       });
-  //     } else {
-  //       showDialog(
-  //         context: context,
-  //         builder: (context) => AlertDialog(
-  //           title: const Text("อัปเดตล้มเหลว"),
-  //           content: Text("รหัสสถานะ: ${response.statusCode}"),
-  //         ),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     showDialog(
-  //       context: context,
-  //       builder: (context) => AlertDialog(
-  //         title: const Text("เกิดข้อผิดพลาด"),
-  //         content: Text("ไม่สามารถเชื่อมต่อ: $e"),
-  //       ),
-  //     );
-  //   }
-  // }
-
   Future<void> updateProgressStatus(dynamic rsid) async {
-    print('Updating rsid: $rsid');
+    print(rsid);
+    final url = Uri.parse(
+      'http://projectnodejs.thammadalok.com/AGribooking/update_progress',
+    );
 
     try {
-      // ส่งข้อมูลผ่าน WebSocket แทน HTTP
-      if (_ws.readyState == WebSocket.open) {
-        final message = jsonEncode({
-          'event': 'update_progress',
+      final response = await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
           'rsid': rsid,
           'progress_status': 5,
-          'mid': widget.mid, // ส่ง mid ของผู้ใช้งานด้วย
-        });
+        }),
+      );
 
-        _ws.add(message);
-
-        // แสดง toast ว่าส่งข้อมูลเรียบร้อย
+      if (response.statusCode == 200) {
+        // โชว์ toast ที่ด้านบน
         Fluttertoast.showToast(
-          msg: 'อัปเดตสถานะสำเร็จ (ส่งผ่าน WS)',
+          msg: 'อัปเดตสถานะสำเร็จ',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 2,
@@ -1595,16 +1548,18 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
           fontSize: 16.0,
         );
 
-        // 💡 ไม่ต้องเรียก fetchReservings() อีก
-        // Server จะส่ง event กลับมาทาง WebSocket และ UI จะอัปเดตเอง
+        // รีเฟรชหน้าหรือโหลดข้อมูลใหม่
+        setState(() {
+          // เรียกฟังก์ชันโหลดข้อมูลใหม่ เช่น
+          fetchReservings(); // สมมุติชื่อฟังก์ชันโหลดข้อมูล
+        });
       } else {
-        Fluttertoast.showToast(
-          msg: 'WebSocket ยังไม่เชื่อมต่อ',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("อัปเดตล้มเหลว"),
+            content: Text("รหัสสถานะ: ${response.statusCode}"),
+          ),
         );
       }
     } catch (e) {
@@ -1612,11 +1567,60 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text("เกิดข้อผิดพลาด"),
-          content: Text("ไม่สามารถส่งข้อมูล: $e"),
+          content: Text("ไม่สามารถเชื่อมต่อ: $e"),
         ),
       );
     }
   }
+
+  // Future<void> updateProgressStatus(dynamic rsid) async {
+  //   print('Updating rsid: $rsid');
+
+  //   try {
+  //     // ส่งข้อมูลผ่าน WebSocket แทน HTTP
+  //     if (_ws.readyState == WebSocket.open) {
+  //       final message = jsonEncode({
+  //         'event': 'update_progress',
+  //         'rsid': rsid,
+  //         'progress_status': 5,
+  //         'mid': widget.mid, // ส่ง mid ของผู้ใช้งานด้วย
+  //       });
+
+  //       _ws.add(message);
+
+  //       // แสดง toast ว่าส่งข้อมูลเรียบร้อย
+  //       Fluttertoast.showToast(
+  //         msg: 'อัปเดตสถานะสำเร็จ (ส่งผ่าน WS)',
+  //         toastLength: Toast.LENGTH_SHORT,
+  //         gravity: ToastGravity.TOP,
+  //         timeInSecForIosWeb: 2,
+  //         backgroundColor: Colors.green,
+  //         textColor: Colors.white,
+  //         fontSize: 16.0,
+  //       );
+
+  //       // 💡 ไม่ต้องเรียก fetchReservings() อีก
+  //       // Server จะส่ง event กลับมาทาง WebSocket และ UI จะอัปเดตเอง
+  //     } else {
+  //       Fluttertoast.showToast(
+  //         msg: 'WebSocket ยังไม่เชื่อมต่อ',
+  //         toastLength: Toast.LENGTH_SHORT,
+  //         gravity: ToastGravity.TOP,
+  //         backgroundColor: Colors.red,
+  //         textColor: Colors.white,
+  //         fontSize: 16.0,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     showDialog(
+  //       context: context,
+  //       builder: (context) => AlertDialog(
+  //         title: const Text("เกิดข้อผิดพลาด"),
+  //         content: Text("ไม่สามารถส่งข้อมูล: $e"),
+  //       ),
+  //     );
+  //   }
+  // }
 
   String formatDateThai(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return '-';
@@ -1841,7 +1845,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                                   // '${rs['contractor_username']} (${rs['phone'] ?? '-'})',
                                   Expanded(
                                     child: Text(
-                                      '${rs['contractor_username']} (${rs['phone'] ?? '-'})',
+                                      '${rs['username_contractor']}',
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(

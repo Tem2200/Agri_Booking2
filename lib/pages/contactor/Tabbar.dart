@@ -31,7 +31,7 @@ class _TabbarCarState extends State<TabbarCar> {
   late int _displayYear;
   int _notificationCount = 0; // ตัวแปรสำหรับเก็บจำนวนแจ้งเตือน
   bool _isLoading = true;
-  late WebSocket _ws;
+  //late WebSocket _ws;
 
   // @override
   // void initState() {
@@ -51,14 +51,14 @@ class _TabbarCarState extends State<TabbarCar> {
     value = widget.value;
     switchPage(value);
     fetchData(); // fetch ครั้งแรก
-    connectWebSocket(); // เชื่อม WS
+    //connectWebSocket(); // เชื่อม WS
   }
 
-  @override
-  void dispose() {
-    _ws.close();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _ws.close();
+  //   super.dispose();
+  // }
 
   Future<void> fetchData() async {
     setState(() {
@@ -107,26 +107,10 @@ class _TabbarCarState extends State<TabbarCar> {
     }
   }
 
-  // void switchPage(int index) {
-  //   setState(() {
-  //     value = index;
-  //     fetchData(); // เรียกทุกครั้งเมื่อเปลี่ยน tab
-  //     if (index == 0) {
-  //       currentPage = PlanAndHistory(
-  //         mid: widget.mid,
-  //         month: widget.month,
-  //         year: widget.year,
-  //       );
-  //     } else if (index == 1) {
-  //       currentPage = NontiPage(mid: widget.mid);
-  //     } else if (index == 2) {
-  //       currentPage = HomePage(mid: widget.mid);
-  //     }
-  //   });
-  // }
   void switchPage(int index) {
     setState(() {
       value = index;
+      fetchData(); // เรียกทุกครั้งเมื่อเปลี่ยน tab
       if (index == 0) {
         currentPage = PlanAndHistory(
           mid: widget.mid,
@@ -140,50 +124,66 @@ class _TabbarCarState extends State<TabbarCar> {
       }
     });
   }
+  // void switchPage(int index) {
+  //   setState(() {
+  //     value = index;
+  //     if (index == 0) {
+  //       currentPage = PlanAndHistory(
+  //         mid: widget.mid,
+  //         month: widget.month,
+  //         year: widget.year,
+  //       );
+  //     } else if (index == 1) {
+  //       currentPage = NontiPage(mid: widget.mid);
+  //     } else if (index == 2) {
+  //       currentPage = HomePage(mid: widget.mid);
+  //     }
+  //   });
+  // }
 
-  void connectWebSocket() async {
-    try {
-      // แก้ไข URL ให้ตรงกับเซิร์ฟเวอร์ Node.js
-      _ws = await WebSocket.connect(
-          'ws://projectnodejs.thammadalok.com:80/AGribooking'); // ✅ แก้ไขตรงนี้
+  // void connectWebSocket() async {
+  //   try {
+  //     // แก้ไข URL ให้ตรงกับเซิร์ฟเวอร์ Node.js
+  //     _ws = await WebSocket.connect(
+  //         'ws://projectnodejs.thammadalok.com:80/AGribooking'); // ✅ แก้ไขตรงนี้
 
-      _ws.listen((message) {
-        final data = jsonDecode(message);
-        // ตรวจสอบ event ที่เซิร์ฟเวอร์ส่งมา
-        if (data['event'] == 'con_reserving_update' &&
-            data['mid'].toString() == widget.mid.toString()) {
-          // ✅ ตรวจสอบ event และ mid
-          final schedules = data['data'] as List<dynamic>;
+  //     _ws.listen((message) {
+  //       final data = jsonDecode(message);
+  //       // ตรวจสอบ event ที่เซิร์ฟเวอร์ส่งมา
+  //       if (data['event'] == 'con_reserving_update' &&
+  //           data['mid'].toString() == widget.mid.toString()) {
+  //         // ✅ ตรวจสอบ event และ mid
+  //         final schedules = data['data'] as List<dynamic>;
 
-          final nonConfirmedSchedules = schedules.where((item) {
-            final status = (item['progress_status'] ?? '').toString().trim();
-            return status == '' || status == '5';
-          }).toList();
+  //         final nonConfirmedSchedules = schedules.where((item) {
+  //           final status = (item['progress_status'] ?? '').toString().trim();
+  //           return status == '' || status == '5';
+  //         }).toList();
 
-          print(
-              'Received WebSocket message: ${data['event']} for mid: ${widget.mid}');
-          setState(() {
-            _notificationCount = nonConfirmedSchedules.length;
-          });
-        }
-      }, onDone: () {
-        print('WebSocket closed, retry in 5 sec');
-        Future.delayed(const Duration(seconds: 5), connectWebSocket);
-      }, onError: (e) {
-        print('WebSocket error: $e, retry in 5 sec');
-        Future.delayed(const Duration(seconds: 5), connectWebSocket);
-      });
+  //         print(
+  //             'Received WebSocket message: ${data['event']} for mid: ${widget.mid}');
+  //         setState(() {
+  //           _notificationCount = nonConfirmedSchedules.length;
+  //         });
+  //       }
+  //     }, onDone: () {
+  //       print('WebSocket closed, retry in 5 sec');
+  //       Future.delayed(const Duration(seconds: 5), connectWebSocket);
+  //     }, onError: (e) {
+  //       print('WebSocket error: $e, retry in 5 sec');
+  //       Future.delayed(const Duration(seconds: 5), connectWebSocket);
+  //     });
 
-      // 💡 ส่งข้อมูลไปบอกเซิร์ฟเวอร์ว่า client นี้ต้องการรับการอัปเดตของ mid ไหน
-      _ws.add(jsonEncode({
-        "action": "subscribe",
-        "mid": widget.mid,
-      }));
-    } catch (e) {
-      print('WebSocket connection error: $e, retry in 5 sec');
-      Future.delayed(const Duration(seconds: 5), connectWebSocket);
-    }
-  }
+  //     // 💡 ส่งข้อมูลไปบอกเซิร์ฟเวอร์ว่า client นี้ต้องการรับการอัปเดตของ mid ไหน
+  //     _ws.add(jsonEncode({
+  //       "action": "subscribe",
+  //       "mid": widget.mid,
+  //     }));
+  //   } catch (e) {
+  //     print('WebSocket connection error: $e, retry in 5 sec');
+  //     Future.delayed(const Duration(seconds: 5), connectWebSocket);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

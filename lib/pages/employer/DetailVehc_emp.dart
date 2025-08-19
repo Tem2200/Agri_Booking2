@@ -54,11 +54,10 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
-
-        if (data.isNotEmpty) {
+        final List<dynamic> dataList = jsonDecode(response.body);
+        if (dataList.isNotEmpty) {
           setState(() {
-            vehicleData = data;
+            vehicleData = dataList[0]; // เอา element แรกเป็น map
             _currentMid = vehicleData!['mid'] ?? 0;
             isLoading = false;
 
