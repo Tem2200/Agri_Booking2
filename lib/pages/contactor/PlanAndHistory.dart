@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/contactor/DetailWork.dart';
+import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -158,7 +159,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
     }
   }
 
-// ฟังก์ชันแปลงช่วงวันที่เริ่ม-สิ้นสุดงาน
+  // ฟังก์ชันแปลงช่วงวันที่เริ่ม-สิ้นสุดงาน
   String formatDateRangeThai(String? startDate, String? endDate) {
     if (startDate == null ||
         startDate.isEmpty ||
@@ -358,7 +359,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                       ),
                       Expanded(
                         child: Text(
-                          item['employee_username'] ?? '-',
+                          '${item['employee_username']} (${item['employee_phone'] ?? '-'})',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -645,7 +646,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
     );
   }
 
-// 💡 สร้าง widget สำหรับปุ่มกรองสถานะ
+  // 💡 สร้าง widget สำหรับปุ่มกรองสถานะ
   Widget _buildStatusChip(String label, int? status) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -800,7 +801,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                             ),
                             Expanded(
                               child: Text(
-                                item['employee_username'] ?? '-',
+                                '${item['employee_username']} (${item['employee_phone'] ?? '-'})',
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -1008,6 +1009,21 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
     );
   }
 
+  // --- ฟังก์ชันสำหรับดึงข้อมูลสมาชิกใส่ appBar ---
+  Future<Map<String, dynamic>> item(int mid) async {
+    final urlCon = Uri.parse(
+        'http://projectnodejs.thammadalok.com/AGribooking/members/$mid');
+    final response = await http.get(urlCon);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print("ข้อมูลสมาชิก: $data");
+      return data;
+    } else {
+      throw Exception('ไม่พบข้อมูลสมาชิก');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_isLocaleInitialized) {
@@ -1037,6 +1053,70 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
               ],
             ),
           ),
+          actions: [
+            FutureBuilder<Map<String, dynamic>>(
+              future: item(widget.mid), // ✅ ดึงข้อมูลสมาชิก
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.only(right: 12.0),
+                    child: SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    ),
+                  );
+                }
+
+                // ถ้า error หรือไม่มีข้อมูล -> ใช้ data = {}
+                final data = snapshot.data ?? {};
+
+                return Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      int currentMonth = DateTime.now().month;
+                      int currentYear = DateTime.now().year;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TabbarCar(
+                            mid: widget.mid,
+                            value: 2,
+                            month: currentMonth,
+                            year: currentYear,
+                          ),
+                        ),
+                      );
+                    },
+                    child: ClipOval(
+                      child: (data['image'] != null &&
+                              data['image'].toString().isNotEmpty)
+                          ? Image.network(
+                              data['image'], // ✅ แสดงรูปจาก DB
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(
+                              width: 40,
+                              height: 40,
+                              color: Colors.white24,
+                              child: const Icon(
+                                Icons.person,
+                                size: 28,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+                );
+              },
+            )
+          ],
         ),
         body: Column(
           children: [

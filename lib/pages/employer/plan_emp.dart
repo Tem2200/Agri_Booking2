@@ -1255,6 +1255,7 @@
 
 import 'dart:convert';
 import 'package:agri_booking2/pages/employer/DetailReserving.dart';
+import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/review_con.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -1837,9 +1838,10 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                                       ],
                                     ),
                                   ),
+                                  // '${rs['contractor_username']} (${rs['phone'] ?? '-'})',
                                   Expanded(
                                     child: Text(
-                                      rs['contractor_username'] ?? '-',
+                                      '${rs['contractor_username']} (${rs['phone'] ?? '-'})',
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
@@ -2142,6 +2144,21 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
         ));
   }
 
+// --- ฟังก์ชันสำหรับดึงข้อมูลสมาชิกใส่ appBar ---
+  Future<Map<String, dynamic>> item(int mid) async {
+    final urlCon = Uri.parse(
+        'http://projectnodejs.thammadalok.com/AGribooking/members/$mid');
+    final response = await http.get(urlCon);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print("ข้อมูลสมาชิก: $data");
+      return data;
+    } else {
+      throw Exception('ไม่พบข้อมูลสมาชิก');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -2152,7 +2169,8 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: const Text(
-            'แผนการจองคิวทั้งหมด (ผู้จ้าง)', //คำยาวไป
+            //'แผนการจองคิวทั้งหมด (ผู้จ้าง)', //คำยาวไป
+            'การจองของฉัน (ผู้จ้าง)',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -2166,6 +2184,70 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
               ],
             ),
           ),
+          actions: [
+            FutureBuilder<Map<String, dynamic>>(
+              future: item(widget.mid), // ✅ ดึงข้อมูลสมาชิก
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.only(right: 12.0),
+                    child: SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    ),
+                  );
+                }
+
+                // ถ้า error หรือไม่มีข้อมูล -> ใช้ data = {}
+                final data = snapshot.data ?? {};
+
+                return Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      int currentMonth = DateTime.now().month;
+                      int currentYear = DateTime.now().year;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Tabbar(
+                            mid: widget.mid,
+                            value: 2,
+                            month: currentMonth,
+                            year: currentYear,
+                          ),
+                        ),
+                      );
+                    },
+                    child: ClipOval(
+                      child: (data['image'] != null &&
+                              data['image'].toString().isNotEmpty)
+                          ? Image.network(
+                              data['image'], // ✅ แสดงรูปจาก DB
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(
+                              width: 40,
+                              height: 40,
+                              color: Colors.white24,
+                              child: const Icon(
+                                Icons.person,
+                                size: 28,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+                );
+              },
+            )
+          ],
         ),
         body: Column(
           children: [

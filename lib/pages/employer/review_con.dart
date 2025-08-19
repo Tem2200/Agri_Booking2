@@ -78,9 +78,9 @@ class _ReviewConState extends State<ReviewCon> {
   }
 
   Future<void> submitReview() async {
-    if (reviewController.text.isEmpty) {
+    if (selectedRating == 0 || reviewController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('กรุณาเขียนรีวิว')),
+        const SnackBar(content: Text('กรุณาให้ดาวและเขียนรีวิว')),
       );
       return;
     }
@@ -96,7 +96,7 @@ class _ReviewConState extends State<ReviewCon> {
 
     final body = {
       "text": reviewController.text,
-      "point": selectedRating, // selectedRating = 0 ถ้าไม่เลือกดาว
+      "point": selectedRating,
       "image": imageUrl, // จะเป็น null ถ้าไม่อัปโหลด
       "date": now,
       "mid_reviewed": widget.midContractor,
@@ -145,9 +145,8 @@ class _ReviewConState extends State<ReviewCon> {
       ),
       onPressed: () {
         setState(() {
-          // ถ้ากดดาวเดิมอีกครั้ง = ลบการเลือก
           if (selectedRating == star) {
-            selectedRating = 0; // ไม่เลือกดาว
+            selectedRating = 0;
           } else {
             selectedRating = star;
           }
@@ -251,6 +250,7 @@ class _ReviewConState extends State<ReviewCon> {
                   ),
                 ),
                 const SizedBox(height: 10),
+
                 Row(
                   children: List.generate(5, (index) => buildStar(index + 1)),
                 ),
