@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class DetailWorkPage extends StatefulWidget {
   final int rsid;
@@ -22,6 +23,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
   int? progress_status; // อนุญาตให้เป็น null
   List<LatLng> _routePoints = [];
   double? _distanceInKm;
+  late IO.Socket socket;
 
   @override
   void initState() {
@@ -38,6 +40,42 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
         );
       }
     });
+    _initSocket(); // 🔹 เรียก socket
+  }
+
+  void _initSocket() {
+    socket = IO.io(
+        'http://projectnodejs.thammadalok.com/AGribooking', <String, dynamic>{
+      'transports': ['websocket'], // ใช้ WebSocket เป็นหลัก
+      'autoConnect': false,
+    });
+
+    socket.connect();
+
+    socket.onConnect((_) {
+      print('✅ Connected to socket server');
+      // เข้าร่วมห้องถ้าอยากแยกตาม rsid
+      socket.emit('join_room', widget.rsid.toString());
+    });
+
+    // รับ event เมื่อมีการอัปเดตสถานะจาก server
+    socket.on('progress_updated', (data) {
+      print('🔔 Progress updated: $data');
+      if (data['rsid'] == widget.rsid) {
+        setState(() {
+          progress_status = data['progress_status'];
+          this.data!['progress_status'] = data['progress_status'];
+        });
+      }
+    });
+
+    socket.onDisconnect((_) => print('❌ Disconnected from socket'));
+  }
+
+  @override
+  void dispose() {
+    socket.dispose();
+    super.dispose();
   }
 
   Future<void> fetchDetail() async {
@@ -156,54 +194,6 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
       );
     }
   }
-
-  // Widget buildButtons() {
-  //   if (progress_status == null) {
-  //     // progress_status == null ให้แสดงปุ่มยกเลิกและยืนยัน
-  //     return Row(
-  //       mainAxisAlignment: MainAxisAlignment.center,
-  //       children: [
-  //         ElevatedButton(
-  //           onPressed: () => _updateProgress(0), // ยกเลิก
-  //           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-  //           child: const Text('ยกเลิก'),
-  //         ),
-  //         const SizedBox(width: 20),
-  //         ElevatedButton(
-  //           onPressed: () => _updateProgress(1), // ยืนยัน
-  //           style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-  //           child: const Text('ยืนยัน'),
-  //         ),
-  //       ],
-  //     );
-  //   }
-  //   // กรณีอื่นๆ เช่น status อื่นๆ คุณสามารถเพิ่มปุ่มอื่นๆได้ที่นี่
-  //   else if (progress_status == 1 ||
-  //       progress_status == 2 ||
-  //       progress_status == 3) {
-  //     // แสดงปุ่มสถานะขั้นตอนถัดไป
-  //     return Wrap(
-  //       spacing: 8,
-  //       children: [
-  //         ElevatedButton(
-  //           onPressed: () => _updateProgress(2),
-  //           child: const Text('กำลังเดินทาง'),
-  //         ),
-  //         ElevatedButton(
-  //           onPressed: () => _updateProgress(3),
-  //           child: const Text('กำลังทำงาน'),
-  //         ),
-  //         ElevatedButton(
-  //           onPressed: () => _updateProgress(4),
-  //           child: const Text('ทำงานเสร็จเรียบร้อย'),
-  //         ),
-  //       ],
-  //     );
-  //   } else {
-  //     // กรณีอื่นๆ ถ้ามี สามารถปรับเพิ่มได้
-  //     return const Text('ทำงานเสร็จเรียบร้อย');
-  //   }
-  // }
 
 //สถานะของปุ่ม
   Widget buildButtons(Map<String, dynamic> rs) {
@@ -375,7 +365,6 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'rsid': widget.rsid, 'progress_status': newStatus}),
       );
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
@@ -393,6 +382,9 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
 
         // รีโหลดข้อมูล หรือรีเฟรชหน้า
         await fetchDetail(); // เรียกโหลดข้อมูลใหม่
+        // }
+
+        // ไม่ต้องเรียก fetchDetail(); เพราะ socket จะอัปเดตอัตโนมัติ
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('อัปเดตสถานะล้มเหลว')),
@@ -531,23 +523,6 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
             ],
           ),
         ),
-        // leading: IconButton(
-        //   color: Colors.white,
-        //   icon: const Icon(Icons.arrow_back),
-        //   onPressed: () {
-        //     Navigator.push(
-        //       context,
-        //       MaterialPageRoute(
-        //         builder: (context) => TabbarCar(
-        //           value: 0,
-        //           mid: data!['contractor_mid'],
-        //           month: DateTime.now().month,
-        //           year: DateTime.now().year,
-        //         ),
-        //       ),
-        //     );
-        //   },
-        // ),
         leading: IconButton(
           color: Colors.white,
           icon: const Icon(Icons.arrow_back),
@@ -574,42 +549,6 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                       subdomains: const ['a', 'b', 'c'],
                       userAgentPackageName: 'com.example.yourapp',
                     ),
-                    // MarkerLayer(
-                    //   markers: [
-                    //     Marker(
-                    //       point: LatLng(data!['contractor_latitude'],
-                    //           data!['contractor_longitude']),
-                    //       width: 40, // ต้องกำหนดความกว้าง
-                    //       height: 40, // และความสูง
-                    //       child: const Column(
-                    //         children: [
-                    //           Text('ผู้รับจ้าง',
-                    //               style: TextStyle(
-                    //                   color: Colors.white,
-                    //                   backgroundColor: Colors.green)),
-                    //           Icon(Icons.person_pin_circle,
-                    //               color: Colors.green, size: 40),
-                    //         ],
-                    //       ),
-                    //     ),
-                    //     Marker(
-                    //       point: LatLng(data!['latitude'], data!['longitude']),
-                    //       width: 40, // ต้องกำหนดความกว้าง
-                    //       height: 40, // และความสูง
-                    //       child: const Column(
-                    //         children: [
-                    //           Text('ผู้จ้าง',
-                    //               style: TextStyle(
-                    //                   color: Colors.white,
-                    //                   backgroundColor: Colors.green)),
-                    //           Icon(Icons.person_pin_circle,
-                    //               color: Colors.green, size: 40),
-                    //         ],
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-
                     //สัญลักษณ์ใหม่
                     MarkerLayer(
                       markers: [

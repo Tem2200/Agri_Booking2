@@ -1266,6 +1266,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class PlanEmp extends StatefulWidget {
   final int mid;
@@ -1280,69 +1281,45 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
   List<dynamic> history = [];
   bool isLoading = false;
   late TabController _tabController;
-  late WebSocket _ws;
+  late IO.Socket _socket;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   Intl.defaultLocale = "th_TH";
-  //   _tabController = TabController(length: 2, vsync: this);
-  //   fetchReservings();
-  // }
-
-  // @override
-  // void dispose() {
-  //   _tabController.dispose();
-  //   super.dispose();
-  // }
   @override
   void initState() {
     super.initState();
     Intl.defaultLocale = "th_TH";
     _tabController = TabController(length: 2, vsync: this);
     fetchReservings();
-    connectWebSocket(); // ✅ เพิ่มบรรทัดนี้เพื่อเชื่อมต่อ WebSocket
+    // 2. เชื่อม socket
+    _socket = IO.io(
+      'http://projectnodejs.thammadalok.com/AGribooking', // URL server ของคุณ
+      IO.OptionBuilder()
+          .setTransports(['websocket']) // ใช้ websocket
+          .disableAutoConnect()
+          .build(),
+    );
+
+    _socket.connect();
+
+    // 3. ฟัง event
+    _socket.onConnect((_) {
+      print('Connected to socket server');
+      _socket.emit('join_room', widget.mid); // ถ้าใช้ room ตาม mid
+    });
+
+    // เมื่อ server ส่ง event update reserving
+    _socket.on('progress_updated', (data) {
+      print('Received update: $data');
+      fetchReservings(); // โหลดข้อมูลใหม่ทันที
+    });
+
+    _socket.onDisconnect((_) => print('Disconnected'));
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    if (_ws.readyState == WebSocket.open) {
-      // ✅ เพิ่มการปิดการเชื่อมต่อ
-      _ws.close();
-    }
+    _socket.dispose();
     super.dispose();
-  }
-
-  void connectWebSocket() async {
-    try {
-      // URL สำหรับการเชื่อมต่อ WebSocket ต้องตรงกับเซิร์ฟเวอร์
-      _ws = await WebSocket.connect(
-          'ws://projectnodejs.thammadalok.com/AGribooking');
-
-      _ws.listen(
-        (message) {
-          // ส่วนนี้คือการฟังข้อมูลจากเซิร์ฟเวอร์
-          // สามารถเพิ่ม logic การอัปเดต UI ที่นี่ได้หากเซิร์ฟเวอร์ส่งข้อมูลกลับมา
-          print("Received message from server: $message");
-          fetchReservings(); // เรียก fetch อีกครั้งเมื่อมีข้อมูลอัปเดตจากเซิร์ฟเวอร์
-        },
-        onDone: () {
-          print('WebSocket closed, retry in 5 sec');
-          Future.delayed(const Duration(seconds: 5), connectWebSocket);
-        },
-        onError: (e) {
-          print('WebSocket error: $e, retry in 5 sec');
-          Future.delayed(const Duration(seconds: 5), connectWebSocket);
-        },
-      );
-
-      // ส่งข้อความไปบอกเซิร์ฟเวอร์ว่า client นี้คือใคร
-      _ws.add(jsonEncode({"action": "client_connect", "mid": widget.mid}));
-    } catch (e) {
-      print('WebSocket connection error: $e, retry in 5 sec');
-      Future.delayed(const Duration(seconds: 5), connectWebSocket);
-    }
   }
 
   Future<void> sendEmail(Map<String, dynamic> rs) async {
@@ -1572,55 +1549,6 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
       );
     }
   }
-
-  // Future<void> updateProgressStatus(dynamic rsid) async {
-  //   print('Updating rsid: $rsid');
-
-  //   try {
-  //     // ส่งข้อมูลผ่าน WebSocket แทน HTTP
-  //     if (_ws.readyState == WebSocket.open) {
-  //       final message = jsonEncode({
-  //         'event': 'update_progress',
-  //         'rsid': rsid,
-  //         'progress_status': 5,
-  //         'mid': widget.mid, // ส่ง mid ของผู้ใช้งานด้วย
-  //       });
-
-  //       _ws.add(message);
-
-  //       // แสดง toast ว่าส่งข้อมูลเรียบร้อย
-  //       Fluttertoast.showToast(
-  //         msg: 'อัปเดตสถานะสำเร็จ (ส่งผ่าน WS)',
-  //         toastLength: Toast.LENGTH_SHORT,
-  //         gravity: ToastGravity.TOP,
-  //         timeInSecForIosWeb: 2,
-  //         backgroundColor: Colors.green,
-  //         textColor: Colors.white,
-  //         fontSize: 16.0,
-  //       );
-
-  //       // 💡 ไม่ต้องเรียก fetchReservings() อีก
-  //       // Server จะส่ง event กลับมาทาง WebSocket และ UI จะอัปเดตเอง
-  //     } else {
-  //       Fluttertoast.showToast(
-  //         msg: 'WebSocket ยังไม่เชื่อมต่อ',
-  //         toastLength: Toast.LENGTH_SHORT,
-  //         gravity: ToastGravity.TOP,
-  //         backgroundColor: Colors.red,
-  //         textColor: Colors.white,
-  //         fontSize: 16.0,
-  //       );
-  //     }
-  //   } catch (e) {
-  //     showDialog(
-  //       context: context,
-  //       builder: (context) => AlertDialog(
-  //         title: const Text("เกิดข้อผิดพลาด"),
-  //         content: Text("ไม่สามารถส่งข้อมูล: $e"),
-  //       ),
-  //     );
-  //   }
-  // }
 
   String formatDateThai(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return '-';

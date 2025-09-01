@@ -149,17 +149,6 @@ class _ReservingForNFState extends State<ReservingForNF> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('จองสำเร็จ')),
         );
-
-        // ✅ ส่งผ่าน WebSocket
-        if (_wsConnected && _ws.readyState == WebSocket.open) {
-          _ws.add(jsonEncode({
-            "event": "reservation_update",
-            "mid": widget.mid,
-            "data": body,
-          }));
-          print("📤 ส่ง WS สำเร็จ");
-        }
-
         int currentMonth = DateTime.now().month;
         int currentYear = DateTime.now().year;
         Navigator.pushReplacement(

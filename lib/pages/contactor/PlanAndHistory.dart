@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:agri_booking2/pages/contactor/DetailWork.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class PlanAndHistory extends StatefulWidget {
   final int mid;
@@ -39,7 +42,9 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
 
   // 💡 ตัวแปรใหม่สำหรับสถานะการกรองงาน
   int? _selectedStatus = -1; // -1 หมายถึงดูทุกสถานะ
-
+  late IO.Socket _socket;
+  final StreamController<List<dynamic>> _scheduleController =
+      StreamController.broadcast();
   @override
   void initState() {
     super.initState();
@@ -57,17 +62,57 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
         });
       });
     });
+    // 2. เชื่อม socket
+    _socket = IO.io(
+      'http://projectnodejs.thammadalok.com/AGribooking/', // URL server ของคุณ
+      IO.OptionBuilder()
+          .setTransports(['websocket', 'polling']) // ใช้ websocket
+          .disableAutoConnect()
+          .build(),
+    );
+
+    _socket.connect();
+
+    // 3. ฟัง event
+    _socket.on('progress_updated', (data) {
+      if (data['mid'] == widget.mid) {
+        _refreshSchedule();
+      }
+    });
+
+    // เมื่อ server ส่ง event update reserving
+    _socket.on('progress_updated', (data) {
+      print('Received update: $data');
+      _refreshSchedule(); // โหลดข้อมูลใหม่ทันที
+    });
+
+    _socket.onDisconnect((_) => print('Disconnected'));
   }
 
-  // 💡 สร้างฟังก์ชันสำหรับการรีเฟรชข้อมูล
+  @override
+  void dispose() {
+    _socket.dispose();
+    super.dispose();
+  }
+
+  // Future<void> _refreshSchedule() async {
+  //   final newSchedule =
+  //       await fetchSchedule(widget.mid, _displayMonth, _displayYear);
+  //   setState(() {
+  //     eventsByDay.clear();
+  //     _groupEventsByDay(newSchedule); // setState อยู่ในนี้แล้ว
+  //     _scheduleFuture = Future.value(newSchedule);
+  //   });
+  // }
+
   Future<void> _refreshSchedule() async {
-    // ดึงข้อมูลใหม่
     final newSchedule =
         await fetchSchedule(widget.mid, _displayMonth, _displayYear);
-    // อัปเดตสถานะของหน้า
     setState(() {
+      eventsByDay.clear();
       _groupEventsByDay(newSchedule);
-      _scheduleFuture = Future.value(newSchedule);
+      _scheduleFuture = fetchSchedule(
+          widget.mid, _displayMonth, _displayYear); // สร้าง Future ใหม่
     });
   }
 
@@ -90,6 +135,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         if (response.body.isNotEmpty) {
+          print(response.body);
           return jsonDecode(response.body);
         } else {
           return [];
@@ -105,20 +151,6 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
       throw Exception('Connection error: $e');
     }
   }
-
-  // void _groupEventsByDay(List<dynamic> scheduleList) {
-  //   eventsByDay.clear();
-  //   for (var item in scheduleList) {
-  //     final dateStart = DateTime.parse(item['date_start']).toLocal();
-  //     final dateKey = DateTime(dateStart.year, dateStart.month, dateStart.day);
-  //     if (eventsByDay[dateKey] == null) {
-  //       eventsByDay[dateKey] = [item];
-  //     } else {
-  //       eventsByDay[dateKey]!.add(item);
-  //     }
-  //   }
-  //   setState(() {});
-  // }
 
   void _groupEventsByDay(List<dynamic> scheduleList) {
     eventsByDay.clear();
@@ -696,22 +728,6 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
           itemBuilder: (context, index) {
             final item = scheduleList[index];
             return Container(
-              // decoration: BoxDecoration(
-              //   color: const Color(0xFFFFF3E0),
-              //   borderRadius: BorderRadius.circular(12),
-              //   border: Border.all(
-              //     color: const Color(0xFFFFCC80),
-              //     width: 1.5,
-              //   ),
-              //   boxShadow: [
-              //     BoxShadow(
-              //       color: Colors.orange.withOpacity(0.2),
-              //       spreadRadius: 2,
-              //       blurRadius: 8,
-              //       offset: const Offset(0, 4),
-              //     ),
-              //   ],
-              // ),
               decoration: BoxDecoration(
                 color:
                     const Color.fromARGB(255, 255, 255, 255), // พื้นหลังโทนเดิม
@@ -726,7 +742,6 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                   ),
                 ],
               ),
-
               margin: const EdgeInsets.symmetric(vertical: 8),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -872,7 +887,6 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                         ),
                       ],
                     ),
-
                     const Divider(
                       color: Colors.grey,
                       thickness: 1,
@@ -900,7 +914,6 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                         ),
                       ],
                     ),
-
                     Row(
                       children: [
                         const SizedBox(
@@ -940,25 +953,6 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
                       thickness: 1,
                       height: 24,
                     ),
-                    const SizedBox(height: 8),
-                    //วันที่จองเข้ามา
-                    // Row(
-                    //   children: [
-                    //     const SizedBox(
-                    //       width: 65,
-                    //       child: Text(
-                    //         'จองเข้ามา:',
-                    //         style: TextStyle(
-                    //             fontSize: 13, fontWeight: FontWeight.bold),
-                    //       ),
-                    //     ),
-                    //     Text(
-                    //       formatDateReserveThai(
-                    //           item['date_reserve']), // เรียกวันที่จอง
-                    //       style: const TextStyle(fontSize: 13),
-                    //     ),
-                    //   ],
-                    // ),
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -1020,11 +1014,17 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
 
   @override
   Widget build(BuildContext context) {
+    // if (!_isLocaleInitialized) {
+    //   return const Scaffold(
+    //     body: Center(child: CircularProgressIndicator()),
+    //   );
+    // }
     if (!_isLocaleInitialized) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -1188,6 +1188,28 @@ class _PlanAndHistoryState extends State<PlanAndHistory> {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
