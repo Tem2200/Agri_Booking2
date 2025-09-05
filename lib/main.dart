@@ -17,126 +17,359 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 List<dynamic> bookings = [];
 late Timer _timer;
 
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await Firebase.initializeApp();
+
+//   final prefs = await SharedPreferences.getInstance();
+//   final mid = prefs.getInt('mid');
+//   final type = prefs.getInt('type_member');
+
+//   if (type == 2 && mid != null) {
+//     // contractor subscribe topic
+//     await FirebaseMessaging.instance.subscribeToTopic("user_$mid");
+//   }
+
+//   Widget startPage;
+
+//   if (mid == null || type == null) {
+//     startPage = const Login();
+//   } else {
+//     int currentMonth = DateTime.now().month;
+//     int currentYear = DateTime.now().year;
+
+//     if (type == 1) {
+//       startPage = TabbarCar(
+//         mid: mid,
+//         value: 0,
+//         month: currentMonth,
+//         year: currentYear,
+//       );
+//     } else if (type == 2) {
+//       startPage = Tabbar(
+//         mid: mid,
+//         value: 0,
+//         month: currentMonth,
+//         year: currentYear,
+//       );
+//     } else {
+//       startPage = const Login();
+//     }
+//   }
+
+//   runApp(MyApp(home: startPage));
+// }
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  final prefs = await SharedPreferences.getInstance();
-  final mid = prefs.getInt('mid');
-  final type = prefs.getInt('type_member');
-
-  if (type == 2 && mid != null) {
-    // contractor subscribe topic
-    await FirebaseMessaging.instance.subscribeToTopic("user_$mid");
-  }
-
-  Widget startPage;
-
-  if (mid == null || type == null) {
-    startPage = const Login();
-  } else {
-    int currentMonth = DateTime.now().month;
-    int currentYear = DateTime.now().year;
-
-    if (type == 1) {
-      startPage = TabbarCar(
-        mid: mid,
-        value: 0,
-        month: currentMonth,
-        year: currentYear,
-      );
-    } else if (type == 2) {
-      startPage = Tabbar(
-        mid: mid,
-        value: 0,
-        month: currentMonth,
-        year: currentYear,
-      );
-    } else {
-      startPage = const Login();
-    }
-  }
-
-  runApp(MyApp(home: startPage));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final Widget home;
-
-  const MyApp({super.key, required this.home});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Agri Booking',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
+      title: 'Agri Booking',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+        textTheme: GoogleFonts.mitrTextTheme(),
+      ),
+      navigatorKey: navigatorKey,
+      home: const CheckSessionPage(), // ✅ ให้เช็ค session ที่นี่
+    );
+  }
+}
 
-          // ⬅️ ใช้ฟอนต์ Mitr ทั้งแอป
-          textTheme: GoogleFonts.mitrTextTheme(),
-        ),
-        navigatorKey: navigatorKey,
-        home: const TabbarGenaralUser(value: 0)); //const SendEmailPage());
-    //
+class CheckSessionPage extends StatefulWidget {
+  const CheckSessionPage({super.key});
+
+  @override
+  State<CheckSessionPage> createState() => _CheckSessionPageState();
+}
+
+class _CheckSessionPageState extends State<CheckSessionPage> {
+  @override
+  void initState() {
+    super.initState();
+    _checkLogin();
+  }
+
+  Future<void> _checkLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final mid = prefs.getInt('mid');
+    final type = prefs.getInt('type_member');
+
+    int currentMonth = DateTime.now().month;
+    int currentYear = DateTime.now().year;
+
+//     if (mid != null && type != null) {
+//       if (type == 1) {
+//         Navigator.pushReplacement(
+//           context,
+//           MaterialPageRoute(
+//             builder: (context) => TabbarCar(
+//               mid: mid,
+//               value: 0,
+//               month: currentMonth,
+//               year: currentYear,
+//             ),
+//           ),
+//         );
+//       } else if (type == 2) {
+//         Navigator.pushReplacement(
+//           context,
+//           MaterialPageRoute(
+//             builder: (context) => Tabbar(
+//               mid: mid,
+//               value: 0,
+//               month: currentMonth,
+//               year: currentYear,
+//             ),
+//           ),
+//         );
+//       } else if (type == 3) {
+//   Navigator.pushReplacement(
+//     context,
+//     MaterialPageRoute(
+//       builder: (context) => Tabbar(
+//         mid: mid,
+//         value: 0,
+//         month: currentMonth,
+//         year: currentYear,
+//       ),
+//     ),
+//   );
+// } else {
+//   Navigator.pushReplacement(
+//     context,
+//     MaterialPageRoute(builder: (context) => const Login()),
+//   );
+// }
+//     } else {
+//       Navigator.pushReplacement(
+//         context,
+//         MaterialPageRoute(builder: (context) => const Login()),
+//       );
+//     }
+    if (mid != null && type != null) {
+      if (type == 1) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TabbarCar(
+              mid: mid,
+              value: 0,
+              month: currentMonth,
+              year: currentYear,
+            ),
+          ),
+          (route) => false, // เคลียร์ stack
+        );
+      } else if (type == 2) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Tabbar(
+              mid: mid,
+              value: 0,
+              month: currentMonth,
+              year: currentYear,
+            ),
+          ),
+          (route) => false,
+        );
+      } else if (type == 3) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Tabbar(
+              mid: mid,
+              value: 0,
+              month: currentMonth,
+              year: currentYear,
+            ),
+          ),
+          (route) => false,
+        );
+      } else {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const TabbarGenaralUser(value: 0)),
+          (route) => false,
+        );
+      }
+    } else {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const TabbarGenaralUser(value: 0)),
+        (route) => false,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
   }
 }
 
 
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await Firebase.initializeApp();
 
-// Future<void> initializeNotification(
-//     FlutterLocalNotificationsPlugin plugin) async {
-//   const AndroidInitializationSettings initializationSettingsAndroid =
-//       AndroidInitializationSettings('@mipmap/ic_launcher');
+//   final prefs = await SharedPreferences.getInstance();
+//   final mid = prefs.getInt('mid');
+//   final type = prefs.getInt('type_member');
 
-//   const InitializationSettings initializationSettings =
-//       InitializationSettings(android: initializationSettingsAndroid);
+//   Widget startPage;
 
-//   await plugin.initialize(
-//     initializationSettings,
-//   );
-// }
+//   int currentMonth = DateTime.now().month;
+//   int currentYear = DateTime.now().year;
 
-// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-//   await Firebase.initializeApp(
-//     options: DefaultFirebaseOptions.currentPlatform,
-//   );
-//   print("Handling background message: ${message.data}");
-// }
-
-// void _handleMessage(RemoteMessage message) {
-//   print("User tapped notification: ${message.data}");
-
-//   if (message.data.containsKey('rsid')) {
-//     final rsidStr = message.data['rsid'];
-//     final rsid = int.tryParse(rsidStr ?? '') ?? 0;
-
-//     navigatorKey.currentState?.push(
-//       MaterialPageRoute(
-//         builder: (context) => DetailReserving(rsid: rsid),
-//       ),
+//   if (mid == null || type == null) {
+//     // ยังไม่ login → ไปหน้า Login
+//     startPage = const Login();
+//   } else if (type == 1) {
+//     startPage = TabbarCar(
+//       mid: mid,
+//       value: 0,
+//       month: currentMonth,
+//       year: currentYear,
 //     );
+//   } else if (type == 2) {
+//     startPage = Tabbar(
+//       mid: mid,
+//       value: 0,
+//       month: currentMonth,
+//       year: currentYear,
+//     );
+//   } else {
+//     startPage = const Login();
+//   }
+
+//   runApp(MyApp(home: startPage));
+// }
+
+// // class MyApp extends StatelessWidget {
+// //   final Widget home;
+
+// //   const MyApp({super.key, required this.home});
+
+// //   @override
+// //   Widget build(BuildContext context) {
+// //     return MaterialApp(
+// //       title: 'Agri Booking',
+// //       theme: ThemeData(
+// //         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+// //         useMaterial3: true,
+// //         textTheme: GoogleFonts.mitrTextTheme(),
+// //       ),
+// //       home: home, // หน้าแรกของแอปตาม session
+// //     );
+// //   }
+// // }
+
+// class MyApp extends StatelessWidget {
+//   final Widget home;
+
+//   const MyApp({super.key, required this.home});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Agri Booking',
+//       theme: ThemeData(
+//         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+//         useMaterial3: true,
+
+//         // ⬅️ ใช้ฟอนต์ Mitr ทั้งแอป
+//         textTheme: GoogleFonts.mitrTextTheme(),
+//       ),
+//       navigatorKey: navigatorKey,
+//       home: const CheckSessionPage(),
+//     );
+//     //const TabbarGenaralUser(value: 0)); //const SendEmailPage());
+//     //
 //   }
 // }
 
-// Future<void> _showNotification(
-//     FlutterLocalNotificationsPlugin plugin, RemoteMessage message) async {
-//   const AndroidNotificationDetails androidPlatformChannelSpecifics =
-//       AndroidNotificationDetails(
-//     'your_channel_id',
-//     'your_channel_name',
-//     importance: Importance.max,
-//     priority: Priority.high,
-//   );
+// class CheckSessionPage extends StatefulWidget {
+//   const CheckSessionPage({super.key});
 
-//   const NotificationDetails platformChannelSpecifics =
-//       NotificationDetails(android: androidPlatformChannelSpecifics);
+//   @override
+//   State<CheckSessionPage> createState() => _CheckSessionPageState();
+// }
 
-//   await plugin.show(
-//     message.hashCode,
-//     message.notification?.title ?? '',
-//     message.notification?.body ?? '',
-//     platformChannelSpecifics,
-//     payload: jsonEncode(message.data),
-//   );
+// class _CheckSessionPageState extends State<CheckSessionPage> {
+//   @override
+//   void initState() {
+//     super.initState();
+//     _checkLogin();
+//   }
+
+//   Future<void> _checkLogin() async {
+//     final prefs = await SharedPreferences.getInstance();
+//     final mid = prefs.getInt('mid');
+//     final type = prefs.getInt('type_member');
+
+//     if (mid != null && type != null) {
+//       int currentMonth = DateTime.now().month;
+//       int currentYear = DateTime.now().year;
+
+//       if (type == 1) {
+//         Navigator.pushReplacement(
+//           context,
+//           MaterialPageRoute(
+//             builder: (context) => TabbarCar(
+//               mid: mid,
+//               value: 0,
+//               month: currentMonth,
+//               year: currentYear,
+//             ),
+//           ),
+//         );
+//       } else if (type == 2) {
+//         Navigator.pushReplacement(
+//           context,
+//           MaterialPageRoute(
+//             builder: (context) => Tabbar(
+//               mid: mid,
+//               value: 0,
+//               month: currentMonth,
+//               year: currentYear,
+//             ),
+//           ),
+//         );
+//       } else {
+//         // type == 3 ให้กลับไป login ใหม่เพื่อเลือก
+//         Navigator.pushReplacement(
+//           context,
+//           MaterialPageRoute(builder: (context) => const Login()),
+//         );
+//       }
+//     } else {
+//       Navigator.pushReplacement(
+//         context,
+//         MaterialPageRoute(builder: (context) => const Login()),
+//       );
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // Splash screen ตอนโหลด
+//     return const Scaffold(
+//       body: Center(child: CircularProgressIndicator()),
+//     );
+//   }
 // }

@@ -31,6 +31,12 @@ class _LoginState extends State<Login> {
     passwordController.addListener(_validateForm);
   }
 
+  Future<void> saveSession(int mid, int typeMember) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('mid', mid);
+    await prefs.setInt('type_member', typeMember);
+  }
+
   Future<void> login() async {
     setState(() {
       isLoading = true;
@@ -57,10 +63,10 @@ class _LoginState extends State<Login> {
 
         final int type = user['type_member'];
         final int mid = user['mid'];
-
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setInt('mid', mid);
-        await prefs.setInt('type_member', type);
+        await prefs.setInt('mid', user['mid']);
+        await prefs.setInt('type_member', user['type_member']);
+        print("✅ Saved mid=${user['mid']}, type=${user['type_member']}");
 
         if (type == 3) {
           // แสดง pop-up ให้เลือก
@@ -97,7 +103,7 @@ class _LoginState extends State<Login> {
                             int currentMonth = DateTime.now().month;
                             int currentYear = DateTime.now().year;
                             Navigator.pop(context);
-                            Navigator.pushReplacement(
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => Tabbar(
@@ -107,6 +113,7 @@ class _LoginState extends State<Login> {
                                   year: currentYear,
                                 ),
                               ),
+                              (route) => false, // ❌ เคลียร์ทุกหน้า
                             );
                           },
                           child: const Text(
@@ -128,7 +135,7 @@ class _LoginState extends State<Login> {
                             int currentMonth = DateTime.now().month;
                             int currentYear = DateTime.now().year;
                             Navigator.pop(context);
-                            Navigator.pushReplacement(
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => TabbarCar(
@@ -138,6 +145,7 @@ class _LoginState extends State<Login> {
                                   year: currentYear,
                                 ),
                               ),
+                              (route) => false,
                             );
                           },
                           child: const Text(
@@ -168,7 +176,7 @@ class _LoginState extends State<Login> {
         } else if (type == 1) {
           int currentMonth = DateTime.now().month;
           int currentYear = DateTime.now().year;
-          Navigator.pushReplacement(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => TabbarCar(
@@ -178,11 +186,12 @@ class _LoginState extends State<Login> {
                 year: currentYear,
               ),
             ),
+            (route) => false,
           );
         } else if (type == 2) {
           int currentMonth = DateTime.now().month;
           int currentYear = DateTime.now().year;
-          Navigator.pushReplacement(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => Tabbar(
@@ -192,8 +201,142 @@ class _LoginState extends State<Login> {
                 year: currentYear,
               ),
             ),
+            (route) => false,
           );
         }
+
+        // if (type == 3) {
+        //   // แสดง pop-up ให้เลือก
+        //   showDialog(
+        //     context: context,
+        //     builder: (context) {
+        //       return AlertDialog(
+        //         shape: RoundedRectangleBorder(
+        //             borderRadius: BorderRadius.circular(16)),
+        //         title: const Text(
+        //           'ประเภทผู้ใช้งาน',
+        //           textAlign: TextAlign.center,
+        //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        //         ),
+        //         content: const Text(
+        //           'กรุณาเลือกประเภทผู้ใช้งานที่ต้องการเข้าสู่ระบบ',
+        //           textAlign: TextAlign.center,
+        //           style: TextStyle(fontSize: 16, color: Colors.black87),
+        //         ),
+        //         contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+        //         actionsPadding:
+        //             const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        //         actions: [
+        //           Row(
+        //             children: [
+        //               Expanded(
+        //                 child: ElevatedButton(
+        //                   style: ElevatedButton.styleFrom(
+        //                     backgroundColor: const Color(0xFF0DA128),
+        //                     foregroundColor: Colors.white,
+        //                     minimumSize: const Size.fromHeight(48),
+        //                   ),
+        //                   onPressed: () {
+        //                     int currentMonth = DateTime.now().month;
+        //                     int currentYear = DateTime.now().year;
+        //                     Navigator.pop(context);
+        //                     Navigator.pushReplacement(
+        //                       context,
+        //                       MaterialPageRoute(
+        //                         builder: (context) => Tabbar(
+        //                           mid: mid,
+        //                           value: 0,
+        //                           month: currentMonth,
+        //                           year: currentYear,
+        //                         ),
+        //                       ),
+        //                     );
+        //                   },
+        //                   child: const Text(
+        //                     'ผู้จ้าง',
+        //                     style: TextStyle(
+        //                         fontSize: 18, fontWeight: FontWeight.w600),
+        //                   ),
+        //                 ),
+        //               ),
+        //               const SizedBox(width: 16),
+        //               Expanded(
+        //                 child: ElevatedButton(
+        //                   style: ElevatedButton.styleFrom(
+        //                     backgroundColor: const Color(0xFF0DA128),
+        //                     foregroundColor: Colors.white,
+        //                     minimumSize: const Size.fromHeight(48),
+        //                   ),
+        //                   onPressed: () {
+        //                     int currentMonth = DateTime.now().month;
+        //                     int currentYear = DateTime.now().year;
+        //                     Navigator.pop(context);
+        //                     Navigator.pushReplacement(
+        //                       context,
+        //                       MaterialPageRoute(
+        //                         builder: (context) => TabbarCar(
+        //                           mid: mid,
+        //                           value: 0,
+        //                           month: currentMonth,
+        //                           year: currentYear,
+        //                         ),
+        //                       ),
+        //                     );
+        //                   },
+        //                   child: const Text(
+        //                     'ผู้รับจ้าง',
+        //                     style: TextStyle(
+        //                         fontSize: 18, fontWeight: FontWeight.w600),
+        //                   ),
+        //                 ),
+        //               ),
+        //             ],
+        //           ),
+        //           const SizedBox(height: 16),
+        //           Center(
+        //             child: TextButton(
+        //               style: TextButton.styleFrom(
+        //                 foregroundColor: Colors.grey[700],
+        //                 textStyle: const TextStyle(
+        //                     fontSize: 16, fontWeight: FontWeight.w500),
+        //               ),
+        //               onPressed: () => Navigator.pop(context),
+        //               child: const Text('ปิด'),
+        //             ),
+        //           ),
+        //         ],
+        //       );
+        //     },
+        //   );
+        // } else if (type == 1) {
+        //   int currentMonth = DateTime.now().month;
+        //   int currentYear = DateTime.now().year;
+        //   Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => TabbarCar(
+        //         mid: mid,
+        //         value: 0,
+        //         month: currentMonth,
+        //         year: currentYear,
+        //       ),
+        //     ),
+        //   );
+        // } else if (type == 2) {
+        //   int currentMonth = DateTime.now().month;
+        //   int currentYear = DateTime.now().year;
+        //   Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => Tabbar(
+        //         mid: mid,
+        //         value: 0,
+        //         month: currentMonth,
+        //         year: currentYear,
+        //       ),
+        //     ),
+        //   );
+        // }
 
         setState(() {
           message = msg;

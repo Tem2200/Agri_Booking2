@@ -31,6 +31,15 @@ class _RegisterState extends State<Register> {
   final TextEditingController otherController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+  final FocusNode usernameFocus = FocusNode();
+  final FocusNode emailFocus = FocusNode();
+  final FocusNode passwordFocus = FocusNode();
+  final FocusNode confirmPasswordFocus = FocusNode();
+  final FocusNode phoneFocus = FocusNode();
+  final FocusNode addressFocus = FocusNode();
+  final FocusNode typeFocus = FocusNode();
+  final FocusNode mapFocus = FocusNode();
+  final ScrollController _scrollController = ScrollController();
 
   String? imageUrl; // URL รูปภาพจาก imagebb
   double? latitude;
@@ -50,6 +59,10 @@ class _RegisterState extends State<Register> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
+  // เพิ่มตัวแปร error สำหรับปุ่ม/ช่องที่ไม่ใช่ TextFormField
+  String? typeMemberError;
+  String? mapError;
+
   @override
   void initState() {
     super.initState();
@@ -62,7 +75,66 @@ class _RegisterState extends State<Register> {
   }
 
   Future<void> register() async {
-    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      typeMemberError = null;
+      mapError = null;
+    });
+
+    // ตรวจสอบฟอร์ม
+    if (!_formKey.currentState!.validate()) {
+      // Focus ไปช่องแรกที่ผิด
+      if (usernameController.text.isEmpty) {
+        scrollToFocus(usernameFocus);
+        return;
+      }
+      if (emailController.text.isEmpty) {
+        scrollToFocus(emailFocus);
+        return;
+      }
+      if (passwordController.text.isEmpty) {
+        scrollToFocus(passwordFocus);
+        return;
+      }
+      if (confirmPasswordController.text.isEmpty) {
+        scrollToFocus(confirmPasswordFocus);
+        return;
+      }
+      if (phoneController.text.isEmpty) {
+        scrollToFocus(phoneFocus);
+        return;
+      }
+      if (selectedProvince == null) {
+        scrollToFocus(FocusNode());
+        return;
+      }
+      if (selectedAmphoe == null) {
+        scrollToFocus(FocusNode());
+        return;
+      }
+      if (selectedDistrict == null) {
+        scrollToFocus(FocusNode());
+        return;
+      }
+      if (typeMember == null) {
+        setState(() {
+          typeMemberError = 'กรุณาเลือกประเภทสมาชิก';
+        });
+        scrollToFocus(typeFocus);
+        return;
+      }
+      if (latitude == null || longitude == null) {
+        setState(() {
+          mapError = 'กรุณาเลือกตำแหน่งจากแผนที่';
+        });
+        scrollToFocus(mapFocus);
+        return;
+      }
+      if (addressController.text.isEmpty) {
+        scrollToFocus(addressFocus);
+        return;
+      }
+      return;
+    }
 
     setState(() => isLoading = true);
 
@@ -165,7 +237,8 @@ class _RegisterState extends State<Register> {
                     if (data['type_member'] == 1) {
                       int currentMonth = DateTime.now().month;
                       int currentYear = DateTime.now().year;
-                      Navigator.pushReplacement(
+
+                      Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
                           builder: (context) => TabbarCar(
@@ -175,15 +248,17 @@ class _RegisterState extends State<Register> {
                             year: currentYear,
                           ),
                         ),
+                        (route) =>
+                            false, // ✅ เคลียร์ทุกหน้าออก เหลือแค่ TabbarCar
                       );
                     } else if (data['type_member'] == 2) {
-                      Navigator.pushReplacement(
+                      Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AddFarmPage(
-                            mid: mid,
-                          ),
+                          builder: (context) => AddFarmPage(mid: mid),
                         ),
+                        (route) =>
+                            false, // ✅ เคลียร์ทุกหน้าออก เหลือแค่ AddFarmPage
                       );
                     }
                   },
@@ -239,6 +314,22 @@ class _RegisterState extends State<Register> {
             ),
           ],
         ),
+      );
+    }
+  }
+
+  void scrollToFocus(FocusNode focusNode) {
+    if (!focusNode.hasFocus) {
+      FocusScope.of(context).requestFocus(focusNode);
+    }
+    final RenderObject? renderObject = focusNode.context?.findRenderObject();
+    if (renderObject != null) {
+      final yPosition =
+          (renderObject as RenderBox).localToGlobal(Offset.zero).dy;
+      _scrollController.animateTo(
+        yPosition - 100,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
       );
     }
   }
@@ -445,6 +536,15 @@ class _RegisterState extends State<Register> {
                       _buildUserTypeButton("ผู้จ้าง", 2),
                     ],
                   ),
+                  // เพิ่มข้อความ error สีแดงใต้ปุ่มเลือกประเภทสมาชิก
+                  if (typeMemberError != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        typeMemberError!,
+                        style: const TextStyle(color: Colors.red, fontSize: 14),
+                      ),
+                    ),
 
                   const SizedBox(height: 20),
 
@@ -580,6 +680,16 @@ class _RegisterState extends State<Register> {
                               ),
                             ),
                           ),
+                          // เพิ่มข้อความ error สีแดงใต้ปุ่มเลือกตำแหน่งแผนที่
+                          if (mapError != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Text(
+                                mapError!,
+                                style: const TextStyle(
+                                    color: Colors.red, fontSize: 14),
+                              ),
+                            ),
                           if (latitude != null && longitude != null)
                             const Padding(
                               padding: EdgeInsets.only(top: 8.0),
@@ -588,6 +698,7 @@ class _RegisterState extends State<Register> {
                                 style: TextStyle(color: Colors.black54),
                               ),
                             ),
+
                           const SizedBox(height: 20),
                           Padding(
                             padding: const EdgeInsets.only(bottom: 12),
@@ -730,7 +841,7 @@ class _RegisterState extends State<Register> {
     TextInputType keyboardType = TextInputType.text,
     int? maxLength,
     Function()? onToggleVisibility,
-    String? hintText, // ข้อความอธิบายที่จะแสดงด้านล่างช่องกรอก
+    String? hintText,
     String? Function(String?)? validator,
   }) {
     return Padding(
@@ -796,8 +907,17 @@ class _RegisterState extends State<Register> {
                           onPressed: onToggleVisibility,
                         )
                       : null,
+                  errorStyle: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 13), // เพิ่ม errorStyle สีแดง
                 ),
-                validator: validator,
+                validator: validator ??
+                    (value) {
+                      if (value == null || value.isEmpty) {
+                        return validatorText;
+                      }
+                      return null;
+                    },
               ),
             ],
           ),
@@ -866,7 +986,7 @@ class _RegisterState extends State<Register> {
               DropdownButtonFormField<String>(
                 value: value,
                 decoration: InputDecoration(
-                  // ลบ labelText เพราะเรากำหนดชื่อช่องไว้แยกแล้ว
+                  // ลบ labelText ออก เพราะเรากำหนดชื่อช่องไว้แยกแล้ว
                   labelText: null,
                   filled: true,
                   fillColor: const Color.fromARGB(255, 255, 252, 252),
@@ -876,6 +996,9 @@ class _RegisterState extends State<Register> {
                   ),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  errorStyle: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 13), // เพิ่ม errorStyle สีแดง
                 ),
                 items: items
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))

@@ -8,6 +8,7 @@ import 'package:agri_booking2/pages/employer/search_emp.dart';
 import 'package:agri_booking2/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeEmpPage extends StatefulWidget {
   final int mid;
@@ -237,14 +238,35 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                     'แก้ไขข้อมูลไร่นา',
                                   ),
                                 ),
+                                // GestureDetector(
+                                //   onTap: () {
+                                //     Navigator.push(
+                                //       context,
+                                //       MaterialPageRoute(
+                                //           builder: (context) =>
+                                //               const TabbarGenaralUser(
+                                //                   value: 0)),
+                                //     );
+                                //   },
+                                //   child: buildMenuItem(
+                                //     'https://cdn-icons-png.flaticon.com/512/4400/4400828.png',
+                                //     'ออกจากระบบ',
+                                //   ),
+                                // ),
                                 GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
+                                  onTap: () async {
+                                    // เคลียร์ SharedPreferences
+                                    final prefs =
+                                        await SharedPreferences.getInstance();
+                                    await prefs
+                                        .clear(); // ลบ mid และ type_member
+
+                                    // กลับไปหน้า Login และเคลียร์ stack ทั้งหมด
+                                    Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              const TabbarGenaralUser(
-                                                  value: 0)),
+                                          builder: (context) => const Login()),
+                                      (route) => false,
                                     );
                                   },
                                   child: buildMenuItem(
@@ -252,6 +274,7 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                     'ออกจากระบบ',
                                   ),
                                 ),
+
                                 // GestureDetector(
                                 //   onTap: () async {
                                 //     int currentMonth = DateTime.now().month;
