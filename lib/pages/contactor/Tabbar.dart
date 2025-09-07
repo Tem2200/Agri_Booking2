@@ -51,6 +51,7 @@ class _TabbarCarState extends State<TabbarCar> {
     value = widget.value;
     switchPage(value);
     fetchData(); // fetch ครั้งแรก
+    _startLongPolling();
     //connectWebSocket(); // เชื่อม WS
   }
 
@@ -59,6 +60,26 @@ class _TabbarCarState extends State<TabbarCar> {
   //   _ws.close();
   //   super.dispose();
   // }
+  void _startLongPolling() async {
+    while (mounted) {
+      try {
+        final url = Uri.parse(
+            'http://projectnodejs.thammadalok.com/AGribooking/long-poll');
+        final response = await http.get(url);
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          print("Long Polling Data: $data");
+          if (data['event'] == 'update_progress' ||
+              data['event'] == 'reservation_added') {
+            fetchData(); // ← เพิ่มบรรทัดนี้
+          }
+        }
+      } catch (e) {
+        // อาจ log error ได้
+      }
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+  }
 
   Future<void> fetchData() async {
     setState(() {
