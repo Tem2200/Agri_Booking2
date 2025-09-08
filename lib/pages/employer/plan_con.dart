@@ -67,7 +67,37 @@ class _PlanAndHistoryState extends State<PlanPage> {
           return list;
         });
       });
+      _startLongPolling();
     });
+  }
+
+  void _startLongPolling() async {
+    while (mounted) {
+      try {
+        final url = Uri.parse(
+            'http://projectnodejs.thammadalok.com/AGribooking/long-poll');
+        final response = await http.get(url);
+        if (response.statusCode == 200 && response.body.isNotEmpty) {
+          final data = jsonDecode(response.body);
+          // เช็ค event ที่เกี่ยวข้อง
+          if (data['event'] == 'reservation_added' ||
+              data['event'] == 'update_progress') {
+            // โหลดข้อมูลใหม่
+            setState(() {
+              _scheduleFuture =
+                  fetchSchedule(widget.mid, _displayMonth, _displayYear)
+                      .then((list) {
+                groupEventsByDay(list);
+                return list;
+              });
+            });
+          }
+        }
+      } catch (e) {
+        await Future.delayed(const Duration(seconds: 2)); // กัน spam server
+      }
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
   }
 
   // ... (โค้ด fetchCon, fetchSchedule, groupEventsByDay, _formatDateRange, _changeMonth ส่วนเดิม) ...

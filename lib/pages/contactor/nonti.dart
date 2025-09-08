@@ -38,6 +38,7 @@ class _NontiPageState extends State<NontiPage> {
     super.initState();
     print("MID: ${widget.mid}");
     _scheduleFuture = fetchAndCountSchedule(widget.mid);
+    _pollProgress();
     //connectWebSocket(); // ✅ เพิ่มบรรทัดนี้เพื่อเชื่อมต่อ WS
   }
 
@@ -82,6 +83,60 @@ class _NontiPageState extends State<NontiPage> {
   //     Future.delayed(const Duration(seconds: 5), connectWebSocket);
   //   }
   // }
+
+  Future<void> _pollProgress() async {
+    final url =
+        Uri.parse('http://projectnodejs.thammadalok.com/AGribooking/long-poll');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200 && response.body.isNotEmpty) {
+        final data = jsonDecode(response.body);
+        if (data['event'] == 'update_progress' ||
+            data['event'] == 'reservation_added') {
+          // โหลดข้อมูลใหม่
+          if (mounted) {
+            setState(() {
+              _scheduleFuture = fetchAndCountSchedule(widget.mid);
+            });
+          }
+        }
+      }
+    } catch (e) {
+      print('❌ Long polling error: $e');
+    } finally {
+      // เรียกซ้ำเพื่อรอ event ใหม่
+      if (mounted) {
+        Future.delayed(const Duration(milliseconds: 500), _pollProgress);
+      }
+    }
+  }
+
+  void _startLongPolling() async {
+    while (mounted) {
+      try {
+        final url = Uri.parse(
+            'http://projectnodejs.thammadalok.com/AGribooking/long-poll');
+        final response = await http.get(url);
+        if (response.statusCode == 200 && response.body.isNotEmpty) {
+          final data = jsonDecode(response.body);
+          // ตรวจสอบ event ที่เกี่ยวข้องกับการจองหรืออัปเดต
+          if (data['event'] == 'reservation_added' ||
+              data['event'] == 'update_progress') {
+            // โหลดข้อมูลใหม่
+            if (mounted) {
+              setState(() {
+                _scheduleFuture = fetchAndCountSchedule(widget.mid);
+              });
+            }
+          }
+        }
+      } catch (e) {
+        // อาจ log error ได้
+      }
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+  }
 
   Future<void> updateProgressStatus(dynamic rsid, int status) async {
     final url = Uri.parse(

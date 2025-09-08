@@ -40,42 +40,8 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
         );
       }
     });
-    _initSocket(); // 🔹 เรียก socket
-  }
-
-  void _initSocket() {
-    socket = IO.io(
-        'http://projectnodejs.thammadalok.com/AGribooking', <String, dynamic>{
-      'transports': ['websocket'], // ใช้ WebSocket เป็นหลัก
-      'autoConnect': false,
-    });
-
-    socket.connect();
-
-    socket.onConnect((_) {
-      print('✅ Connected to socket server');
-      // เข้าร่วมห้องถ้าอยากแยกตาม rsid
-      socket.emit('join_room', widget.rsid.toString());
-    });
-
-    // รับ event เมื่อมีการอัปเดตสถานะจาก server
-    socket.on('progress_updated', (data) {
-      print('🔔 Progress updated: $data');
-      if (data['rsid'] == widget.rsid) {
-        setState(() {
-          progress_status = data['progress_status'];
-          this.data!['progress_status'] = data['progress_status'];
-        });
-      }
-    });
-
-    socket.onDisconnect((_) => print('❌ Disconnected from socket'));
-  }
-
-  @override
-  void dispose() {
-    socket.dispose();
-    super.dispose();
+    _pollProgress(); // เริ่ม long polling เมื่อ widget โหลด
+    //_initSocket(); // 🔹 เรียก socket
   }
 
   Future<void> fetchDetail() async {
@@ -106,92 +72,6 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
         print('Error loading route: $e');
         // กรณีล้มเหลวจะยังแสดงเส้นตรงแบบเดิมหรือไม่แสดงเส้นก็ได้
       }
-    }
-  }
-
-  Future<void> sendEmail(Map<String, dynamic> rs) async {
-    await initializeDateFormatting('th_TH'); // ต้องเรียกก่อนใช้ format แบบไทย
-
-    String formatThaiDate(String isoDate) {
-      final date = DateTime.parse(isoDate).toLocal();
-      final formatter = DateFormat('d MMMM yyyy', 'th_TH');
-      return formatter.format(date);
-    }
-
-    final emailEmployee = rs['employee_email'];
-    const fromName = 'ระบบจองคิว AgriBooking';
-    const toName = 'ผู้จ้าง';
-
-    final nameRs = rs['name_rs'];
-    final areaAmount = rs['area_amount'];
-    final unitArea = rs['unit_area'];
-    final detail = rs['detail'];
-    final dateReserve = formatThaiDate(rs['date_reserve']);
-    final dateStart = formatThaiDate(rs['date_start']);
-    final dateEnd = formatThaiDate(rs['date_end']);
-
-    final vehicleName = rs['name_vehicle'];
-    final farmName = rs['name_farm'];
-    final farmLocation =
-        '${rs['farm_subdistrict']} อ.${rs['farm_district']} จ.${rs['farm_province']}';
-
-    final message = '''
-เรียน $toName
-
-ทางเรายกเลิกการจองคิวรถสำหรับงาน "$nameRs" เรียบร้อยแล้ว
-
-รายละเอียดการจอง:
-- พื้นที่ทำงาน: $areaAmount $unitArea
-- รายละเอียดเพิ่มเติม: $detail
-- วันที่จอง: $dateReserve
-- วันที่เริ่มงาน: $dateStart
-- วันที่สิ้นสุด: $dateEnd
-
-ยานพาหนะที่เลือกใช้: $vehicleName
-สถานที่ทำงาน: $farmName, $farmLocation
-''';
-
-    const serviceId = 'service_x7vmrvq';
-    const templateId = 'template_1mrmj3e';
-    const userId = '9pdBbRJwCa8veHOzy';
-
-    final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
-
-    final response = await http.post(
-      url,
-      headers: {
-        'origin': 'http://localhost',
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'service_id': serviceId,
-        'template_id': templateId,
-        'user_id': userId,
-        'template_params': {
-          'from_name': fromName,
-          'to_name': toName,
-          'message': message,
-          'to_email': emailEmployee ?? '',
-        }
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      showDialog(
-        context: context,
-        builder: (context) => const AlertDialog(
-          title: Text('ส่งสำเร็จ'),
-          content: Text('ส่งอีเมลแจ้งยกเลิกเรียบร้อยแล้ว'),
-        ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => const AlertDialog(
-          title: Text('เกิดข้อผิดพลาด'),
-          content: Text('ไม่สามารถส่งอีเมลได้'),
-        ),
-      );
     }
   }
 
@@ -281,11 +161,9 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
   }
 
   Future<void> _updateProgress(int newStatus) async {
-    // ยืนยันก่อนส่ง
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
-        // แปลงสถานะตัวเลขเป็นข้อความ
         String getStatusText(int status) {
           switch (status) {
             case 1:
@@ -308,42 +186,25 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
             child: Text(
               'ยืนยันการเปลี่ยนสถานะ',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: Colors.indigo, // สีหัวข้อสวยๆ
-                letterSpacing: 1, // ระยะห่างตัวอักษร
-              ),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.indigo),
             ),
           ),
           content: Text(
             'คุณต้องการเปลี่ยนสถานะเป็น "${getStatusText(newStatus)}" ใช่หรือไม่?',
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16),
           ),
-          actionsAlignment: MainAxisAlignment.center,
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text(
-                'ยกเลิก',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.redAccent,
-                ),
-              ),
+              child: const Text('ยกเลิก',
+                  style: TextStyle(color: Colors.redAccent)),
             ),
-            const SizedBox(width: 50),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text(
-                'ยืนยัน',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.green,
-                ),
-              ),
+              child:
+                  const Text('ยืนยัน', style: TextStyle(color: Colors.green)),
             ),
           ],
         );
@@ -352,39 +213,25 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
 
     if (confirmed != true) return;
 
-    // ✉️ ส่งอีเมลแจ้งยกเลิก ถ้าเลือกสถานะยกเลิก
-    // if (newStatus == 0) {
-    //   await sendEmail(data!); // ต้องไม่ลืม await
-    // }
-
     final url = Uri.parse(
         'http://projectnodejs.thammadalok.com/AGribooking/update_progress');
+
     try {
       final response = await http.put(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'rsid': widget.rsid, 'progress_status': newStatus}),
       );
+
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        setState(() {
+          progress_status = newStatus;
+        });
 
-        Flushbar(
-          message: data['message'] ?? 'อัปเดตสถานะสำเร็จ',
-          icon: const Icon(Icons.check_circle, color: Colors.white),
-          duration: const Duration(seconds: 3),
-          backgroundColor: Colors.green,
-          margin: const EdgeInsets.all(16),
-          borderRadius: BorderRadius.circular(12),
-          flushbarPosition: FlushbarPosition.TOP, // ⭐ แสดงด้านบน
-          animationDuration: const Duration(milliseconds: 500),
-          messageSize: 16,
-        ).show(context);
-
-        // รีโหลดข้อมูล หรือรีเฟรชหน้า
-        await fetchDetail(); // เรียกโหลดข้อมูลใหม่
-        // }
-
-        // ไม่ต้องเรียก fetchDetail(); เพราะ socket จะอัปเดตอัตโนมัติ
+        await fetchDetail();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('อัปเดตสถานะสำเร็จ')),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('อัปเดตสถานะล้มเหลว')),
@@ -394,6 +241,28 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
       );
+    }
+  }
+
+  Future<void> _pollProgress() async {
+    final url =
+        Uri.parse('http://projectnodejs.thammadalok.com/AGribooking/long-poll');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['event'] == 'update_progress') {
+          setState(() {
+            progress_status = data['data']['progress_status'];
+          });
+        }
+      }
+    } catch (e) {
+      print('❌ Long polling error: $e');
+    } finally {
+      // เรียกซ้ำเพื่อรอ event ใหม่
+      Future.delayed(const Duration(milliseconds: 500), _pollProgress);
     }
   }
 

@@ -34,6 +34,26 @@ class _SearchEmpState extends State<SearchEmp> {
   void initState() {
     super.initState();
     _loadData();
+    _startLongPolling();
+  }
+
+  void _startLongPolling() async {
+    while (mounted) {
+      try {
+        final url = Uri.parse(
+            'http://projectnodejs.thammadalok.com/AGribooking/long-poll');
+        final response = await http.get(url);
+        if (response.statusCode == 200 && response.body.isNotEmpty) {
+          final data = jsonDecode(response.body);
+          if (data['event'] == 'vehicle_status_updated') {
+            _loadVehicles(); // โหลดข้อมูลรถใหม่
+          }
+        }
+      } catch (e) {
+        await Future.delayed(const Duration(seconds: 2));
+      }
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
   }
 
   Future<void> _loadData() async {
