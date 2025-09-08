@@ -75,6 +75,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
 
   @override
   void dispose() {
+    _scheduleController.close();
     // 3. ลบ _socket.dispose();
     final routeObserver = ModalRoute.of(context)!
         .navigator!
@@ -112,7 +113,6 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
         final response = await http.get(url);
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
-          print("Long Polling Data: $data");
           if (data['event'] == 'update_progress' ||
               data['event'] == 'reservation_added') {
             final newSchedule =
@@ -120,14 +120,44 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
             eventsByDay.clear();
             _groupEventsByDay(newSchedule);
             _scheduleController.add(newSchedule);
+
+            // 👇 เพิ่มบรรทัดนี้เพื่อให้ FutureBuilder อัปเดตด้วย
+            setState(() {
+              _scheduleFuture = Future.value(newSchedule);
+            });
           }
         }
       } catch (e) {
-        // อาจ log error ได้
+        await Future.delayed(const Duration(seconds: 2));
       }
       await Future.delayed(const Duration(milliseconds: 500));
     }
   }
+
+  // void _startLongPolling() async {
+  //   while (mounted) {
+  //     try {
+  //       final url = Uri.parse(
+  //           'http://projectnodejs.thammadalok.com/AGribooking/long-poll');
+  //       final response = await http.get(url);
+  //       if (response.statusCode == 200) {
+  //         final data = jsonDecode(response.body);
+  //         print("Long Polling Data: $data");
+  //         if (data['event'] == 'update_progress' ||
+  //             data['event'] == 'reservation_added') {
+  //           final newSchedule =
+  //               await fetchSchedule(widget.mid, _displayMonth, _displayYear);
+  //           eventsByDay.clear();
+  //           _groupEventsByDay(newSchedule);
+  //           _scheduleController.add(newSchedule);
+  //         }
+  //       }
+  //     } catch (e) {
+  //       // อาจ log error ได้
+  //     }
+  //     await Future.delayed(const Duration(milliseconds: 500));
+  //   }
+  // }
 
   Future<void> _refreshSchedule() async {
     final newSchedule =
@@ -807,6 +837,7 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
 
     final filteredSchedule = dailySchedule.where((item) {
       final status = int.tryParse(item['progress_status'].toString());
+
       // 💡 เปลี่ยนเงื่อนไขการกรอง
       if (_selectedStatus == -1) {
         return status != 4; // ดูงานทั้งหมดที่ยังไม่เสร็จ (ไม่รวมสถานะเสร็จสิ้น)
@@ -814,7 +845,8 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
       return status == _selectedStatus &&
           status != 4; // กรองตามสถานะที่เลือก ยกเว้นสถานะเสร็จสิ้น
     }).toList();
-
+    filteredSchedule.sort((a, b) => DateTime.parse(a['date_reserve'])
+        .compareTo(DateTime.parse(b['date_reserve'])));
     if (filteredSchedule.isEmpty) {
       return [
         const Center(child: Text('ไม่พบงานในหมวดนี้สำหรับวันนี้')),
@@ -1160,6 +1192,9 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
                         return status == null; // รอการยืนยัน
                       return status == _selectedStatus; // สถานะอื่น ๆ
                     }).toList();
+                    filteredEvents.sort((a, b) =>
+                        DateTime.parse(a['date_reserve'])
+                            .compareTo(DateTime.parse(b['date_reserve'])));
 
                     return filteredEvents;
                   },
@@ -1262,6 +1297,8 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
         final scheduleList = snapshot.data!
             .where((item) => item['progress_status'] == 4)
             .toList();
+        scheduleList.sort((a, b) => DateTime.parse(b['date_reserve'])
+            .compareTo(DateTime.parse(a['date_reserve'])));
 
         if (scheduleList.isEmpty) {
           return const Center(child: Text('ไม่พบงานในหมวดนี้'));

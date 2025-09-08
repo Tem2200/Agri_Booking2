@@ -3,6 +3,7 @@ import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/addFarm.dart';
 import 'package:agri_booking2/pages/map_register.dart';
+import 'package:agri_booking2/pages/register.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -12,6 +13,8 @@ import 'package:agri_booking2/pages/assets/location_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:flutter/services.dart';
+
+import 'register.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -40,6 +43,9 @@ class _RegisterState extends State<Register> {
   final FocusNode typeFocus = FocusNode();
   final FocusNode mapFocus = FocusNode();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode provinceFocus = FocusNode();
+  final FocusNode amphoeFocus = FocusNode();
+  final FocusNode districtFocus = FocusNode();
 
   String? imageUrl; // URL รูปภาพจาก imagebb
   double? latitude;
@@ -104,15 +110,15 @@ class _RegisterState extends State<Register> {
         return;
       }
       if (selectedProvince == null) {
-        scrollToFocus(FocusNode());
+        scrollToFocus(provinceFocus);
         return;
       }
       if (selectedAmphoe == null) {
-        scrollToFocus(FocusNode());
+        scrollToFocus(amphoeFocus);
         return;
       }
       if (selectedDistrict == null) {
-        scrollToFocus(FocusNode());
+        scrollToFocus(districtFocus);
         return;
       }
       if (typeMember == null) {
@@ -476,6 +482,7 @@ class _RegisterState extends State<Register> {
 
           // Content หลัก
           SingleChildScrollView(
+            controller: _scrollController,
             padding: const EdgeInsets.fromLTRB(16, kToolbarHeight + 32, 16, 16),
             child: Form(
               key: _formKey,
@@ -531,7 +538,10 @@ class _RegisterState extends State<Register> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildUserTypeButton("ผู้รับจ้าง", 1),
+                      Focus(
+                        focusNode: typeFocus,
+                        child: _buildUserTypeButton("ผู้รับจ้าง", 1),
+                      ),
                       const SizedBox(width: 10),
                       _buildUserTypeButton("ผู้จ้าง", 2),
                     ],
@@ -566,9 +576,11 @@ class _RegisterState extends State<Register> {
                             'กรุณากรอก username *',
                             keyboardType: TextInputType.text,
                             maxLength: 30,
+                            focusNode: usernameFocus,
                           ),
                           _buildTextField(
-                              "อีเมล *", emailController, 'กรุณากรอก email *'),
+                              "อีเมล *", emailController, 'กรุณากรอก email *',
+                              focusNode: emailFocus),
                           _buildTextField(
                             "รหัสผ่าน *",
                             passwordController,
@@ -579,13 +591,11 @@ class _RegisterState extends State<Register> {
                                 _isPasswordVisible = !_isPasswordVisible;
                               });
                             },
-
-                            // เพิ่ม hintText นี้
                             hintText:
                                 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร มีทั้งอักษรพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษ !@#\$&*~.',
                             validator: (value) => validatePassword(),
+                            focusNode: passwordFocus,
                           ),
-
                           _buildTextField(
                             "ยืนยันรหัสผ่าน *",
                             confirmPasswordController,
@@ -597,6 +607,7 @@ class _RegisterState extends State<Register> {
                                     !_isConfirmPasswordVisible;
                               });
                             },
+                            focusNode: confirmPasswordFocus,
                           ),
                           _buildTextField(
                             "เบอร์โทร *",
@@ -604,8 +615,8 @@ class _RegisterState extends State<Register> {
                             'กรุณากรอกเบอร์โทร *',
                             keyboardType: TextInputType.number,
                             maxLength: 10,
+                            focusNode: phoneFocus,
                           ),
-                          //const SizedBox(height: 12),
                           _buildDropdown(
                               "จังหวัด *", selectedProvince, provinces,
                               (value) {
@@ -623,8 +634,7 @@ class _RegisterState extends State<Register> {
 
                               districts = [];
                             });
-                          }),
-                          //const SizedBox(height: 10),
+                          }, focusNode: provinceFocus),
                           _buildDropdown("อำเภอ *", selectedAmphoe, amphoes,
                               (value) {
                             setState(() {
@@ -640,14 +650,13 @@ class _RegisterState extends State<Register> {
                                   .toList()
                                 ..sort();
                             });
-                          }),
-                          //const SizedBox(height: 10),
+                          }, focusNode: amphoeFocus),
                           _buildDropdown("ตำบล *", selectedDistrict, districts,
                               (value) {
                             setState(() {
                               selectedDistrict = value;
                             });
-                          }),
+                          }, focusNode: districtFocus),
                           // ช่องกรอก
                           _buildTextField(
                             'ช่องทางติดต่อเพิ่มเติม',
@@ -673,10 +682,13 @@ class _RegisterState extends State<Register> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: const Center(
-                              child: Text(
-                                'เลือกตำแหน่งจากแผนที่ *',
-                                style: TextStyle(color: Colors.black),
+                            child: Focus(
+                              focusNode: mapFocus,
+                              child: const Center(
+                                child: Text(
+                                  'เลือกตำแหน่งจากแผนที่ *',
+                                  style: TextStyle(color: Colors.black),
+                                ),
                               ),
                             ),
                           ),
@@ -715,19 +727,13 @@ class _RegisterState extends State<Register> {
                                   keyboardType: TextInputType.multiline,
                                   hintText:
                                       'เช่น บ้านเลขที่ หมู่บ้าน ซอย ถนน ตำบล อำเภอ จังหวัด',
-                                  // validator: (value) {
-                                  //   if (value == null || value.isEmpty)
-                                  //     return 'กรุณากรอกที่อยู่';
-                                  //   if (value.length > 500)
-                                  //     return 'ต้องไม่เกิน 500 ตัวอักษร';
-                                  //   return null;
-                                  // },
                                   validator: (value) {
                                     if (value != null && value.length > 500) {
                                       return 'ต้องไม่เกิน 500 ตัวอักษร';
                                     }
                                     return null;
                                   },
+                                  focusNode: addressFocus,
                                 ),
                               ],
                             ),
@@ -843,6 +849,7 @@ class _RegisterState extends State<Register> {
     Function()? onToggleVisibility,
     String? hintText,
     String? Function(String?)? validator,
+    FocusNode? focusNode,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -887,6 +894,7 @@ class _RegisterState extends State<Register> {
                 obscureText: obscure,
                 keyboardType: keyboardType,
                 maxLength: maxLength,
+                focusNode: focusNode,
                 decoration: InputDecoration(
                   labelText: null, // ลบ labelText ออก
                   filled: true,
@@ -943,8 +951,9 @@ class _RegisterState extends State<Register> {
     String label,
     String? value,
     List<String> items,
-    Function(String?) onChanged,
-  ) {
+    Function(String?) onChanged, {
+    FocusNode? focusNode,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Column(
@@ -985,6 +994,7 @@ class _RegisterState extends State<Register> {
               ),
               DropdownButtonFormField<String>(
                 value: value,
+                focusNode: focusNode,
                 decoration: InputDecoration(
                   // ลบ labelText ออก เพราะเรากำหนดชื่อช่องไว้แยกแล้ว
                   labelText: null,

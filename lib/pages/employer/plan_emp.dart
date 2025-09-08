@@ -1289,30 +1289,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
     Intl.defaultLocale = "th_TH";
     _tabController = TabController(length: 2, vsync: this);
     fetchReservings();
-    // 2. เชื่อม socket
-    _socket = IO.io(
-      'http://projectnodejs.thammadalok.com/AGribooking', // URL server ของคุณ
-      IO.OptionBuilder()
-          .setTransports(['websocket']) // ใช้ websocket
-          .disableAutoConnect()
-          .build(),
-    );
-
-    _socket.connect();
-
-    // 3. ฟัง event
-    _socket.onConnect((_) {
-      print('Connected to socket server');
-      _socket.emit('join_room', widget.mid); // ถ้าใช้ room ตาม mid
-    });
-
-    // เมื่อ server ส่ง event update reserving
-    _socket.on('progress_updated', (data) {
-      print('Received update: $data');
-      fetchReservings(); // โหลดข้อมูลใหม่ทันที
-    });
-
-    _socket.onDisconnect((_) => print('Disconnected'));
+    _startLongPolling();
   }
 
   @override
@@ -1320,6 +1297,27 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
     _tabController.dispose();
     _socket.dispose();
     super.dispose();
+  }
+
+  void _startLongPolling() async {
+    while (mounted) {
+      try {
+        final url = Uri.parse(
+            'http://projectnodejs.thammadalok.com/AGribooking/long-poll');
+        final response = await http.get(url);
+        if (response.statusCode == 200 && response.body.isNotEmpty) {
+          final data = jsonDecode(response.body);
+          // เช็ค event ที่เกี่ยวข้องกับการจอง/อัปเดต
+          if (data['event'] == 'update_progress' ||
+              data['event'] == 'reservation_added') {
+            fetchReservings(); // โหลดข้อมูลใหม่
+          }
+        }
+      } catch (e) {
+        await Future.delayed(const Duration(seconds: 2)); // กัน spam server
+      }
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
   }
 
   Future<void> sendEmail(Map<String, dynamic> rs) async {

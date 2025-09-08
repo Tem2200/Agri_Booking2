@@ -216,14 +216,18 @@ class _EditMemberPageState extends State<EditMemberPage> {
       "mid": widget.memberData['mid'],
       "username": usernameController.text,
       "phone": phoneController.text,
-      "image": widget.memberData['image'],
+      "image": (_imageUrl != null && _imageUrl!.isNotEmpty)
+          ? _imageUrl
+          : null, // ใช้ null ถ้าไม่มีรูป
+      "province": selectedProvince,
       "province": selectedProvince,
       "district": selectedAmphoe,
       "subdistrict": selectedDistrict,
-      "detail_address": addressController.text,
+      "detail_address":
+          addressController.text.isNotEmpty ? addressController.text : "-",
       "latitude": _selectedLat,
       "longitude": _selectedLng,
-      "other": otherController.text,
+      "other": otherController.text.isNotEmpty ? otherController.text : "-",
       "type_member": widget.memberData['type_member'],
     };
 
@@ -242,6 +246,9 @@ class _EditMemberPageState extends State<EditMemberPage> {
         );
         Navigator.pop(context, true);
       } else {
+        print(jsonEncode(updatedData));
+        print(response.statusCode);
+        print(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('อัปเดตข้อมูลล้มเหลว: ${response.body}')),
         );

@@ -31,6 +31,25 @@ class _MapRegisterState extends State<MapRegister> {
     _loadSavedMarker();
   }
 
+  // Future<void> _loadSavedMarker() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final lat = prefs.getDouble('saved_lat');
+  //   final lng = prefs.getDouble('saved_lng');
+
+  //   if (lat != null && lng != null) {
+  //     _initialPosition = LatLng(lat, lng);
+  //     setState(() {
+  //       _selectedMarker = Marker(
+  //         markerId: const MarkerId('saved_location'),
+  //         position: _initialPosition!,
+  //       );
+  //     });
+  //     await _fetchNearbyPlaces(_initialPosition!); // ดึงสถานที่รอบ ๆ
+  //   } else {
+  //     await _getCurrentLocation();
+  //   }
+  // }
+
   Future<void> _loadSavedMarker() async {
     final prefs = await SharedPreferences.getInstance();
     final lat = prefs.getDouble('saved_lat');
@@ -44,28 +63,68 @@ class _MapRegisterState extends State<MapRegister> {
           position: _initialPosition!,
         );
       });
-      await _fetchNearbyPlaces(_initialPosition!); // ดึงสถานที่รอบ ๆ
+      await _fetchNearbyPlaces(_initialPosition!);
     } else {
       await _getCurrentLocation();
+      // fallback: ถ้า _initialPosition ยังเป็น null ให้เซ็ตเป็นกรุงเทพฯ
+      if (_initialPosition == null) {
+        setState(() {
+          _initialPosition = const LatLng(13.7563, 100.5018);
+        });
+      }
     }
   }
 
   Future<void> _getCurrentLocation() async {
     LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) return;
-
-    Position position = await Geolocator.getCurrentPosition();
-    _initialPosition = LatLng(position.latitude, position.longitude);
-    final controller = await _controller.future;
-
-    setState(() {});
-
-    controller.animateCamera(
-      CameraUpdate.newLatLngZoom(_initialPosition!, 15),
-    );
-
-    await _fetchNearbyPlaces(_initialPosition!); // ดึงสถานที่รอบ ๆ
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      // fallback: set default position (Bangkok)
+      setState(() {
+        _initialPosition = const LatLng(13.7563, 100.5018);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('กรุณาอนุญาตให้เข้าถึงตำแหน่ง')),
+      );
+      return;
+    }
+    try {
+      Position position = await Geolocator.getCurrentPosition();
+      setState(() {
+        _initialPosition = LatLng(position.latitude, position.longitude);
+      });
+      final controller = await _controller.future;
+      controller.animateCamera(
+        CameraUpdate.newLatLngZoom(_initialPosition!, 15),
+      );
+      await _fetchNearbyPlaces(_initialPosition!);
+    } catch (e) {
+      // fallback: set default position (Bangkok)
+      setState(() {
+        _initialPosition = const LatLng(13.7563, 100.5018);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('ไม่สามารถดึงตำแหน่งปัจจุบันได้: $e')),
+      );
+    }
   }
+
+  // Future<void> _getCurrentLocation() async {
+  //   LocationPermission permission = await Geolocator.requestPermission();
+  //   if (permission == LocationPermission.denied) return;
+
+  //   Position position = await Geolocator.getCurrentPosition();
+  //   _initialPosition = LatLng(position.latitude, position.longitude);
+  //   final controller = await _controller.future;
+
+  //   setState(() {});
+
+  //   controller.animateCamera(
+  //     CameraUpdate.newLatLngZoom(_initialPosition!, 15),
+  //   );
+
+  //   await _fetchNearbyPlaces(_initialPosition!); // ดึงสถานที่รอบ ๆ
+  // }
 
   Future<void> _fetchNearbyPlaces(LatLng location) async {
     final url = Uri.parse(

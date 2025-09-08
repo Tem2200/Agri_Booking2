@@ -36,6 +36,29 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
   void initState() {
     super.initState();
     fetchVehicleDetail();
+    _startLongPolling();
+  }
+
+  void _startLongPolling() async {
+    while (mounted) {
+      try {
+        final url = Uri.parse(
+            'http://projectnodejs.thammadalok.com/AGribooking/long-poll');
+        final response = await http.get(url);
+        if (response.statusCode == 200 && response.body.isNotEmpty) {
+          final data = jsonDecode(response.body);
+          if (data['event'] == 'review_added' ||
+              data['event'] == 'vehicle_added' ||
+              data['event'] == 'vehicle_updated') {
+            // โหลดข้อมูลใหม่ (รีวิวและรายละเอียดรถ)
+            fetchVehicleDetail();
+          }
+        }
+      } catch (e) {
+        await Future.delayed(const Duration(seconds: 2));
+      }
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
   }
 
   Future<void> fetchVehicleDetail() async {

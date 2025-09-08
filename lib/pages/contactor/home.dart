@@ -34,6 +34,7 @@ class _HomePageState extends State<HomePage> {
     _reviewFuture = fetchReviews(widget.mid);
     print(_reviewFuture);
     _currentMid = widget.mid; // ✅ ตั้งค่าก่อน
+    _startLongPolling();
   }
 
   // --- ฟังก์ชันสำหรับดึงข้อมูลรถ ---
@@ -366,6 +367,29 @@ class _HomePageState extends State<HomePage> {
           isLoading = false; // ซ่อน loading indicator
         });
       }
+    }
+  }
+
+  void _startLongPolling() async {
+    while (mounted) {
+      try {
+        final url = Uri.parse(
+            'http://projectnodejs.thammadalok.com/AGribooking/long-poll');
+        final response = await http.get(url);
+        if (response.statusCode == 200 && response.body.isNotEmpty) {
+          final data = jsonDecode(response.body);
+          if (data['event'] == 'review_added' &&
+              data['mid_reviewed'].toString() == widget.mid.toString()) {
+            // โหลดรีวิวใหม่
+            setState(() {
+              _reviewFuture = fetchReviews(widget.mid);
+            });
+          }
+        }
+      } catch (e) {
+        // อาจ log error ได้
+      }
+      await Future.delayed(const Duration(milliseconds: 500));
     }
   }
 
