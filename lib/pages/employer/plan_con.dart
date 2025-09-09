@@ -51,24 +51,53 @@ class _PlanAndHistoryState extends State<PlanPage> {
   DateTime _selectedDay = DateTime.now();
   Map<DateTime, List<dynamic>> eventsByDay = {};
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _displayMonth = widget.month;
+  //   _displayYear = widget.year;
+  //   print("vihicleData: ${widget.vihicleData}");
+  //   _conFuture = fetchCon(widget.mid);
+  //   initializeDateFormatting('th', null).then((_) {
+  //     setState(() {
+  //       _isLocaleInitialized = true;
+  //       _scheduleFuture =
+  //           fetchSchedule(widget.mid, _displayMonth, _displayYear).then((list) {
+  //         groupEventsByDay(list);
+  //         return list;
+  //       });
+  //     });
+  //     _startLongPolling();
+  //   });
+  // }
+
   @override
   void initState() {
     super.initState();
     _displayMonth = widget.month;
     _displayYear = widget.year;
     print("vihicleData: ${widget.vihicleData}");
+
+    // โหลดข้อมูลเจ้าของรถ
     _conFuture = fetchCon(widget.mid);
-    initializeDateFormatting('th', null).then((_) {
-      setState(() {
-        _isLocaleInitialized = true;
-        _scheduleFuture =
-            fetchSchedule(widget.mid, _displayMonth, _displayYear).then((list) {
-          groupEventsByDay(list);
-          return list;
-        });
-      });
-      _startLongPolling();
+
+    // 👉 ตั้งค่า scheduleFuture ทันทีเลย
+    _scheduleFuture =
+        fetchSchedule(widget.mid, _displayMonth, _displayYear).then((list) {
+      groupEventsByDay(list);
+      return list;
     });
+
+    // ตั้งค่า locale แยกออก ไม่ไปผูกกับ schedule
+    initializeDateFormatting('th', null).then((_) {
+      if (mounted) {
+        setState(() {
+          _isLocaleInitialized = true;
+        });
+      }
+    });
+
+    _startLongPolling();
   }
 
   void _startLongPolling() async {
@@ -586,39 +615,70 @@ class _PlanAndHistoryState extends State<PlanPage> {
         final scheduleList = snapshot.data!;
 
         // 💡 แก้ไขเงื่อนไขการกรองข้อมูลใน filteredList
+        // List<dynamic> filteredList = scheduleList.where((item) {
+        //   final dateStart = DateTime.parse(item['date_start']).toLocal();
+        //   final dateEnd = DateTime.parse(item['date_end']).toLocal();
+        //   final progressStatus = item['progress_status'];
+
+        //   final normalizedDateStart =
+        //       DateTime(dateStart.year, dateStart.month, dateStart.day);
+        //   final normalizedDateEnd =
+        //       DateTime(dateEnd.year, dateEnd.month, dateEnd.day);
+
+        //   // 💡 เงื่อนไขใหม่: ตรวจสอบว่าวันที่เลือก (_selectedDay) อยู่ในช่วงของงานหรือไม่
+        //   final isSelectedDayInRage =
+        //       (_selectedDay.isAfter(normalizedDateStart) ||
+        //               isSameDay(_selectedDay, normalizedDateStart)) &&
+        //           (_selectedDay.isBefore(normalizedDateEnd) ||
+        //               isSameDay(_selectedDay, normalizedDateEnd));
+
+        //   if (!isSelectedDayInRage) {
+        //     return false;
+        //   }
+
+        //   // เงื่อนไขการกรองตามสถานะยังคงเหมือนเดิม
+        //   if (_selectedStatus == StatusFilter.all) {
+        //     return true;
+        //   }
+        //   if (_selectedStatus == StatusFilter.pending) {
+        //     return progressStatus == null;
+        //   }
+        //   if (_selectedStatus == StatusFilter.notAvailable) {
+        //     return progressStatus != null &&
+        //         ['1', '2', '3', '5'].contains(progressStatus.toString());
+        //   }
+
+        //   return false;
+        // }).toList();
+
         List<dynamic> filteredList = scheduleList.where((item) {
           final dateStart = DateTime.parse(item['date_start']).toLocal();
           final dateEnd = DateTime.parse(item['date_end']).toLocal();
           final progressStatus = item['progress_status'];
 
-          final normalizedDateStart =
-              DateTime(dateStart.year, dateStart.month, dateStart.day);
-          final normalizedDateEnd =
-              DateTime(dateEnd.year, dateEnd.month, dateEnd.day);
-
-          // 💡 เงื่อนไขใหม่: ตรวจสอบว่าวันที่เลือก (_selectedDay) อยู่ในช่วงของงานหรือไม่
-          final isSelectedDayInRage =
-              (_selectedDay.isAfter(normalizedDateStart) ||
-                      isSameDay(_selectedDay, normalizedDateStart)) &&
-                  (_selectedDay.isBefore(normalizedDateEnd) ||
-                      isSameDay(_selectedDay, normalizedDateEnd));
-
-          if (!isSelectedDayInRage) {
-            return false;
+          // 💡 แก้ไข: ถ้าไม่ได้เลือกวัน (_selectedDay == null) ให้แสดงทั้งหมด
+          bool isSelectedDayInRange = true;
+          if (_selectedDay != null) {
+            final normalizedDateStart =
+                DateTime(dateStart.year, dateStart.month, dateStart.day);
+            final normalizedDateEnd =
+                DateTime(dateEnd.year, dateEnd.month, dateEnd.day);
+            isSelectedDayInRange = (_selectedDay.isAfter(normalizedDateStart) ||
+                    isSameDay(_selectedDay, normalizedDateStart)) &&
+                (_selectedDay.isBefore(normalizedDateEnd) ||
+                    isSameDay(_selectedDay, normalizedDateEnd));
           }
 
-          // เงื่อนไขการกรองตามสถานะยังคงเหมือนเดิม
-          if (_selectedStatus == StatusFilter.all) {
-            return true;
-          }
-          if (_selectedStatus == StatusFilter.pending) {
+          if (!isSelectedDayInRange) return false;
+
+          // กรองตามสถานะ
+          if (_selectedStatus == StatusFilter.all) return true;
+          if (_selectedStatus == StatusFilter.pending)
             return progressStatus == null;
-          }
           if (_selectedStatus == StatusFilter.notAvailable) {
             return progressStatus != null &&
                 ['1', '2', '3', '5'].contains(progressStatus.toString());
           }
-
           return false;
         }).toList();
 
