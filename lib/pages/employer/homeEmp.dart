@@ -262,10 +262,18 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                         .clear(); // ลบ mid และ type_member
 
                                     // กลับไปหน้า Login และเคลียร์ stack ทั้งหมด
+                                    // Navigator.pushAndRemoveUntil(
+                                    //   context,
+                                    //   MaterialPageRoute(
+                                    //       builder: (context) => const Login()),
+                                    //   (route) => false,
+                                    // );
                                     Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => const Login()),
+                                          builder: (context) =>
+                                              const TabbarGenaralUser(
+                                                  value: 0)),
                                       (route) => false,
                                     );
                                   },
