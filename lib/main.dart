@@ -106,56 +106,6 @@ class _CheckSessionPageState extends State<CheckSessionPage> {
 
     int currentMonth = DateTime.now().month;
     int currentYear = DateTime.now().year;
-
-//     if (mid != null && type != null) {
-//       if (type == 1) {
-//         Navigator.pushReplacement(
-//           context,
-//           MaterialPageRoute(
-//             builder: (context) => TabbarCar(
-//               mid: mid,
-//               value: 0,
-//               month: currentMonth,
-//               year: currentYear,
-//             ),
-//           ),
-//         );
-//       } else if (type == 2) {
-//         Navigator.pushReplacement(
-//           context,
-//           MaterialPageRoute(
-//             builder: (context) => Tabbar(
-//               mid: mid,
-//               value: 0,
-//               month: currentMonth,
-//               year: currentYear,
-//             ),
-//           ),
-//         );
-//       } else if (type == 3) {
-//   Navigator.pushReplacement(
-//     context,
-//     MaterialPageRoute(
-//       builder: (context) => Tabbar(
-//         mid: mid,
-//         value: 0,
-//         month: currentMonth,
-//         year: currentYear,
-//       ),
-//     ),
-//   );
-// } else {
-//   Navigator.pushReplacement(
-//     context,
-//     MaterialPageRoute(builder: (context) => const Login()),
-//   );
-// }
-//     } else {
-//       Navigator.pushReplacement(
-//         context,
-//         MaterialPageRoute(builder: (context) => const Login()),
-//       );
-//     }
     if (mid != null && type != null) {
       if (type == 1) {
         Navigator.pushAndRemoveUntil(
@@ -184,18 +134,37 @@ class _CheckSessionPageState extends State<CheckSessionPage> {
           (route) => false,
         );
       } else if (type == 3) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Tabbar(
-              mid: mid,
-              value: 0,
-              month: currentMonth,
-              year: currentYear,
+        final prefs = await SharedPreferences.getInstance();
+        // ดึงค่าหน้าเก่าสุด (default = Tabbar)
+        final lastPage = prefs.getString('last_page') ?? 'Tabbar';
+
+        if (lastPage == 'TabbarCar') {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TabbarCar(
+                mid: mid,
+                value: 0,
+                month: currentMonth,
+                year: currentYear,
+              ),
             ),
-          ),
-          (route) => false,
-        );
+            (route) => false,
+          );
+        } else {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Tabbar(
+                mid: mid,
+                value: 0,
+                month: currentMonth,
+                year: currentYear,
+              ),
+            ),
+            (route) => false,
+          );
+        }
       } else {
         Navigator.pushAndRemoveUntil(
           context,

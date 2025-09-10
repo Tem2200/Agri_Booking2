@@ -47,11 +47,13 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
         final response = await http.get(url);
         if (response.statusCode == 200 && response.body.isNotEmpty) {
           final data = jsonDecode(response.body);
-          if (data['event'] == 'review_added' ||
-              data['event'] == 'vehicle_added' ||
+          if (data['event'] == 'vehicle_added' ||
               data['event'] == 'vehicle_updated') {
             // โหลดข้อมูลใหม่ (รีวิวและรายละเอียดรถ)
             fetchVehicleDetail();
+          } else if (data['event'] == 'review_added' &&
+              data['mid'] == _currentMid) {
+            // ไม่มีเหตุการณ์ใหม่
           }
         }
       } catch (e) {

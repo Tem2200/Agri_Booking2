@@ -46,7 +46,9 @@ class _SearchEmpState extends State<SearchEmp> {
         if (response.statusCode == 200 && response.body.isNotEmpty) {
           final data = jsonDecode(response.body);
           if (data['event'] == 'vehicle_status_updated') {
-            _loadVehicles(); // โหลดข้อมูลรถใหม่
+            setState(() {
+              _loadVehicles(); // โหลดข้อมูลรถใหม่s
+            });
           }
         }
       } catch (e) {
@@ -221,6 +223,8 @@ class _SearchEmpState extends State<SearchEmp> {
         builder: (context) => SearchEnter(
           mid: widget.mid,
           payload: payload,
+          selectedFarmLat: selectedFarmLat,
+          selectedFarmLng: selectedFarmLng,
         ),
       ),
     );

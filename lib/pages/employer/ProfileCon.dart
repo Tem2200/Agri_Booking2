@@ -53,10 +53,12 @@ class _ProfileConState extends State<ProfileCon> {
           if (data['event'] == 'review_added' ||
               data['event'] == 'vehicle_added' ||
               data['event'] == 'vehicle_status_updated' ||
-              data['event'] == 'vehicle_updated') {
+              data['event'] == 'vehicle_updated' ||
+              data['event'] == 'member_updated') {
             setState(() {
               _reviewFuture = fetchReviews(_currentMid);
               _vehicleListFuture = fetchVehicles(_currentMid);
+              _memberDataFuture = fetchCon(_currentMid);
             });
           }
         }

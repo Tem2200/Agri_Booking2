@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class TabbarCar extends StatefulWidget {
   final int value;
   final dynamic mid;
@@ -53,6 +55,12 @@ class _TabbarCarState extends State<TabbarCar> {
     fetchData(); // fetch ครั้งแรก
     _startLongPolling();
     //connectWebSocket(); // เชื่อม WS
+    _saveLastPage();
+  }
+
+  Future<void> _saveLastPage() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_page', 'TabbarCar');
   }
 
   // @override

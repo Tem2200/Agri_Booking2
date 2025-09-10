@@ -11,11 +11,15 @@ import 'package:http/http.dart' as http;
 class SearchEnter extends StatefulWidget {
   final int mid;
   final Map<String, dynamic> payload;
+  final double? selectedFarmLat; // nullable
+  final double? selectedFarmLng; // nullable
 
   const SearchEnter({
     super.key,
     required this.mid,
     required this.payload,
+    this.selectedFarmLat,
+    this.selectedFarmLng,
   });
 
   @override
@@ -27,7 +31,7 @@ class _SearchEnterState extends State<SearchEnter> {
 
   bool isLoading = false;
   List<dynamic> vehicles = [];
-  String currentOrder = "asc";
+  String currentOrder = "asc"; // "asc" หรือ "desc"
   bool sortByDistance = false;
   final TextEditingController _searchController = TextEditingController();
   String searchQuery = "";
@@ -50,49 +54,14 @@ class _SearchEnterState extends State<SearchEnter> {
     userLng = widget.payload["longitude"];
     searchQuery = widget.payload["keyword"] ?? "";
     _searchController.text = widget.payload["keyword"].toString();
-    fetchVehicles(searchKeyword: searchQuery);
+    //fetchVehicles(searchKeyword: searchQuery);
+    fetchVehicles(searchKeyword: searchQuery).then((_) {
+      if (userLat != null && userLng != null) {
+        _calculateDistances(sort: false); // คำนวณทันที แต่ไม่เรียง
+      }
+    });
     //_searchVehicle();
   }
-
-  // void _toggleReviewOrder() {
-  //   setState(() {
-  //     sortByDistance = false;
-  //     // เรียงจากมากไปน้อย (desc) เป็นค่าเริ่มต้น
-  //     vehicles.sort((a, b) {
-  //       final aReview = double.tryParse(a['avg_review_point'] ?? '0') ?? 0.0;
-  //       final bReview = double.tryParse(b['avg_review_point'] ?? '0') ?? 0.0;
-  //       // สลับการเรียงลำดับ
-  //       return currentOrder == "asc"
-  //           ? aReview.compareTo(bReview)
-  //           : bReview.compareTo(aReview);
-  //     });
-  //     currentOrder = currentOrder == "asc" ? "desc" : "asc";
-  //   });
-  // }
-
-  // void _sortByPriceAscending() {
-  //   setState(() {
-  //     sortByDistance = false;
-  //     vehicles.sort((a, b) {
-  //       final aPrice = double.tryParse(a['price']?.toString() ?? '0') ?? 0.0;
-  //       final bPrice = double.tryParse(b['price']?.toString() ?? '0') ?? 0.0;
-  //       return aPrice.compareTo(bPrice);
-  //     });
-  //     currentOrder = "asc"; // กำหนดให้เป็น น้อย -> มาก
-  //   });
-  // }
-
-  // void _sortByPriceDescending() {
-  //   setState(() {
-  //     sortByDistance = false;
-  //     vehicles.sort((a, b) {
-  //       final aPrice = double.tryParse(a['price']?.toString() ?? '0') ?? 0.0;
-  //       final bPrice = double.tryParse(b['price']?.toString() ?? '0') ?? 0.0;
-  //       return bPrice.compareTo(aPrice);
-  //     });
-  //     currentOrder = "desc"; // กำหนดให้เป็น มาก -> น้อย
-  //   });
-  // }
 
   void _togglePriceOrder() {
     setState(() {
@@ -195,50 +164,59 @@ class _SearchEnterState extends State<SearchEnter> {
     }
   }
 
-  Future<void> _calculateDistances() async {
+  Future<void> _calculateDistances({bool sort = false}) async {
     if (userLat == null || userLng == null) return;
-
-    const apiKey =
-        'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImMyOWE5ZDkxMmUyZDQzMDc4ODNlZWQ0MjQzZDQ2NTk1IiwiaCI6Im11cm11cjY0In0=';
 
     for (var v in vehicles) {
       final endLat = double.tryParse(v['latitude'].toString()) ?? 0.0;
       final endLng = double.tryParse(v['longitude'].toString()) ?? 0.0;
+      const apiKey =
+          'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImMyOWE5ZDkxMmUyZDQzMDc4ODNlZWQ0MjQzZDQ2NTk1IiwiaCI6Im11cm11cjY0In0=';
 
       final url = Uri.parse(
           'https://api.openrouteservice.org/v2/directions/driving-car?api_key=$apiKey&start=$userLng,$userLat&end=$endLng,$endLat');
 
-      final res = await http.get(url);
+      try {
+        final res = await http.get(url);
+        if (res.statusCode == 200) {
+          final data = jsonDecode(res.body);
+          final meters =
+              data['features'][0]['properties']['segments'][0]['distance'];
+          final km = meters / 1000;
 
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        final meters =
-            data['features'][0]['properties']['segments'][0]['distance'];
-        final km = meters / 1000;
-
-        v['distance_text'] = '${km.toStringAsFixed(2)} กม.';
-        v['distance_value'] = km;
-      } else {
+          v['distance_text'] = '${km.toStringAsFixed(2)} กม.';
+          v['distance_value'] = km;
+        } else {
+          v['distance_text'] = '-';
+          v['distance_value'] = double.infinity;
+        }
+      } catch (e) {
         v['distance_text'] = '-';
         v['distance_value'] = double.infinity;
       }
     }
 
-    if (sortByDistance) {
-      vehicles.sort((a, b) => (a['distance_value'] ?? double.infinity)
-          .compareTo(b['distance_value'] ?? double.infinity));
+    if (sort) {
+      vehicles.sort((a, b) {
+        final aDist = a['distance_value'] ?? double.infinity;
+        final bDist = b['distance_value'] ?? double.infinity;
+        return currentOrder == "asc"
+            ? aDist.compareTo(bDist)
+            : bDist.compareTo(aDist);
+      });
     }
 
     setState(() {});
   }
 
-  // void _togglePriceOrder() {
-  //   setState(() {
-  //     sortByDistance = false;
-  //     currentOrder = currentOrder == "asc" ? "desc" : "asc";
-  //   });
-  //   _searchVehicle();
-  // }
+  void _toggleDistanceOrder() {
+    setState(() {
+      currentSortBy = "distance";
+      currentOrder = currentOrder == "asc" ? "desc" : "asc";
+    });
+
+    _calculateDistances(sort: true); // เรียงตามระยะทาง
+  }
 
   void _sortByDistance() {
     setState(() {
@@ -251,21 +229,6 @@ class _SearchEnterState extends State<SearchEnter> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // title: const Text('ผลการค้นหา'),
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back),
-        //   onPressed: () {
-        //     Navigator.push(
-        //       context,
-        //       MaterialPageRoute(
-        //         builder: (context) => SearchEmp(
-        //           mid: widget.mid,
-        //         ),
-        //       ),
-        //     );
-        //   },
-        // ),
-        //backgroundColor: Color.fromARGB(255, 18, 143, 9),
         backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         centerTitle: true,
         title: const Text(
@@ -284,7 +247,6 @@ class _SearchEnterState extends State<SearchEnter> {
             ],
           ),
         ),
-
         leading: IconButton(
           color: Colors.white,
           icon: const Icon(Icons.arrow_back),
@@ -313,27 +275,6 @@ class _SearchEnterState extends State<SearchEnter> {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      // ช่องกรอก TextField
-                      // Expanded(
-                      //   flex: 3,
-                      //   child: TextField(
-                      //     controller: _searchController,
-                      //     decoration: InputDecoration(
-                      //       hintText: 'ค้นหาชื่อรถหรือผู้รับจ้าง',
-                      //       prefixIcon: Icon(Icons.search),
-                      //       border: OutlineInputBorder(
-                      //         borderRadius: BorderRadius.circular(12),
-                      //       ),
-                      //     ),
-                      //     onSubmitted: (value) {
-                      //       FocusScope.of(context).unfocus(); // ปิดแป้นพิมพ์
-                      //       setState(() {
-                      //         searchQuery = _searchController.text;
-                      //       });
-                      //       _searchVehicle();
-                      //     },
-                      //   ),
-                      // ),
                       Expanded(
                         child: TextField(
                           controller: _searchController,
@@ -376,64 +317,6 @@ class _SearchEnterState extends State<SearchEnter> {
                     ],
                   ),
                 ),
-                // Text(
-                //   'ค้นหาด้วย: $searchQuery',
-                //   style: const TextStyle(fontSize: 16, color: Colors.grey),
-                // ),
-                // Padding(
-                //   padding: const EdgeInsets.all(10.0),
-                //   child: Align(
-                //     alignment: Alignment.centerLeft, // จัดให้ชิดซ้าย
-                //     child: Wrap(
-                //       spacing: 12,
-                //       runSpacing: 12,
-                //       children: [
-                //         // 💡 ปุ่มเรียงราคา: มีแค่ปุ่มเดียวและสลับสถานะ
-                //         ElevatedButton.icon(
-                //           onPressed: _togglePriceOrder,
-                //           icon: Icon(
-                //             currentSortBy == "price" && currentOrder == "desc"
-                //                 ? Icons.arrow_upward
-                //                 : Icons.arrow_downward,
-                //           ),
-                //           label: Text(
-                //             currentSortBy == "price" && currentOrder == "desc"
-                //                 ? "ราคา: มาก → น้อย"
-                //                 : "ราคา: น้อย → มาก",
-                //           ),
-                //           style: ElevatedButton.styleFrom(
-                //             backgroundColor:
-                //                 currentSortBy == "price" ? Colors.green : null,
-                //             foregroundColor:
-                //                 currentSortBy == "price" ? Colors.white : null,
-                //           ),
-                //         ),
-
-                //         // 💡 ปุ่มเรียงรีวิว: สลับสถานะเหมือนกัน
-                //         ElevatedButton.icon(
-                //           onPressed: _toggleReviewOrder,
-                //           icon: Icon(
-                //             currentSortBy == "review" && currentOrder == "desc"
-                //                 ? Icons.arrow_upward
-                //                 : Icons.arrow_downward,
-                //           ),
-                //           label: Text(
-                //             currentSortBy == "review" && currentOrder == "desc"
-                //                 ? "รีวิว: มาก → น้อย"
-                //                 : "รีวิว: น้อย → มาก",
-                //           ),
-                //           style: ElevatedButton.styleFrom(
-                //             backgroundColor:
-                //                 currentSortBy == "review" ? Colors.green : null,
-                //             foregroundColor:
-                //                 currentSortBy == "review" ? Colors.white : null,
-                //           ),
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
-                // const SizedBox(height: 1),
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Row(
@@ -490,24 +373,38 @@ class _SearchEnterState extends State<SearchEnter> {
                           ),
                         ),
                       ),
+                      // Expanded(
+                      //   child: ElevatedButton.icon(
+                      //     onPressed: (userLat != null && userLng != null)
+                      //         ? _toggleDistanceOrder
+                      //         : null, // ถ้าไม่มีพิกัด ให้ปุ่มเป็น disable
+                      //     icon: Icon(
+                      //       currentSortBy == "distance" &&
+                      //               currentOrder == "desc"
+                      //           ? Icons.arrow_upward
+                      //           : Icons.arrow_downward,
+                      //     ),
+                      //     label: FittedBox(
+                      //       fit: BoxFit.scaleDown,
+                      //       child: Text(
+                      //         "ระยะทาง",
+                      //         maxLines: 1,
+                      //       ),
+                      //     ),
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: currentSortBy == "distance"
+                      //           ? Colors.green
+                      //           : null,
+                      //       foregroundColor: currentSortBy == "distance"
+                      //           ? Colors.white
+                      //           : null,
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
-                // ElevatedButton.icon(
-                //   onPressed: _togglePriceOrder,
-                //   icon: Icon(
-                //     currentOrder == "desc"
-                //         ? Icons.arrow_upward
-                //         : Icons.arrow_downward,
-                //   ),
-                //   label: Text(
-                //     currentOrder == "desc"
-                //         ? "ราคา: มาก → น้อย"
-                //         : "ราคา: น้อย → มาก",
-                //   ),
-                // ),
-
                 Expanded(
                   child: vehicles.isEmpty
                       ? const Center(child: Text('ไม่พบผลลัพธ์'))
@@ -645,44 +542,51 @@ class _SearchEnterState extends State<SearchEnter> {
                                             ],
                                           ),
                                           const SizedBox(height: 4),
-                                          Row(
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              const Icon(Icons.location_on,
-                                                  size: 18,
-                                                  color: Colors.redAccent),
-                                              const SizedBox(width: 6),
-                                              Expanded(
-                                                child: Text(
-                                                  '${v['province']},${v['district']},${v['subdistrict']}',
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                      fontSize: 15),
-                                                ),
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.location_on,
+                                                      size: 18,
+                                                      color: Colors.redAccent),
+                                                  const SizedBox(width: 6),
+                                                  Expanded(
+                                                    child: Text(
+                                                      '${v['province']}, ${v['district']}, ${v['subdistrict']}',
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                          fontSize: 15),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
+                                              const SizedBox(height: 4),
+                                              if (v['distance_text'] != null &&
+                                                  v['distance_text'] != '-')
+                                                Row(
+                                                  children: [
+                                                    const Icon(Icons.map,
+                                                        size: 18,
+                                                        color: Colors.blue),
+                                                    const SizedBox(width: 6),
+                                                    Expanded(
+                                                      child: Text(
+                                                        'ระยะทาง: ${v['distance_text']}',
+                                                        style: const TextStyle(
+                                                            fontSize: 14),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 1,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                             ],
                                           ),
-                                          const SizedBox(height: 4),
-                                          if (v['distance_text'] != null)
-                                            Row(
-                                              children: [
-                                                const Icon(Icons.map,
-                                                    size: 18,
-                                                    color: Colors.blue),
-                                                const SizedBox(width: 6),
-                                                Expanded(
-                                                  child: Text(
-                                                    'ระยะทาง: ${v['distance_text']}',
-                                                    style: const TextStyle(
-                                                        fontSize: 14),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 1,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
                                           const SizedBox(height: 12),
                                           Align(
                                             alignment: Alignment.centerLeft,
@@ -731,3 +635,64 @@ class _SearchEnterState extends State<SearchEnter> {
     );
   }
 }
+
+
+
+ // Text(
+                //   'ค้นหาด้วย: $searchQuery',
+                //   style: const TextStyle(fontSize: 16, color: Colors.grey),
+                // ),
+                // Padding(
+                //   padding: const EdgeInsets.all(10.0),
+                //   child: Align(
+                //     alignment: Alignment.centerLeft, // จัดให้ชิดซ้าย
+                //     child: Wrap(
+                //       spacing: 12,
+                //       runSpacing: 12,
+                //       children: [
+                //         // 💡 ปุ่มเรียงราคา: มีแค่ปุ่มเดียวและสลับสถานะ
+                //         ElevatedButton.icon(
+                //           onPressed: _togglePriceOrder,
+                //           icon: Icon(
+                //             currentSortBy == "price" && currentOrder == "desc"
+                //                 ? Icons.arrow_upward
+                //                 : Icons.arrow_downward,
+                //           ),
+                //           label: Text(
+                //             currentSortBy == "price" && currentOrder == "desc"
+                //                 ? "ราคา: มาก → น้อย"
+                //                 : "ราคา: น้อย → มาก",
+                //           ),
+                //           style: ElevatedButton.styleFrom(
+                //             backgroundColor:
+                //                 currentSortBy == "price" ? Colors.green : null,
+                //             foregroundColor:
+                //                 currentSortBy == "price" ? Colors.white : null,
+                //           ),
+                //         ),
+
+                //         // 💡 ปุ่มเรียงรีวิว: สลับสถานะเหมือนกัน
+                //         ElevatedButton.icon(
+                //           onPressed: _toggleReviewOrder,
+                //           icon: Icon(
+                //             currentSortBy == "review" && currentOrder == "desc"
+                //                 ? Icons.arrow_upward
+                //                 : Icons.arrow_downward,
+                //           ),
+                //           label: Text(
+                //             currentSortBy == "review" && currentOrder == "desc"
+                //                 ? "รีวิว: มาก → น้อย"
+                //                 : "รีวิว: น้อย → มาก",
+                //           ),
+                //           style: ElevatedButton.styleFrom(
+                //             backgroundColor:
+                //                 currentSortBy == "review" ? Colors.green : null,
+                //             foregroundColor:
+                //                 currentSortBy == "review" ? Colors.white : null,
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: 1),
