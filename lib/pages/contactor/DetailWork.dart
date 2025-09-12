@@ -255,6 +255,7 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
         if (data['event'] == 'update_progress' && data['rsid'] == widget.rsid) {
           setState(() {
             progress_status = data['data']['progress_status'];
+            fetchDetail();
           });
         }
         if (data['event'] == 'member_updated' &&

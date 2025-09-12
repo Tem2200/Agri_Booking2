@@ -9,6 +9,7 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 //defjrogtgt
 class HomePage extends StatefulWidget {
@@ -750,6 +751,11 @@ class _HomePageState extends State<HomePage> {
                     );
                   }
                 } else if (value == 'logout') {
+                  // เคลียร์ SharedPreferences
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.clear(); // ลบ mid และ type_member
+
+                  // กลับไปหน้า Login และเคลียร์ stack ทั้งหมด
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
@@ -1493,9 +1499,135 @@ class _HomePageState extends State<HomePage> {
   //   );
   // }
 
+  // Widget _buildReviewTab() {
+  //   return StreamBuilder<List<dynamic>>(
+  //     stream: _reviewFuture?.asStream(),
+  //     builder: (context, snapshot) {
+  //       if (snapshot.connectionState == ConnectionState.waiting &&
+  //           !snapshot.hasData) {
+  //         return const Center(child: CircularProgressIndicator());
+  //       }
+
+  //       if (snapshot.hasError) {
+  //         return Center(child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'));
+  //       }
+
+  //       if (!snapshot.hasData || snapshot.data!.isEmpty) {
+  //         return const Center(child: Text('ยังไม่มีรีวิว'));
+  //       }
+
+  //       final reviews = snapshot.data!;
+  //       final points = reviews.map((r) => (r['point'] ?? 0) as num).toList();
+  //       final avg = points.isNotEmpty
+  //           ? (points.reduce((a, b) => a + b) / points.length)
+  //               .toStringAsFixed(2)
+  //           : '0.00';
+
+  //       final reviewCount = reviews.length;
+
+  //       return ListView.builder(
+  //         padding: const EdgeInsets.all(8),
+  //         itemCount: reviews.length + 1, // บวก 1 เพื่อเฮดเดอร์
+  //         itemBuilder: (context, index) {
+  //           if (index == 0) {
+  //             return Center(
+  //               child: Padding(
+  //                 padding: const EdgeInsets.symmetric(vertical: 12),
+  //                 child: Text(
+  //                   'คะแนนรีวิว: $avg ($reviewCount รีวิว)',
+  //                   style: const TextStyle(
+  //                     fontSize: 20,
+  //                     fontWeight: FontWeight.bold,
+  //                     color: Color(0xFF2E7D32),
+  //                   ),
+  //                 ),
+  //               ),
+  //             );
+  //           }
+
+  //           final review = reviews[index - 1];
+  //           final reportedList =
+  //               jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
+  //           final isReported = reportedList.contains(_currentMid);
+
+  //           return Card(
+  //             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+  //             child: Padding(
+  //               padding: const EdgeInsets.all(12),
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   // ดาว + คะแนน
+  //                   Row(
+  //                     children: [
+  //                       const Icon(Icons.person, color: Colors.grey, size: 20),
+  //                       const SizedBox(width: 6),
+  //                       Row(
+  //                         children: List.generate(5, (i) {
+  //                           return Icon(
+  //                             i < (review['point'] ?? 0)
+  //                                 ? Icons.star
+  //                                 : Icons.star_border,
+  //                             color: Colors.amber,
+  //                             size: 20,
+  //                           );
+  //                         }),
+  //                       ),
+  //                       const SizedBox(width: 8),
+  //                       Text(
+  //                         '${review['point'] ?? '-'} / 5',
+  //                         style: const TextStyle(
+  //                           fontSize: 14,
+  //                           fontWeight: FontWeight.bold,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+
+  //                   const SizedBox(height: 8),
+
+  //                   // ข้อความ
+  //                   Text(
+  //                     review['text'] ?? '-',
+  //                     style: const TextStyle(fontSize: 16),
+  //                   ),
+
+  //                   const SizedBox(height: 8),
+
+  //                   // วันที่
+  //                   Text(
+  //                     'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}',
+  //                     style: const TextStyle(color: Colors.grey),
+  //                   ),
+
+  //                   const SizedBox(height: 8),
+
+  //                   Align(
+  //                     alignment: Alignment.centerRight,
+  //                     child: ElevatedButton(
+  //                       onPressed: isReported
+  //                           ? null
+  //                           : () => _reportReview(review['rid']),
+  //                       style: ElevatedButton.styleFrom(
+  //                         backgroundColor:
+  //                             isReported ? Colors.grey : Colors.red,
+  //                         foregroundColor: Colors.white,
+  //                       ),
+  //                       child: Text(isReported ? 'รายงานแล้ว' : 'รายงานรีวิว'),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
   Widget _buildReviewTab() {
-    return StreamBuilder<List<dynamic>>(
-      stream: _reviewFuture?.asStream(),
+    return FutureBuilder<List<dynamic>>(
+      future: _reviewFuture, // ใช้ Future โดยตรง
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting &&
             !snapshot.hasData) {
@@ -1521,7 +1653,7 @@ class _HomePageState extends State<HomePage> {
 
         return ListView.builder(
           padding: const EdgeInsets.all(8),
-          itemCount: reviews.length + 1, // บวก 1 เพื่อเฮดเดอร์
+          itemCount: reviews.length + 1,
           itemBuilder: (context, index) {
             if (index == 0) {
               return Center(
