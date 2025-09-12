@@ -320,6 +320,144 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                 //     'สลับโหมดผู้ใช้',
                                 //   ),
                                 // ),
+                                // GestureDetector(
+                                //   onTap: () async {
+                                //     int currentMonth = DateTime.now().month;
+                                //     int currentYear = DateTime.now().year;
+
+                                //     try {
+                                //       // ดึงข้อมูลสมาชิกปัจจุบัน
+                                //       final memberData =
+                                //           await fetchCon(widget.mid);
+                                //       int currentType =
+                                //           memberData['type_member'];
+
+                                //       // ถ้าเป็นผู้จ้าง (2) ให้ถามก่อนว่าจะสมัครเป็นทั้งสองโหมด
+                                //       if (currentType == 2) {
+                                //         String currentRoleText = 'ผู้จ้าง';
+                                //         String targetRoleText =
+                                //             'ทั้งผู้รับจ้างและผู้จ้าง';
+
+                                //         bool? confirmChange =
+                                //             await showDialog<bool>(
+                                //           context: context,
+                                //           builder: (_) => AlertDialog(
+                                //             shape: RoundedRectangleBorder(
+                                //               borderRadius:
+                                //                   BorderRadius.circular(16),
+                                //             ),
+                                //             title: const Center(
+                                //               child: Text(
+                                //                 'ยืนยันการสมัครสมาชิก',
+                                //                 style: TextStyle(
+                                //                   fontWeight: FontWeight.bold,
+                                //                   fontSize: 20,
+                                //                   color: Colors.deepPurple,
+                                //                 ),
+                                //               ),
+                                //             ),
+                                //             content: Column(
+                                //               mainAxisSize: MainAxisSize.min,
+                                //               children: [
+                                //                 const Icon(
+                                //                   Icons.person_add_alt_1,
+                                //                   color: Colors.deepPurple,
+                                //                   size: 48,
+                                //                 ),
+                                //                 const SizedBox(height: 12),
+                                //                 Text(
+                                //                   'ตอนนี้คุณเป็น "$currentRoleText"\n'
+                                //                   'คุณต้องการสมัครเป็น "$targetRoleText" หรือไม่?',
+                                //                   textAlign: TextAlign.center,
+                                //                   style: const TextStyle(
+                                //                       fontSize: 16),
+                                //                 ),
+                                //               ],
+                                //             ),
+                                //             actionsAlignment:
+                                //                 MainAxisAlignment.spaceEvenly,
+                                //             actions: [
+                                //               ElevatedButton(
+                                //                 style: ElevatedButton.styleFrom(
+                                //                   backgroundColor:
+                                //                       Colors.grey[300],
+                                //                   foregroundColor: Colors.black,
+                                //                   shape: RoundedRectangleBorder(
+                                //                     borderRadius:
+                                //                         BorderRadius.circular(
+                                //                             12),
+                                //                   ),
+                                //                   padding: const EdgeInsets
+                                //                       .symmetric(
+                                //                       horizontal: 20,
+                                //                       vertical: 12),
+                                //                 ),
+                                //                 onPressed: () => Navigator.pop(
+                                //                     context, false),
+                                //                 child: const Text('ยกเลิก'),
+                                //               ),
+                                //               ElevatedButton(
+                                //                 style: ElevatedButton.styleFrom(
+                                //                   backgroundColor:
+                                //                       Colors.deepPurple,
+                                //                   foregroundColor: Colors.white,
+                                //                   shape: RoundedRectangleBorder(
+                                //                     borderRadius:
+                                //                         BorderRadius.circular(
+                                //                             12),
+                                //                   ),
+                                //                   padding: const EdgeInsets
+                                //                       .symmetric(
+                                //                       horizontal: 20,
+                                //                       vertical: 12),
+                                //                 ),
+                                //                 onPressed: () => Navigator.pop(
+                                //                     context, true),
+                                //                 child: const Text('ตกลง'),
+                                //               ),
+                                //             ],
+                                //           ),
+                                //         );
+
+                                //         if (confirmChange != true) {
+                                //           return; // ถ้าไม่ตกลงก็หยุด
+                                //         }
+                                //       }
+
+                                //       // อัปเดตเป็นโหมดทั้งสอง (3)
+                                //       final response =
+                                //           await updateTypeMember(widget.mid, 3);
+
+                                //       if (response['type_member'] == 3 &&
+                                //           context.mounted) {
+                                //         Navigator.pushReplacement(
+                                //           context,
+                                //           MaterialPageRoute(
+                                //             builder: (context) => TabbarCar(
+                                //               mid: widget.mid,
+                                //               value: 2,
+                                //               month: currentMonth,
+                                //               year: currentYear,
+                                //             ),
+                                //           ),
+                                //         );
+                                //       }
+                                //     } catch (e) {
+                                //       ScaffoldMessenger.of(context)
+                                //           .showSnackBar(
+                                //         const SnackBar(
+                                //           content: Text(
+                                //               'ไม่สามารถอัปเดตโหมดผู้รับจ้างได้'),
+                                //         ),
+                                //       );
+                                //     }
+                                //   },
+                                //   child: buildMenuItem(
+                                //     'https://cdn-icons-png.flaticon.com/512/2911/2911161.png',
+                                //     'ไปโหมดผู้รับจ้าง',
+                                //   ),
+                                // )
+
                                 GestureDetector(
                                   onTap: () async {
                                     int currentMonth = DateTime.now().month;
@@ -332,52 +470,16 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                       int currentType =
                                           memberData['type_member'];
 
-                                      // ถ้าเป็นผู้จ้าง (2) ให้ถามก่อนว่าจะสมัครเป็นทั้งสองโหมด
-                                      if (currentType == 2) {
-                                        String currentRoleText = 'ผู้จ้าง';
-                                        String targetRoleText =
-                                            'ทั้งผู้รับจ้างและผู้จ้าง';
+                                      // ถ้ายังไม่เป็นทั้งสอง (ยังไม่สมัครเป็นผู้รับจ้าง)
+                                      if (currentType != 3) {
+                                        String currentRoleText =
+                                            currentType == 2
+                                                ? 'ผู้จ้าง'
+                                                : 'สมาชิกทั่วไป';
+                                        String targetRoleText = currentType == 2
+                                            ? 'ทั้งผู้รับจ้างและผู้จ้าง'
+                                            : 'ผู้รับจ้าง';
 
-                                        // bool? confirmChange =
-                                        //     await showDialog<bool>(
-                                        //   context: context,
-                                        //   builder: (_) => AlertDialog(
-                                        //     title: const Center(
-                                        //       child: Text(
-                                        //         'ยืนยันการสมัครสมาชิก',
-                                        //         style: TextStyle(
-                                        //             fontWeight:
-                                        //                 FontWeight.bold),
-                                        //       ),
-                                        //     ),
-                                        //     content: Text(
-                                        //       'ตอนนี้คุณเป็น "$currentRoleText"\n'
-                                        //       'คุณต้องการสมัครเป็น "$targetRoleText" หรือไม่?',
-                                        //       textAlign: TextAlign.center,
-                                        //     ),
-                                        //     actionsAlignment:
-                                        //         MainAxisAlignment.center,
-                                        //     actions: [
-                                        //       TextButton(
-                                        //         onPressed: () => Navigator.pop(
-                                        //             context, false),
-                                        //         child: const Text('ยกเลิก'),
-                                        //       ),
-                                        //       ElevatedButton(
-                                        //         style: ElevatedButton.styleFrom(
-                                        //           backgroundColor: Colors.green,
-                                        //           shape: RoundedRectangleBorder(
-                                        //             borderRadius:
-                                        //                 BorderRadius.circular(
-                                        //                     8),
-                                        //           ),
-                                        //         ),
-                                        //         onPressed: () => Navigator.pop(
-                                        //             context, true),
-                                        //         child: const Text('ตกลง'),
-                                        //       ),
-                                        //     ],
-                                        //   ),
                                         bool? confirmChange =
                                             await showDialog<bool>(
                                           context: context,
@@ -462,14 +564,27 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                         if (confirmChange != true) {
                                           return; // ถ้าไม่ตกลงก็หยุด
                                         }
-                                      }
 
-                                      // อัปเดตเป็นโหมดทั้งสอง (3)
-                                      final response =
-                                          await updateTypeMember(widget.mid, 3);
+                                        // อัปเดตเป็นโหมดทั้งสอง (3)
+                                        final response = await updateTypeMember(
+                                            widget.mid, 3);
 
-                                      if (response['type_member'] == 3 &&
-                                          context.mounted) {
+                                        if (response['type_member'] == 3 &&
+                                            context.mounted) {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => TabbarCar(
+                                                mid: widget.mid,
+                                                value: 2,
+                                                month: currentMonth,
+                                                year: currentYear,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      } else {
+                                        // ถ้าเป็นทั้งสองแล้ว ไปหน้าโหมดผู้รับจ้างเลย
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
@@ -492,9 +607,38 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                       );
                                     }
                                   },
-                                  child: buildMenuItem(
-                                    'https://cdn-icons-png.flaticon.com/512/2911/2911161.png',
-                                    'ไปโหมดผู้รับจ้าง',
+                                  child: FutureBuilder(
+                                    future: fetchCon(widget.mid),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const CircularProgressIndicator();
+                                      }
+
+                                      if (snapshot.hasError ||
+                                          !snapshot.hasData) {
+                                        return buildMenuItem(
+                                          'https://cdn-icons-png.flaticon.com/512/2911/2911161.png',
+                                          'ไปโหมดผู้รับจ้าง',
+                                        );
+                                      }
+
+                                      int type = snapshot.data!['type_member'];
+
+                                      // ถ้ายังไม่เป็นทั้งสอง → แสดงปุ่มสมัคร
+                                      if (type != 3) {
+                                        return buildMenuItem(
+                                          'https://cdn-icons-png.flaticon.com/128/14608/14608081.png', // ไอคอนสมัครสมาชิก
+                                          'สมัครเป็นผู้รับจ้าง',
+                                        );
+                                      }
+
+                                      // ถ้าเป็นทั้งสองแล้ว → ไปโหมดผู้รับจ้าง
+                                      return buildMenuItem(
+                                        'https://cdn-icons-png.flaticon.com/512/2911/2911161.png',
+                                        'ไปโหมดผู้รับจ้าง',
+                                      );
+                                    },
                                   ),
                                 )
                               ],
@@ -513,11 +657,32 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
     );
   }
 
-  Widget buildMenuItem(String iconUrl, String label) {
+  // Widget buildMenuItem(String iconUrl, String label) {
+  //   return Column(
+  //     mainAxisAlignment: MainAxisAlignment.center,
+  //     children: [
+  //       Image.network(iconUrl, width: 50, height: 50),
+  //       const SizedBox(height: 10),
+  //       Text(
+  //         label,
+  //         textAlign: TextAlign.center,
+  //         style: const TextStyle(fontSize: 14),
+  //         fit: BoxFit.contain, // ให้รูปพอดีกรอบ
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  Widget buildMenuItem(String iconUrl, String label, {double iconSize = 50}) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.network(iconUrl, width: 50, height: 50),
+        Image.network(
+          iconUrl,
+          width: iconSize,
+          height: iconSize,
+          fit: BoxFit.contain, // ให้รูปพอดีกรอบ
+        ),
         const SizedBox(height: 10),
         Text(
           label,

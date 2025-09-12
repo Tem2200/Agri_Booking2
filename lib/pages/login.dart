@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/ForgetPassword.dart';
+import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:agri_booking2/pages/contactor/home.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
@@ -509,10 +510,11 @@ class _LoginState extends State<Login> {
                         // ลิงก์สมัครสมาชิกอยู่ข้างล่างสุดของกล่อง
                         TextButton(
                           onPressed: () {
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const Register()),
+                                  builder: (context) =>
+                                      const TabbarGenaralUser(value: 1)),
                             );
                           },
                           child: const Text(

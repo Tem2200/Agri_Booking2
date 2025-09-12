@@ -8,6 +8,7 @@ import 'package:agri_booking2/pages/login.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 // Future<void> _backgroundMessaginf(RemoteMessage message) async {
@@ -63,7 +64,7 @@ late Timer _timer;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
+  await initializeDateFormatting('th_TH', null);
   runApp(const MyApp());
 }
 

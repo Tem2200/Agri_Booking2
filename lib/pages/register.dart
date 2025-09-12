@@ -47,6 +47,7 @@ class _RegisterState extends State<Register> {
   final FocusNode amphoeFocus = FocusNode();
   final FocusNode districtFocus = FocusNode();
 
+  String? emailError;
   String? imageUrl; // URL รูปภาพจาก imagebb
   double? latitude;
   double? longitude;
@@ -144,26 +145,42 @@ class _RegisterState extends State<Register> {
 
     setState(() => isLoading = true);
 
+    // final email = emailController.text;
+    // final emailIsValid = await isRealEmail(email);
+
+    // if (!emailIsValid) {
+    //   setState(() => isLoading = false);
+    //   showDialog(
+    //     context: context,
+    //     builder: (_) => AlertDialog(
+    //       title: const Text('อีเมลไม่ถูกต้อง'),
+    //       content: const Text(
+    //           'อีเมลนี้ไม่สามารถรับส่งข้อความได้จริง กรุณากรอกอีเมลอื่น'),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () => Navigator.pop(context),
+    //           child: const Text('ตกลง'),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    //   return;
+    // }
+
     final email = emailController.text;
     final emailIsValid = await isRealEmail(email);
 
     if (!emailIsValid) {
-      setState(() => isLoading = false);
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('อีเมลไม่ถูกต้อง'),
-          content: const Text(
-              'อีเมลนี้ไม่สามารถรับส่งข้อความได้จริง กรุณากรอกอีเมลอื่น'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('ตกลง'),
-            ),
-          ],
-        ),
-      );
+      setState(() {
+        isLoading = false;
+        emailError = 'อีเมลนี้ไม่ใช่อีเมลจริงหรือเคยใช้สมัครแล้ว?';
+      });
+      scrollToFocus(emailFocus); // เลื่อนโฟกัสมาช่องอีเมล
       return;
+    } else {
+      setState(() {
+        emailError = null; // เคลียร์ error ถ้าอีเมลถูกต้อง
+      });
     }
 
     if (typeMember == null) {
@@ -447,8 +464,10 @@ class _RegisterState extends State<Register> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         elevation: 0,
+        centerTitle: true,
         title: Text(
           'สมัครสมาชิก',
           style: GoogleFonts.prompt(
@@ -456,16 +475,16 @@ class _RegisterState extends State<Register> {
             color: Colors.white,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const TabbarGenaralUser(value: 1)),
-            );
-          },
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back, color: Colors.white),
+        //   onPressed: () {
+        //     Navigator.pushReplacement(
+        //       context,
+        //       MaterialPageRoute(
+        //           builder: (context) => const TabbarGenaralUser(value: 1)),
+        //     );
+        //   },
+        // ),
       ),
       body: Stack(
         children: [
@@ -578,9 +597,41 @@ class _RegisterState extends State<Register> {
                             maxLength: 30,
                             focusNode: usernameFocus,
                           ),
+                          // _buildTextField(
+                          //     "อีเมล *", emailController, 'กรุณากรอก email *',
+                          //     focusNode: emailFocus),
+                          // _buildTextField(
+                          //   "อีเมล *",
+                          //   emailController,
+                          //   'กรุณากรอก email *',
+                          //   focusNode: emailFocus,
+                          //   validator: (value) {
+                          //     if (value == null || value.isEmpty)
+                          //       return 'กรุณากรอก email *';
+                          //     if (emailError != null)
+                          //       return emailError; // แสดง error จาก API
+                          //     return null;
+                          //   },
+                          // ),
                           _buildTextField(
-                              "อีเมล *", emailController, 'กรุณากรอก email *',
-                              focusNode: emailFocus),
+                            "อีเมล *",
+                            emailController,
+                            'กรุณากรอก email *',
+                            focusNode: emailFocus,
+                            validator: (value) {
+                              if (value == null || value.isEmpty)
+                                return 'กรุณากรอก email *';
+                              if (emailError != null) return emailError;
+                              return null;
+                            },
+                            onChanged: (value) {
+                              setState(() {
+                                emailError = null;
+                              });
+                              _formKey.currentState?.validate();
+                            },
+                          ),
+
                           _buildTextField(
                             "รหัสผ่าน *",
                             passwordController,
@@ -744,7 +795,17 @@ class _RegisterState extends State<Register> {
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () => Navigator.pop(context),
+                                  onPressed: () {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const TabbarGenaralUser(value: 0),
+                                      ),
+                                      (route) =>
+                                          false, // เคลียร์ทุกหน้าก่อนหน้า
+                                    );
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red,
                                     foregroundColor: Colors.white,
@@ -850,6 +911,7 @@ class _RegisterState extends State<Register> {
     String? hintText,
     String? Function(String?)? validator,
     FocusNode? focusNode,
+    void Function(String)? onChanged,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -895,6 +957,7 @@ class _RegisterState extends State<Register> {
                 keyboardType: keyboardType,
                 maxLength: maxLength,
                 focusNode: focusNode,
+                onChanged: onChanged,
                 decoration: InputDecoration(
                   labelText: null, // ลบ labelText ออก
                   filled: true,
