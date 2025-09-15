@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:agri_booking2/pages/employer/DetailVehc_emp.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
+import 'package:agri_booking2/pages/employer/farms.dart';
 import 'package:agri_booking2/pages/employer/searchEnter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,10 @@ class _SearchEmpState extends State<SearchEmp> {
     super.initState();
     _loadData();
     _startLongPolling();
+    print("mid at SearchEmp: ${widget.mid}");
+    print("Selected Farm Lat: $selectedFarmLat");
+    print("Selected Farm Lng: $selectedFarmLng");
+    print("Selected Farm: $selectedFarm");
   }
 
   void _startLongPolling() async {
@@ -58,21 +63,44 @@ class _SearchEmpState extends State<SearchEmp> {
     }
   }
 
+  // Future<void> _loadData() async {
+  //   setState(() => isLoading = true);
+  //   try {
+  //     await Future.wait([
+  //       _loadFarms(),
+  //       _loadVehicles(),
+  //     ]);
+
+  //     if (farmList.isNotEmpty) {
+  //       selectedFarm = farmList[0];
+  //       selectedFarmLat = _parseLatLng(selectedFarm['latitude']);
+  //       selectedFarmLng = _parseLatLng(selectedFarm['longitude']);
+  //       await _calculateDistances();
+  //     } else {
+  //       hasFarm = false;
+  //       _sortByReview();
+  //     }
+  //   } finally {
+  //     setState(() => isLoading = false);
+  //   }
+  // }
   Future<void> _loadData() async {
     setState(() => isLoading = true);
     try {
-      await Future.wait([
-        _loadFarms(),
-        _loadVehicles(),
-      ]);
+      // ✅ โหลด farms ก่อน เพื่อให้เลือก farm ได้เร็ว
+      await _loadFarms();
 
       if (farmList.isNotEmpty) {
         selectedFarm = farmList[0];
         selectedFarmLat = _parseLatLng(selectedFarm['latitude']);
         selectedFarmLng = _parseLatLng(selectedFarm['longitude']);
-        await _calculateDistances();
+
+        // ✅ โหลด vehicles + คำนวณระยะทางไปพร้อมกัน
+        await _loadVehicles();
+        _calculateDistances(); // 🔥 ยิงไป background ไม่ต้องรอ
       } else {
         hasFarm = false;
+        await _loadVehicles();
         _sortByReview();
       }
     } finally {
@@ -127,7 +155,86 @@ class _SearchEmpState extends State<SearchEmp> {
     filteredVehicles = allVehicles;
   }
 
-  Future<void> _calculateDistances() async {
+  // Future<void> _calculateDistances() async {
+  //   if (selectedFarm == null ||
+  //       selectedFarmLat == null ||
+  //       selectedFarmLng == null) return;
+
+  //   setState(() => isLoading = true);
+
+  //   try {
+  //     var destinationsVehicles = allVehicles
+  //         .where((v) {
+  //           final lat = _parseLatLng(v['latitude']);
+  //           final lng = _parseLatLng(v['longitude']);
+  //           return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+  //         })
+  //         .take(20)
+  //         .toList();
+
+  //     if (destinationsVehicles.isEmpty) {
+  //       filteredVehicles = [];
+  //       return;
+  //     }
+
+  //     for (var i = 0; i < destinationsVehicles.length; i++) {
+  //       final v = destinationsVehicles[i];
+
+  //       if (v['distance_cache'] != null) {
+  //         v['distance_text'] = v['distance_cache']['text'];
+  //         v['distance_value'] = v['distance_cache']['value'];
+  //         continue;
+  //       }
+
+  //       final endLat = _parseLatLng(v['latitude']);
+  //       final endLng = _parseLatLng(v['longitude']);
+
+  //       // ✅ ใช้ OSRM Public Server
+  //       final url =
+  //           Uri.parse('https://router.project-osrm.org/route/v1/driving/'
+  //               '$selectedFarmLng,$selectedFarmLat;$endLng,$endLat'
+  //               '?overview=false');
+
+  //       try {
+  //         final res = await http.get(url);
+  //         if (res.statusCode == 200) {
+  //           final data = jsonDecode(res.body);
+  //           if (data['routes'] != null && data['routes'].isNotEmpty) {
+  //             final meters = data['routes'][0]['distance'];
+  //             final km = meters / 1000;
+  //             v['distance_text'] = '${km.toStringAsFixed(2)} กม.';
+  //             v['distance_value'] = km;
+  //             v['distance_cache'] = {
+  //               'text': v['distance_text'],
+  //               'value': km,
+  //             };
+  //           } else {
+  //             v['distance_text'] = '-';
+  //             v['distance_value'] = double.infinity;
+  //           }
+  //         } else {
+  //           print('OSRM API error: ${res.body}');
+  //           v['distance_text'] = '-';
+  //           v['distance_value'] = double.infinity;
+  //         }
+  //       } catch (e) {
+  //         v['distance_text'] = '-';
+  //         v['distance_value'] = double.infinity;
+  //       }
+
+  //       // ✅ กัน overload server: พัก 100 ms ต่อ request
+  //       await Future.delayed(const Duration(milliseconds: 100));
+  //     }
+
+  //     destinationsVehicles.sort((a, b) =>
+  //         (a['distance_value'] ?? 0).compareTo(b['distance_value'] ?? 0));
+
+  //     filteredVehicles = destinationsVehicles;
+  //   } finally {
+  //     setState(() => isLoading = false);
+  //   }
+  // }
+  Future<void> _calculateDistances({bool forceReload = false}) async {
     if (selectedFarm == null ||
         selectedFarmLat == null ||
         selectedFarmLng == null) return;
@@ -135,51 +242,53 @@ class _SearchEmpState extends State<SearchEmp> {
     setState(() => isLoading = true);
 
     try {
-      var destinationsVehicles = allVehicles
-          .where((v) {
-            final lat = _parseLatLng(v['latitude']);
-            final lng = _parseLatLng(v['longitude']);
-            return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
-          })
-          .take(20)
-          .toList();
+      // ใช้ทั้งหมด ไม่ limit 20
+      var destinationsVehicles = allVehicles.where((v) {
+        final lat = _parseLatLng(v['latitude']);
+        final lng = _parseLatLng(v['longitude']);
+        return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+      }).toList();
 
       if (destinationsVehicles.isEmpty) {
         filteredVehicles = [];
         return;
       }
 
-      const apiKey =
-          'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImMyOWE5ZDkxMmUyZDQzMDc4ODNlZWQ0MjQzZDQ2NTk1IiwiaCI6Im11cm11cjY0In0=';
+      for (var i = 0; i < destinationsVehicles.length; i++) {
+        final v = destinationsVehicles[i];
 
-      await Future.wait(destinationsVehicles.map((v) async {
-        if (v['distance_cache'] != null) {
+        // ถ้ามี cache และไม่ได้บังคับ reload → ใช้ cache เลย
+        if (v['distance_cache'] != null && !forceReload) {
           v['distance_text'] = v['distance_cache']['text'];
           v['distance_value'] = v['distance_cache']['value'];
-          return;
+          continue;
         }
 
         final endLat = _parseLatLng(v['latitude']);
         final endLng = _parseLatLng(v['longitude']);
-
-        final url = Uri.parse(
-            'https://api.openrouteservice.org/v2/directions/driving-car?api_key=$apiKey&start=$selectedFarmLng,$selectedFarmLat&end=$endLng,$endLat');
+        final url =
+            Uri.parse('https://router.project-osrm.org/route/v1/driving/'
+                '$selectedFarmLng,$selectedFarmLat;$endLng,$endLat'
+                '?overview=false');
 
         try {
           final res = await http.get(url);
           if (res.statusCode == 200) {
             final data = jsonDecode(res.body);
-            final meters =
-                data['features'][0]['properties']['segments'][0]['distance'];
-            final km = meters / 1000;
-            v['distance_text'] = '${km.toStringAsFixed(2)} กม.';
-            v['distance_value'] = km;
-            v['distance_cache'] = {
-              'text': v['distance_text'],
-              'value': km,
-            };
+            if (data['routes'] != null && data['routes'].isNotEmpty) {
+              final meters = data['routes'][0]['distance'];
+              final km = meters / 1000;
+              v['distance_text'] = '${km.toStringAsFixed(2)} กม.';
+              v['distance_value'] = km;
+              v['distance_cache'] = {
+                'text': v['distance_text'],
+                'value': km,
+              };
+            } else {
+              v['distance_text'] = '-';
+              v['distance_value'] = double.infinity;
+            }
           } else {
-            print('OpenRoute API error: ${res.body}');
             v['distance_text'] = '-';
             v['distance_value'] = double.infinity;
           }
@@ -187,8 +296,12 @@ class _SearchEmpState extends State<SearchEmp> {
           v['distance_text'] = '-';
           v['distance_value'] = double.infinity;
         }
-      }));
 
+        // พัก 100ms กัน overload server
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+
+      // เรียงตามระยะทาง
       destinationsVehicles.sort((a, b) =>
           (a['distance_value'] ?? 0).compareTo(b['distance_value'] ?? 0));
 
@@ -401,11 +514,42 @@ class _SearchEmpState extends State<SearchEmp> {
                       ),
                     ),
                     child: Text(
-                      selectedFarm?['name_farm'] ?? 'เลือกฟาร์ม',
+                      selectedFarm?['name_farm'] ?? 'เลือกที่นา',
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
+                // Expanded(
+                //   flex: 1,
+                //   child: ElevatedButton(
+                //     onPressed: farmList.isEmpty
+                //         ? () {
+                //             // ไม่มีที่นา → ไปหน้าเพิ่มที่นา
+                //             Navigator.push(
+                //               context,
+                //               MaterialPageRoute(
+                //                 builder: (context) =>
+                //                     FarmsPage(mid: widget.mid),
+                //               ),
+                //             );
+                //           }
+                //         : _showFarmPicker, // มีที่นา → เลือกที่นา
+                //     style: ElevatedButton.styleFrom(
+                //       padding: const EdgeInsets.symmetric(vertical: 16),
+                //       backgroundColor: const Color.fromARGB(255, 251, 160, 76),
+                //       foregroundColor: const Color.fromARGB(255, 34, 31, 31),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(12),
+                //       ),
+                //     ),
+                //     child: Text(
+                //       farmList.isEmpty
+                //           ? 'เพิ่มที่นา'
+                //           : (selectedFarm?['name_farm'] ?? 'เลือกที่นา'),
+                //       overflow: TextOverflow.ellipsis,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
             const SizedBox(height: 16),
@@ -460,11 +604,17 @@ class _SearchEmpState extends State<SearchEmp> {
                         ? const Center(child: CircularProgressIndicator())
                         : filteredVehicles.isEmpty
                             ? Center(
-                                child: hasFarm
-                                    ? const Text(
-                                        'ไม่พบรถที่สามารถคำนวณระยะทางได้ หรือพิกัดผิด')
-                                    : const Text(
-                                        'ไม่พบข้อมูลรถที่ตรงกับการค้นหา'),
+                                // child: hasFarm
+                                //     ? const Text(
+                                //         'ไม่พบรถที่สามารถคำนวณระยะทางได้ หรือพิกัดผิด')
+                                //     : const Text(
+                                //         'ไม่พบข้อมูลรถที่ตรงกับการค้นหา'),
+                                child: Text(
+                                  hasFarm
+                                      ? 'ไม่พบรถที่สามารถคำนวณระยะทางได้ หรือพิกัดผิด'
+                                      : 'ไม่พบข้อมูลรถที่ตรงกับการค้นหา',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
                               )
                             : ListView.builder(
                                 itemCount: filteredVehicles.length,
@@ -636,7 +786,7 @@ class _SearchEmpState extends State<SearchEmp> {
                                                     Expanded(
                                                       // ครอบเพื่อจำกัดพื้นที่
                                                       child: Text(
-                                                        'คะแนนเฉลี่ย: ${(v['avg_review_point'] is num) ? (v['avg_review_point'] as num).toStringAsFixed(2) : '0.00'}',
+                                                        'คะแนนรีวิว: ${double.tryParse(v['avg_review_point'] ?? '0')?.toStringAsFixed(2) ?? '0.00'}',
                                                         style: const TextStyle(
                                                             fontSize: 14),
                                                         overflow: TextOverflow

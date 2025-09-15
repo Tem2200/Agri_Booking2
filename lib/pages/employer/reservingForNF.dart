@@ -164,6 +164,56 @@ class _ReservingForNFState extends State<ReservingForNF> {
         );
       } else {
         print("❌ Error ${response.statusCode} : ${response.body}");
+        await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'ไม่สามารถจองคิวรถได้',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Image.network(
+                    'https://symbl-cdn.com/i/webp/c1/d9d88630432cf61ad335df98ce37d6.webp',
+                    height: 50,
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'รถคันนี้ไม่สามารถจองในเวลาที่เลือกได้ เนื่องจากยังมีงานที่อยู่ในระหว่างดำเนินการ',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'กรุณาเลือกวันและเวลาอื่น',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+              actionsAlignment: MainAxisAlignment.center,
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text(
+                    'ตกลง',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

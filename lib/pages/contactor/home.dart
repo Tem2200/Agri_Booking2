@@ -28,6 +28,7 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
   late int _currentMid;
   String? error;
+  List<int> countReporter = [];
   late StreamController<List<dynamic>> _reviewStreamController;
 
   @override
@@ -573,6 +574,25 @@ class _HomePageState extends State<HomePage> {
       if (response.statusCode == 200) {
         if (response.body.isNotEmpty) {
           final List data = jsonDecode(response.body);
+          this.countReporter = data
+              .map<int>((review) {
+                if (review['reporters'] != null &&
+                    review['reporters'] is String) {
+                  try {
+                    final List<dynamic> reportersJson =
+                        jsonDecode(review['reporters']);
+                    return reportersJson.length;
+                  } catch (e) {
+                    print(
+                        'Error parsing reporters JSON for review ${review['rid']}: $e');
+                    return 0;
+                  }
+                }
+                return 0;
+              })
+              .where((count) => count is int)
+              .cast<int>()
+              .toList();
           print('Fetched review data: $data');
 
           // เรียงจาก rid มากไปน้อย (รีวิวล่าสุดไปรีวิวแรก)
@@ -1917,7 +1937,13 @@ class _HomePageState extends State<HomePage> {
                       style: const TextStyle(color: Colors.grey),
                     ),
 
-                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text('จำนวนรายงาน: ${reportedList.length} คน',
+                            style: const TextStyle(color: Colors.grey)),
+                      ],
+                    ),
 
                     Align(
                       alignment: Alignment.centerRight,

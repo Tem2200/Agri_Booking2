@@ -27,7 +27,7 @@ class _ProfileConState extends State<ProfileCon> {
   Future<Map<String, dynamic>>? _memberDataFuture;
   Future<List<dynamic>>? _vehicleListFuture;
   Future<List<dynamic>>? _reviewFuture;
-
+  List<int> countReporter = [];
   late int _currentMid;
   bool isLoading = true;
   @override
@@ -106,6 +106,26 @@ class _ProfileConState extends State<ProfileCon> {
 
     if (response.statusCode == 200) {
       if (response.body.isNotEmpty) {
+        final List data = jsonDecode(response.body);
+        this.countReporter = data
+            .map<int>((review) {
+              if (review['reporters'] != null &&
+                  review['reporters'] is String) {
+                try {
+                  final List<dynamic> reportersJson =
+                      jsonDecode(review['reporters']);
+                  return reportersJson.length;
+                } catch (e) {
+                  print(
+                      'Error parsing reporters JSON for review ${review['rid']}: $e');
+                  return 0;
+                }
+              }
+              return 0;
+            })
+            .where((count) => count is int)
+            .cast<int>()
+            .toList();
         return jsonDecode(response.body);
       }
       return [];
@@ -149,7 +169,7 @@ class _ProfileConState extends State<ProfileCon> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "rid": rid,
-          "mid_reporter": midReporter,
+          "mid_reporter": this.widget.mid_emp,
         }),
       );
 
@@ -1136,7 +1156,7 @@ class _ProfileConState extends State<ProfileCon> {
 
             final reportedList =
                 jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
-            final isReported = reportedList.contains(_currentMid);
+            final isReported = reportedList.contains(this.widget.mid_emp);
 
             // return ListTile(
             //   title: Text(review['text'] ?? "-"),
@@ -1236,6 +1256,9 @@ class _ProfileConState extends State<ProfileCon> {
                             style:
                                 const TextStyle(color: Colors.grey), // ใส่สีเทา
                           ),
+                          Text('จำนวนรายงาน: ${reportedList.length} คน',
+                              style: const TextStyle(
+                                  color: Colors.grey)), // ใส่สีเทา
                         ],
                       ),
 

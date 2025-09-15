@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:agri_booking2/pages/employer/DetailVehc_emp.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/search_emp.dart';
@@ -39,6 +40,9 @@ class _SearchEnterState extends State<SearchEnter> {
 
   double? userLat;
   double? userLng;
+  bool hasFarm = true;
+  List<dynamic> allVehicles = [];
+  List<dynamic> filteredVehicles = [];
   @override
   void dispose() {
     _debounce?.cancel();
@@ -49,6 +53,9 @@ class _SearchEnterState extends State<SearchEnter> {
   @override
   void initState() {
     super.initState();
+    print("Payload at initState: ${widget.payload}");
+    print("Selected Farm Lat: ${widget.selectedFarmLat}");
+    print("Selected Farm Lng: ${widget.selectedFarmLng}");
     currentOrder = widget.payload["order"] ?? "asc";
     userLat = widget.payload["latitude"];
     userLng = widget.payload["longitude"];
@@ -56,8 +63,11 @@ class _SearchEnterState extends State<SearchEnter> {
     _searchController.text = widget.payload["keyword"].toString();
     //fetchVehicles(searchKeyword: searchQuery);
     fetchVehicles(searchKeyword: searchQuery).then((_) {
-      if (userLat != null && userLng != null) {
-        _calculateDistances(sort: false); // คำนวณทันที แต่ไม่เรียง
+      if (widget.selectedFarmLat != null && widget.selectedFarmLng != null) {
+        _calculateDistances(); // คำนวณทันที แต่ไม่เรียง
+      } else {
+        hasFarm = false;
+        _searchVehicle();
       }
     });
     //_searchVehicle();
@@ -65,11 +75,10 @@ class _SearchEnterState extends State<SearchEnter> {
 
   void _togglePriceOrder() {
     setState(() {
-      currentSortBy = "price"; // ตั้งค่าสถานะการเรียงปัจจุบันเป็นราคา
-      // สลับทิศทางการเรียง
+      currentSortBy = "price";
       currentOrder = currentOrder == "asc" ? "desc" : "asc";
-      // เรียงข้อมูลตามราคา
-      vehicles.sort((a, b) {
+
+      filteredVehicles.sort((a, b) {
         final aPrice = double.tryParse(a['price']?.toString() ?? '0') ?? 0.0;
         final bPrice = double.tryParse(b['price']?.toString() ?? '0') ?? 0.0;
         return currentOrder == "asc"
@@ -81,11 +90,10 @@ class _SearchEnterState extends State<SearchEnter> {
 
   void _toggleReviewOrder() {
     setState(() {
-      currentSortBy = "review"; // ตั้งค่าสถานะการเรียงปัจจุบันเป็นรีวิว
-      // สลับทิศทางการเรียง
+      currentSortBy = "review";
       currentOrder = currentOrder == "asc" ? "desc" : "asc";
-      // เรียงข้อมูลตามคะแนนรีวิว
-      vehicles.sort((a, b) {
+
+      filteredVehicles.sort((a, b) {
         final aReview =
             double.tryParse(a['avg_review_point']?.toString() ?? '0') ?? 0.0;
         final bReview =
@@ -121,6 +129,7 @@ class _SearchEnterState extends State<SearchEnter> {
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         setState(() {
+          allVehicles = data; // 👈 อัปเดตด้วย
           vehicles = data;
         });
         await _calculateDistances();
@@ -149,12 +158,21 @@ class _SearchEnterState extends State<SearchEnter> {
           "order": currentOrder,
         }),
       );
+      // if (response.statusCode == 200) {
+      //   final data = json.decode(response.body);
+      //   setState(() {
+      //     allVehicles = data;
+      //     vehicles = data;
+      //     isLoading = false;
+      //   });
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          vehicles = data;
-          isLoading = false;
+          allVehicles = data;
+          vehicles = data; // สำหรับ UI legacy
+          filteredVehicles = data.take(20).toList(); // สำหรับ distance
         });
+        await _calculateDistances(); // คำนวณระยะทาง
       } else {
         throw Exception('โหลดข้อมูลไม่สำเร็จ');
       }
@@ -164,50 +182,154 @@ class _SearchEnterState extends State<SearchEnter> {
     }
   }
 
-  Future<void> _calculateDistances({bool sort = false}) async {
-    if (userLat == null || userLng == null) return;
-
-    for (var v in vehicles) {
-      final endLat = double.tryParse(v['latitude'].toString()) ?? 0.0;
-      final endLng = double.tryParse(v['longitude'].toString()) ?? 0.0;
-      const apiKey =
-          'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImMyOWE5ZDkxMmUyZDQzMDc4ODNlZWQ0MjQzZDQ2NTk1IiwiaCI6Im11cm11cjY0In0=';
-
-      final url = Uri.parse(
-          'https://api.openrouteservice.org/v2/directions/driving-car?api_key=$apiKey&start=$userLng,$userLat&end=$endLng,$endLat');
-
-      try {
-        final res = await http.get(url);
-        if (res.statusCode == 200) {
-          final data = jsonDecode(res.body);
-          final meters =
-              data['features'][0]['properties']['segments'][0]['distance'];
-          final km = meters / 1000;
-
-          v['distance_text'] = '${km.toStringAsFixed(2)} กม.';
-          v['distance_value'] = km;
-        } else {
-          v['distance_text'] = '-';
-          v['distance_value'] = double.infinity;
-        }
-      } catch (e) {
-        v['distance_text'] = '-';
-        v['distance_value'] = double.infinity;
-      }
-    }
-
-    if (sort) {
-      vehicles.sort((a, b) {
-        final aDist = a['distance_value'] ?? double.infinity;
-        final bDist = b['distance_value'] ?? double.infinity;
-        return currentOrder == "asc"
-            ? aDist.compareTo(bDist)
-            : bDist.compareTo(aDist);
-      });
-    }
-
-    setState(() {});
+  double _parseLatLng(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    return double.tryParse(value.toString()) ?? 0.0;
   }
+
+  Future<void> _calculateDistances() async {
+    if (widget.selectedFarmLat == null || widget.selectedFarmLng == null)
+      return;
+
+    setState(() => isLoading = true);
+
+    try {
+      var destinationsVehicles = allVehicles.where((v) {
+        final lat = _parseLatLng(v['latitude']);
+        final lng = _parseLatLng(v['longitude']);
+        return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+      }).toList();
+
+      if (destinationsVehicles.isEmpty) {
+        filteredVehicles = [];
+        return;
+      }
+
+      const batchSize = 5; // ยิงทีละ 5 request
+      for (int i = 0; i < destinationsVehicles.length; i += batchSize) {
+        final batch = destinationsVehicles.skip(i).take(batchSize).toList();
+
+        await Future.wait(batch.map((v) async {
+          if (v['distance_cache'] != null) {
+            v['distance_text'] = v['distance_cache']['text'];
+            v['distance_value'] = v['distance_cache']['value'];
+            return;
+          }
+
+          final endLat = _parseLatLng(v['latitude']);
+          final endLng = _parseLatLng(v['longitude']);
+          final url = Uri.parse(
+              'https://router.project-osrm.org/route/v1/driving/'
+              '${widget.selectedFarmLng},${widget.selectedFarmLat};$endLng,$endLat'
+              '?overview=false');
+
+          try {
+            final res = await http.get(url);
+            if (res.statusCode == 200) {
+              final data = jsonDecode(res.body);
+              final meters = data['routes'][0]['distance'];
+              final km = meters / 1000;
+              v['distance_text'] = '${km.toStringAsFixed(2)} กม.';
+              v['distance_value'] = km;
+              v['distance_cache'] = {
+                'text': v['distance_text'],
+                'value': km,
+              };
+            } else {
+              v['distance_text'] = '-';
+              v['distance_value'] = double.infinity;
+            }
+          } catch (e) {
+            v['distance_text'] = '-';
+            v['distance_value'] = double.infinity;
+          }
+        }));
+
+        // update UI หลัง batch เสร็จ
+        setState(() {
+          filteredVehicles = List.from(destinationsVehicles);
+        });
+      }
+
+      // เรียงตามระยะทาง
+      filteredVehicles.sort((a, b) =>
+          (a['distance_value'] ?? 0).compareTo(b['distance_value'] ?? 0));
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  // Future<void> _calculateDistances() async {
+  //   if (widget.selectedFarmLat == null || widget.selectedFarmLng == null)
+  //     return;
+
+  //   setState(() => isLoading = true);
+
+  //   try {
+  //     var destinationsVehicles = allVehicles.where((v) {
+  //       final lat = _parseLatLng(v['latitude']);
+  //       final lng = _parseLatLng(v['longitude']);
+  //       return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+  //     }).toList();
+
+  //     if (destinationsVehicles.isEmpty) {
+  //       filteredVehicles = [];
+  //       return;
+  //     }
+
+  //     // ✅ ยิงพร้อมกันทั้งหมด (แต่ถ้ารถเยอะควรทำเป็น batch 10 คันต่อรอบ)
+  //     await Future.wait(destinationsVehicles.map((v) async {
+  //       if (v['distance_cache'] != null) {
+  //         v['distance_text'] = v['distance_cache']['text'];
+  //         v['distance_value'] = v['distance_cache']['value'];
+  //         return;
+  //       }
+
+  //       final endLat = _parseLatLng(v['latitude']);
+  //       final endLng = _parseLatLng(v['longitude']);
+
+  //       final url = Uri.parse(
+  //           'https://router.project-osrm.org/route/v1/driving/'
+  //           '${widget.selectedFarmLng},${widget.selectedFarmLat};$endLng,$endLat'
+  //           '?overview=false');
+
+  //       try {
+  //         final res = await http.get(url);
+  //         if (res.statusCode == 200) {
+  //           final data = jsonDecode(res.body);
+  //           final meters = data['routes'][0]['distance'];
+  //           final km = meters / 1000;
+  //           v['distance_text'] = '${km.toStringAsFixed(2)} กม.';
+  //           v['distance_value'] = km;
+  //           v['distance_cache'] = {
+  //             'text': v['distance_text'],
+  //             'value': km,
+  //           };
+  //         } else {
+  //           print('OSRM API error: ${res.body}');
+  //           v['distance_text'] = '-';
+  //           v['distance_value'] = double.infinity;
+  //         }
+  //       } catch (e) {
+  //         print("OSRM error: $e");
+  //         v['distance_text'] = '-';
+  //         v['distance_value'] = double.infinity;
+  //       }
+  //     }));
+
+  //     // ✅ เรียงตามระยะทาง
+  //     destinationsVehicles.sort((a, b) =>
+  //         (a['distance_value'] ?? 0).compareTo(b['distance_value'] ?? 0));
+
+  //     setState(() {
+  //       filteredVehicles = destinationsVehicles;
+  //     });
+  //   } finally {
+  //     setState(() => isLoading = false);
+  //   }
+  // }
 
   void _toggleDistanceOrder() {
     setState(() {
@@ -215,7 +337,15 @@ class _SearchEnterState extends State<SearchEnter> {
       currentOrder = currentOrder == "asc" ? "desc" : "asc";
     });
 
-    _calculateDistances(sort: true); // เรียงตามระยะทาง
+    if (filteredVehicles.isNotEmpty) {
+      filteredVehicles.sort((a, b) {
+        final aVal = a['distance_value'] ?? double.infinity;
+        final bVal = b['distance_value'] ?? double.infinity;
+        return currentOrder == "asc"
+            ? aVal.compareTo(bVal)
+            : bVal.compareTo(aVal);
+      });
+    }
   }
 
   void _sortByDistance() {
@@ -317,18 +447,20 @@ class _SearchEnterState extends State<SearchEnter> {
                     ],
                   ),
                 ),
+
                 Padding(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: Row(
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: _togglePriceOrder,
-                          icon: Icon(
-                            currentSortBy == "price" && currentOrder == "desc"
-                                ? Icons.arrow_upward
-                                : Icons.arrow_downward,
-                          ),
+                          // icon: Icon(
+                          //   currentSortBy == "price" && currentOrder == "desc"
+                          //       ? Icons.arrow_upward
+                          //       : Icons.arrow_downward,
+                          //   size: 12,
+                          // ),
                           label: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
@@ -336,6 +468,8 @@ class _SearchEnterState extends State<SearchEnter> {
                                   ? "ราคา: มาก → น้อย"
                                   : "ราคา: น้อย → มาก",
                               maxLines: 1,
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
@@ -343,18 +477,21 @@ class _SearchEnterState extends State<SearchEnter> {
                                 currentSortBy == "price" ? Colors.green : null,
                             foregroundColor:
                                 currentSortBy == "price" ? Colors.white : null,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero, // ไม่มีโค้ง
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: _toggleReviewOrder,
-                          icon: Icon(
-                            currentSortBy == "review" && currentOrder == "desc"
-                                ? Icons.arrow_upward
-                                : Icons.arrow_downward,
-                          ),
+                          // icon: Icon(
+                          //   currentSortBy == "review" && currentOrder == "desc"
+                          //       ? Icons.arrow_upward
+                          //       : Icons.arrow_downward,
+                          //   size: 12,
+                          // ),
                           label: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
@@ -363,6 +500,8 @@ class _SearchEnterState extends State<SearchEnter> {
                                   ? "รีวิว: มาก → น้อย"
                                   : "รีวิว: น้อย → มาก",
                               maxLines: 1,
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
@@ -370,48 +509,161 @@ class _SearchEnterState extends State<SearchEnter> {
                                 currentSortBy == "review" ? Colors.green : null,
                             foregroundColor:
                                 currentSortBy == "review" ? Colors.white : null,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
                           ),
                         ),
                       ),
-                      // Expanded(
-                      //   child: ElevatedButton.icon(
-                      //     onPressed: (userLat != null && userLng != null)
-                      //         ? _toggleDistanceOrder
-                      //         : null, // ถ้าไม่มีพิกัด ให้ปุ่มเป็น disable
-                      //     icon: Icon(
-                      //       currentSortBy == "distance" &&
-                      //               currentOrder == "desc"
-                      //           ? Icons.arrow_upward
-                      //           : Icons.arrow_downward,
-                      //     ),
-                      //     label: FittedBox(
-                      //       fit: BoxFit.scaleDown,
-                      //       child: Text(
-                      //         "ระยะทาง",
-                      //         maxLines: 1,
-                      //       ),
-                      //     ),
-                      //     style: ElevatedButton.styleFrom(
-                      //       backgroundColor: currentSortBy == "distance"
-                      //           ? Colors.green
-                      //           : null,
-                      //       foregroundColor: currentSortBy == "distance"
-                      //           ? Colors.white
-                      //           : null,
-                      //     ),
-                      //   ),
-                      // ),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: (widget.selectedFarmLat != null &&
+                                  widget.selectedFarmLng != null)
+                              ? _toggleDistanceOrder
+                              : null,
+                          // icon: Icon(
+                          //   currentSortBy == "distance" &&
+                          //           currentOrder == "desc"
+                          //       ? Icons.arrow_upward
+                          //       : Icons.arrow_downward,
+                          //   size: 12,
+                          // ),
+                          label: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              currentSortBy == "distance" &&
+                                      currentOrder == "desc"
+                                  ? "ระยะทาง: ไกล → ใกล้"
+                                  : "ระยะทาง: ใกล้ → ไกล",
+                              maxLines: 1,
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: currentSortBy == "distance"
+                                ? Colors.green
+                                : null,
+                            foregroundColor: currentSortBy == "distance"
+                                ? Colors.white
+                                : null,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
+                // Padding(
+                //   padding: const EdgeInsets.all(10.0),
+                //   child: Row(
+                //     children: [
+                //       Expanded(
+                //         child: ElevatedButton.icon(
+                //           onPressed: _togglePriceOrder,
+                //           icon: Icon(
+                //             currentSortBy == "price" && currentOrder == "desc"
+                //                 ? Icons.arrow_upward
+                //                 : Icons.arrow_downward,
+                //           ),
+                //           label: FittedBox(
+                //             fit: BoxFit.scaleDown,
+                //             child: Text(
+                //               currentSortBy == "price" && currentOrder == "desc"
+                //                   ? "ราคา: มาก → น้อย"
+                //                   : "ราคา: น้อย → มาก",
+                //               maxLines: 1,
+                //             ),
+                //           ),
+                //           style: ElevatedButton.styleFrom(
+                //             backgroundColor:
+                //                 currentSortBy == "price" ? Colors.green : null,
+                //             foregroundColor:
+                //                 currentSortBy == "price" ? Colors.white : null,
+                //           ),
+                //         ),
+                //       ),
+                //       const SizedBox(width: 12),
+                //       Expanded(
+                //         child: ElevatedButton.icon(
+                //           onPressed: _toggleReviewOrder,
+                //           icon: Icon(
+                //             currentSortBy == "review" && currentOrder == "desc"
+                //                 ? Icons.arrow_upward
+                //                 : Icons.arrow_downward,
+                //           ),
+                //           label: FittedBox(
+                //             fit: BoxFit.scaleDown,
+                //             child: Text(
+                //               currentSortBy == "review" &&
+                //                       currentOrder == "desc"
+                //                   ? "รีวิว: มาก → น้อย"
+                //                   : "รีวิว: น้อย → มาก",
+                //               maxLines: 1,
+                //             ),
+                //           ),
+                //           style: ElevatedButton.styleFrom(
+                //             backgroundColor:
+                //                 currentSortBy == "review" ? Colors.green : null,
+                //             foregroundColor:
+                //                 currentSortBy == "review" ? Colors.white : null,
+                //           ),
+                //         ),
+                //       ),
+                //       const SizedBox(width: 12),
+                //       Expanded(
+                //         child: ElevatedButton.icon(
+                //           onPressed: (widget.selectedFarmLat != null &&
+                //                   widget.selectedFarmLng != null)
+                //               ? _toggleDistanceOrder
+                //               : null, // ถ้าไม่มี farm ให้ปุ่ม disable
+                //           icon: Icon(
+                //             currentSortBy == "distance" &&
+                //                     currentOrder == "desc"
+                //                 ? Icons.arrow_upward
+                //                 : Icons.arrow_downward,
+                //           ),
+                //           label: FittedBox(
+                //             fit: BoxFit.scaleDown,
+                //             child: Text(
+                //               currentSortBy == "distance" &&
+                //                       currentOrder == "desc"
+                //                   ? "ระยะทาง: ไกล → ใกล้"
+                //                   : "ระยะทาง: ใกล้ → ไกล",
+                //               maxLines: 1,
+                //             ),
+                //           ),
+                //           style: ElevatedButton.styleFrom(
+                //             backgroundColor: currentSortBy == "distance"
+                //                 ? Colors.green
+                //                 : null,
+                //             foregroundColor: currentSortBy == "distance"
+                //                 ? Colors.white
+                //                 : null,
+                //           ),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
                 const SizedBox(height: 16),
+                // Expanded(
+                //   child: vehicles.isEmpty
+                //       ? const Center(child: Text('ไม่พบผลลัพธ์'))
+                //       : ListView.builder(
+                //           itemCount: vehicles.length,
+                //           itemBuilder: (context, index) {
+                //             final v = vehicles[index];
                 Expanded(
-                  child: vehicles.isEmpty
+                  child: filteredVehicles.isEmpty
                       ? const Center(child: Text('ไม่พบผลลัพธ์'))
                       : ListView.builder(
-                          itemCount: vehicles.length,
+                          itemCount: filteredVehicles.length,
                           itemBuilder: (context, index) {
-                            final v = vehicles[index];
+                            final v = filteredVehicles[
+                                index]; // <-- ใช้ filteredVehicles
 
                             return Padding(
                               padding: const EdgeInsets.fromLTRB(15, 0, 15, 25),

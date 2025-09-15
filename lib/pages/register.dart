@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
@@ -106,10 +107,19 @@ class _RegisterState extends State<Register> {
         scrollToFocus(confirmPasswordFocus);
         return;
       }
-      if (phoneController.text.isEmpty) {
-        scrollToFocus(phoneFocus);
+      // if (phoneController.text.length < 10) {
+      //   scrollToFocus(phoneFocus);
+      //   return;
+      // }
+      if (!_formKey.currentState!.validate()) {
+        // focus ไปยังช่องแรกที่มี error
+        if (phoneController.text.length < 10) {
+          scrollToFocus(phoneFocus);
+          return;
+        }
         return;
       }
+
       if (selectedProvince == null) {
         scrollToFocus(provinceFocus);
         return;
@@ -145,43 +155,23 @@ class _RegisterState extends State<Register> {
 
     setState(() => isLoading = true);
 
-    // final email = emailController.text;
+    // // final email = emailController.text;
+    // // final emailIsValid = await isRealEmail(email);
+    // final email = emailController.text.trim();
     // final emailIsValid = await isRealEmail(email);
 
     // if (!emailIsValid) {
-    //   setState(() => isLoading = false);
-    //   showDialog(
-    //     context: context,
-    //     builder: (_) => AlertDialog(
-    //       title: const Text('อีเมลไม่ถูกต้อง'),
-    //       content: const Text(
-    //           'อีเมลนี้ไม่สามารถรับส่งข้อความได้จริง กรุณากรอกอีเมลอื่น'),
-    //       actions: [
-    //         TextButton(
-    //           onPressed: () => Navigator.pop(context),
-    //           child: const Text('ตกลง'),
-    //         ),
-    //       ],
-    //     ),
-    //   );
+    //   setState(() {
+    //     isLoading = false;
+    //     emailError = 'อีเมลนี้ไม่ใช่อีเมลจริงหรือเคยใช้สมัครแล้ว?';
+    //   });
+    //   scrollToFocus(emailFocus); // เลื่อนโฟกัสมาช่องอีเมล
     //   return;
+    // } else {
+    //   setState(() {
+    //     emailError = null; // เคลียร์ error ถ้าอีเมลถูกต้อง
+    //   });
     // }
-
-    final email = emailController.text;
-    final emailIsValid = await isRealEmail(email);
-
-    if (!emailIsValid) {
-      setState(() {
-        isLoading = false;
-        emailError = 'อีเมลนี้ไม่ใช่อีเมลจริงหรือเคยใช้สมัครแล้ว?';
-      });
-      scrollToFocus(emailFocus); // เลื่อนโฟกัสมาช่องอีเมล
-      return;
-    } else {
-      setState(() {
-        emailError = null; // เคลียร์ error ถ้าอีเมลถูกต้อง
-      });
-    }
 
     if (typeMember == null) {
       setState(() => isLoading = false);
@@ -205,6 +195,25 @@ class _RegisterState extends State<Register> {
         ),
       );
       return;
+    }
+    final email = emailController.text.trim();
+    final emailIsValid = await isRealEmail(email);
+
+    if (emailIsValid == false) {
+      setState(() {
+        isLoading = false;
+        emailError = 'อีเมลนี้ไม่สามารถใช้งานได้';
+      });
+      scrollToFocus(emailFocus);
+      return;
+    } else if (emailIsValid == null) {
+      setState(() {
+        emailError = '⚠️ ตรวจสอบอีเมลไม่สำเร็จ (จะลองสมัครต่อไป)';
+      });
+    } else {
+      setState(() {
+        emailError = null; // ถูกต้อง
+      });
     }
 
     final url =
@@ -357,8 +366,11 @@ class _RegisterState extends State<Register> {
     }
   }
 
-// ฟังก์ชันตรวจสอบอีเมลจริงด้วย Abstract API
-  Future<bool> isRealEmail(String email) async {
+  String? lastValidatedEmail;
+  bool lastValidationResult = false;
+
+  Future<bool?> isRealEmail(String email) async {
+    email = email.trim();
     const apiKey = 'f1be6dd55f1043dd9fb0794725d344a1';
     final url = Uri.parse(
         'https://emailvalidation.abstractapi.com/v1/?api_key=$apiKey&email=$email');
@@ -367,14 +379,33 @@ class _RegisterState extends State<Register> {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // เช็คค่า deliverability ว่าส่งได้จริงไหม
         return data['deliverability'] == 'DELIVERABLE';
+      } else {
+        return null; // API ตอบผิดปกติ
       }
     } catch (e) {
-      print("Error validating email: $e");
+      return null; // API ล่ม
     }
-    return false;
   }
+
+// // ฟังก์ชันตรวจสอบอีเมลจริงด้วย Abstract API
+//   Future<bool> isRealEmail(String email) async {
+//     const apiKey = 'f1be6dd55f1043dd9fb0794725d344a1';
+//     final url = Uri.parse(
+//         'https://emailvalidation.abstractapi.com/v1/?api_key=$apiKey&email=$email');
+
+//     try {
+//       final response = await http.get(url);
+//       if (response.statusCode == 200) {
+//         final data = jsonDecode(response.body);
+//         // เช็คค่า deliverability ว่าส่งได้จริงไหม
+//         return data['deliverability'] == 'DELIVERABLE';
+//       }
+//     } catch (e) {
+//       print("Error validating email: $e");
+//     }
+//     return false;
+//   }
 
   void goToMapPage() async {
     // ไปหน้าแผนที่เพื่อเลือกพิกัด (สร้างหน้า MapPage ไว้แยก)
@@ -667,7 +698,21 @@ class _RegisterState extends State<Register> {
                             keyboardType: TextInputType.number,
                             maxLength: 10,
                             focusNode: phoneFocus,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'กรุณากรอกเบอร์โทร *';
+                              }
+                              if (value.length < 10) {
+                                return 'เบอร์โทรต้องมีอย่างน้อย 10 ตัวอักษร';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              _formKey.currentState
+                                  ?.validate(); // ตรวจสอบใหม่ทุกครั้งที่เปลี่ยน
+                            },
                           ),
+
                           _buildDropdown(
                               "จังหวัด *", selectedProvince, provinces,
                               (value) {

@@ -29,6 +29,35 @@ class _DetailReservingState extends State<DetailReserving> {
   void initState() {
     super.initState();
     fetchDetail();
+    _pollProgress(); // เริ่ม long polling
+  }
+
+  Future<void> _pollProgress() async {
+    final url =
+        Uri.parse('http://projectnodejs.thammadalok.com/AGribooking/long-poll');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['event'] == 'update_progress') {
+          setState(() {
+            progress_status = data['data']['progress_status'];
+            fetchDetail();
+          });
+        }
+        if (data['event'] == 'member_updated') {
+          setState(() {
+            fetchDetail();
+          });
+        }
+      }
+    } catch (e) {
+      print('❌ Long polling error: $e');
+    } finally {
+      // เรียกซ้ำเพื่อรอ event ใหม่
+      Future.delayed(const Duration(milliseconds: 500), _pollProgress);
+    }
   }
 
   Future<void> fetchVehicleDetail() async {

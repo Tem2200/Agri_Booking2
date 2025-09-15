@@ -252,14 +252,13 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data['event'] == 'update_progress' && data['rsid'] == widget.rsid) {
+        if (data['event'] == 'update_progress') {
           setState(() {
             progress_status = data['data']['progress_status'];
             fetchDetail();
           });
         }
-        if (data['event'] == 'member_updated' &&
-            data['mid'] == data['data']['mid']) {
+        if (data['event'] == 'member_updated') {
           setState(() {
             fetchDetail();
           });
