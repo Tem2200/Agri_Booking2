@@ -375,7 +375,7 @@ class _AddVehicleState extends State<AddVehicle> {
                             const SizedBox(width: 16),
                             Expanded(
                               child: DropdownButtonFormField<String>(
-                                value: selectedUnit,
+                                initialValue: selectedUnit,
                                 decoration: const InputDecoration(
                                   filled: true, // ✅ เปิดการเติมสีพื้นหลัง
                                   fillColor: Colors

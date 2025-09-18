@@ -1,13 +1,10 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/ForgetPassword.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
-import 'package:agri_booking2/pages/contactor/home.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
-import 'package:agri_booking2/pages/employer/homeEmp.dart';
 import 'package:agri_booking2/pages/register.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 class Login extends StatefulWidget {

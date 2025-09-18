@@ -280,7 +280,7 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: selectedProvince,
+                initialValue: selectedProvince,
                 decoration: customInputDecoration('จังหวัด*'),
                 items: provinces
                     .map((e) => DropdownMenuItem(
@@ -308,7 +308,7 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: selectedAmphoe,
+                initialValue: selectedAmphoe,
                 decoration: customInputDecoration('อำเภอ*'),
                 items: amphoes
                     .map((e) => DropdownMenuItem(
@@ -335,7 +335,7 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: selectedDistrict,
+                initialValue: selectedDistrict,
                 decoration: customInputDecoration('ตำบล*'),
                 items: districts
                     .map((e) => DropdownMenuItem(
@@ -360,7 +360,7 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: selectedUnit,
+                initialValue: selectedUnit,
                 decoration: customInputDecoration('หน่วยพื้นที่*'),
                 items: unitOptions
                     .map((e) => DropdownMenuItem(

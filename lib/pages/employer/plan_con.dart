@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:agri_booking2/pages/contactor/DetailWork.dart';
 import 'package:agri_booking2/pages/employer/reservingForNF.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

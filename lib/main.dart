@@ -1,68 +1,18 @@
 import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'dart:async';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:agri_booking2/pages/login.dart';
+// import 'package:firebase_core/firebase_core.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-// Future<void> _backgroundMessaginf(RemoteMessage message) async {
-//   print("Handling a background message: ${message.messageId}");
-// }
-
 List<dynamic> bookings = [];
 late Timer _timer;
 
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await Firebase.initializeApp();
-
-//   final prefs = await SharedPreferences.getInstance();
-//   final mid = prefs.getInt('mid');
-//   final type = prefs.getInt('type_member');
-
-//   if (type == 2 && mid != null) {
-//     // contractor subscribe topic
-//     await FirebaseMessaging.instance.subscribeToTopic("user_$mid");
-//   }
-
-//   Widget startPage;
-
-//   if (mid == null || type == null) {
-//     startPage = const Login();
-//   } else {
-//     int currentMonth = DateTime.now().month;
-//     int currentYear = DateTime.now().year;
-
-//     if (type == 1) {
-//       startPage = TabbarCar(
-//         mid: mid,
-//         value: 0,
-//         month: currentMonth,
-//         year: currentYear,
-//       );
-//     } else if (type == 2) {
-//       startPage = Tabbar(
-//         mid: mid,
-//         value: 0,
-//         month: currentMonth,
-//         year: currentYear,
-//       );
-//     } else {
-//       startPage = const Login();
-//     }
-//   }
-
-//   runApp(MyApp(home: startPage));
-// }
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // await Firebase.initializeApp();
 
   runApp(const MyApp());
 }

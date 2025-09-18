@@ -1344,7 +1344,7 @@ class _HomePageState extends State<HomePage> {
                                               updateVehicleStatus(
                                                   vid, newStatus);
                                             },
-                                            activeColor: Colors.white,
+                                            activeThumbColor: Colors.white,
                                             activeTrackColor: Colors.green,
                                             inactiveThumbColor: Colors.white,
                                             inactiveTrackColor:

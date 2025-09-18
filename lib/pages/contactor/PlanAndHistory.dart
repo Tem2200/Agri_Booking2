@@ -8,7 +8,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class PlanAndHistory extends StatefulWidget {
   final int mid;
@@ -42,7 +41,6 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
 
   // 💡 ตัวแปรใหม่สำหรับสถานะการกรองงาน
   int? _selectedStatus = -1; // -1 หมายถึงดูทุกสถานะ
-  late IO.Socket _socket;
   final StreamController<List<dynamic>> _scheduleController =
       StreamController.broadcast();
   @override
@@ -1134,8 +1132,8 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
+      child: const Padding(
+        padding: EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1188,8 +1186,9 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
                       final status = e['progress_status'];
                       if (status == 4) return false;
                       if (_selectedStatus == -1) return true; // งานทั้งหมด
-                      if (_selectedStatus == null)
+                      if (_selectedStatus == null) {
                         return status == null; // รอการยืนยัน
+                      }
                       return status == _selectedStatus; // สถานะอื่น ๆ
                     }).toList();
                     filteredEvents.sort((a, b) =>

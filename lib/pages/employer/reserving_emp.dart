@@ -486,7 +486,7 @@ class _ReservingEmpState extends State<ReservingEmp> {
                             fontWeight: FontWeight.bold, fontSize: 18)),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<dynamic>(
-                      value: selectedFarm,
+                      initialValue: selectedFarm,
                       decoration: const InputDecoration(
                         labelText: 'เลือกฟาร์ม',
                         border: OutlineInputBorder(),
@@ -685,7 +685,7 @@ class _ReservingEmpState extends State<ReservingEmp> {
                         ),
                         const SizedBox(height: 16),
                         DropdownButtonFormField<String>(
-                          value: selectedUnit,
+                          initialValue: selectedUnit,
                           items: unitOptions.map((String value) {
                             return DropdownMenuItem<String>(
                               value: value,

@@ -712,7 +712,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
           ),
           const SizedBox(height: 6),
           DropdownButtonFormField<String>(
-            value: value,
+            initialValue: value,
             items: items
                 .map((e) => DropdownMenuItem(
                       value: e,

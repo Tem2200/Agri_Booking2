@@ -2,11 +2,9 @@ import 'dart:convert';
 import 'package:agri_booking2/pages/employer/ProfileCon.dart';
 import 'package:agri_booking2/pages/employer/plan_con.dart';
 import 'package:agri_booking2/pages/employer/reservingForNF.dart';
-import 'package:agri_booking2/pages/employer/reserving_emp.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/painting.dart';
 import 'package:intl/intl.dart';
 
 class DetailvehcEmp extends StatefulWidget {

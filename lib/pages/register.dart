@@ -993,7 +993,7 @@ class _RegisterState extends State<Register> {
                 ),
               ),
               DropdownButtonFormField<String>(
-                value: value,
+                initialValue: value,
                 focusNode: focusNode,
                 decoration: InputDecoration(
                   // ลบ labelText ออก เพราะเรากำหนดชื่อช่องไว้แยกแล้ว

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:agri_booking2/pages/employer/DetailVehc_emp.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/searchEnter.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_slider/carousel_slider.dart' as cs;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
@@ -128,7 +128,9 @@ class _SearchEmpState extends State<SearchEmp> {
   Future<void> _calculateDistances() async {
     if (selectedFarm == null ||
         selectedFarmLat == null ||
-        selectedFarmLng == null) return;
+        selectedFarmLng == null) {
+      return;
+    }
 
     setState(() => isLoading = true);
 
@@ -409,8 +411,8 @@ class _SearchEmpState extends State<SearchEmp> {
               child: Column(
                 children: [
                   // 🔄 สไลด์โชว์ภาพ
-                  CarouselSlider(
-                    options: CarouselOptions(
+                  cs.CarouselSlider(
+                    options: cs.CarouselOptions(
                       height: 140,
                       autoPlay: true,
                       enlargeCenterPage: true,

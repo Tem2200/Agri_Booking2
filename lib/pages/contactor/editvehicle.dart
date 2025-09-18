@@ -398,7 +398,7 @@ class _EditVehicleState extends State<EditVehicle> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: DropdownButtonFormField<String>(
-                                    value: selectedUnit ?? 'ไร่',
+                                    initialValue: selectedUnit ?? 'ไร่',
                                     decoration: const InputDecoration(
                                       filled: true, // ✅ เปิดการเติมสีพื้นหลัง
                                       fillColor: Colors

@@ -612,7 +612,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      value: selectedUnit,
+                      initialValue: selectedUnit,
                       items: unitOptions.map((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
@@ -673,7 +673,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<dynamic>(
-                      value: selectedFarm,
+                      initialValue: selectedFarm,
                       decoration: const InputDecoration(
                         labelText: 'เลือกที่นา*',
                         border: OutlineInputBorder(),
