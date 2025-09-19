@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:ui';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 

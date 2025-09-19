@@ -8,7 +8,7 @@ import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:google_fonts/google_fonts.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 List<dynamic> bookings = [];
-late Timer _timer;
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

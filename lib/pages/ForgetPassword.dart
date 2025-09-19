@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
-import 'package:agri_booking2/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
@@ -68,7 +67,6 @@ class _ForgetpasswordState extends State<Forgetpassword> {
         body: jsonEncode({"email": email, "newPassword": newPassword}),
       );
 
-      String msg = response.body;
 
       showDialog(
         context: context,
