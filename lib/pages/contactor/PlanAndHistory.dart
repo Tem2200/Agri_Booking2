@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:agri_booking2/pages/contactor/DetailWork.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:flutter/material.dart';
@@ -1131,8 +1132,8 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
           ),
         ],
       ),
-      child: const Padding(
-        padding: EdgeInsets.all(10.0),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1185,9 +1186,8 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
                       final status = e['progress_status'];
                       if (status == 4) return false;
                       if (_selectedStatus == -1) return true; // งานทั้งหมด
-                      if (_selectedStatus == null) {
+                      if (_selectedStatus == null)
                         return status == null; // รอการยืนยัน
-                      }
                       return status == _selectedStatus; // สถานะอื่น ๆ
                     }).toList();
                     filteredEvents.sort((a, b) =>

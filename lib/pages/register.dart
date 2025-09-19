@@ -100,7 +100,7 @@ class _RegisterState extends State<Register> {
         scrollToFocus(confirmPasswordFocus);
         return;
       }
-      if (phoneController.text.isEmpty) {
+      if (phoneController.text.length < 10) {
         scrollToFocus(phoneFocus);
         return;
       }
@@ -139,27 +139,7 @@ class _RegisterState extends State<Register> {
 
     setState(() => isLoading = true);
 
-    final email = emailController.text;
-    final emailIsValid = await isRealEmail(email);
 
-    if (!emailIsValid) {
-      setState(() => isLoading = false);
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('อีเมลไม่ถูกต้อง'),
-          content: const Text(
-              'อีเมลนี้ไม่สามารถรับส่งข้อความได้จริง กรุณากรอกอีเมลอื่น'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('ตกลง'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
 
     if (typeMember == null) {
       setState(() => isLoading = false);
@@ -180,6 +160,28 @@ class _RegisterState extends State<Register> {
         builder: (_) => const AlertDialog(
           title: Text('ข้อผิดพลาด'),
           content: Text('กรุณาเลือกตำแหน่งจากแผนที่'),
+        ),
+      );
+      return;
+    }
+
+        final email = emailController.text;
+    final emailIsValid = await isRealEmail(email);
+
+    if (!emailIsValid) {
+      setState(() => isLoading = false);
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('อีเมลไม่ถูกต้อง'),
+          content: const Text(
+              'อีเมลนี้ไม่สามารถรับส่งข้อความได้จริง กรุณากรอกอีเมลอื่น'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('ตกลง'),
+            ),
+          ],
         ),
       );
       return;

@@ -226,10 +226,11 @@ class _MapRegisterState extends State<MapRegister> {
                     final location = locations[index];
                     final placemark = placemarks[index];
                     return ListTile(
-                      title: Text(placemark.name ?? 'ไม่ทราบชื่อสถานที่'),
-                      subtitle: Text([
-                        placemark.subLocality,
+                      // title:
+                      //     Text(placemark.subLocality ?? 'ไม่ทราบชื่อสถานที่'),
+                      title: Text([
                         placemark.locality,
+                        placemark.subLocality,
                         placemark.administrativeArea,
                         placemark.country,
                       ].where((s) => s != null && s.isNotEmpty).join(', ')),

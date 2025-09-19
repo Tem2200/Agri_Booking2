@@ -2,6 +2,7 @@ import 'package:agri_booking2/pages/employer/homeEmp.dart';
 import 'package:agri_booking2/pages/employer/plan_emp.dart';
 import 'package:agri_booking2/pages/employer/search_emp.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Tabbar extends StatefulWidget {
   final int value;
@@ -34,6 +35,12 @@ class _TabbarCarState extends State<Tabbar> {
     _displayYear = widget.year;
     value = widget.value;
     switchPage(value);
+    _saveLastPage();
+  }
+
+  Future<void> _saveLastPage() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_page', 'Tabbar');
   }
 
   void switchPage(int index) {

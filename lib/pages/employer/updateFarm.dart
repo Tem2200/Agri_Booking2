@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/employer/map_farms.dart';
 import 'package:agri_booking2/pages/map_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -279,7 +280,7 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: selectedProvince,
+                value: selectedProvince,
                 decoration: customInputDecoration('จังหวัด*'),
                 items: provinces
                     .map((e) => DropdownMenuItem(
@@ -307,7 +308,7 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: selectedAmphoe,
+                value: selectedAmphoe,
                 decoration: customInputDecoration('อำเภอ*'),
                 items: amphoes
                     .map((e) => DropdownMenuItem(
@@ -334,7 +335,7 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: selectedDistrict,
+                value: selectedDistrict,
                 decoration: customInputDecoration('ตำบล*'),
                 items: districts
                     .map((e) => DropdownMenuItem(
@@ -359,7 +360,7 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: selectedUnit,
+                value: selectedUnit,
                 decoration: customInputDecoration('หน่วยพื้นที่*'),
                 items: unitOptions
                     .map((e) => DropdownMenuItem(

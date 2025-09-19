@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/contactor/DetailVehicle.dart';
@@ -8,6 +9,7 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 //defjrogtgt
 class HomePage extends StatefulWidget {
@@ -26,6 +28,9 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
   late int _currentMid;
   String? error;
+  List<int> countReporter = [];
+  late StreamController<List<dynamic>> _reviewStreamController;
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +39,13 @@ class _HomePageState extends State<HomePage> {
     _reviewFuture = fetchReviews(widget.mid);
     print(_reviewFuture);
     _currentMid = widget.mid; // ✅ ตั้งค่าก่อน
+    _reviewStreamController = StreamController<List<dynamic>>.broadcast();
+
+    // ✅ โหลดรีวิวแรก
+    fetchReviews(widget.mid).then((reviews) {
+      print("โหลดรีวิวครั้งแรก: $reviews"); // debug
+      _reviewStreamController.add(reviews);
+    });
     _startLongPolling();
   }
 
@@ -69,99 +81,70 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // --- เพิ่มฟังก์ชันสำหรับอัปเดตสถานะรถ ---
   Future<void> updateVehicleStatus(int vid, int status) async {
-    final url = Uri.parse(
-        'http://projectnodejs.thammadalok.com/AGribooking/update_status_vehicle');
-    try {
-      final response = await http.put(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'vid': vid,
-          'status_vehicle': status,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        print('อัปเดตสถานะรถ VID: $vid เป็นสถานะ: $status สำเร็จ');
-
-        final confirm = await showDialog<bool>(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Center(
-                child: Text(
-                  'ยืนยันการเปลี่ยนสถานะ',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+    // 1️⃣ แสดง Dialog เพื่อถามผู้ใช้ก่อน
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Center(
+            child: Text(
+              'ยืนยันการเปลี่ยนสถานะ',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+          ),
+          content: Text(
+            'คุณต้องการอัปเดตสถานะรถเป็น\n"${status == 1 ? 'ให้บริการ' : 'งดให้บริการ'}"\nสำหรับรถคันนี้ใช่หรือไม่?',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text(
+                'ยกเลิก',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.redAccent,
                 ),
               ),
-              content: Text(
-                'คุณต้องการอัปเดตสถานะรถเป็น\n"${status == 1 ? 'ให้บริการ' : 'งดให้บริการ'}"\nสำหรับรถคันนี้ใช่หรือไม่?',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(width: 12),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text(
+                'ยืนยัน',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.green,
+                ),
               ),
-              actionsAlignment: MainAxisAlignment.center,
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text(
-                    'ยกเลิก',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.redAccent,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text(
-                    'ยืนยัน',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.green,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
+            ),
+          ],
+        );
+      },
+    );
+
+    // 2️⃣ ถ้าผู้ใช้กดยืนยัน ค่อยส่ง API
+    if (confirm == true) {
+      try {
+        final url = Uri.parse(
+            'http://projectnodejs.thammadalok.com/AGribooking/update_status_vehicle');
+        final response = await http.put(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'vid': vid,
+            'status_vehicle': status,
+          }),
         );
 
-        if (confirm == true) {
-          // await showDialog(
-          //   context: context,
-          //   builder: (context) {
-          //     return AlertDialog(
-          //       title: const Center(
-          //         child: Text(
-          //           'สำเร็จ',
-          //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-          //         ),
-          //       ),
-          //       content: Text(
-          //         'อัปเดตสถานะรถสำเร็จ:\n${status == 1 ? 'ให้บริการ' : 'งดให้บริการ'}',
-          //         textAlign: TextAlign.center,
-          //         style: const TextStyle(fontSize: 16),
-          //       ),
-          //       actionsAlignment: MainAxisAlignment.center,
-          //       actions: [
-          //         TextButton(
-          //           onPressed: () => Navigator.of(context).pop(),
-          //           child: const Text(
-          //             'ตกลง',
-          //             style: TextStyle(
-          //               fontWeight: FontWeight.w600,
-          //               color: Colors.green,
-          //             ),
-          //           ),
-          //         ),
-          //       ],
-          //     );
-          //   },
+        if (response.statusCode == 200) {
+          print('อัปเดตสถานะรถ VID: $vid เป็นสถานะ: $status สำเร็จ');
+
           Flushbar(
             title: 'สำเร็จ',
             message: status == 1 ? 'สถานะ: ให้บริการ' : 'สถานะ: งดให้บริการ',
@@ -190,70 +173,227 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             _vehicleListFuture = fetchVehicles(widget.mid);
           });
-        }
-      } else {
-        print(
-          'Error updating status for VID: $vid. Status: ${response.statusCode}, Body: ${response.body}',
-        );
+        } else {
+          print(
+            'Error updating status for VID: $vid. Status: ${response.statusCode}, Body: ${response.body}',
+          );
 
-        await showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'ไม่สามารถปิดให้บริการได้',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+          // แสดง Dialog แจ้งว่าปิดสถานะไม่ได้
+          await showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'ไม่สามารถปิดให้บริการได้',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Image.network(
-                    'https://symbl-cdn.com/i/webp/c1/d9d88630432cf61ad335df98ce37d6.webp', // << เปลี่ยนลิงก์ตรงนี้
-                    height: 50,
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'รถคันนี้ยังมีงานที่รอดำเนินการอยู่',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 15),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'กรุณาจัดการคิวงานให้เรียบร้อยก่อนจึงจะสามารถ "ปิดสถานะให้บริการ"ได้',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12),
+                    const SizedBox(height: 12),
+                    Image.network(
+                      'https://symbl-cdn.com/i/webp/c1/d9d88630432cf61ad335df98ce37d6.webp',
+                      height: 50,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'รถคันนี้ยังมีงานที่รอดำเนินการอยู่',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 15),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'กรุณาจัดการคิวงานให้เรียบร้อยก่อนจึงจะสามารถ "ปิดสถานะให้บริการ"ได้',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+                actionsAlignment: MainAxisAlignment.center,
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text(
+                      'ตกลง',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
                   ),
                 ],
-              ),
-              actionsAlignment: MainAxisAlignment.center,
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text(
-                    'ตกลง',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
+              );
+            },
+          );
+        }
+      } catch (e) {
+        print('Error sending update request: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('เกิดข้อผิดพลาดในการเชื่อมต่อ: $e')),
         );
       }
-    } catch (e) {
-      print('Error sending update request: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('เกิดข้อผิดพลาดในการเชื่อมต่อ: $e')),
-      );
     }
   }
+
+  // // --- เพิ่มฟังก์ชันสำหรับอัปเดตสถานะรถ ---
+  // Future<void> updateVehicleStatus(int vid, int status) async {
+  //   final url = Uri.parse(
+  //       'http://projectnodejs.thammadalok.com/AGribooking/update_status_vehicle');
+  //   try {
+  //     final response = await http.put(
+  //       url,
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode({
+  //         'vid': vid,
+  //         'status_vehicle': status,
+  //       }),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       print('อัปเดตสถานะรถ VID: $vid เป็นสถานะ: $status สำเร็จ');
+
+  //       final confirm = await showDialog<bool>(
+  //         context: context,
+  //         builder: (context) {
+  //           return AlertDialog(
+  //             title: const Center(
+  //               child: Text(
+  //                 'ยืนยันการเปลี่ยนสถานะ',
+  //                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+  //               ),
+  //             ),
+  //             content: Text(
+  //               'คุณต้องการอัปเดตสถานะรถเป็น\n"${status == 1 ? 'ให้บริการ' : 'งดให้บริการ'}"\nสำหรับรถคันนี้ใช่หรือไม่?',
+  //               textAlign: TextAlign.center,
+  //               style: const TextStyle(fontSize: 16),
+  //             ),
+  //             actionsAlignment: MainAxisAlignment.center,
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () => Navigator.of(context).pop(false),
+  //                 child: const Text(
+  //                   'ยกเลิก',
+  //                   style: TextStyle(
+  //                     fontSize: 14,
+  //                     fontWeight: FontWeight.w600,
+  //                     color: Colors.redAccent,
+  //                   ),
+  //                 ),
+  //               ),
+  //               const SizedBox(width: 12),
+  //               TextButton(
+  //                 onPressed: () => Navigator.of(context).pop(true),
+  //                 child: const Text(
+  //                   'ยืนยัน',
+  //                   style: TextStyle(
+  //                     fontSize: 14,
+  //                     fontWeight: FontWeight.w600,
+  //                     color: Colors.green,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+
+  //       if (confirm == true) {
+  //         Flushbar(
+  //           title: 'สำเร็จ',
+  //           message: status == 1 ? 'สถานะ: ให้บริการ' : 'สถานะ: งดให้บริการ',
+  //           duration: const Duration(seconds: 3),
+  //           backgroundColor: Colors.green.shade600,
+  //           flushbarPosition: FlushbarPosition.TOP,
+  //           margin: const EdgeInsets.all(8),
+  //           borderRadius: BorderRadius.circular(8),
+  //           icon: const Icon(Icons.check_circle, color: Colors.white),
+  //           shouldIconPulse: false,
+  //           titleText: const Text(
+  //             'สำเร็จ',
+  //             style: TextStyle(
+  //               fontWeight: FontWeight.bold,
+  //               fontSize: 18,
+  //               color: Colors.white,
+  //             ),
+  //           ),
+  //           messageText: Text(
+  //             status == 1 ? 'สถานะ:ให้บริการ' : 'สถานะ: งดให้บริการ',
+  //             style: const TextStyle(color: Colors.white, fontSize: 15),
+  //           ),
+  //         ).show(context);
+
+  //         // โหลดข้อมูลรถใหม่
+  //         setState(() {
+  //           _vehicleListFuture = fetchVehicles(widget.mid);
+  //         });
+  //       }
+  //     } else {
+  //       print(
+  //         'Error updating status for VID: $vid. Status: ${response.statusCode}, Body: ${response.body}',
+  //       );
+
+  //       await showDialog(
+  //         context: context,
+  //         builder: (context) {
+  //           return AlertDialog(
+  //             content: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 const Text(
+  //                   'ไม่สามารถปิดให้บริการได้',
+  //                   textAlign: TextAlign.center,
+  //                   style: TextStyle(
+  //                     fontWeight: FontWeight.bold,
+  //                     fontSize: 16,
+  //                   ),
+  //                 ),
+  //                 const SizedBox(height: 12),
+  //                 Image.network(
+  //                   'https://symbl-cdn.com/i/webp/c1/d9d88630432cf61ad335df98ce37d6.webp', // << เปลี่ยนลิงก์ตรงนี้
+  //                   height: 50,
+  //                 ),
+  //                 const SizedBox(height: 12),
+  //                 const Text(
+  //                   'รถคันนี้ยังมีงานที่รอดำเนินการอยู่',
+  //                   textAlign: TextAlign.center,
+  //                   style: TextStyle(fontSize: 15),
+  //                 ),
+  //                 const SizedBox(height: 12),
+  //                 const Text(
+  //                   'กรุณาจัดการคิวงานให้เรียบร้อยก่อนจึงจะสามารถ "ปิดสถานะให้บริการ"ได้',
+  //                   textAlign: TextAlign.center,
+  //                   style: TextStyle(fontSize: 12),
+  //                 ),
+  //               ],
+  //             ),
+  //             actionsAlignment: MainAxisAlignment.center,
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () => Navigator.of(context).pop(),
+  //                 child: const Text(
+  //                   'ตกลง',
+  //                   style: TextStyle(
+  //                     fontWeight: FontWeight.bold,
+  //                     color: Colors.green,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     }
+  //   } catch (e) {
+  //     print('Error sending update request: $e');
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('เกิดข้อผิดพลาดในการเชื่อมต่อ: $e')),
+  //     );
+  //   }
+  // }
 
   Future<Map<String, dynamic>> updateTypeMember(int mid, int typeMember) async {
     final url = Uri.parse(
@@ -378,13 +518,16 @@ class _HomePageState extends State<HomePage> {
         final response = await http.get(url);
         if (response.statusCode == 200 && response.body.isNotEmpty) {
           final data = jsonDecode(response.body);
-          if (data['event'] == 'review_added' &&
-              data['mid_reviewed'].toString() == widget.mid.toString()) {
-            // โหลดรีวิวใหม่
-            setState(() {
-              _reviewFuture = fetchReviews(widget.mid);
-            });
-          }
+          print('Long poll data: $data'); // เพิ่มบรรทัดนี้
+          // if (data['event'] == 'review_added' &&
+          //     data['mid_reviewed'] == widget.mid) {
+          //   final newReviews = await fetchReviews(widget.mid);
+          //   print("รีวิวใหม่เข้ามา: $newReviews");
+          //   _reviewStreamController.add(newReviews); // ✅ add เข้า stream
+          // }
+          setState(() {
+            _reviewFuture = fetchReviews(widget.mid);
+          });
         }
       } catch (e) {
         // อาจ log error ได้
@@ -393,22 +536,72 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // ฟังก์ชันสำหรับดึงข้อมูลรีวิว
+  // // ฟังก์ชันสำหรับดึงข้อมูลรีวิว
+  // Future<List<dynamic>> fetchReviews(int mid) async {
+  //   final url = Uri.parse(
+  //       'http://projectnodejs.thammadalok.com/AGribooking/get_reviewed/$mid');
+  //   print('Fetching reviews from URL: $url'); // สำหรับ Debug
+
+  //   try {
+  //     final response = await http.get(url);
+  //     if (response.statusCode == 200) {
+  //       if (response.body.isNotEmpty) {
+  //         final List data = jsonDecode(response.body);
+  //         print('Fetched review data: $data'); // สำหรับ Debug
+  //         return data;
+  //       } else {
+  //         print('API returned empty body for reviews.');
+  //         return []; // คืนค่า list ว่างเปล่าถ้าไม่มีข้อมูล
+  //       }
+  //     } else {
+  //       print(
+  //           'Failed to load reviews. Status: ${response.statusCode}, Body: ${response.body}');
+  //       throw Exception('Failed to load reviews: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching reviews: $e');
+  //     throw Exception('Failed to connect to review server: $e');
+  //   }
+  // }
+
   Future<List<dynamic>> fetchReviews(int mid) async {
     final url = Uri.parse(
         'http://projectnodejs.thammadalok.com/AGribooking/get_reviewed/$mid');
-    print('Fetching reviews from URL: $url'); // สำหรับ Debug
+    print('Fetching reviews from URL: $url');
 
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         if (response.body.isNotEmpty) {
           final List data = jsonDecode(response.body);
-          print('Fetched review data: $data'); // สำหรับ Debug
+          this.countReporter = data
+              .map<int>((review) {
+                if (review['reporters'] != null &&
+                    review['reporters'] is String) {
+                  try {
+                    final List<dynamic> reportersJson =
+                        jsonDecode(review['reporters']);
+                    return reportersJson.length;
+                  } catch (e) {
+                    print(
+                        'Error parsing reporters JSON for review ${review['rid']}: $e');
+                    return 0;
+                  }
+                }
+                return 0;
+              })
+              .where((count) => count is int)
+              .cast<int>()
+              .toList();
+          print('Fetched review data: $data');
+
+          // เรียงจาก rid มากไปน้อย (รีวิวล่าสุดไปรีวิวแรก)
+          data.sort((a, b) => b['rid'].compareTo(a['rid']));
+
           return data;
         } else {
           print('API returned empty body for reviews.');
-          return []; // คืนค่า list ว่างเปล่าถ้าไม่มีข้อมูล
+          return [];
         }
       } else {
         print(
@@ -449,104 +642,191 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          actions: [
-            // PopupMenuButton<String>(
-            //   icon: const Icon(Icons.menu, color: Colors.white),
-            //   onSelected: (value) async {
-            //     int currentMonth = DateTime.now().month;
-            //     int currentYear = DateTime.now().year;
-            //     if (value == 'edit') {
-            //       try {
-            //         final data = await fetchCon(widget.mid);
-            //         if (!context.mounted) return;
-            //         Navigator.push(
-            //           context,
-            //           MaterialPageRoute(
-            //             builder: (context) => EditMemberPage(memberData: data),
-            //           ),
-            //         );
-            //       } catch (e) {
-            //         print('เกิดข้อผิดพลาดในการโหลดข้อมูลสมาชิก: $e');
-            //         ScaffoldMessenger.of(context).showSnackBar(
-            //           const SnackBar(
-            //               content: Text('ไม่สามารถโหลดข้อมูลสมาชิกได้')),
-            //         );
-            //       }
-            //     } else if (value == 'mode') {
-            //       try {
-            //         final response = await updateTypeMember(widget.mid, 3);
-            //         if (response['type_member'] == 3) {
-            //           if (!context.mounted) return;
-            //           Navigator.pushReplacement(
-            //             context,
-            //             MaterialPageRoute(
-            //               builder: (context) => Tabbar(
-            //                 mid: widget.mid,
-            //                 value: 0,
-            //                 month: currentMonth,
-            //                 year: currentYear,
-            //               ),
-            //             ),
-            //           );
-            //         } else {
-            //           throw Exception('อัปเดตไม่สำเร็จ');
-            //         }
-            //       } catch (e) {
-            //         print('เกิดข้อผิดพลาดในการอัปเดต: $e');
-            //         ScaffoldMessenger.of(context).showSnackBar(
-            //           const SnackBar(
-            //               content: Text('ไม่สามารถอัปเดตโหมดผู้รับจ้างได้')),
-            //         );
-            //       }
-            //     } else if (value == 'logout') {
-            //       Navigator.pushAndRemoveUntil(
-            //         context,
-            //         MaterialPageRoute(
-            //             builder: (context) => TabbarGenaralUser(value: 0)),
-            //         (route) => false,
-            //       );
-            //     }
-            //   },
-            //   itemBuilder: (context) => [
-            //     const PopupMenuItem(
-            //       value: 'edit',
-            //       child: Row(
-            //         children: [
-            //           Icon(Icons.edit, color: Colors.blue),
-            //           SizedBox(width: 8),
-            //           Text('แก้ไขข้อมูลส่วนตัว'),
-            //         ],
-            //       ),
-            //     ),
-            //     const PopupMenuItem(
-            //       value: 'mode',
-            //       child: Row(
-            //         children: [
-            //           Icon(Icons.work, color: Colors.green),
-            //           SizedBox(width: 8),
-            //           Text('โหมดผู้จ้าง'),
-            //         ],
-            //       ),
-            //     ),
-            //     const PopupMenuDivider(),
-            //     const PopupMenuItem(
-            //       value: 'logout',
-            //       child: Row(
-            //         children: [
-            //           Icon(Icons.logout, color: Colors.red),
-            //           SizedBox(width: 8),
-            //           Text('ออกจากระบบ'),
-            //         ],
-            //       ),
-            //     ),
-            //   ],
-            // ),
+          // actions: [
+          //   PopupMenuButton<String>(
+          //     icon: const Icon(Icons.menu, color: Colors.white),
+          //     onSelected: (value) async {
+          //       int currentMonth = DateTime.now().month;
+          //       int currentYear = DateTime.now().year;
+          //       if (value == 'edit') {
+          //         try {
+          //           final data = await fetchCon(widget.mid);
+          //           if (!context.mounted) return;
+          //           Navigator.push(
+          //             context,
+          //             MaterialPageRoute(
+          //               builder: (context) => EditMemberPage(memberData: data),
+          //             ),
+          //           );
+          //         } catch (e) {
+          //           print('เกิดข้อผิดพลาดในการโหลดข้อมูลสมาชิก: $e');
+          //           ScaffoldMessenger.of(context).showSnackBar(
+          //             const SnackBar(
+          //                 content: Text('ไม่สามารถโหลดข้อมูลสมาชิกได้')),
+          //           );
+          //         }
+          //       } else if (value == 'mode') {
+          //         try {
+          //           // ดึงข้อมูลสมาชิกปัจจุบัน
+          //           final memberData = await fetchCon(widget.mid);
+          //           int currentType = memberData['type_member'];
 
+          //           if (!context.mounted) return;
+
+          //           // ถ้าเป็น 1 แสดง Dialog ถามก่อน
+          //           if (currentType == 1) {
+          //             String currentRoleText = 'ผู้รับจ้าง';
+          //             String targetRoleText = 'ทั้งผู้รับจ้างและผู้จ้าง';
+
+          //             bool? confirmChange = await showDialog<bool>(
+          //                 context: context,
+          //                 builder: (_) => AlertDialog(
+          //                       shape: RoundedRectangleBorder(
+          //                         borderRadius: BorderRadius.circular(16),
+          //                       ),
+          //                       title: const Center(
+          //                         child: Text(
+          //                           'ยืนยันการสมัครสมาชิก',
+          //                           style: TextStyle(
+          //                             fontWeight: FontWeight.bold,
+          //                             fontSize: 20,
+          //                             color: Colors.deepPurple,
+          //                           ),
+          //                         ),
+          //                       ),
+          //                       content: Column(
+          //                         mainAxisSize: MainAxisSize.min,
+          //                         children: [
+          //                           const Icon(
+          //                             Icons.person_add_alt_1,
+          //                             color: Colors.deepPurple,
+          //                             size: 48,
+          //                           ),
+          //                           const SizedBox(height: 12),
+          //                           Text(
+          //                             'ตอนนี้คุณเป็น "$currentRoleText"\n'
+          //                             'คุณต้องการสมัครเป็น "$targetRoleText" หรือไม่?',
+          //                             textAlign: TextAlign.center,
+          //                             style: const TextStyle(fontSize: 16),
+          //                           ),
+          //                         ],
+          //                       ),
+          //                       actionsAlignment: MainAxisAlignment.spaceEvenly,
+          //                       actions: [
+          //                         ElevatedButton(
+          //                           style: ElevatedButton.styleFrom(
+          //                             backgroundColor: Colors.grey[300],
+          //                             foregroundColor: Colors.black,
+          //                             shape: RoundedRectangleBorder(
+          //                               borderRadius: BorderRadius.circular(12),
+          //                             ),
+          //                             padding: const EdgeInsets.symmetric(
+          //                                 horizontal: 20, vertical: 12),
+          //                           ),
+          //                           onPressed: () =>
+          //                               Navigator.pop(context, false),
+          //                           child: const Text('ยกเลิก'),
+          //                         ),
+          //                         ElevatedButton(
+          //                           style: ElevatedButton.styleFrom(
+          //                             backgroundColor: Colors.deepPurple,
+          //                             foregroundColor: Colors.white,
+          //                             shape: RoundedRectangleBorder(
+          //                               borderRadius: BorderRadius.circular(12),
+          //                             ),
+          //                             padding: const EdgeInsets.symmetric(
+          //                                 horizontal: 20, vertical: 12),
+          //                           ),
+          //                           onPressed: () =>
+          //                               Navigator.pop(context, true),
+          //                           child: const Text('ตกลง'),
+          //                         ),
+          //                       ],
+          //                     ));
+
+          //             if (confirmChange != true) return; // ถ้าไม่ตกลงก็หยุดเลย
+          //           }
+
+          //           // ถ้า currentType != 1 หรือยืนยันแล้ว → อัปเดตเป็น 3 ทันที
+          //           final response = await updateTypeMember(widget.mid, 3);
+          //           if (response['type_member'] == 3) {
+          //             Navigator.pushReplacement(
+          //               context,
+          //               MaterialPageRoute(
+          //                 builder: (context) => Tabbar(
+          //                   mid: widget.mid,
+          //                   value: 2,
+          //                   month: currentMonth,
+          //                   year: currentYear,
+          //                 ),
+          //               ),
+          //             );
+          //           } else {
+          //             throw Exception('อัปเดตไม่สำเร็จ');
+          //           }
+          //         } catch (e) {
+          //           print('เกิดข้อผิดพลาดในการอัปเดต: $e');
+          //           ScaffoldMessenger.of(context).showSnackBar(
+          //             const SnackBar(content: Text('ไม่สามารถอัปเดตโหมดได้')),
+          //           );
+          //         }
+          //       } else if (value == 'logout') {
+          //         // เคลียร์ SharedPreferences
+          //         final prefs = await SharedPreferences.getInstance();
+          //         await prefs.clear(); // ลบ mid และ type_member
+
+          //         // กลับไปหน้า Login และเคลียร์ stack ทั้งหมด
+          //         Navigator.pushAndRemoveUntil(
+          //           context,
+          //           MaterialPageRoute(
+          //               builder: (context) =>
+          //                   const TabbarGenaralUser(value: 0)),
+          //           (route) => false,
+          //         );
+          //       }
+          //     },
+          //     itemBuilder: (context) => [
+          //       const PopupMenuItem(
+          //         value: 'edit',
+          //         child: Row(
+          //           children: [
+          //             Icon(Icons.edit, color: Colors.blue),
+          //             SizedBox(width: 8),
+          //             Text('แก้ไขข้อมูลส่วนตัว'),
+          //           ],
+          //         ),
+          //       ),
+          //       const PopupMenuItem(
+          //         value: 'mode',
+          //         child: Row(
+          //           children: [
+          //             Icon(Icons.work, color: Colors.green),
+          //             SizedBox(width: 8),
+          //             Text('ไปโหมดผู้จ้าง'),
+          //           ],
+          //         ),
+          //       ),
+          //       const PopupMenuDivider(),
+          //       const PopupMenuItem(
+          //         value: 'logout',
+          //         child: Row(
+          //           children: [
+          //             Icon(Icons.logout, color: Colors.red),
+          //             SizedBox(width: 8),
+          //             Text('ออกจากระบบ'),
+          //           ],
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ],
+          actions: [
             PopupMenuButton<String>(
               icon: const Icon(Icons.menu, color: Colors.white),
               onSelected: (value) async {
                 int currentMonth = DateTime.now().month;
                 int currentYear = DateTime.now().year;
+
                 if (value == 'edit') {
                   try {
                     final data = await fetchCon(widget.mid);
@@ -566,104 +846,67 @@ class _HomePageState extends State<HomePage> {
                   }
                 } else if (value == 'mode') {
                   try {
-                    // ดึงข้อมูลสมาชิกปัจจุบัน
                     final memberData = await fetchCon(widget.mid);
                     int currentType = memberData['type_member'];
 
                     if (!context.mounted) return;
 
-                    // ถ้าเป็น 1 แสดง Dialog ถามก่อน
-                    if (currentType == 1) {
-                      String currentRoleText = 'ผู้รับจ้าง';
-                      String targetRoleText = 'ทั้งผู้รับจ้างและผู้จ้าง';
-
+                    // ถ้าเป็น type = 1 ให้ถามก่อนสมัคร
+                    if (currentType != 3) {
                       bool? confirmChange = await showDialog<bool>(
-                          context: context,
-                          // builder: (_) => AlertDialog(
-                          //   title: const Text('ยืนยันการสมัครสมาชิก'),
-                          //   content: Text(
-                          //     'ตอนนี้คุณเป็น "$currentRoleText"\n'
-                          //     'คุณต้องการสมัครเป็น "$targetRoleText" หรือไม่?',
-                          //   ),
-                          //   actions: [
-                          //     TextButton(
-                          //       onPressed: () => Navigator.pop(context, false),
-                          //       child: const Text('ยกเลิก'),
-                          //     ),
-                          //     TextButton(
-                          //       onPressed: () => Navigator.pop(context, true),
-                          //       child: const Text('ตกลง'),
-                          //     ),
-                          //   ],
-                          // ),
-                          builder: (_) => AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                title: const Center(
-                                  child: Text(
-                                    'ยืนยันการสมัครสมาชิก',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                      color: Colors.deepPurple,
-                                    ),
-                                  ),
-                                ),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.person_add_alt_1,
-                                      color: Colors.deepPurple,
-                                      size: 48,
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      'ตอนนี้คุณเป็น "$currentRoleText"\n'
-                                      'คุณต้องการสมัครเป็น "$targetRoleText" หรือไม่?',
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ],
-                                ),
-                                actionsAlignment: MainAxisAlignment.spaceEvenly,
-                                actions: [
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.grey[300],
-                                      foregroundColor: Colors.black,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 20, vertical: 12),
-                                    ),
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
-                                    child: const Text('ยกเลิก'),
-                                  ),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.deepPurple,
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 20, vertical: 12),
-                                    ),
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
-                                    child: const Text('ตกลง'),
-                                  ),
-                                ],
-                              ));
-
-                      if (confirmChange != true) return; // ถ้าไม่ตกลงก็หยุดเลย
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          title: const Center(
+                            child: Text(
+                              'ยืนยันการสมัครสมาชิก',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                          ),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(Icons.person_add_alt_1,
+                                  color: Colors.deepPurple, size: 48),
+                              SizedBox(height: 12),
+                              Text(
+                                'คุณต้องการสมัครสมาชิกเป็น "ผู้รับจ้าง" หรือไม่?',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
+                          actionsAlignment: MainAxisAlignment.spaceEvenly,
+                          actions: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey,
+                                foregroundColor: Colors.black,
+                              ),
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('ยกเลิก'),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.deepPurple,
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text('ตกลง'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirmChange != true) return;
                     }
 
-                    // ถ้า currentType != 1 หรือยืนยันแล้ว → อัปเดตเป็น 3 ทันที
+                    // อัปเดตเป็น type = 3
                     final response = await updateTypeMember(widget.mid, 3);
                     if (response['type_member'] == 3) {
                       Navigator.pushReplacement(
@@ -687,6 +930,8 @@ class _HomePageState extends State<HomePage> {
                     );
                   }
                 } else if (value == 'logout') {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.clear();
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
@@ -707,14 +952,49 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'mode',
-                  child: Row(
-                    children: [
-                      Icon(Icons.work, color: Colors.green),
-                      SizedBox(width: 8),
-                      Text('ไปโหมดผู้จ้าง'),
-                    ],
+                  child: FutureBuilder(
+                    future: fetchCon(widget.mid),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Row(
+                          children: [
+                            CircularProgressIndicator(strokeWidth: 2),
+                            SizedBox(width: 8),
+                            Text('กำลังโหลด...'),
+                          ],
+                        );
+                      } else if (snapshot.hasError) {
+                        return const Row(
+                          children: [
+                            Icon(Icons.error, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('เกิดข้อผิดพลาด'),
+                          ],
+                        );
+                      } else {
+                        final memberData =
+                            snapshot.data as Map<String, dynamic>;
+                        final type = memberData['type_member'];
+
+                        return Row(
+                          children: [
+                            Icon(
+                              type == 3 ? Icons.work : Icons.person_add,
+                              color:
+                                  type == 3 ? Colors.green : Colors.deepPurple,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              type == 3
+                                  ? 'ไปโหมดผู้จ้าง'
+                                  : 'สมัครเป็นผู้รับจ้าง',
+                            ),
+                          ],
+                        );
+                      }
+                    },
                   ),
                 ),
                 const PopupMenuDivider(),
@@ -960,137 +1240,6 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-
-// Expanded(
-            //   child: Column(
-            //     children: [
-            //       // ✅ แถบแท็บนูนด้วย Card
-            //       Padding(
-            //         padding: const EdgeInsets.all(16),
-            //         child: Card(
-            //           shape: RoundedRectangleBorder(
-            //             borderRadius: BorderRadius.circular(16),
-            //           ),
-            //           elevation: 6,
-            //           child: Padding(
-            //             padding: const EdgeInsets.symmetric(
-            //                 vertical: 12, horizontal: 8),
-            //             child: TabBar(
-            //               indicator: BoxDecoration(
-            //                 borderRadius: BorderRadius.circular(8),
-            //                 color: Colors.green[900],
-            //                 boxShadow: [
-            //                   BoxShadow(
-            //                     color: Colors.black26,
-            //                     blurRadius: 4,
-            //                     offset: Offset(0, 2),
-            //                   ),
-            //                 ],
-            //               ),
-            //               labelColor: Colors.white,
-            //               unselectedLabelColor: Colors.black87,
-            //               indicatorSize: TabBarIndicatorSize.tab,
-            //               labelStyle: const TextStyle(
-            //                 fontSize: 14,
-            //                 fontWeight: FontWeight.bold,
-            //               ),
-            //               tabs: const [
-            //                 Tab(
-            //                   child: SizedBox(
-            //                     width: 120,
-            //                     child: Center(child: Text('รายการรถ')),
-            //                   ),
-            //                 ),
-            //                 Tab(
-            //                   child: SizedBox(
-            //                     width: 120,
-            //                     child: Center(child: Text('รีวิว')),
-            //                   ),
-            //                 ),
-            //               ],
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-
-            //       // ✅ เนื้อหาภายในแต่ละแท็บ
-            //       Expanded(
-            //         child: TabBarView(
-            //           children: [
-            //             Center(child: _buildVehicleTab()),
-            //             Center(child: _buildReviewTab()),
-            //           ],
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-
-            //แถบเมนูแบบมีปุ่ม
-            // Expanded(
-            //   child: Column(
-            //     children: [
-            //       // ✅ แถบแท็บนูนด้วย Card
-            //       Padding(
-            //         padding: const EdgeInsets.all(16),
-            //         child: Card(
-            //           shape: RoundedRectangleBorder(
-            //             borderRadius: BorderRadius.circular(16),
-            //           ),
-            //           elevation: 6,
-            //           child: Padding(
-            //             padding: const EdgeInsets.symmetric(
-            //                 vertical: 12, horizontal: 8),
-            //             child: TabBar(
-            //               indicator: BoxDecoration(
-            //                 borderRadius: BorderRadius.circular(8),
-            //                 color: Colors.green[900],
-            //                 boxShadow: [
-            //                   BoxShadow(
-            //                     color: Colors.black26,
-            //                     blurRadius: 4,
-            //                     offset: Offset(0, 2),
-            //                   ),
-            //                 ],
-            //               ),
-            //               labelColor: Colors.white,
-            //               unselectedLabelColor: Colors.black87,
-            //               indicatorSize: TabBarIndicatorSize.tab,
-            //               labelStyle: const TextStyle(
-            //                 fontSize: 14,
-            //                 fontWeight: FontWeight.bold,
-            //               ),
-            //               tabs: const [
-            //                 Tab(
-            //                   child: SizedBox(
-            //                     width: 120,
-            //                     child: Center(child: Text('รายการรถ')),
-            //                   ),
-            //                 ),
-            //                 Tab(
-            //                   child: SizedBox(
-            //                     width: 120,
-            //                     child: Center(child: Text('รีวิว')),
-            //                   ),
-            //                 ),
-            //               ],
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-
-            //       // ✅ เนื้อหาภายในแต่ละแท็บ
-            //       Expanded(
-            //         child: TabBarView(
-            //           children: [
-            //             Center(child: _buildVehicleTab()),
-            //             Center(child: _buildReviewTab()),
-            //           ],
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
           ],
         ),
       ),
@@ -1344,7 +1493,7 @@ class _HomePageState extends State<HomePage> {
                                               updateVehicleStatus(
                                                   vid, newStatus);
                                             },
-                                            activeThumbColor: Colors.white,
+                                            activeColor: Colors.white,
                                             activeTrackColor: Colors.green,
                                             inactiveThumbColor: Colors.white,
                                             inactiveTrackColor:
@@ -1384,13 +1533,323 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Widget _buildReviewTab() {
+  //   return StreamBuilder<List<dynamic>>(
+  //     stream: _reviewStreamController.stream,
+  //     initialData: const [],
+  //     builder: (context, snapshot) {
+  //       if (snapshot.hasError) {
+  //         return Center(child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'));
+  //       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+  //         return const Center(child: Text('ยังไม่มีรีวิว'));
+  //       }
+
+  //       final reviews = snapshot.data!;
+  //       final points = reviews.map((r) => (r['point'] ?? 0) as num).toList();
+  //       final avg = points.isNotEmpty
+  //           ? (points.reduce((a, b) => a + b) / points.length)
+  //               .toStringAsFixed(2)
+  //           : '0.00';
+
+  //       final reviewCount = reviews.length;
+  //       return Column(
+  //         children: [
+  //           const SizedBox(height: 10),
+  //           Expanded(
+  //             child: ListView.builder(
+  //               padding: const EdgeInsets.all(8),
+  //               itemCount: reviews.length + 1, // เพิ่ม 1 เพื่อเผื่อหัวข้อ
+  //               itemBuilder: (context, index) {
+  //                 if (index == 0) {
+  //                   // ✅ หัวข้อคะแนนรีวิว — ให้เลื่อนได้
+  //                   return Center(
+  //                     child: Padding(
+  //                       padding: const EdgeInsets.symmetric(vertical: 8),
+  //                       child: Text(
+  //                         'คะแนนรีวิว: $avg ($reviewCount รีวิว)',
+  //                         style: const TextStyle(
+  //                           fontSize: 20,
+  //                           fontWeight: FontWeight.w600,
+  //                           color: Color(0xFF2E7D32),
+  //                           letterSpacing: 0.5,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   );
+  //                 }
+
+  //                 final review =
+  //                     reviews[index - 1]; // ลด index ลง เพราะเราเพิ่มหัวข้อ
+  //                 final reportedList =
+  //                     jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
+  //                 final isReported = reportedList.contains(_currentMid);
+
+  //                 return Card(
+  //                   margin: const EdgeInsets.symmetric(
+  //                       vertical: 8, horizontal: 12), // เพิ่ม margin แนวนอน
+  //                   child: Padding(
+  //                     padding: const EdgeInsets.all(12),
+  //                     child: Column(
+  //                       crossAxisAlignment: CrossAxisAlignment.start,
+  //                       children: [
+  //                         // รูปภาพรีวิว (ถ้ามี)
+  //                         if (review['image_url'] != null &&
+  //                             review['image_url'].toString().isNotEmpty)
+  //                           Padding(
+  //                             padding: const EdgeInsets.only(bottom: 8),
+  //                             child: Image.network(
+  //                               review['image_url'],
+  //                               height: 150,
+  //                               width: double.infinity,
+  //                               fit: BoxFit.cover,
+  //                               errorBuilder: (context, error, stackTrace) =>
+  //                                   const Text('โหลดรูปไม่สำเร็จ'),
+  //                             ),
+  //                           ),
+
+  //                         // ผู้รีวิว + ดาว
+  //                         Row(
+  //                           mainAxisSize: MainAxisSize.min,
+  //                           children: [
+  //                             const Icon(Icons.person,
+  //                                 color: Colors.grey, size: 20),
+  //                             const SizedBox(width: 6),
+  //                             Row(
+  //                               mainAxisSize: MainAxisSize.min,
+  //                               children: List.generate(5, (i) {
+  //                                 return Icon(
+  //                                   i < (review['point'] ?? 0)
+  //                                       ? Icons.star
+  //                                       : Icons.star_border,
+  //                                   color: Colors.amber,
+  //                                   size: 20,
+  //                                 );
+  //                               }),
+  //                             ),
+  //                             const SizedBox(width: 8),
+  //                             Text(
+  //                               '${review['point'] ?? '-'} / 5',
+  //                               style: const TextStyle(
+  //                                 fontSize: 14,
+  //                                 fontWeight: FontWeight.bold,
+  //                                 color: Colors.black87,
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+
+  //                         // ข้อความรีวิว (ย่อ 2 บรรทัด)
+  //                         Text(
+  //                           review['text'] ?? '-',
+  //                           // maxLines: 2,
+  //                           //overflow: TextOverflow.ellipsis,
+  //                           style: const TextStyle(fontSize: 16),
+  //                         ),
+
+  //                         const SizedBox(height: 6),
+
+  //                         if (review['image'] != null &&
+  //                             review['image'].isNotEmpty)
+  //                           Padding(
+  //                             padding: const EdgeInsets.only(top: 8.0),
+  //                             child: Image.network(
+  //                               review['image'],
+  //                               height: 100,
+  //                               width: 100,
+  //                               fit: BoxFit.cover,
+  //                               errorBuilder: (context, error, stackTrace) =>
+  //                                   const Icon(Icons.image_not_supported),
+  //                             ),
+  //                           ),
+
+  //                         Row(
+  //                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                           children: [
+  //                             Text(
+  //                               'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}',
+  //                               style: const TextStyle(
+  //                                   color: Colors.grey), // สีเทา
+  //                             ),
+  //                           ],
+  //                         ),
+
+  //                         Align(
+  //                           alignment: Alignment.centerRight,
+  //                           child: ElevatedButton(
+  //                             onPressed: isReported
+  //                                 ? null
+  //                                 : () => _reportReview(review['rid']),
+  //                             style: ElevatedButton.styleFrom(
+  //                               backgroundColor:
+  //                                   isReported ? Colors.grey : Colors.red,
+  //                               foregroundColor: Colors.white,
+  //                               padding: const EdgeInsets.symmetric(
+  //                                   horizontal: 16, vertical: 8),
+  //                               textStyle: Theme.of(context)
+  //                                   .textTheme
+  //                                   .bodySmall
+  //                                   ?.copyWith(fontSize: 12),
+  //                               shape: RoundedRectangleBorder(
+  //                                 borderRadius: BorderRadius.circular(8),
+  //                               ),
+  //                             ),
+  //                             child: Text(
+  //                                 isReported ? 'รายงานแล้ว' : 'รายงานรีวิว'),
+  //                           ),
+  //                         )
+  //                       ],
+  //                     ),
+  //                   ),
+  //                 );
+  //               },
+  //             ),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
+  // Widget _buildReviewTab() {
+  //   return StreamBuilder<List<dynamic>>(
+  //     stream: _reviewFuture?.asStream(),
+  //     builder: (context, snapshot) {
+  //       if (snapshot.connectionState == ConnectionState.waiting &&
+  //           !snapshot.hasData) {
+  //         return const Center(child: CircularProgressIndicator());
+  //       }
+
+  //       if (snapshot.hasError) {
+  //         return Center(child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'));
+  //       }
+
+  //       if (!snapshot.hasData || snapshot.data!.isEmpty) {
+  //         return const Center(child: Text('ยังไม่มีรีวิว'));
+  //       }
+
+  //       final reviews = snapshot.data!;
+  //       final points = reviews.map((r) => (r['point'] ?? 0) as num).toList();
+  //       final avg = points.isNotEmpty
+  //           ? (points.reduce((a, b) => a + b) / points.length)
+  //               .toStringAsFixed(2)
+  //           : '0.00';
+
+  //       final reviewCount = reviews.length;
+
+  //       return ListView.builder(
+  //         padding: const EdgeInsets.all(8),
+  //         itemCount: reviews.length + 1, // บวก 1 เพื่อเฮดเดอร์
+  //         itemBuilder: (context, index) {
+  //           if (index == 0) {
+  //             return Center(
+  //               child: Padding(
+  //                 padding: const EdgeInsets.symmetric(vertical: 12),
+  //                 child: Text(
+  //                   'คะแนนรีวิว: $avg ($reviewCount รีวิว)',
+  //                   style: const TextStyle(
+  //                     fontSize: 20,
+  //                     fontWeight: FontWeight.bold,
+  //                     color: Color(0xFF2E7D32),
+  //                   ),
+  //                 ),
+  //               ),
+  //             );
+  //           }
+
+  //           final review = reviews[index - 1];
+  //           final reportedList =
+  //               jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
+  //           final isReported = reportedList.contains(_currentMid);
+
+  //           return Card(
+  //             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+  //             child: Padding(
+  //               padding: const EdgeInsets.all(12),
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   // ดาว + คะแนน
+  //                   Row(
+  //                     children: [
+  //                       const Icon(Icons.person, color: Colors.grey, size: 20),
+  //                       const SizedBox(width: 6),
+  //                       Row(
+  //                         children: List.generate(5, (i) {
+  //                           return Icon(
+  //                             i < (review['point'] ?? 0)
+  //                                 ? Icons.star
+  //                                 : Icons.star_border,
+  //                             color: Colors.amber,
+  //                             size: 20,
+  //                           );
+  //                         }),
+  //                       ),
+  //                       const SizedBox(width: 8),
+  //                       Text(
+  //                         '${review['point'] ?? '-'} / 5',
+  //                         style: const TextStyle(
+  //                           fontSize: 14,
+  //                           fontWeight: FontWeight.bold,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+
+  //                   const SizedBox(height: 8),
+
+  //                   // ข้อความ
+  //                   Text(
+  //                     review['text'] ?? '-',
+  //                     style: const TextStyle(fontSize: 16),
+  //                   ),
+
+  //                   const SizedBox(height: 8),
+
+  //                   // วันที่
+  //                   Text(
+  //                     'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}',
+  //                     style: const TextStyle(color: Colors.grey),
+  //                   ),
+
+  //                   const SizedBox(height: 8),
+
+  //                   Align(
+  //                     alignment: Alignment.centerRight,
+  //                     child: ElevatedButton(
+  //                       onPressed: isReported
+  //                           ? null
+  //                           : () => _reportReview(review['rid']),
+  //                       style: ElevatedButton.styleFrom(
+  //                         backgroundColor:
+  //                             isReported ? Colors.grey : Colors.red,
+  //                         foregroundColor: Colors.white,
+  //                       ),
+  //                       child: Text(isReported ? 'รายงานแล้ว' : 'รายงานรีวิว'),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
   Widget _buildReviewTab() {
     return FutureBuilder<List<dynamic>>(
-      future: _reviewFuture,
+      future: _reviewFuture, // ใช้ Future โดยตรง
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
         if (snapshot.hasError) {
           return Center(child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        }
+
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('ยังไม่มีรีวิว'));
         }
 
@@ -1402,6 +1861,115 @@ class _HomePageState extends State<HomePage> {
             : '0.00';
 
         final reviewCount = reviews.length;
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: reviews.length + 1,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    'คะแนนรีวิว: $avg ($reviewCount รีวิว)',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2E7D32),
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            final review = reviews[index - 1];
+            final reportedList =
+                jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
+            final isReported = reportedList.contains(_currentMid);
+
+            return Card(
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ดาว + คะแนน
+                    Row(
+                      children: [
+                        const Icon(Icons.person, color: Colors.grey, size: 20),
+                        const SizedBox(width: 6),
+                        Row(
+                          children: List.generate(5, (i) {
+                            return Icon(
+                              i < (review['point'] ?? 0)
+                                  ? Icons.star
+                                  : Icons.star_border,
+                              color: Colors.amber,
+                              size: 20,
+                            );
+                          }),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${review['point'] ?? '-'} / 5',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // ข้อความ
+                    Text(
+                      review['text'] ?? '-',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // วันที่
+                    Text(
+                      'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text('จำนวนรายงาน: ${reportedList.length} คน',
+                            style: const TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                        onPressed: isReported
+                            ? null
+                            : () => _reportReview(review['rid']),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              isReported ? Colors.grey : Colors.red,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: Text(isReported ? 'รายงานแล้ว' : 'รายงานรีวิว'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
 
         // return Column(
         //   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1545,161 +2113,4 @@ class _HomePageState extends State<HomePage> {
         //   ],
         // );
 
-        return Column(
-          children: [
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: reviews.length + 1, // เพิ่ม 1 เพื่อเผื่อหัวข้อ
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    // ✅ หัวข้อคะแนนรีวิว — ให้เลื่อนได้
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Text(
-                          'คะแนนรีวิว: $avg ($reviewCount รีวิว)',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF2E7D32),
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-
-                  final review =
-                      reviews[index - 1]; // ลด index ลง เพราะเราเพิ่มหัวข้อ
-                  final reportedList =
-                      jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
-                  final isReported = reportedList.contains(_currentMid);
-
-                  return Card(
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 8, horizontal: 12), // เพิ่ม margin แนวนอน
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // รูปภาพรีวิว (ถ้ามี)
-                          if (review['image_url'] != null &&
-                              review['image_url'].toString().isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Image.network(
-                                review['image_url'],
-                                height: 150,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Text('โหลดรูปไม่สำเร็จ'),
-                              ),
-                            ),
-
-                          // ผู้รีวิว + ดาว
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.person,
-                                  color: Colors.grey, size: 20),
-                              const SizedBox(width: 6),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: List.generate(5, (i) {
-                                  return Icon(
-                                    i < (review['point'] ?? 0)
-                                        ? Icons.star
-                                        : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 20,
-                                  );
-                                }),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                '${review['point'] ?? '-'} / 5',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          // ข้อความรีวิว (ย่อ 2 บรรทัด)
-                          Text(
-                            review['text'] ?? '-',
-                            // maxLines: 2,
-                            //overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-
-                          const SizedBox(height: 6),
-
-                          if (review['image'] != null &&
-                              review['image'].isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Image.network(
-                                review['image'],
-                                height: 100,
-                                width: 100,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(Icons.image_not_supported),
-                              ),
-                            ),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}',
-                                style: const TextStyle(
-                                    color: Colors.grey), // สีเทา
-                              ),
-                            ],
-                          ),
-
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: ElevatedButton(
-                              onPressed: isReported
-                                  ? null
-                                  : () => _reportReview(review['rid']),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    isReported ? Colors.grey : Colors.red,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 8),
-                                textStyle: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(fontSize: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                  isReported ? 'รายงานแล้ว' : 'รายงานรีวิว'),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
+        

@@ -229,7 +229,7 @@ class _AddFarmPageState extends State<AddFarmPage> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                initialValue: selectedProvince,
+                value: selectedProvince,
                 decoration: InputDecoration(
                   labelText: 'จังหวัด *',
                   filled: true,
@@ -271,7 +271,7 @@ class _AddFarmPageState extends State<AddFarmPage> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                initialValue: selectedAmphoe,
+                value: selectedAmphoe,
                 decoration: InputDecoration(
                   labelText: 'อำเภอ *',
                   filled: true,
@@ -312,7 +312,7 @@ class _AddFarmPageState extends State<AddFarmPage> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                initialValue: selectedDistrict,
+                value: selectedDistrict,
                 decoration: InputDecoration(
                   labelText: 'ตำบล *',
                   filled: true,
@@ -399,7 +399,7 @@ class _AddFarmPageState extends State<AddFarmPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   DropdownButtonFormField<String>(
-                    initialValue: selectedUnit,
+                    value: selectedUnit,
                     decoration: InputDecoration(
                       labelText: 'หน่วยพื้นที่ *',
                       filled: true,

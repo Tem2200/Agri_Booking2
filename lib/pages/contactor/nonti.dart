@@ -20,7 +20,7 @@ class _NontiPageState extends State<NontiPage> {
   Future<List<dynamic>>? _scheduleFuture;
   int _newJobsCount = 0; // จำนวนงานใหม่ (progress_status = null)
   int _cancelledJobsCount = 0; // จำนวนงานที่ถูกยกเลิก (progress_status = 5)
-  late WebSocket _ws; // ✅ เพิ่มตัวแปร WebSocket
+
   // @override
   // void initState() {
   //   super.initState();
@@ -212,6 +212,47 @@ class _NontiPageState extends State<NontiPage> {
     }
   }
 
+//   Future<List<dynamic>> fetchAndCountSchedule(int mid) async {
+//     final url = Uri.parse(
+//         'http://projectnodejs.thammadalok.com/AGribooking/get_ConReservingNonti/$mid');
+
+//     try {
+//       final response = await http.get(url);
+
+//       if (response.statusCode == 200) {
+//         if (response.body.isNotEmpty) {
+//           final List<dynamic> data = jsonDecode(response.body);
+
+//           int newJobs = 0;
+//           int cancelledJobs = 0;
+
+//           for (var item in data) {
+//             final status = item['progress_status'];
+//             if (status == null) {
+//               newJobs++;
+//             } else if (status == 5) {
+//               cancelledJobs++;
+//             }
+//           }
+
+// // อัปเดตตัวแปรสถานะ
+//           if (mounted) {
+//             setState(() {
+//               _newJobsCount = newJobs;
+//               _cancelledJobsCount = cancelledJobs;
+//             });
+//           }
+//           return data;
+//         } else {
+//           return [];
+//         }
+//       } else {
+//         throw Exception('Failed to load schedule: ${response.statusCode}');
+//       }
+//     } catch (e) {
+//       throw Exception('Connection error: $e');
+//     }
+//   }
   Future<List<dynamic>> fetchAndCountSchedule(int mid) async {
     final url = Uri.parse(
         'http://projectnodejs.thammadalok.com/AGribooking/get_ConReservingNonti/$mid');
@@ -222,6 +263,9 @@ class _NontiPageState extends State<NontiPage> {
       if (response.statusCode == 200) {
         if (response.body.isNotEmpty) {
           final List<dynamic> data = jsonDecode(response.body);
+
+          // เรียงจาก rsid มากไปน้อย
+          data.sort((a, b) => b['rsid'].compareTo(a['rsid']));
 
           int newJobs = 0;
           int cancelledJobs = 0;
@@ -235,7 +279,7 @@ class _NontiPageState extends State<NontiPage> {
             }
           }
 
-// อัปเดตตัวแปรสถานะ
+          // อัปเดตตัวแปรสถานะ
           if (mounted) {
             setState(() {
               _newJobsCount = newJobs;

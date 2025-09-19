@@ -373,7 +373,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                initialValue: selectedProvince,
+                value: selectedProvince,
                 decoration: inputDecoration.copyWith(labelText: 'จังหวัด*'),
                 items: provinces
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -398,7 +398,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                initialValue: selectedAmphoe,
+                value: selectedAmphoe,
                 decoration: inputDecoration.copyWith(labelText: 'อำเภอ*'),
                 items: amphoes
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -422,7 +422,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                initialValue: selectedDistrict,
+                value: selectedDistrict,
                 decoration: inputDecoration.copyWith(labelText: 'ตำบล*'),
                 items: districts
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -444,7 +444,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                initialValue: selectedUnit,
+                value: selectedUnit,
                 decoration:
                     inputDecoration.copyWith(labelText: 'หน่วยพื้นที่*'),
                 items: unitOptions

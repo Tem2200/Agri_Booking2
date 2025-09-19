@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/contactor/DetailVehicle.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -397,7 +398,7 @@ class _EditVehicleState extends State<EditVehicle> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: DropdownButtonFormField<String>(
-                                    initialValue: selectedUnit ?? 'ไร่',
+                                    value: selectedUnit ?? 'ไร่',
                                     decoration: const InputDecoration(
                                       filled: true, // ✅ เปิดการเติมสีพื้นหลัง
                                       fillColor: Colors

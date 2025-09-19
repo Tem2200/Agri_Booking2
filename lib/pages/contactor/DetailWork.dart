@@ -1,11 +1,13 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/contactor/Tabbar.dart';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
-// import 'package:firebase_messaging/firebase_messaging.dart';
 class DetailWorkPage extends StatefulWidget {
   final int rsid;
   const DetailWorkPage({super.key, required this.rsid});
@@ -18,22 +20,10 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
   int? progress_status; // อนุญาตให้เป็น null
   List<LatLng> _routePoints = [];
   double? _distanceInKm;
-
   @override
   void initState() {
     super.initState();
     fetchDetail();
-    // FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    //   final rsid = message.data["rsid"];
-    //   if (rsid != null) {
-    //     Navigator.push(
-    //       context,
-    //       MaterialPageRoute(
-    //         builder: (_) => DetailWorkPage(rsid: int.parse(rsid)),
-    //       ),
-    //     );
-    //   }
-    // });
     _pollProgress(); // เริ่ม long polling เมื่อ widget โหลด
     //_initSocket(); // 🔹 เรียก socket
   }
@@ -249,6 +239,12 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
         if (data['event'] == 'update_progress') {
           setState(() {
             progress_status = data['data']['progress_status'];
+            fetchDetail();
+          });
+        }
+        if (data['event'] == 'member_updated') {
+          setState(() {
+            fetchDetail();
           });
         }
       }

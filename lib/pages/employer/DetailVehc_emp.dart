@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:agri_booking2/pages/employer/ProfileCon.dart';
 import 'package:agri_booking2/pages/employer/plan_con.dart';
 import 'package:agri_booking2/pages/employer/reservingForNF.dart';
+import 'package:agri_booking2/pages/employer/reserving_emp.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/painting.dart';
 import 'package:intl/intl.dart';
 
 class DetailvehcEmp extends StatefulWidget {
@@ -29,7 +31,7 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
   String? error;
   late int _currentMid; // ตัวแปรสำหรับเก็บ mid
   Future<List<dynamic>>? _reviewFuture; // Future สำหรับข้อมูลรีวิว
-
+  List<int> countReporter = [];
   @override
   void initState() {
     super.initState();
@@ -45,9 +47,10 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
         final response = await http.get(url);
         if (response.statusCode == 200 && response.body.isNotEmpty) {
           final data = jsonDecode(response.body);
-          if (data['event'] == 'review_added' ||
-              data['event'] == 'vehicle_added' ||
-              data['event'] == 'vehicle_updated') {
+          if (data['event'] == 'vehicle_added' ||
+              data['event'] == 'vehicle_updated' ||
+              data['event'] == 'review_added' ||
+              data['event'] == 'review_updated') {
             // โหลดข้อมูลใหม่ (รีวิวและรายละเอียดรถ)
             fetchVehicleDetail();
           }
@@ -123,7 +126,28 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
       if (response.statusCode == 200) {
         if (response.body.isNotEmpty) {
           final List data = jsonDecode(response.body);
+          this.countReporter = data
+              .map<int>((review) {
+                if (review['reporters'] != null &&
+                    review['reporters'] is String) {
+                  try {
+                    final List<dynamic> reportersJson =
+                        jsonDecode(review['reporters']);
+                    return reportersJson.length;
+                  } catch (e) {
+                    print(
+                        'Error parsing reporters JSON for review ${review['rid']}: $e');
+                    return 0;
+                  }
+                }
+                return 0;
+              })
+              .where((count) => count is int)
+              .cast<int>()
+              .toList();
           print('Fetched review data: $data'); // สำหรับ Debug
+          print(
+              'Count of reviews reported by current user ($_currentMid): $countReporter');
           return data;
         } else {
           print('API returned empty body for reviews.');
@@ -151,11 +175,7 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
     }
   }
 
-  // ฟังก์ชันสำหรับรายงานรีวิวไม่เหมาะสม
-  Future<void> _reportReview(int rid) async {
-    final int midReporter = _currentMid; // mid ของผู้ใช้ปัจจุบัน
-
-    // แสดง AlertDialog เพื่อยืนยันการรายงาน
+  Future<bool> _reportReview(int rid) async {
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -173,78 +193,158 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
           content: const Text(
             'คุณแน่ใจหรือไม่ว่าต้องการรายงานรีวิวนี้ว่าไม่เหมาะสม?',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black87,
-              height: 1.4,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.black87, height: 1.4),
           ),
           actionsAlignment: MainAxisAlignment.center,
           actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false), // ยกเลิก
-              child: const Text(
-                'ยกเลิก',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey,
-                ),
-              ),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('ยกเลิก',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey)),
             ),
             const SizedBox(width: 16),
             TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true), // ยืนยัน
-              child: const Text(
-                'รายงาน',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.redAccent,
-                ),
-              ),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('รายงาน',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.redAccent)),
             ),
           ],
         );
       },
     );
 
-    if (confirm == true) {
-      setState(() {
-        isLoading = true; // แสดง loading indicator ขณะกำลังรายงาน
-      });
-      try {
-        final url = Uri.parse(
-            'http://projectnodejs.thammadalok.com/AGribooking/reporter');
-        final response = await http.put(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            "rid": rid,
-            "mid_reporter": midReporter,
-          }),
-        );
+    if (confirm != true) return false; // ถ้าไม่ยืนยัน
 
-        if (response.statusCode == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('รายงานรีวิวสำเร็จ!')),
-          );
-          // รีเฟรชข้อมูลรีวิวเพื่ออัปเดต UI (ปุ่มรายงานจะหายไป)
-          _reviewFuture = fetchReviews(_currentMid);
-        } else {
-          throw Exception('Failed to report review: ${response.body}');
-        }
-      } catch (e) {
+    setState(() => isLoading = true);
+
+    try {
+      final url = Uri.parse(
+          'http://projectnodejs.thammadalok.com/AGribooking/reporter');
+      final response = await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({"rid": rid, "mid_reporter": this.widget.mid}),
+      );
+
+      if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('เกิดข้อผิดพลาดในการรายงาน: $e')),
+          const SnackBar(content: Text('รายงานรีวิวสำเร็จ!')),
         );
-      } finally {
-        setState(() {
-          isLoading = false; // ซ่อน loading indicator
-        });
+        _reviewFuture = fetchReviews(_currentMid); // รีเฟรชรีวิว
+        return true; // คืนค่า success
+      } else {
+        throw Exception('Failed to report review: ${response.body}');
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('เกิดข้อผิดพลาดในการรายงาน: $e')),
+      );
+      return false;
+    } finally {
+      setState(() => isLoading = false);
     }
   }
+
+  // // ฟังก์ชันสำหรับรายงานรีวิวไม่เหมาะสม
+  // Future<void> _reportReview(int rid) async {
+  //   final int midReporter = _currentMid; // mid ของผู้ใช้ปัจจุบัน
+
+  //   // แสดง AlertDialog เพื่อยืนยันการรายงาน
+  //   final bool? confirm = await showDialog<bool>(
+  //     context: context,
+  //     builder: (BuildContext dialogContext) {
+  //       return AlertDialog(
+  //         title: const Center(
+  //           child: Text(
+  //             'ยืนยันการรายงาน',
+  //             style: TextStyle(
+  //               fontWeight: FontWeight.bold,
+  //               fontSize: 22,
+  //               color: Colors.deepOrange,
+  //             ),
+  //           ),
+  //         ),
+  //         content: const Text(
+  //           'คุณแน่ใจหรือไม่ว่าต้องการรายงานรีวิวนี้ว่าไม่เหมาะสม?',
+  //           textAlign: TextAlign.center,
+  //           style: TextStyle(
+  //             fontSize: 16,
+  //             color: Colors.black87,
+  //             height: 1.4,
+  //           ),
+  //         ),
+  //         actionsAlignment: MainAxisAlignment.center,
+  //         actions: <Widget>[
+  //           TextButton(
+  //             onPressed: () => Navigator.of(dialogContext).pop(false), // ยกเลิก
+  //             child: const Text(
+  //               'ยกเลิก',
+  //               style: TextStyle(
+  //                 fontSize: 14,
+  //                 fontWeight: FontWeight.w600,
+  //                 color: Colors.grey,
+  //               ),
+  //             ),
+  //           ),
+  //           const SizedBox(width: 16),
+  //           TextButton(
+  //             onPressed: () => Navigator.of(dialogContext).pop(true), // ยืนยัน
+  //             child: const Text(
+  //               'รายงาน',
+  //               style: TextStyle(
+  //                 fontSize: 14,
+  //                 fontWeight: FontWeight.w700,
+  //                 color: Colors.redAccent,
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+
+  //   if (confirm == true) {
+  //     setState(() {
+  //       isLoading = true; // แสดง loading indicator ขณะกำลังรายงาน
+  //     });
+  //     try {
+  //       final url = Uri.parse(
+  //           'http://projectnodejs.thammadalok.com/AGribooking/reporter');
+  //       final response = await http.put(
+  //         url,
+  //         headers: {'Content-Type': 'application/json'},
+  //         body: jsonEncode({
+  //           "rid": rid,
+  //           "mid_reporter": midReporter,
+  //         }),
+  //       );
+
+  //       if (response.statusCode == 200) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           const SnackBar(content: Text('รายงานรีวิวสำเร็จ!')),
+  //         );
+  //         // รีเฟรชข้อมูลรีวิวเพื่ออัปเดต UI (ปุ่มรายงานจะหายไป)
+  //         _reviewFuture = fetchReviews(_currentMid);
+  //       } else {
+  //         throw Exception('Failed to report review: ${response.body}');
+  //       }
+  //     } catch (e) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('เกิดข้อผิดพลาดในการรายงาน: $e')),
+  //       );
+  //     } finally {
+  //       setState(() {
+  //         isLoading = false; // ซ่อน loading indicator
+  //       });
+  //     }
+  //   }
+  // }
 
 // ปุ่มจองคิว
   final ButtonStyle bookingButtonStyle = ElevatedButton.styleFrom(
@@ -643,15 +743,21 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                                       if (review['reporters'] != null &&
                                           review['reporters'] is String) {
                                         try {
-                                          reporters = List<int>.from(
-                                              jsonDecode(review['reporters']));
+                                          final decoded =
+                                              jsonDecode(review['reporters']);
+                                          // แปลงทุก element เป็น int
+                                          reporters = decoded
+                                              .map<int>((e) =>
+                                                  int.parse(e.toString()))
+                                              .toList();
                                         } catch (e) {
                                           print(
                                               'Error parsing reporters JSON for review ${review['rid']}: $e');
                                         }
                                       }
+
                                       bool hasReported =
-                                          reporters.contains(_currentMid);
+                                          reporters.contains(this.widget.mid);
 
                                       return Card(
                                         margin: const EdgeInsets.symmetric(
@@ -731,57 +837,254 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                                                     fontSize: 12,
                                                     color: Colors.grey),
                                               ),
-                                              if (!hasReported &&
-                                                  _currentMid != 0)
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 8.0),
-                                                  child: Align(
-                                                    alignment:
-                                                        Alignment.bottomRight,
-                                                    child: ElevatedButton(
-                                                      onPressed: isLoading
-                                                          ? null
-                                                          : () => _reportReview(
-                                                              review['rid']),
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        backgroundColor:
-                                                            Colors.red,
-                                                        foregroundColor:
-                                                            Colors.white,
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                                horizontal: 12,
-                                                                vertical: 6),
-                                                        textStyle:
-                                                            Theme.of(context)
-                                                                .textTheme
-                                                                .bodySmall
-                                                                ?.copyWith(
-                                                                    fontSize:
-                                                                        12),
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                        ),
-                                                      ),
-                                                      child: Text(
-                                                        'รายงานรีวิว',
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .bodySmall
-                                                            ?.copyWith(
-                                                                color: Colors
-                                                                    .white),
-                                                      ),
+                                              // Row(
+                                              //   mainAxisAlignment:
+                                              //       MainAxisAlignment
+                                              //           .spaceBetween,
+                                              //   children: [
+                                              //     Text(
+                                              //         'จำนวนคนรายงาน: ${reporters.length} คน'),
+                                              //     if (!hasReported &&
+                                              //         _currentMid != 0)
+                                              //       ElevatedButton(
+                                              //         onPressed: isLoading
+                                              //             ? null
+                                              //             : () async {
+                                              //                 bool success =
+                                              //                     await _reportReview(
+                                              //                         review[
+                                              //                             'rid']);
+                                              //                 if (success) {
+                                              //                   setState(() {
+                                              //                     reporters.add(
+                                              //                         _currentMid); // เพิ่ม mid ปัจจุบัน
+                                              //                   });
+                                              //                 }
+                                              //               },
+                                              //         style: ElevatedButton
+                                              //             .styleFrom(
+                                              //           backgroundColor:
+                                              //               Colors.red,
+                                              //           foregroundColor:
+                                              //               Colors.white,
+                                              //           padding:
+                                              //               const EdgeInsets
+                                              //                   .symmetric(
+                                              //                   horizontal: 12,
+                                              //                   vertical: 6),
+                                              //           shape:
+                                              //               RoundedRectangleBorder(
+                                              //             borderRadius:
+                                              //                 BorderRadius
+                                              //                     .circular(8),
+                                              //           ),
+                                              //         ),
+                                              //         child: Text(
+                                              //           'รายงานรีวิว',
+                                              //           style: Theme.of(context)
+                                              //               .textTheme
+                                              //               .bodySmall
+                                              //               ?.copyWith(
+                                              //                   color: Colors
+                                              //                       .white),
+                                              //         ),
+                                              //       ),
+                                              //   ],
+                                              // )
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    'จำนวนคนรายงาน: ${reporters.length} คน',
+                                                    style: const TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 12,
                                                     ),
                                                   ),
-                                                ),
+                                                ],
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  const SizedBox(height: 4),
+                                                  Row(
+                                                    children: [
+                                                      ElevatedButton(
+                                                        onPressed: (isLoading ||
+                                                                hasReported ||
+                                                                _currentMid ==
+                                                                    0)
+                                                            ? null
+                                                            : () async {
+                                                                bool success =
+                                                                    await _reportReview(
+                                                                        review[
+                                                                            'rid']);
+                                                                if (success) {
+                                                                  setState(() {
+                                                                    reporters.add(
+                                                                        _currentMid); // เพิ่ม mid ปัจจุบัน
+                                                                  });
+                                                                }
+                                                              },
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              hasReported
+                                                                  ? Colors.grey
+                                                                  : Colors.red,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                  vertical: 6),
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                          ),
+                                                        ),
+                                                        child: Text(
+                                                          'รายงานรีวิว',
+                                                          style:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .bodySmall
+                                                                  ?.copyWith(
+                                                                    color: Colors
+                                                                        .white,
+                                                                  ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              )
+
+                                              // Padding(
+                                              //   padding:
+                                              //       const EdgeInsets.all(8.0),
+                                              //   child: Row(
+                                              //     mainAxisAlignment:
+                                              //         MainAxisAlignment
+                                              //             .spaceBetween,
+                                              //     children: [
+                                              //       Text(
+                                              //           'จำนวนคนรายงาน: ${reporters.length} คน'),
+                                              //       if (!hasReported &&
+                                              //           _currentMid != 0)
+                                              //         ElevatedButton(
+                                              //           onPressed: isLoading
+                                              //               ? null
+                                              //               : () =>
+                                              //                   _reportReview(
+                                              //                       review[
+                                              //                           'rid']),
+                                              //           style: ElevatedButton
+                                              //               .styleFrom(
+                                              //             backgroundColor:
+                                              //                 Colors.red,
+                                              //             foregroundColor:
+                                              //                 Colors.white,
+                                              //             padding:
+                                              //                 const EdgeInsets
+                                              //                     .symmetric(
+                                              //                     horizontal:
+                                              //                         12,
+                                              //                     vertical: 6),
+                                              //             textStyle:
+                                              //                 Theme.of(context)
+                                              //                     .textTheme
+                                              //                     .bodySmall
+                                              //                     ?.copyWith(
+                                              //                         fontSize:
+                                              //                             12),
+                                              //             shape:
+                                              //                 RoundedRectangleBorder(
+                                              //               borderRadius:
+                                              //                   BorderRadius
+                                              //                       .circular(
+                                              //                           8),
+                                              //             ),
+                                              //           ),
+                                              //           child: Text(
+                                              //             'รายงานรีวิว',
+                                              //             style: Theme.of(
+                                              //                     context)
+                                              //                 .textTheme
+                                              //                 .bodySmall
+                                              //                 ?.copyWith(
+                                              //                     color: Colors
+                                              //                         .white),
+                                              //           ),
+                                              //         ),
+                                              //     ],
+                                              //   ),
+                                              // )
+
+                                              // Padding(
+                                              //   padding: const EdgeInsets.all(8.0),
+                                              //   child: Text(
+                                              //       'จำนวนคนรายงาน: ${reporters.length} คน'),
+                                              // ),
+                                              // if (!hasReported &&
+                                              //     _currentMid != 0)
+                                              //   Padding(
+                                              //     padding:
+                                              //         const EdgeInsets.only(
+                                              //             top: 8.0),
+                                              //     child: Align(
+                                              //       alignment:
+                                              //           Alignment.bottomRight,
+                                              //       child: ElevatedButton(
+                                              //         onPressed: isLoading
+                                              //             ? null
+                                              //             : () => _reportReview(
+                                              //                 review['rid']),
+                                              //         style: ElevatedButton
+                                              //             .styleFrom(
+                                              //           backgroundColor:
+                                              //               Colors.red,
+                                              //           foregroundColor:
+                                              //               Colors.white,
+                                              //           padding:
+                                              //               const EdgeInsets
+                                              //                   .symmetric(
+                                              //                   horizontal: 12,
+                                              //                   vertical: 6),
+                                              //           textStyle:
+                                              //               Theme.of(context)
+                                              //                   .textTheme
+                                              //                   .bodySmall
+                                              //                   ?.copyWith(
+                                              //                       fontSize:
+                                              //                           12),
+                                              //           shape:
+                                              //               RoundedRectangleBorder(
+                                              //             borderRadius:
+                                              //                 BorderRadius
+                                              //                     .circular(8),
+                                              //           ),
+                                              //         ),
+                                              //         child: Text(
+                                              //           'รายงานรีวิว',
+                                              //           style: Theme.of(context)
+                                              //               .textTheme
+                                              //               .bodySmall
+                                              //               ?.copyWith(
+                                              //                   color: Colors
+                                              //                       .white),
+                                              //         ),
+                                              //       ),
+                                              //     ),
+                                              //   ),
                                             ],
                                           ),
                                         ),

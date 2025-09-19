@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:agri_booking2/pages/GenaralUser/home.dart';
 import 'package:agri_booking2/pages/login.dart';
+import 'package:agri_booking2/pages/register.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class TabbarGenaralUser extends StatefulWidget {
   final int value;
@@ -31,6 +34,8 @@ class _TabbarCarState extends State<TabbarGenaralUser> {
       if (index == 0) {
         currentPage = const HomeGe();
       } else if (index == 1) {
+        currentPage = const Register();
+      } else if (index == 2) {
         currentPage = const Login();
       }
     });
@@ -48,6 +53,10 @@ class _TabbarCarState extends State<TabbarGenaralUser> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'หน้าแรก',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_add),
+            label: 'สมัคสมาชิก',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.login),
