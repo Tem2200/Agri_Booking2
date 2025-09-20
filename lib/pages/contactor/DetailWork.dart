@@ -3,11 +3,13 @@ import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 class DetailWorkPage extends StatefulWidget {
   final int rsid;
   const DetailWorkPage({super.key, required this.rsid});
@@ -213,12 +215,22 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
         });
 
         await fetchDetail();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('อัปเดตสถานะสำเร็จ')),
+        Fluttertoast.showToast(
+          msg: 'อัปเดตสถานะสำเร็จ',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('อัปเดตสถานะล้มเหลว')),
+        Fluttertoast.showToast(
+          msg: 'อัปเดตสถานะล้มเหลว',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       }
     } catch (e) {

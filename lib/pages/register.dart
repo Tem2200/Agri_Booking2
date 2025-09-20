@@ -10,7 +10,6 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:agri_booking2/pages/assets/location_data.dart';
 
-
 class Register extends StatefulWidget {
   const Register({super.key});
 
@@ -63,7 +62,6 @@ class _RegisterState extends State<Register> {
   // เพิ่มตัวแปร error สำหรับปุ่ม/ช่องที่ไม่ใช่ TextFormField
   String? typeMemberError;
   String? mapError;
-
   @override
   void initState() {
     super.initState();
@@ -88,10 +86,7 @@ class _RegisterState extends State<Register> {
         scrollToFocus(usernameFocus);
         return;
       }
-      if (emailController.text.isEmpty) {
-        scrollToFocus(emailFocus);
-        return;
-      }
+
       if (passwordController.text.isEmpty) {
         scrollToFocus(passwordFocus);
         return;
@@ -139,8 +134,6 @@ class _RegisterState extends State<Register> {
 
     setState(() => isLoading = true);
 
-
-
     if (typeMember == null) {
       setState(() => isLoading = false);
       showDialog(
@@ -164,34 +157,39 @@ class _RegisterState extends State<Register> {
       );
       return;
     }
-
-        final email = emailController.text;
-    final emailIsValid = await isRealEmail(email);
-
-    if (!emailIsValid) {
-      setState(() => isLoading = false);
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('อีเมลไม่ถูกต้อง'),
-          content: const Text(
-              'อีเมลนี้ไม่สามารถรับส่งข้อความได้จริง กรุณากรอกอีเมลอื่น'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('ตกลง'),
-            ),
-          ],
-        ),
-      );
+    if (emailController.text.isEmpty) {
+      scrollToFocus(emailFocus);
       return;
+    }
+    if (emailController.text.isNotEmpty) {
+      print(emailController.text.trim());
+      final emailIsValid = await isRealEmail(emailController.text.trim());
+
+      if (!emailIsValid) {
+        setState(() => isLoading = false);
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('อีเมลไม่ถูกต้อง'),
+            content: const Text(
+                'อีเมลนี้ไม่สามารถรับส่งข้อความได้จริง กรุณากรอกอีเมลอื่น'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('ตกลง'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
     }
 
     final url =
         Uri.parse('http://projectnodejs.thammadalok.com/AGribooking/register');
     final data = {
       "username": usernameController.text,
-      "email": email,
+      "email": emailController.text,
       "password": passwordController.text,
       "phone": phoneController.text,
       "image": imageUrl,
@@ -339,16 +337,21 @@ class _RegisterState extends State<Register> {
 
 // ฟังก์ชันตรวจสอบอีเมลจริงด้วย Abstract API
   Future<bool> isRealEmail(String email) async {
-    const apiKey = 'f1be6dd55f1043dd9fb0794725d344a1';
+    final apiKey = 'b489d4f11245410a863b38cc325077bc';
+    //const apiKey = 'f1be6dd55f1043dd9fb0794725d344a1';
     final url = Uri.parse(
-        'https://emailvalidation.abstractapi.com/v1/?api_key=$apiKey&email=$email');
+        'https://emailreputation.abstractapi.com/v1/?api_key=b489d4f11245410a863b38cc325077bc&email=$email');
 
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         // เช็คค่า deliverability ว่าส่งได้จริงไหม
-        return data['deliverability'] == 'DELIVERABLE';
+        print(data);
+        return data['email_deliverability']['status']
+                .toString()
+                .toLowerCase() ==
+            'deliverable';
       }
     } catch (e) {
       print("Error validating email: $e");
@@ -613,7 +616,23 @@ class _RegisterState extends State<Register> {
                             keyboardType: TextInputType.number,
                             maxLength: 10,
                             focusNode: phoneFocus,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'กรุณากรอกเบอร์โทร';
+                              }
+                              if (value.length != 10) {
+                                return 'เบอร์โทรต้องมี 10 หลัก';
+                              }
+                              if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                                return 'เบอร์โทรต้องเป็นตัวเลขเท่านั้น';
+                              }
+                              if (!value.startsWith('0')) {
+                                return 'เบอร์โทรต้องขึ้นต้นด้วย 0';
+                              }
+                              return null;
+                            },
                           ),
+
                           _buildDropdown(
                               "จังหวัด *", selectedProvince, provinces,
                               (value) {

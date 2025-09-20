@@ -1,6 +1,7 @@
 import 'package:agri_booking2/pages/employer/farms.dart';
 import 'package:agri_booking2/pages/employer/map_farms.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:agri_booking2/pages/assets/location_data.dart';
@@ -106,21 +107,36 @@ class _AddFarmPageState extends State<AddFarmPage> {
       );
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('เพิ่มไร่นาสำเร็จ')),
+        Fluttertoast.showToast(
+          msg: 'เพิ่มไร่นาสำเร็จ',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => FarmsPage(mid: widget.mid)),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('เกิดข้อผิดพลาด: ${response.body}')),
+        Fluttertoast.showToast(
+          msg: 'เพิ่มไร่นาล้มเหลว',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+      Fluttertoast.showToast(
+        msg: 'เพิ่มไร่นาล้มเหลว',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
       );
     } finally {
       setState(() {
@@ -364,37 +380,6 @@ class _AddFarmPageState extends State<AddFarmPage> {
                     val == null || val.isEmpty ? 'กรุณากรอกขนาดพื้นที่*' : null,
               ),
               const SizedBox(height: 12),
-              // DropdownButtonFormField<String>(
-              //   value: selectedUnit,
-              //   decoration: InputDecoration(
-              //     labelText: 'หน่วยพื้นที่ *',
-              //     filled: true,
-              //     fillColor:
-              //         const Color.fromARGB(248, 255, 249, 221).withOpacity(0.15),
-              //     labelStyle: const TextStyle(
-              //         color: Colors.black, fontWeight: FontWeight.w600),
-              //     contentPadding:
-              //         const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              //     border: inputBorder,
-              //     enabledBorder: enabledBorder,
-              //     focusedBorder: focusedBorder,
-              //     errorBorder: errorBorder,
-              //     focusedErrorBorder: errorBorder,
-              //   ),
-              //   items: unitOptions
-              //       .map((unit) => DropdownMenuItem(
-              //             value: unit,
-              //             child: Text(unit),
-              //           ))
-              //       .toList(),
-              //   onChanged: (value) {
-              //     setState(() {
-              //       selectedUnit = value;
-              //     });
-              //   },
-              //   validator: (v) => v == null ? 'กรุณาเลือกหน่วยพื้นที่*' : null,
-              // ),
-
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -555,23 +540,6 @@ class _AddFarmPageState extends State<AddFarmPage> {
                 ),
               ),
               const SizedBox(height: 40),
-
-              // ElevatedButton(
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: const Color.fromARGB(255, 6, 126, 12),
-              //     foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-              //     padding:
-              //         const EdgeInsets.symmetric(vertical: 16, horizontal: 30),
-              //     textStyle: const TextStyle(
-              //         fontSize: 16, fontWeight: FontWeight.bold),
-              //     shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(12)),
-              //     elevation: 8,
-              //     shadowColor: const Color.fromARGB(164, 174, 174, 174),
-              //   ),
-              //   onPressed: _submitFarm,
-              //   child: const Text('เพิ่มไร่นา'),
-              // ),
 
               ElevatedButton(
                 onPressed: _isSubmitting ? null : _submitFarm,

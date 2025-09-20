@@ -418,45 +418,6 @@ class _DetailvehicleState extends State<Detailvehicle> {
 
                           const SizedBox(width: 12), // ช่องว่างก่อนปุ่ม
 
-                          // ปุ่มตารางงาน
-                          // ElevatedButton(
-                          //   onPressed: () {
-                          //     if (vehicleData != null && _currentMid != 0) {
-                          //       final now = DateTime.now();
-                          //       Navigator.push(
-                          //         context,
-                          //         MaterialPageRoute(
-                          //           builder: (context) => PlanPage(
-                          //             mid: _currentMid,
-                          //             month: now.month,
-                          //             year: now.year,
-                          //           ),
-                          //         ),
-                          //       );
-                          //     } else {
-                          //       ScaffoldMessenger.of(context).showSnackBar(
-                          //         const SnackBar(
-                          //           content: Text(
-                          //               'ไม่สามารถเข้าถึงตารางงานได้ เนื่องจากข้อมูลยังไม่พร้อม'),
-                          //         ),
-                          //       );
-                          //     }
-                          //   },
-                          //   style: ElevatedButton.styleFrom(
-                          //     padding: const EdgeInsets.symmetric(
-                          //         horizontal: 16, vertical: 8),
-                          //     textStyle: const TextStyle(
-                          //         fontSize: 12), // ลดขนาดตัวหนังสือ
-                          //     shape: RoundedRectangleBorder(
-                          //         borderRadius: BorderRadius.circular(8)),
-                          //     backgroundColor: Colors.green,
-                          //     foregroundColor: Colors.white,
-                          //     minimumSize:
-                          //         const Size(80, 36), // กำหนดขนาดปุ่มให้เล็กลง
-                          //   ),
-                          //   child: const Text('คิวงานทั้งหมด'),
-                          // ),
-
                           const SizedBox(width: 8), // ช่องว่างระหว่างปุ่ม
 
                           // ปุ่มแก้ไขรถ

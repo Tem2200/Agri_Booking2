@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:agri_booking2/pages/employer/map_farms.dart';
 import 'package:agri_booking2/pages/map_edit.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:agri_booking2/pages/assets/location_data.dart';
 
@@ -195,18 +196,33 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
       );
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('แก้ไขไร่นาสำเร็จ')),
+        Fluttertoast.showToast(
+          msg: 'แก้ไขไร่นาสำเร็จ',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
         Navigator.pop(context, true);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('เกิดข้อผิดพลาด: ${response.body}')),
+        Fluttertoast.showToast(
+          msg: 'เกิดข้อผิดพลาด: ${response.body}',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+      Fluttertoast.showToast(
+        msg: 'เกิดข้อผิดพลาด: $e',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
       );
     }
   }
@@ -443,19 +459,6 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
                       ),
                     ),
                   ),
-
-                  // // ✅ แสดงข้อความ markerMessage ถ้ามี
-                  // if (markerMessage.isNotEmpty)
-                  //   Padding(
-                  //     padding: const EdgeInsets.only(top: 8),
-                  //     child: Text(
-                  //       markerMessage,
-                  //       style: const TextStyle(
-                  //         color: Colors.green,
-                  //         fontWeight: FontWeight.bold,
-                  //       ),
-                  //     ),
-                  //   ),
                   const SizedBox(height: 10),
                   if (markerMessage.isNotEmpty)
                     Center(

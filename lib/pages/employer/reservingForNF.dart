@@ -1,23 +1,23 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/addFarm2.dart';
-import 'package:agri_booking2/pages/employer/plan_emp.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 
 class ReservingForNF extends StatefulWidget {
   final int mid;
   final int vid;
-  final int? fid; // ✅ เพิ่มตรงนี้
-  final dynamic farm; // ✅ เพิ่มตรงนี้
+  final int? fid;
+  final dynamic farm;
   final dynamic vihicleData;
   const ReservingForNF({
     super.key,
     required this.mid,
     required this.vid,
-    this.fid, // ✅ รับข้อมูลฟาร์ม
-    this.farm, // ✅ รับข้อมูลฟาร์ม
+    this.fid,
+    this.farm,
     required this.vihicleData,
   });
 
@@ -41,6 +41,9 @@ class _ReservingForNFState extends State<ReservingForNF> {
   dynamic selectedFarm;
   late WebSocket _ws;
   bool _wsConnected = false;
+  String? dateStartError;
+  String? dateEndError;
+  String? farmError;
 
   final List<String> unitOptions = [
     'ตารางวา',
@@ -102,18 +105,15 @@ class _ReservingForNFState extends State<ReservingForNF> {
 
   Future<void> _submitReservation() async {
     if (!_formKey.currentState!.validate()) return;
-    if (selectedFarm == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('กรุณาเลือกที่นา')),
-      );
+
+    setState(() {
+      dateStartError = dateStart == null ? 'กรุณาเลือกวันที่เริ่ม' : null;
+      dateEndError = dateEnd == null ? 'กรุณาเลือกวันที่สิ้นสุด' : null;
+      farmError = selectedFarm == null ? 'กรุณาเลือกที่นา' : null;
+    });
+
+    if (dateStartError != null || dateEndError != null || farmError != null)
       return;
-    }
-    if (dateStart == null || dateEnd == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('กรุณาเลือกวันที่เริ่มและสิ้นสุด')),
-      );
-      return;
-    }
 
     setState(() => isLoading = true);
 
@@ -146,8 +146,13 @@ class _ReservingForNFState extends State<ReservingForNF> {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('จองสำเร็จ')),
+        Fluttertoast.showToast(
+          msg: 'จองสำเร็จ',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
         int currentMonth = DateTime.now().month;
         int currentYear = DateTime.now().year;
@@ -279,16 +284,27 @@ class _ReservingForNFState extends State<ReservingForNF> {
           pickedTime.minute,
         );
 
-        // เช็คว่าเป็นอนาคต
         if (selectedDateTime.isAfter(now)) {
           setState(() {
             dateStart = selectedDateTime;
+
+            // ✅ ถ้า dateEnd มีอยู่แล้ว แต่ดันน้อยกว่าหรือเท่ากับ dateStart ใหม่
+            if (dateEnd != null && !dateEnd!.isAfter(dateStart!)) {
+              dateEnd = null; // reset เพื่อให้ผู้ใช้เลือกใหม่
+
+              // แจ้งเตือนว่าถูก reset แล้ว
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('วันสิ้นสุดถูกรีเซ็ต กรุณาเลือกใหม่'),
+                ),
+              );
+            }
           });
         } else {
-          // แจ้งเตือนถ้าเลือกเวลาย้อนหลัง
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-                content: Text('กรุณาเลือกวันที่และเวลาที่มากกว่าปัจจุบัน')),
+              content: Text('กรุณาเลือกวันที่และเวลาที่มากกว่าปัจจุบัน'),
+            ),
           );
         }
       }
@@ -341,137 +357,6 @@ class _ReservingForNFState extends State<ReservingForNF> {
       }
     }
   }
-
-  // Future<void> _submitReservation() async {
-  //   if (!_formKey.currentState!.validate()) return;
-  //   if (selectedFarm == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('กรุณาเลือกที่นา')),
-  //     );
-  //     return;
-  //   }
-  //   if (dateStart == null || dateEnd == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('กรุณาเลือกวันที่เริ่มและสิ้นสุด')),
-  //     );
-  //     return;
-  //   }
-
-  //   setState(() => isLoading = true);
-
-  //   final String finalUnit =
-  //       isCustomUnit ? customUnitController.text.trim() : selectedUnit ?? '';
-
-  //   final Map<String, dynamic> body = {
-  //     "name_rs": nameController.text.trim(),
-  //     "area_amount": int.tryParse(areaAmountController.text.trim()) ?? 0,
-  //     "unit_area": finalUnit,
-  //     "detail": detailController.text.trim() ?? 'ไม่มีรายละเอียดการจอง',
-  //     "date_start":
-  //         "${dateStart!.toIso8601String().split('T')[0]} ${dateStart!.hour.toString().padLeft(2, '0')}:${dateStart!.minute.toString().padLeft(2, '0')}:00",
-  //     "date_end":
-  //         "${dateEnd!.toIso8601String().split('T')[0]} ${dateEnd!.hour.toString().padLeft(2, '0')}:${dateEnd!.minute.toString().padLeft(2, '0')}:00",
-  //     "progress_status": null,
-  //     "mid_employee": widget.mid,
-  //     "vid": widget.vid,
-  //     "fid": selectedFarm['fid'],
-  //   };
-
-  //   try {
-  //     final response = await http.post(
-  //       Uri.parse('http://projectnodejs.thammadalok.com/AGribooking/reserve'),
-  //       headers: {'Content-Type': 'application/json'},
-  //       body: jsonEncode(body),
-  //     );
-
-  //     if (response.statusCode == 200 || response.statusCode == 201) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('จองสำเร็จ')),
-  //       );
-
-  //       // Navigator.pushReplacement(
-  //       //   context,
-  //       //   MaterialPageRoute(
-  //       //     builder: (context) => PlanEmp(mid: widget.mid),
-  //       //   ),
-  //       // );
-
-  //       int currentMonth = DateTime.now().month;
-  //       int currentYear = DateTime.now().year;
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => Tabbar(
-  //             mid: widget.mid,
-  //             value: 1,
-  //             month: currentMonth,
-  //             year: currentYear,
-  //           ),
-  //         ),
-  //       );
-  //     } else {
-  //       String errorMsg;
-  //       try {
-  //         final decoded = jsonDecode(response.body);
-  //         errorMsg = decoded["message"]?.toString() ?? response.body;
-  //       } catch (e) {
-  //         errorMsg = response.body;
-  //       }
-
-  //       showDialog(
-  //         context: context,
-  //         builder: (context) {
-  //           // นี่คือ errorMsg ที่คุณได้รับมา
-  //           // ตัวอย่างที่ 1: '{"error":"รถคันนี้ถูกจองไปแล้ว"}'
-  //           // ตัวอย่างที่ 2: '{"error":"ผู้รับเหมาไม่ว่างในวันดังกล่าว"}'
-  //           // ตัวอย่างที่ 3: "เกิดข้อผิดพลาดในการเชื่อมต่อ"
-  //           String errorMsg =
-  //               '{"error":"รถคันนี้ถูกจองไปแล้วในเวลาที่คุณเลือก กรุณาเลือกวันเวลาอื่น"}';
-
-  //           String errorMessage = 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ';
-
-  //           // 💡 เริ่มตรวจสอบที่นี่
-  //           try {
-  //             final errorMap = jsonDecode(errorMsg);
-  //             // ถ้าสามารถแปลงเป็น JSON ได้ และมี key 'error'
-  //             if (errorMap.containsKey('error') &&
-  //                 errorMap['error'] is String) {
-  //               errorMessage = errorMap['error'];
-  //             }
-  //           } catch (e) {
-  //             // ถ้าแปลงเป็น JSON ไม่ได้ หรือเกิดข้อผิดพลาดอื่น ๆ
-  //             // ให้ใช้ข้อความ errorMsg ดั้งเดิม
-  //             errorMessage = errorMsg;
-  //           }
-
-  //           return AlertDialog(
-  //             title: const Row(
-  //               children: [
-  //                 Icon(Icons.warning, color: Colors.red),
-  //                 SizedBox(width: 10),
-  //                 Text("เกิดข้อผิดพลาด"),
-  //               ],
-  //             ),
-  //             content:
-  //                 Text(errorMessage), // แสดงข้อความที่ได้จากกระบวนการข้างต้น
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: () => Navigator.pop(context),
-  //                 child: const Text("ปิด"),
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
-  //     );
-  //   } finally {
-  //     setState(() => isLoading = false);
-  //   }
-  // }
 
   final TextStyle _infoStyles = const TextStyle(
     fontSize: 16,
@@ -697,38 +582,67 @@ class _ReservingForNFState extends State<ReservingForNF> {
                     Row(
                       children: [
                         Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => _selectDateStart(context),
-                            child: Text(
-                              dateStart == null
-                                  ? 'เลือกวันที่เริ่ม'
-                                  : 'เริ่ม: ${dateStart!.toLocal()}'
-                                      .split('.')[0],
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              OutlinedButton(
+                                onPressed: () => _selectDateStart(context),
+                                child: Text(
+                                  dateStart == null
+                                      ? 'เลือกวันที่เริ่ม'
+                                      : 'เริ่ม: ${dateStart!.toLocal()}'
+                                          .split('.')[0],
+                                ),
+                              ),
+                              if (dateStartError != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 4),
+                                  child: Text(
+                                    dateStartError!,
+                                    style: const TextStyle(
+                                        color: Colors.red, fontSize: 12),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => _selectDateEnd(context),
-                            child: Text(
-                              dateEnd == null
-                                  ? 'เลือกวันที่สิ้นสุด'
-                                  : 'สิ้นสุด: ${dateEnd!.toLocal()}'
-                                      .split('.')[0],
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              OutlinedButton(
+                                onPressed: () => _selectDateEnd(context),
+                                child: Text(
+                                  dateEnd == null
+                                      ? 'เลือกวันที่สิ้นสุด'
+                                      : 'สิ้นสุด: ${dateEnd!.toLocal()}'
+                                          .split('.')[0],
+                                ),
+                              ),
+                              if (dateEndError != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 4),
+                                  child: Text(
+                                    dateEndError!,
+                                    style: const TextStyle(
+                                        color: Colors.red, fontSize: 12),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                     DropdownButtonFormField<dynamic>(
                       value: selectedFarm,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'เลือกที่นา*',
-                        border: OutlineInputBorder(),
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        errorText: farmError, // แสดง error ใต้ dropdown
                       ),
                       items: farmList.map<DropdownMenuItem<dynamic>>((farm) {
                         return DropdownMenuItem<dynamic>(
@@ -739,12 +653,11 @@ class _ReservingForNFState extends State<ReservingForNF> {
                       onChanged: (value) {
                         setState(() {
                           selectedFarm = value;
+                          farmError = null; // เคลียร์ error เมื่อเลือกแล้ว
                         });
                       },
-                      validator: (value) =>
-                          value == null ? 'กรุณาเลือกที่นา*' : null,
                     ),
-                    const SizedBox(height: 16),
+
                     if (selectedFarm != null) ...[
                       Center(
                         child: Container(
@@ -806,7 +719,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                       ),
                     ],
                     if (farmList.isEmpty) ...[
-                      const SizedBox(height: 16),
+                      //const SizedBox(height: 16),
                       const Center(
                         child: Text(
                           'คุณยังไม่มีข้อมูลที่นา',
@@ -851,7 +764,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                       ),
                       const Divider(height: 32, thickness: 1),
                     ],
-                    const SizedBox(height: 16),
+                    //const SizedBox(height: 16),
                     _buildTextField(
                       label: 'รายละเอียดงาน',
                       controller: detailController,
