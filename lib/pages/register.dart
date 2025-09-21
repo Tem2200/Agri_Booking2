@@ -452,7 +452,7 @@ class _RegisterState extends State<Register> {
         automaticallyImplyLeading: false,
         backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         elevation: 0,
-        automaticallyImplyLeading: false,
+        //automaticallyImplyLeading: false,
         centerTitle: true,
         title: Text(
           'สมัครสมาชิก',
