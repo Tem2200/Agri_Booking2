@@ -213,7 +213,7 @@ class _LoginState extends State<Login> {
         });
       } else {
         setState(() {
-            message = 'เข้าสู่ระบบไม่สำเร็จ ${wrong['message'] ?? ''}';
+          message = 'เข้าสู่ระบบไม่สำเร็จ ${wrong['message'] ?? ''}';
         });
       }
     } catch (e) {
@@ -375,17 +375,17 @@ class _LoginState extends State<Login> {
                           ),
                         ),
 // แสดงข้อความผิดพลาด ถ้ามี
-if (message.isNotEmpty)
-  Padding(
-    padding: const EdgeInsets.only(top: 16),
-    child: Text(
-      message,
-      style: const TextStyle(
-        color: Colors.red,
-        fontSize: 16,
-      ),
-    ),
-  ),
+                        if (message.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: Text(
+                              message,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
 
                         const SizedBox(height: 20),
 
@@ -399,7 +399,6 @@ if (message.isNotEmpty)
                                       const TabbarGenaralUser(value: 1)),
                             );
                           },
-
                           child: const Text(
                             'สมัครสมาชิก',
                             style: TextStyle(
@@ -506,6 +505,73 @@ if (message.isNotEmpty)
       ),
     );
   }
+
+  // Widget buildInnerShadowTextField({
+  //   required TextEditingController controller,
+  //   required String label,
+  //   bool obscureText = false,
+  //   bool isPasswordField = false,
+  // }) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 16.0),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         // ชื่อช่องแยกออกมา
+  //         Text(
+  //           label,
+  //           style: const TextStyle(
+  //             color: Color.fromARGB(255, 5, 5, 5),
+  //             fontSize: 16,
+  //             fontWeight: FontWeight.w600,
+  //           ),
+  //         ),
+  //         const SizedBox(height: 6),
+  //         Container(
+  //           decoration: BoxDecoration(
+  //             color: Colors.grey[200],
+  //             borderRadius: BorderRadius.circular(12),
+  //             boxShadow: const [
+  //               BoxShadow(
+  //                 color: Color.fromARGB(255, 176, 171, 171),
+  //                 offset: Offset(-2, -2),
+  //                 blurRadius: 4,
+  //                 spreadRadius: 1,
+  //               ),
+  //               BoxShadow(
+  //                 color: Color.fromARGB(31, 87, 85, 85),
+  //                 offset: Offset(2, 2),
+  //                 blurRadius: 4,
+  //                 spreadRadius: 1,
+  //               ),
+  //             ],
+  //           ),
+  //           child: TextField(
+  //             controller: controller,
+  //             obscureText: obscureText,
+  //             decoration: InputDecoration(
+  //               floatingLabelBehavior: FloatingLabelBehavior.never,
+  //               filled: true,
+  //               fillColor: Colors.transparent, // ใช้สีจาก Container
+  //               border: OutlineInputBorder(
+  //                 borderRadius: BorderRadius.circular(12),
+  //                 borderSide: BorderSide.none,
+  //               ),
+  //               contentPadding: const EdgeInsets.symmetric(
+  //                 horizontal: 16,
+  //                 vertical: 16,
+  //               ),
+  //             ),
+  //             style: const TextStyle(
+  //               fontSize: 16,
+  //               color: Colors.black,
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
 
 class FirstChoicePage extends StatelessWidget {
