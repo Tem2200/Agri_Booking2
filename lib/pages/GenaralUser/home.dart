@@ -35,16 +35,6 @@ class _HomeGeState extends State<HomeGe> {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-
-        // เรียง avg_review_point จากมากไปน้อย
-        data.sort((a, b) {
-          final aReview =
-              double.tryParse(a['avg_review_point']?.toString() ?? '0') ?? 0.0;
-          final bReview =
-              double.tryParse(b['avg_review_point']?.toString() ?? '0') ?? 0.0;
-          return bReview.compareTo(aReview); // มากไปน้อย
-        });
-
         print("Fetched vehicles: $data");
         setState(() {
           vehicles = data;

@@ -19,7 +19,6 @@ class EditMemberPage extends StatefulWidget {
 }
 
 class _EditMemberPageState extends State<EditMemberPage> {
-  // Controllers
   late TextEditingController usernameController;
   late TextEditingController phoneController;
   late TextEditingController addressController;
@@ -27,15 +26,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
   late TextEditingController districtController;
   late TextEditingController subdistrictController;
   late TextEditingController otherController;
-
-  // FocusNodes
-  final _usernameFocus = FocusNode();
-  final _phoneFocus = FocusNode();
-  final _provinceFocus = FocusNode();
-  final _amphoeFocus = FocusNode();
-  final _districtFocus = FocusNode();
-  final _addressFocus = FocusNode();
-  final _otherFocus = FocusNode();
 
   double? _selectedLat;
   double? _selectedLng;
@@ -118,25 +108,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
     provinceController.dispose();
     districtController.dispose();
     subdistrictController.dispose();
-
-    _usernameFocus.dispose();
-    _phoneFocus.dispose();
-    _provinceFocus.dispose();
-    _amphoeFocus.dispose();
-    _districtFocus.dispose();
-    _addressFocus.dispose();
-    _otherFocus.dispose();
-
     super.dispose();
-  }
-
-  void _scrollToFocus(FocusNode focusNode) {
-    FocusScope.of(context).requestFocus(focusNode);
-    Scrollable.ensureVisible(
-      focusNode.context!,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
   }
 
   Future<void> _selectLocationOnMap() async {
@@ -352,7 +324,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
                   }
                   return null;
                 },
-                focusNode: _usernameFocus, // เพิ่ม
               ),
               buildInputPhone(
                 phoneController,
@@ -366,7 +337,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
                   }
                   return null;
                 },
-                focusNode: _phoneFocus, // เพิ่ม
               ),
               buildDropdownInput(
                 label: 'จังหวัด',
@@ -428,6 +398,14 @@ class _EditMemberPageState extends State<EditMemberPage> {
 
               const SizedBox(height: 16),
 
+              // ElevatedButton(
+              //   onPressed: _selectLocationOnMap,
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: const Color.fromARGB(255, 255, 238, 50),
+              //     foregroundColor: Colors.black,
+              //   ),
+              //   child: const Text('เลือกตำแหน่งแผนที่'),
+              // ),
               ElevatedButton(
                 onPressed: _selectLocationOnMap,
                 style: ElevatedButton.styleFrom(
@@ -480,7 +458,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
                   // }
                   return null;
                 },
-                focusNode: _addressFocus, // เพิ่ม
               ),
               //const SizedBox(height: 10),
               buildInput(
@@ -493,7 +470,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
                   }
                   return null;
                 },
-                focusNode: _otherFocus, // เพิ่ม
               ),
               const SizedBox(height: 10),
               Row(
@@ -514,7 +490,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
                                 content:
                                     Text('กรุณารอให้การอัปโหลดรูปเสร็จก่อน')),
                           );
-                          return;
+                          return; // รอจนเสร็จ
                         }
 
                         if (_formKey.currentState?.validate() ?? false) {
@@ -526,11 +502,12 @@ class _EditMemberPageState extends State<EditMemberPage> {
                                   'คุณต้องการแก้ไขข้อมูลใช่หรือไม่?'),
                               actions: [
                                 TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('ยกเลิก')),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('ยกเลิก'),
+                                ),
                                 ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pop(context);
+                                    Navigator.of(context).pop();
                                     _submit();
                                   },
                                   child: const Text('ยืนยัน'),
@@ -538,25 +515,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
                               ],
                             ),
                           );
-                        } else {
-                          // เลื่อนไปยังช่องแรกที่ผิด
-                          if (usernameController.text.isEmpty) {
-                            _scrollToFocus(_usernameFocus);
-                          } else if (phoneController.text.isEmpty ||
-                              !RegExp(r'^0\d{9}$')
-                                  .hasMatch(phoneController.text)) {
-                            _scrollToFocus(_phoneFocus);
-                          } else if (selectedProvince == null) {
-                            _scrollToFocus(_provinceFocus);
-                          } else if (selectedAmphoe == null) {
-                            _scrollToFocus(_amphoeFocus);
-                          } else if (selectedDistrict == null) {
-                            _scrollToFocus(_districtFocus);
-                          } else if (addressController.text.isEmpty) {
-                            _scrollToFocus(_addressFocus);
-                          } else if (otherController.text.length > 255) {
-                            _scrollToFocus(_otherFocus);
-                          }
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -589,13 +547,13 @@ class _EditMemberPageState extends State<EditMemberPage> {
     String label, {
     bool readOnly = false,
     String? Function(String?)? validator,
-    FocusNode? focusNode, // เพิ่ม
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ชื่อช่องอยู่บนสุด
           Text(
             label,
             style: GoogleFonts.mitr(
@@ -608,7 +566,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
           TextFormField(
             controller: controller,
             readOnly: readOnly,
-            focusNode: focusNode, // เพิ่ม
             style: GoogleFonts.mitr(
               fontSize: 16,
               color: Colors.black,
@@ -632,71 +589,11 @@ class _EditMemberPageState extends State<EditMemberPage> {
                 ),
               ),
               contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+              // ไม่ใส่ labelText หรือ floatingLabelBehavior ใด ๆ
             ),
             validator: validator,
             maxLines: label == 'รายละเอียดที่อยู่' ? 1 : 1,
             maxLength: label == 'รายละเอียดที่อยู่' ? 255 : null,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildInputPhone(
-    TextEditingController controller,
-    String label, {
-    bool readOnly = false,
-    String? Function(String?)? validator,
-    FocusNode? focusNode, // เพิ่ม
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.mitr(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: const Color.fromARGB(255, 0, 0, 0),
-            ),
-          ),
-          const SizedBox(height: 6),
-          TextFormField(
-            controller: controller,
-            readOnly: readOnly,
-            focusNode: focusNode, // เพิ่ม
-            style: GoogleFonts.mitr(
-              fontSize: 16,
-              color: Colors.black,
-            ),
-            keyboardType: label == 'เบอร์โทร' ? TextInputType.number : null,
-            inputFormatters: label == 'เบอร์โทร'
-                ? [FilteringTextInputFormatter.digitsOnly]
-                : null,
-            maxLength: label == 'เบอร์โทร' ? 10 : null,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: const Color(0xFFE0E0E0),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.black),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.black),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(
-                  color: Color.fromARGB(255, 255, 170, 0),
-                  width: 2,
-                ),
-              ),
-              contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
-            ),
-            validator: validator,
           ),
         ],
       ),
@@ -761,6 +658,65 @@ class _EditMemberPageState extends State<EditMemberPage> {
               contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
             ),
             dropdownColor: const Color(0xFFE0E0E0),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildInputPhone(
+    TextEditingController controller,
+    String label, {
+    bool readOnly = false,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.mitr(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: const Color.fromARGB(255, 0, 0, 0),
+            ),
+          ),
+          const SizedBox(height: 6),
+          TextFormField(
+            controller: controller,
+            readOnly: readOnly,
+            style: GoogleFonts.mitr(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+            keyboardType: label == 'เบอร์โทร' ? TextInputType.number : null,
+            inputFormatters: label == 'เบอร์โทร'
+                ? [FilteringTextInputFormatter.digitsOnly]
+                : null,
+            maxLength: label == 'เบอร์โทร' ? 10 : null,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: const Color(0xFFE0E0E0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.black),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.black),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: Color.fromARGB(255, 255, 170, 0),
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+            ),
+            validator: validator,
           ),
         ],
       ),
