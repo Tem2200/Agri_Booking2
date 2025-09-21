@@ -19,6 +19,8 @@ class Detailvehicle extends StatefulWidget {
 class _DetailvehicleState extends State<Detailvehicle> {
   Map<String, dynamic>? vehicleData;
   bool isLoading = true;
+  bool showAllReviews = false;
+
   String? error;
   late int _currentMid; // ตัวแปรสำหรับเก็บ mid
   Future<List<dynamic>>? _reviewFuture; // Future สำหรับข้อมูลรีวิว
@@ -582,7 +584,6 @@ class _DetailvehicleState extends State<Detailvehicle> {
                               }
 
                               final reviewList = snapshot.data!;
-
                               final totalPoints = reviewList.fold<num>(
                                 0,
                                 (sum, review) =>
@@ -593,6 +594,11 @@ class _DetailvehicleState extends State<Detailvehicle> {
                                       .toStringAsFixed(2)
                                   : '0.00';
                               final totalReviews = reviewList.length;
+
+                              // จำกัดรีวิว 5 รายการ (ถ้ายังไม่ได้กดดูทั้งหมด)
+                              final displayedReviews = showAllReviews
+                                  ? reviewList
+                                  : reviewList.take(5).toList();
 
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -605,13 +611,9 @@ class _DetailvehicleState extends State<Detailvehicle> {
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: reviewList.length,
-                                    itemBuilder: (context, index) {
-                                      final review = reviewList[index];
+                                  // รีวิวแต่ละรายการ
+                                  Column(
+                                    children: displayedReviews.map((review) {
                                       List<int> reporters = [];
                                       if (review['reporters'] != null &&
                                           review['reporters'] is String) {
@@ -639,15 +641,10 @@ class _DetailvehicleState extends State<Detailvehicle> {
                                               Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  const Icon(
-                                                    Icons
-                                                        .person, // ไอคอนไม่ระบุตัวตน
-                                                    color: Colors.grey,
-                                                    size: 20,
-                                                  ),
-                                                  const SizedBox(
-                                                      width:
-                                                          6), // ช่องว่างระหว่างไอคอนกับดาว
+                                                  const Icon(Icons.person,
+                                                      color: Colors.grey,
+                                                      size: 20),
+                                                  const SizedBox(width: 6),
                                                   Row(
                                                     mainAxisSize:
                                                         MainAxisSize.min,
@@ -750,8 +747,27 @@ class _DetailvehicleState extends State<Detailvehicle> {
                                           ),
                                         ),
                                       );
-                                    },
+                                    }).toList(),
                                   ),
+                                  const SizedBox(height: 4),
+                                  // ปุ่มดูเพิ่มเติม / ซ่อน
+                                  if (totalReviews > 5)
+                                    Center(
+                                      child: TextButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            showAllReviews = !showAllReviews;
+                                          });
+                                        },
+                                        child: Text(
+                                          showAllReviews
+                                              ? 'ซ่อนรีวิว'
+                                              : 'ดูเพิ่มเติม',
+                                          style: const TextStyle(
+                                              color: Colors.blue),
+                                        ),
+                                      ),
+                                    ),
                                 ],
                               );
                             },
