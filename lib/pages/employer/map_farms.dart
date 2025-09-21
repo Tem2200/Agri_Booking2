@@ -72,24 +72,6 @@ class _MapFarmState extends State<MapFarm> {
     });
   }
 
-  // Future<void> _searchPlace(String query) async {
-  //   try {
-  //     List<Location> locations = await locationFromAddress(query);
-  //     if (locations.isNotEmpty) {
-  //       final location = locations.first;
-  //       LatLng latLng = LatLng(location.latitude, location.longitude);
-
-  //       final controller = await _controller.future;
-  //       controller.animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
-
-  //       _onMapTap(latLng); // ใช้ _onMapTap เพื่อบันทึกหมุดและแสดง
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('ไม่พบสถานที่: $e')),
-  //     );
-  //   }
-  // }
   Future<void> _searchPlace(String query) async {
     try {
       List<Location> locations = await locationFromAddress(query);
@@ -184,108 +166,6 @@ class _MapFarmState extends State<MapFarm> {
     }
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       backgroundColor: const Color.fromARGB(255, 18, 143, 9),
-  //       centerTitle: true, // ✅ บังคับให้อยู่ตรงกลาง
-  //       title: const Text(
-  //         'เลือกตำแหน่งบนแผนที่',
-  //         style: TextStyle(
-  //           fontSize: 22,
-  //           fontWeight: FontWeight.bold,
-  //           color: Color.fromARGB(255, 255, 255, 255),
-  //           //letterSpacing: 1,
-  //           shadows: [
-  //             Shadow(
-  //               color: Color.fromARGB(115, 253, 237, 237),
-  //               blurRadius: 3,
-  //               offset: Offset(1.5, 1.5),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //       iconTheme: const IconThemeData(
-  //         color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว
-  //       ),
-  //       leading: IconButton(
-  //         icon: const Icon(Icons.arrow_back),
-  //         onPressed: () {
-  //           Navigator.pop(context, true);
-  //         },
-  //       ),
-  //       actions: [
-  //         IconButton(
-  //           icon: const Icon(Icons.check),
-  //           onPressed: _confirmLocation,
-  //         )
-  //       ],
-  //     ),
-  //     body: _initialPosition == null
-  //         ? const Center(child: CircularProgressIndicator())
-  //         : Column(
-  //             children: [
-  //               Padding(
-  //                 padding: const EdgeInsets.all(8.0),
-  //                 child: Row(
-  //                   children: [
-  //                     Expanded(
-  //                       child: TextField(
-  //                         controller: searchController,
-  //                         decoration: const InputDecoration(
-  //                           hintText: 'ค้นหาสถานที่',
-  //                           border: OutlineInputBorder(),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                     const SizedBox(width: 8),
-  //                     ElevatedButton.icon(
-  //                       onPressed: () => _searchPlace(searchController.text),
-  //                       label: const Text('ค้นหา'),
-  //                       style: ElevatedButton.styleFrom(
-  //                         backgroundColor: const Color.fromARGB(
-  //                             255, 255, 158, 60), // สีพื้นหลัง
-  //                         foregroundColor: const Color.fromARGB(
-  //                             255, 255, 255, 255), // สีข้อความและไอคอน
-  //                       ),
-  //                     )
-  //                   ],
-  //                 ),
-  //               ),
-  //               Expanded(
-  //                 // child: GoogleMap(
-  //                 //   mapType: MapType.satellite,
-  //                 //   initialCameraPosition:
-  //                 //       CameraPosition(target: _initialPosition!, zoom: 15),
-  //                 //   onMapCreated: (controller) =>
-  //                 //       _controller.complete(controller),
-  //                 //   onTap: _onMapTap,
-  //                 //   markers: _selectedMarker != null
-  //                 //       ? {_selectedMarker!}
-  //                 //       : <Marker>{},
-  //                 //   myLocationEnabled: true,
-  //                 //   myLocationButtonEnabled: true,
-  //                 // ),
-  //                 child: GoogleMap(
-  //                   mapType: MapType.hybrid,
-  //                   initialCameraPosition:
-  //                       CameraPosition(target: _initialPosition!, zoom: 15),
-  //                   onMapCreated: (controller) =>
-  //                       _controller.complete(controller),
-  //                   onTap: _onMapTap,
-  //                   markers: {
-  //                     if (_selectedMarker != null) _selectedMarker!,
-  //                     ..._placesMarkers,
-  //                   },
-  //                   myLocationEnabled: true,
-  //                   myLocationButtonEnabled: true,
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //   );
-  // }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -316,84 +196,7 @@ class _MapFarmState extends State<MapFarm> {
             Navigator.pop(context, true);
           },
         ),
-        // actions: [
-        //   IconButton(
-        //     icon: const Icon(Icons.check),
-        //     onPressed: _confirmLocation,
-        //   )
-        // ],
       ),
-      // body: _initialPosition == null
-      //     ? const Center(child: CircularProgressIndicator())
-      //     : Column(
-      //         children: [
-      //           Padding(
-      //             padding: const EdgeInsets.all(8.0),
-      //             child: Row(
-      //               children: [
-      //                 Expanded(
-      //                   child: TextField(
-      //                     controller: searchController,
-      //                     decoration: const InputDecoration(
-      //                       hintText: 'ค้นหาสถานที่',
-      //                       border: OutlineInputBorder(),
-      //                     ),
-      //                   ),
-      //                 ),
-      //                 const SizedBox(width: 8),
-      //                 ElevatedButton.icon(
-      //                   onPressed: () => _searchPlace(searchController.text),
-      //                   label: const Text('ค้นหา'),
-      //                   style: ElevatedButton.styleFrom(
-      //                     backgroundColor:
-      //                         const Color.fromARGB(255, 255, 158, 60),
-      //                     foregroundColor: Colors.white,
-      //                   ),
-      //                 )
-      //               ],
-      //             ),
-      //           ),
-      //           Expanded(
-      //             child: GoogleMap(
-      //               mapType: MapType.hybrid,
-      //               initialCameraPosition:
-      //                   CameraPosition(target: _initialPosition!, zoom: 15),
-      //               onMapCreated: (controller) =>
-      //                   _controller.complete(controller),
-      //               onTap: _onMapTap,
-      //               markers: {
-      //                 if (_selectedMarker != null) _selectedMarker!,
-      //                 ..._placesMarkers,
-      //               },
-      //               myLocationEnabled: true,
-      //               myLocationButtonEnabled: true,
-      //             ),
-      //           ),
-      //           Align(
-      //             alignment: Alignment
-      //                 .bottomCenter, // จัดตำแหน่งปุ่มให้อยู่กึ่งกลางด้านล่าง
-      //             child: Padding(
-      //               padding: const EdgeInsets.only(
-      //                   bottom: 20.0), // เพิ่มระยะห่างจากขอบล่าง
-      //               child: ElevatedButton.icon(
-      //                 onPressed: _confirmLocation,
-      //                 icon: const Icon(Icons.check),
-      //                 label: const Text('ตกลง', style: TextStyle(fontSize: 18)),
-      //                 style: ElevatedButton.styleFrom(
-      //                   backgroundColor: const Color.fromARGB(255, 18, 143, 9),
-      //                   foregroundColor: Colors.white,
-      //                   padding: const EdgeInsets.symmetric(
-      //                       horizontal: 30, vertical: 15),
-      //                   shape: RoundedRectangleBorder(
-      //                     borderRadius:
-      //                         BorderRadius.circular(30), // ทำให้ปุ่มมีมุมโค้ง
-      //                   ),
-      //                 ),
-      //               ),
-      //             ),
-      //           ),
-      //         ],
-      //       ),
       body: _initialPosition == null
           ? const Center(child: CircularProgressIndicator())
           : Stack(

@@ -1,3 +1,4 @@
+import 'package:agri_booking2/pages/employer/Tabbar.dart';
 import 'package:agri_booking2/pages/employer/farms.dart';
 import 'package:agri_booking2/pages/employer/map_farms.dart';
 import 'package:flutter/material.dart';
@@ -540,33 +541,85 @@ class _AddFarmPageState extends State<AddFarmPage> {
                 ),
               ),
               const SizedBox(height: 40),
-
-              ElevatedButton(
-                onPressed: _isSubmitting ? null : _submitFarm,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 6, 126, 12),
-                  foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 16, horizontal: 30),
-                  textStyle: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 8,
-                  shadowColor: const Color.fromARGB(164, 174, 174, 174),
+// นำปุ่มทั้งสองไปไว้ใน Widget Row และจัดให้มีช่องว่างระหว่างกัน
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly, // จัดให้ปุ่มมีระยะห่างเท่าๆ กัน
+  children: [
+        // ปุ่ม "ข้าม"
+    Expanded(
+      child: Padding(
+        padding: const EdgeInsets.only(right: 8.0), // เพิ่มระยะห่างด้านซ้ายเล็กน้อย
+        child: ElevatedButton(
+          onPressed: () {
+            int currentMonth = DateTime.now().month;
+            int currentYear = DateTime.now().year;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Tabbar(
+                  mid: widget.mid,
+                  value: 2,
+                  month: currentMonth,
+                  year: currentYear,
                 ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Text('เพิ่มไร่นา'),
-              )
+              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 138, 138, 138), // เปลี่ยนสีเพื่อให้เห็นความแตกต่าง
+            foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 30),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 8,
+            shadowColor: const Color.fromARGB(164, 174, 174, 174),
+          ),
+          child: const Text('ข้าม'),
+        ),
+      ),
+    ),
+    // ปุ่ม "เพิ่มไร่นา"
+    Expanded(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8.0), // เพิ่มระยะห่างด้านขวาเล็กน้อย
+        child: ElevatedButton(
+          onPressed: _isSubmitting ? null : _submitFarm,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 6, 126, 12),
+            foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 30),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 8,
+            shadowColor: const Color.fromARGB(164, 174, 174, 174),
+          ),
+          child: _isSubmitting
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+              : const Text('เพิ่มไร่นา'),
+        ),
+      ),
+    ),
+    
+
+  ],
+)
             ],
           ),
         ),

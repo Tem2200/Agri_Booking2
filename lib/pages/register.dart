@@ -1,21 +1,14 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
-import 'package:agri_booking2/pages/employer/addFarm.dart';
+import 'package:agri_booking2/pages/employer/addFarm3.dart';
 import 'package:agri_booking2/pages/map_register.dart';
-import 'package:agri_booking2/pages/register.dart';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/services.dart';
 import 'package:agri_booking2/pages/assets/location_data.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-import 'package:flutter/services.dart';
-
-import 'register.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -48,7 +41,6 @@ class _RegisterState extends State<Register> {
   final FocusNode amphoeFocus = FocusNode();
   final FocusNode districtFocus = FocusNode();
 
-  String? emailError;
   String? imageUrl; // URL รูปภาพจาก imagebb
   double? latitude;
   double? longitude;
@@ -70,7 +62,6 @@ class _RegisterState extends State<Register> {
   // เพิ่มตัวแปร error สำหรับปุ่ม/ช่องที่ไม่ใช่ TextFormField
   String? typeMemberError;
   String? mapError;
-
   @override
   void initState() {
     super.initState();
@@ -95,10 +86,7 @@ class _RegisterState extends State<Register> {
         scrollToFocus(usernameFocus);
         return;
       }
-      if (emailController.text.isEmpty) {
-        scrollToFocus(emailFocus);
-        return;
-      }
+
       if (passwordController.text.isEmpty) {
         scrollToFocus(passwordFocus);
         return;
@@ -107,19 +95,10 @@ class _RegisterState extends State<Register> {
         scrollToFocus(confirmPasswordFocus);
         return;
       }
-      // if (phoneController.text.length < 10) {
-      //   scrollToFocus(phoneFocus);
-      //   return;
-      // }
-      if (!_formKey.currentState!.validate()) {
-        // focus ไปยังช่องแรกที่มี error
-        if (phoneController.text.length < 10) {
-          scrollToFocus(phoneFocus);
-          return;
-        }
+      if (phoneController.text.length < 10) {
+        scrollToFocus(phoneFocus);
         return;
       }
-
       if (selectedProvince == null) {
         scrollToFocus(provinceFocus);
         return;
@@ -155,24 +134,6 @@ class _RegisterState extends State<Register> {
 
     setState(() => isLoading = true);
 
-    // // final email = emailController.text;
-    // // final emailIsValid = await isRealEmail(email);
-    // final email = emailController.text.trim();
-    // final emailIsValid = await isRealEmail(email);
-
-    // if (!emailIsValid) {
-    //   setState(() {
-    //     isLoading = false;
-    //     emailError = 'อีเมลนี้ไม่ใช่อีเมลจริงหรือเคยใช้สมัครแล้ว?';
-    //   });
-    //   scrollToFocus(emailFocus); // เลื่อนโฟกัสมาช่องอีเมล
-    //   return;
-    // } else {
-    //   setState(() {
-    //     emailError = null; // เคลียร์ error ถ้าอีเมลถูกต้อง
-    //   });
-    // }
-
     if (typeMember == null) {
       setState(() => isLoading = false);
       showDialog(
@@ -196,31 +157,39 @@ class _RegisterState extends State<Register> {
       );
       return;
     }
-    final email = emailController.text.trim();
-    final emailIsValid = await isRealEmail(email);
-
-    if (emailIsValid == false) {
-      setState(() {
-        isLoading = false;
-        emailError = 'อีเมลนี้ไม่สามารถใช้งานได้';
-      });
+    if (emailController.text.isEmpty) {
       scrollToFocus(emailFocus);
       return;
-    } else if (emailIsValid == null) {
-      setState(() {
-        emailError = '⚠️ ตรวจสอบอีเมลไม่สำเร็จ (จะลองสมัครต่อไป)';
-      });
-    } else {
-      setState(() {
-        emailError = null; // ถูกต้อง
-      });
+    }
+    if (emailController.text.isNotEmpty) {
+      print(emailController.text.trim());
+      final emailIsValid = await isRealEmail(emailController.text.trim());
+
+      if (!emailIsValid) {
+        setState(() => isLoading = false);
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('อีเมลไม่ถูกต้อง'),
+            content: const Text(
+                'อีเมลนี้ไม่สามารถรับส่งข้อความได้จริง กรุณากรอกอีเมลอื่น'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('ตกลง'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
     }
 
     final url =
         Uri.parse('http://projectnodejs.thammadalok.com/AGribooking/register');
     final data = {
       "username": usernameController.text,
-      "email": email,
+      "email": emailController.text,
       "password": passwordController.text,
       "phone": phoneController.text,
       "image": imageUrl,
@@ -366,46 +335,29 @@ class _RegisterState extends State<Register> {
     }
   }
 
-  String? lastValidatedEmail;
-  bool lastValidationResult = false;
-
-  Future<bool?> isRealEmail(String email) async {
-    email = email.trim();
-    const apiKey = 'f1be6dd55f1043dd9fb0794725d344a1';
+// ฟังก์ชันตรวจสอบอีเมลจริงด้วย Abstract API
+  Future<bool> isRealEmail(String email) async {
+    final apiKey = 'b489d4f11245410a863b38cc325077bc';
+    //const apiKey = 'f1be6dd55f1043dd9fb0794725d344a1';
     final url = Uri.parse(
-        'https://emailvalidation.abstractapi.com/v1/?api_key=$apiKey&email=$email');
+        'https://emailreputation.abstractapi.com/v1/?api_key=b489d4f11245410a863b38cc325077bc&email=$email');
 
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return data['deliverability'] == 'DELIVERABLE';
-      } else {
-        return null; // API ตอบผิดปกติ
+        // เช็คค่า deliverability ว่าส่งได้จริงไหม
+        print(data);
+        return data['email_deliverability']['status']
+                .toString()
+                .toLowerCase() ==
+            'deliverable';
       }
     } catch (e) {
-      return null; // API ล่ม
+      print("Error validating email: $e");
     }
+    return false;
   }
-
-// // ฟังก์ชันตรวจสอบอีเมลจริงด้วย Abstract API
-//   Future<bool> isRealEmail(String email) async {
-//     const apiKey = 'f1be6dd55f1043dd9fb0794725d344a1';
-//     final url = Uri.parse(
-//         'https://emailvalidation.abstractapi.com/v1/?api_key=$apiKey&email=$email');
-
-//     try {
-//       final response = await http.get(url);
-//       if (response.statusCode == 200) {
-//         final data = jsonDecode(response.body);
-//         // เช็คค่า deliverability ว่าส่งได้จริงไหม
-//         return data['deliverability'] == 'DELIVERABLE';
-//       }
-//     } catch (e) {
-//       print("Error validating email: $e");
-//     }
-//     return false;
-//   }
 
   void goToMapPage() async {
     // ไปหน้าแผนที่เพื่อเลือกพิกัด (สร้างหน้า MapPage ไว้แยก)
@@ -495,9 +447,9 @@ class _RegisterState extends State<Register> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         elevation: 0,
+        automaticallyImplyLeading: false,
         centerTitle: true,
         title: Text(
           'สมัครสมาชิก',
@@ -506,16 +458,6 @@ class _RegisterState extends State<Register> {
             color: Colors.white,
           ),
         ),
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back, color: Colors.white),
-        //   onPressed: () {
-        //     Navigator.pushReplacement(
-        //       context,
-        //       MaterialPageRoute(
-        //           builder: (context) => const TabbarGenaralUser(value: 1)),
-        //     );
-        //   },
-        // ),
       ),
       body: Stack(
         children: [
@@ -628,41 +570,9 @@ class _RegisterState extends State<Register> {
                             maxLength: 30,
                             focusNode: usernameFocus,
                           ),
-                          // _buildTextField(
-                          //     "อีเมล *", emailController, 'กรุณากรอก email *',
-                          //     focusNode: emailFocus),
-                          // _buildTextField(
-                          //   "อีเมล *",
-                          //   emailController,
-                          //   'กรุณากรอก email *',
-                          //   focusNode: emailFocus,
-                          //   validator: (value) {
-                          //     if (value == null || value.isEmpty)
-                          //       return 'กรุณากรอก email *';
-                          //     if (emailError != null)
-                          //       return emailError; // แสดง error จาก API
-                          //     return null;
-                          //   },
-                          // ),
                           _buildTextField(
-                            "อีเมล *",
-                            emailController,
-                            'กรุณากรอก email *',
-                            focusNode: emailFocus,
-                            validator: (value) {
-                              if (value == null || value.isEmpty)
-                                return 'กรุณากรอก email *';
-                              if (emailError != null) return emailError;
-                              return null;
-                            },
-                            onChanged: (value) {
-                              setState(() {
-                                emailError = null;
-                              });
-                              _formKey.currentState?.validate();
-                            },
-                          ),
-
+                              "อีเมล *", emailController, 'กรุณากรอก email *',
+                              focusNode: emailFocus),
                           _buildTextField(
                             "รหัสผ่าน *",
                             passwordController,
@@ -702,14 +612,16 @@ class _RegisterState extends State<Register> {
                               if (value == null || value.isEmpty) {
                                 return 'กรุณากรอกเบอร์โทร *';
                               }
-                              if (value.length < 10) {
-                                return 'เบอร์โทรต้องมีอย่างน้อย 10 ตัวอักษร';
+                              if (value.length != 10) {
+                                return 'เบอร์โทรต้องมี 10 หลัก';
+                              }
+                              if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                                return 'เบอร์โทรต้องเป็นตัวเลขเท่านั้น';
+                              }
+                              if (!value.startsWith('0')) {
+                                return 'เบอร์โทรต้องขึ้นต้นด้วย 0';
                               }
                               return null;
-                            },
-                            onChanged: (value) {
-                              _formKey.currentState
-                                  ?.validate(); // ตรวจสอบใหม่ทุกครั้งที่เปลี่ยน
                             },
                           ),
 
@@ -840,17 +752,7 @@ class _RegisterState extends State<Register> {
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const TabbarGenaralUser(value: 0),
-                                      ),
-                                      (route) =>
-                                          false, // เคลียร์ทุกหน้าก่อนหน้า
-                                    );
-                                  },
+                                  onPressed: () => Navigator.pop(context),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red,
                                     foregroundColor: Colors.white,
@@ -904,7 +806,7 @@ class _RegisterState extends State<Register> {
 
     // 1. ตรวจสอบว่ามีข้อมูลหรือไม่
     if (password.isEmpty) {
-      return 'กรุณากรอกรหัสผ่าน';
+      return 'กรุณากรอกรหัสผ่าน *';
     }
 
     // 2. ตรวจสอบความยาว
@@ -956,7 +858,6 @@ class _RegisterState extends State<Register> {
     String? hintText,
     String? Function(String?)? validator,
     FocusNode? focusNode,
-    void Function(String)? onChanged,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -1002,7 +903,6 @@ class _RegisterState extends State<Register> {
                 keyboardType: keyboardType,
                 maxLength: maxLength,
                 focusNode: focusNode,
-                onChanged: onChanged,
                 decoration: InputDecoration(
                   labelText: null, // ลบ labelText ออก
                   filled: true,
@@ -1101,7 +1001,7 @@ class _RegisterState extends State<Register> {
                 ),
               ),
               DropdownButtonFormField<String>(
-                value: value,
+                initialValue: value,
                 focusNode: focusNode,
                 decoration: InputDecoration(
                   // ลบ labelText ออก เพราะเรากำหนดชื่อช่องไว้แยกแล้ว

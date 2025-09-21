@@ -155,85 +155,6 @@ class _SearchEmpState extends State<SearchEmp> {
     filteredVehicles = allVehicles;
   }
 
-  // Future<void> _calculateDistances() async {
-  //   if (selectedFarm == null ||
-  //       selectedFarmLat == null ||
-  //       selectedFarmLng == null) return;
-
-  //   setState(() => isLoading = true);
-
-  //   try {
-  //     var destinationsVehicles = allVehicles
-  //         .where((v) {
-  //           final lat = _parseLatLng(v['latitude']);
-  //           final lng = _parseLatLng(v['longitude']);
-  //           return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
-  //         })
-  //         .take(20)
-  //         .toList();
-
-  //     if (destinationsVehicles.isEmpty) {
-  //       filteredVehicles = [];
-  //       return;
-  //     }
-
-  //     for (var i = 0; i < destinationsVehicles.length; i++) {
-  //       final v = destinationsVehicles[i];
-
-  //       if (v['distance_cache'] != null) {
-  //         v['distance_text'] = v['distance_cache']['text'];
-  //         v['distance_value'] = v['distance_cache']['value'];
-  //         continue;
-  //       }
-
-  //       final endLat = _parseLatLng(v['latitude']);
-  //       final endLng = _parseLatLng(v['longitude']);
-
-  //       // ✅ ใช้ OSRM Public Server
-  //       final url =
-  //           Uri.parse('https://router.project-osrm.org/route/v1/driving/'
-  //               '$selectedFarmLng,$selectedFarmLat;$endLng,$endLat'
-  //               '?overview=false');
-
-  //       try {
-  //         final res = await http.get(url);
-  //         if (res.statusCode == 200) {
-  //           final data = jsonDecode(res.body);
-  //           if (data['routes'] != null && data['routes'].isNotEmpty) {
-  //             final meters = data['routes'][0]['distance'];
-  //             final km = meters / 1000;
-  //             v['distance_text'] = '${km.toStringAsFixed(2)} กม.';
-  //             v['distance_value'] = km;
-  //             v['distance_cache'] = {
-  //               'text': v['distance_text'],
-  //               'value': km,
-  //             };
-  //           } else {
-  //             v['distance_text'] = '-';
-  //             v['distance_value'] = double.infinity;
-  //           }
-  //         } else {
-  //           print('OSRM API error: ${res.body}');
-  //           v['distance_text'] = '-';
-  //           v['distance_value'] = double.infinity;
-  //         }
-  //       } catch (e) {
-  //         v['distance_text'] = '-';
-  //         v['distance_value'] = double.infinity;
-  //       }
-
-  //       // ✅ กัน overload server: พัก 100 ms ต่อ request
-  //       await Future.delayed(const Duration(milliseconds: 100));
-  //     }
-
-  //     destinationsVehicles.sort((a, b) =>
-  //         (a['distance_value'] ?? 0).compareTo(b['distance_value'] ?? 0));
-
-  //     filteredVehicles = destinationsVehicles;
-  //   } finally {
-  //     setState(() => isLoading = false);
-  //   }
-  // }
   Future<void> _calculateDistances({bool forceReload = false}) async {
     if (selectedFarm == null ||
         selectedFarmLat == null ||
@@ -519,37 +440,6 @@ class _SearchEmpState extends State<SearchEmp> {
                     ),
                   ),
                 ),
-                // Expanded(
-                //   flex: 1,
-                //   child: ElevatedButton(
-                //     onPressed: farmList.isEmpty
-                //         ? () {
-                //             // ไม่มีที่นา → ไปหน้าเพิ่มที่นา
-                //             Navigator.push(
-                //               context,
-                //               MaterialPageRoute(
-                //                 builder: (context) =>
-                //                     FarmsPage(mid: widget.mid),
-                //               ),
-                //             );
-                //           }
-                //         : _showFarmPicker, // มีที่นา → เลือกที่นา
-                //     style: ElevatedButton.styleFrom(
-                //       padding: const EdgeInsets.symmetric(vertical: 16),
-                //       backgroundColor: const Color.fromARGB(255, 251, 160, 76),
-                //       foregroundColor: const Color.fromARGB(255, 34, 31, 31),
-                //       shape: RoundedRectangleBorder(
-                //         borderRadius: BorderRadius.circular(12),
-                //       ),
-                //     ),
-                //     child: Text(
-                //       farmList.isEmpty
-                //           ? 'เพิ่มที่นา'
-                //           : (selectedFarm?['name_farm'] ?? 'เลือกที่นา'),
-                //       overflow: TextOverflow.ellipsis,
-                //     ),
-                //   ),
-                // ),
               ],
             ),
             const SizedBox(height: 16),
@@ -625,21 +515,6 @@ class _SearchEmpState extends State<SearchEmp> {
                                     padding:
                                         const EdgeInsets.fromLTRB(0, 0, 0, 25),
                                     child: Container(
-                                      // decoration: BoxDecoration(
-                                      //   color: Colors.orange[50],
-                                      //   border:
-                                      //       Border.all(color: Colors.orange),
-                                      //   borderRadius: BorderRadius.circular(12),
-                                      //   boxShadow: [
-                                      //     BoxShadow(
-                                      //       color:
-                                      //           Colors.orange.withOpacity(0.3),
-                                      //       spreadRadius: 1,
-                                      //       blurRadius: 8,
-                                      //       offset: const Offset(0, 4),
-                                      //     ),
-                                      //   ],
-                                      // ),
                                       decoration: BoxDecoration(
                                         color: Colors.orange[50],
                                         border:
@@ -704,7 +579,6 @@ class _SearchEmpState extends State<SearchEmp> {
 
                                           const SizedBox(width: 12),
 
-                                          // ✅ ข้อมูล
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment:

@@ -1,8 +1,7 @@
 // หน้า HomeGe.dart
 import 'dart:async';
 import 'dart:convert';
-import 'package:agri_booking2/pages/login.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_slider/carousel_slider.dart' as cs;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -176,8 +175,8 @@ class _HomeGeState extends State<HomeGe> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         children: [
                           // 🔄 สไลด์โชว์ภาพ
-                          CarouselSlider(
-                            options: CarouselOptions(
+                          cs.CarouselSlider(
+                            options: cs.CarouselOptions(
                               height: 160,
                               autoPlay: true,
                               enlargeCenterPage: true,
