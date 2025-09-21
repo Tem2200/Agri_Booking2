@@ -532,7 +532,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                         label: 'ชื่อการจอง*', controller: nameController),
                     const SizedBox(height: 16),
                     _buildTextField(
-                      label: 'จำนวนพื้นที่*',
+                       label: 'จำนวน (${widget.vihicleData['unit_price']}) *',
                       controller: areaAmountController,
                       inputType: TextInputType.number,
                       validator: (value) {
@@ -561,19 +561,19 @@ class _ReservingForNFState extends State<ReservingForNF> {
                         });
                       },
                       decoration: const InputDecoration(
-                        labelText: 'หน่วยพื้นที่*',
+                        labelText: 'เลือกหน่วย*',
                         border: OutlineInputBorder(),
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                       validator: (value) => value == null || value.isEmpty
-                          ? 'กรุณาเลือกหน่วยพื้นที่'
+                          ? 'กรุณาเลือกหน่วย'
                           : null,
                     ),
                     if (isCustomUnit) ...[
                       const SizedBox(height: 16),
                       _buildTextField(
-                          label: 'ระบุหน่วยพื้นที่เอง*',
+                          label: 'ระบุหน่วยเอง*',
                           controller: customUnitController),
                     ],
                     const SizedBox(height: 20),

@@ -462,7 +462,7 @@ class _SearchEnterState extends State<SearchEnter> {
                 const SizedBox(height: 16),
                 Expanded(
                   child: filteredVehicles.isEmpty
-                      ? const Center(child: Text('ไม่พบผลลัพธ์'))
+                      ? const Center(child: Text('ไม่พบข้อมูลรถ'))
                       : ListView.builder(
                           itemCount: filteredVehicles.length,
                           itemBuilder: (context, index) {

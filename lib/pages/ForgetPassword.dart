@@ -176,7 +176,7 @@ class _ForgetpasswordState extends State<Forgetpassword> {
         'template_params': {
           'from_name': 'ระบบรีเซ็ตรหัสผ่าน AgriBooking',
           'to_name': 'ผู้ใช้งาน',
-          'message': 'รหัส OTP สำหรับรีเซ็ตรหัสผ่านของคุณคือ: $otp',
+          'message': 'รหัส OTP: $otp',
           'to_email': email,
         }
       }),

@@ -733,14 +733,20 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                         ),
                                       ),
 
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 12),
 
                                 // ชื่อผู้จ้าง
-                                Text(
-                                  data!['employee_username'] ?? '-',
-                                  style: const TextStyle(fontSize: 16),
+                                Expanded(
+                                  child: Text(
+                                    data!['employee_username'] ?? '-',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                                const Spacer(),
 
                                 // ปุ่มข้อมูลผู้จ้าง
                                 ElevatedButton(
@@ -751,111 +757,206 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                         return AlertDialog(
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
-                                                BorderRadius.circular(20),
+                                                BorderRadius.circular(16),
                                           ),
-                                          content: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              // รูปภาพในกรอบวงกลม
-                                              CircleAvatar(
-                                                radius: 50,
-                                                backgroundImage: (data![
-                                                                'employee_image'] !=
-                                                            null &&
-                                                        data!['employee_image'] !=
-                                                            '')
-                                                    ? NetworkImage(
-                                                        data!['employee_image'])
-                                                    : null,
-                                                backgroundColor:
-                                                    Colors.grey[300],
-                                                child: (data!['employee_image'] ==
-                                                            null ||
-                                                        data!['employee_image'] ==
-                                                            '')
-                                                    ? const Icon(Icons.person,
-                                                        size: 50,
-                                                        color: Colors.white)
-                                                    : null,
-                                              ),
-                                              const SizedBox(height: 16),
-
-                                              // ชื่อ
-                                              Text(
-                                                data!['employee_username'] ??
-                                                    'ไม่พบชื่อ',
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 8),
-
-                                              // เบอร์โทร
-                                              Text(
-                                                data!['employee_phone'] ??
-                                                    'ไม่พบเบอร์โทร',
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.black54,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 20),
-                                              Text(
-                                                data!['employee_email'] ??
-                                                    'ไม่พบอีเมล',
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.black54,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 20),
-                                              Text(
-                                                data!['employee_other'] ??
-                                                    'ไม่พบช่องทางติดต่ออื่นๆ',
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.black54,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 20),
-
-                                              // ปุ่มปิด
-                                              ElevatedButton.icon(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                //icon: const Icon(Icons.close),
-                                                label: const Text("ปิด"),
-                                                style: ElevatedButton.styleFrom(
+                                          content: SingleChildScrollView(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                // รูปภาพในกรอบวงกลม
+                                                CircleAvatar(
+                                                  radius: 50,
+                                                  backgroundImage:
+                                                      (data!['employee_image'] !=
+                                                                  null &&
+                                                              data!['employee_image'] !=
+                                                                  '')
+                                                          ? NetworkImage(data![
+                                                              'employee_image'])
+                                                          : null,
                                                   backgroundColor:
-                                                      const Color.fromARGB(
-                                                          255, 255, 203, 82),
-                                                  foregroundColor: Colors.white,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12),
+                                                      Colors.grey[300],
+                                                  child: (data!['employee_image'] ==
+                                                              null ||
+                                                          data!['employee_image'] ==
+                                                              '')
+                                                      ? const Icon(Icons.person,
+                                                          size: 50,
+                                                          color: Colors.white)
+                                                      : null,
+                                                ),
+                                                const SizedBox(height: 16),
+
+                                                // ชื่อ
+                                                Text(
+                                                  data!['employee_username'] ??
+                                                      'ไม่พบชื่อ',
+                                                  style: const TextStyle(
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black87,
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                                const SizedBox(height: 12),
+
+// เบอร์โทร
+Row(
+  children: [
+    const Icon(Icons.phone, size: 18, color: Colors.green),
+    const SizedBox(width: 6),
+    Text(
+      data!['employee_phone'] ?? 'ไม่พบเบอร์โทร',
+      style: const TextStyle(fontSize: 16, color: Colors.black54),
+    ),
+  ],
+),
+const SizedBox(height: 10),
+
+// อีเมล
+Row(
+  children: [
+    const Icon(Icons.email, size: 18, color: Colors.red),
+    const SizedBox(width: 6),
+    Expanded(
+      child: Text(
+        data!['employee_email'] ?? 'ไม่พบอีเมล',
+        style: const TextStyle(fontSize: 16, color: Colors.black54),
+        overflow: TextOverflow.ellipsis,
+      ),
+    ),
+  ],
+),
+const SizedBox(height: 10),
+
+// ช่องทางอื่น
+Row(
+  children: [
+    const Icon(Icons.chat, size: 18, color: Colors.orange),
+    const SizedBox(width: 6),
+    Expanded(
+      child: Text(
+        data!['employee_other'] ?? 'ไม่พบช่องทางติดต่ออื่นๆ',
+        style: const TextStyle(fontSize: 16, color: Colors.black54),
+      ),
+    ),
+  ],
+),
+const SizedBox(height: 16),
+
+// ที่อยู่
+Row(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    const Icon(Icons.location_on, size: 18, color: Colors.blue),
+    const SizedBox(width: 6),
+    Expanded(
+      child: Text(
+        'ที่อยู่เพิ่มเติม: ${data!['employee_detail_address'] ?? ''} '
+        'ต.${data!['employee_subdistrict'] ?? ''} '
+        'อ.${data!['employee_district'] ?? ''} '
+        'จ.${data!['employee_province'] ?? ''}',
+        style: const TextStyle(fontSize: 15, color: Colors.black54, height: 1.4),
+      ),
+    ),
+  ],
+),
+
+                                                const SizedBox(height: 20),
+                                                Positioned(
+                                                  top: 16,
+                                                  right: 16,
+                                                  child: ElevatedButton.icon(
+                                                    onPressed: () {
+                                                      final latStr = data![
+                                                          'employee_latitude'];
+                                                      final lngStr = data![
+                                                          'employee_longitude'];
+
+                                                      final lat = latStr != null
+                                                          ? double.tryParse(
+                                                              latStr.toString())
+                                                          : null;
+                                                      final lng = lngStr != null
+                                                          ? double.tryParse(
+                                                              lngStr.toString())
+                                                          : null;
+
+                                                      if (lat != null &&
+                                                          lng != null) {
+                                                        _openInGoogleMaps(
+                                                            lat, lng);
+                                                      } else {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          const SnackBar(
+                                                              content: Text(
+                                                                  "ไม่พบพิกัดพนักงาน")),
+                                                        );
+                                                      }
+                                                    },
+                                                    icon: const Icon(Icons.map,
+                                                        color: Colors.white),
+                                                    label: const Text(
+                                                        "เปิดแผนที่"),
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      backgroundColor:
+                                                          Colors.blue,
+                                                      foregroundColor:
+                                                          Colors.white,
+                                                      minimumSize: const Size(
+                                                          double.infinity,
+                                                          45), // ให้เท่ากับปุ่มปิด
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                const SizedBox(height: 20),
+                                                // ปุ่มปิด
+                                                ElevatedButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(context),
+                                                  child: const Text("ปิด"),
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        const Color.fromARGB(
+                                                            255, 255, 203, 82),
+                                                    foregroundColor:
+                                                        Colors.white,
+                                                    minimumSize: const Size(
+                                                        double.infinity, 45),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         );
                                       },
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.amber,
-                                    foregroundColor: Colors.black87,
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 22, 132, 8),
+                                    foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 8),
                                   ),
-                                  child: const Text('ข้อมูลผู้จ้าง'),
+                                  child: const Text("ดูข้อมูลผู้จ้าง"),
                                 ),
                               ],
                             ),

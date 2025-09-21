@@ -181,63 +181,55 @@ class _SearchGeState extends State<SearchGe> {
           ),
           const SizedBox(height: 16),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _togglePriceOrder,
-                    icon: Icon(
-                      currentSortBy == "price" && currentOrder == "asc"
-                          ? Icons.arrow_downward
-                          : Icons.arrow_upward,
-                    ),
-                    label: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        currentSortBy == "price" && currentOrder == "asc"
-                            ? "ราคา: น้อย → มาก"
-                            : "ราคา: มาก → น้อย",
-                        maxLines: 1,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          currentSortBy == "price" ? Colors.green : null,
-                      foregroundColor:
-                          currentSortBy == "price" ? Colors.white : null,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _toggleReviewOrder,
-                    icon: Icon(
-                      currentSortBy == "review" && currentOrder == "desc"
-                          ? Icons.arrow_downward
-                          : Icons.arrow_upward,
-                    ),
-                    label: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        currentSortBy == "review" && currentOrder == "desc"
-                            ? "รีวิว: มาก → น้อย"
-                            : "รีวิว: น้อย → มาก",
-                        maxLines: 1,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          currentSortBy == "review" ? Colors.green : null,
-                      foregroundColor:
-                          currentSortBy == "review" ? Colors.white : null,
-                    ),
-                  ),
-                ),
-              ],
+  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+  child: Row(
+    children: [
+      Expanded(
+        child: ElevatedButton.icon(
+          onPressed: _togglePriceOrder,
+          label: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              currentSortBy == "price" && currentOrder == "asc"
+                  ? "ราคา: น้อย → มาก"
+                  : "ราคา: มาก → น้อย",
+              maxLines: 1,
             ),
           ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: currentSortBy == "price" ? Colors.green : null,
+            foregroundColor: currentSortBy == "price" ? Colors.white : null,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero, // ไม่มีโค้งมน
+            ),
+          ),
+        ),
+      ),
+      Expanded(
+        child: ElevatedButton.icon(
+          onPressed: _toggleReviewOrder,
+          label: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              currentSortBy == "review" && currentOrder == "desc"
+                  ? "รีวิว: มาก → น้อย"
+                  : "รีวิว: น้อย → มาก",
+              maxLines: 1,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: currentSortBy == "review" ? Colors.green : null,
+            foregroundColor: currentSortBy == "review" ? Colors.white : null,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero, // ไม่มีโค้งมน
+            ),
+          ),
+        ),
+      ),
+    ],
+  ),
+),
+
           const SizedBox(height: 16),
           Expanded(
             child: isLoading

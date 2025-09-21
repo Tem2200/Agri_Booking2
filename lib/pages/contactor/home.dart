@@ -5,6 +5,7 @@ import 'package:agri_booking2/pages/contactor/DetailVehicle.dart';
 import 'package:agri_booking2/pages/contactor/addvehcle.dart';
 import 'package:agri_booking2/pages/editMem.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
+import 'package:agri_booking2/pages/employer/addFarm3.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -254,7 +255,9 @@ class _HomePageState extends State<HomePage> {
     );
 
     if (response.statusCode == 200) {
+
       return jsonDecode(response.body);
+      
     } else {
       throw Exception('การอัปเดตล้มเหลว: ${response.statusCode}');
     }
@@ -639,7 +642,7 @@ class _HomePageState extends State<HomePage> {
                         return Row(
                           children: [
                             Icon(
-                              type == 3 ? Icons.work : Icons.person_add,
+                              type == 3 ? Icons.person : Icons.person_add,
                               color:
                                   type == 3 ? Colors.green : Colors.deepPurple,
                             ),

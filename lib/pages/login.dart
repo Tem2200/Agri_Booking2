@@ -1,10 +1,14 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/ForgetPassword.dart';
+import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
+import 'package:agri_booking2/pages/contactor/home.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
+import 'package:agri_booking2/pages/employer/homeEmp.dart';
 import 'package:agri_booking2/pages/register.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 class Login extends StatefulWidget {
@@ -21,6 +25,8 @@ class _LoginState extends State<Login> {
   bool isLoading = false;
   String message = '';
   bool isFormValid = false;
+  bool _isPasswordVisible = false;
+
   @override
   void initState() {
     super.initState();
@@ -52,7 +58,7 @@ class _LoginState extends State<Login> {
           'password': passwordController.text,
         }),
       );
-
+      final wrong = jsonDecode(response.body);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final msg = data['message'];
@@ -202,145 +208,12 @@ class _LoginState extends State<Login> {
           );
         }
 
-        // if (type == 3) {
-        //   // แสดง pop-up ให้เลือก
-        //   showDialog(
-        //     context: context,
-        //     builder: (context) {
-        //       return AlertDialog(
-        //         shape: RoundedRectangleBorder(
-        //             borderRadius: BorderRadius.circular(16)),
-        //         title: const Text(
-        //           'ประเภทผู้ใช้งาน',
-        //           textAlign: TextAlign.center,
-        //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-        //         ),
-        //         content: const Text(
-        //           'กรุณาเลือกประเภทผู้ใช้งานที่ต้องการเข้าสู่ระบบ',
-        //           textAlign: TextAlign.center,
-        //           style: TextStyle(fontSize: 16, color: Colors.black87),
-        //         ),
-        //         contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
-        //         actionsPadding:
-        //             const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        //         actions: [
-        //           Row(
-        //             children: [
-        //               Expanded(
-        //                 child: ElevatedButton(
-        //                   style: ElevatedButton.styleFrom(
-        //                     backgroundColor: const Color(0xFF0DA128),
-        //                     foregroundColor: Colors.white,
-        //                     minimumSize: const Size.fromHeight(48),
-        //                   ),
-        //                   onPressed: () {
-        //                     int currentMonth = DateTime.now().month;
-        //                     int currentYear = DateTime.now().year;
-        //                     Navigator.pop(context);
-        //                     Navigator.pushReplacement(
-        //                       context,
-        //                       MaterialPageRoute(
-        //                         builder: (context) => Tabbar(
-        //                           mid: mid,
-        //                           value: 0,
-        //                           month: currentMonth,
-        //                           year: currentYear,
-        //                         ),
-        //                       ),
-        //                     );
-        //                   },
-        //                   child: const Text(
-        //                     'ผู้จ้าง',
-        //                     style: TextStyle(
-        //                         fontSize: 18, fontWeight: FontWeight.w600),
-        //                   ),
-        //                 ),
-        //               ),
-        //               const SizedBox(width: 16),
-        //               Expanded(
-        //                 child: ElevatedButton(
-        //                   style: ElevatedButton.styleFrom(
-        //                     backgroundColor: const Color(0xFF0DA128),
-        //                     foregroundColor: Colors.white,
-        //                     minimumSize: const Size.fromHeight(48),
-        //                   ),
-        //                   onPressed: () {
-        //                     int currentMonth = DateTime.now().month;
-        //                     int currentYear = DateTime.now().year;
-        //                     Navigator.pop(context);
-        //                     Navigator.pushReplacement(
-        //                       context,
-        //                       MaterialPageRoute(
-        //                         builder: (context) => TabbarCar(
-        //                           mid: mid,
-        //                           value: 0,
-        //                           month: currentMonth,
-        //                           year: currentYear,
-        //                         ),
-        //                       ),
-        //                     );
-        //                   },
-        //                   child: const Text(
-        //                     'ผู้รับจ้าง',
-        //                     style: TextStyle(
-        //                         fontSize: 18, fontWeight: FontWeight.w600),
-        //                   ),
-        //                 ),
-        //               ),
-        //             ],
-        //           ),
-        //           const SizedBox(height: 16),
-        //           Center(
-        //             child: TextButton(
-        //               style: TextButton.styleFrom(
-        //                 foregroundColor: Colors.grey[700],
-        //                 textStyle: const TextStyle(
-        //                     fontSize: 16, fontWeight: FontWeight.w500),
-        //               ),
-        //               onPressed: () => Navigator.pop(context),
-        //               child: const Text('ปิด'),
-        //             ),
-        //           ),
-        //         ],
-        //       );
-        //     },
-        //   );
-        // } else if (type == 1) {
-        //   int currentMonth = DateTime.now().month;
-        //   int currentYear = DateTime.now().year;
-        //   Navigator.pushReplacement(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) => TabbarCar(
-        //         mid: mid,
-        //         value: 0,
-        //         month: currentMonth,
-        //         year: currentYear,
-        //       ),
-        //     ),
-        //   );
-        // } else if (type == 2) {
-        //   int currentMonth = DateTime.now().month;
-        //   int currentYear = DateTime.now().year;
-        //   Navigator.pushReplacement(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) => Tabbar(
-        //         mid: mid,
-        //         value: 0,
-        //         month: currentMonth,
-        //         year: currentYear,
-        //       ),
-        //     ),
-        //   );
-        // }
-
         setState(() {
           message = msg;
         });
       } else {
         setState(() {
-          message = 'เข้าสู่ระบบล้มเหลว ข้อมูลผิดพลาด';
+            message = 'เข้าสู่ระบบไม่สำเร็จ ${wrong['message'] ?? ''}';
         });
       }
     } catch (e) {
@@ -433,6 +306,7 @@ class _LoginState extends State<Login> {
                               controller: passwordController,
                               label: 'รหัสผ่าน',
                               obscureText: true,
+                              isPasswordField: true,
                             ),
                           ],
                         ),
@@ -500,18 +374,32 @@ class _LoginState extends State<Login> {
                             ),
                           ),
                         ),
+// แสดงข้อความผิดพลาด ถ้ามี
+if (message.isNotEmpty)
+  Padding(
+    padding: const EdgeInsets.only(top: 16),
+    child: Text(
+      message,
+      style: const TextStyle(
+        color: Colors.red,
+        fontSize: 16,
+      ),
+    ),
+  ),
 
                         const SizedBox(height: 20),
 
                         // ลิงก์สมัครสมาชิกอยู่ข้างล่างสุดของกล่อง
                         TextButton(
                           onPressed: () {
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const Register()),
+                                  builder: (context) =>
+                                      const TabbarGenaralUser(value: 1)),
                             );
                           },
+
                           child: const Text(
                             'สมัครสมาชิก',
                             style: TextStyle(
@@ -525,35 +413,6 @@ class _LoginState extends State<Login> {
                       ],
                     ),
                   ),
-
-                  // แสดงข้อความผิดพลาด ถ้ามี
-                  if (message.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(6),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: Text(
-                          message,
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -563,17 +422,19 @@ class _LoginState extends State<Login> {
     );
   }
 
+  bool _isConfirmPasswordVisible = false;
+
   Widget buildInnerShadowTextField({
     required TextEditingController controller,
     required String label,
     bool obscureText = false,
+    bool isPasswordField = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ชื่อช่องแยกออกมา
           Text(
             label,
             style: const TextStyle(
@@ -604,11 +465,14 @@ class _LoginState extends State<Login> {
             ),
             child: TextField(
               controller: controller,
-              obscureText: obscureText,
+              obscureText: obscureText &&
+                  !(isPasswordField
+                      ? _isPasswordVisible
+                      : _isConfirmPasswordVisible),
               decoration: InputDecoration(
                 floatingLabelBehavior: FloatingLabelBehavior.never,
                 filled: true,
-                fillColor: Colors.transparent, // ใช้สีจาก Container
+                fillColor: Colors.transparent,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -617,6 +481,20 @@ class _LoginState extends State<Login> {
                   horizontal: 16,
                   vertical: 16,
                 ),
+                suffixIcon: isPasswordField
+                    ? IconButton(
+                        icon: Icon(
+                          _isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
+                        },
+                      )
+                    : null,
               ),
               style: const TextStyle(
                 fontSize: 16,

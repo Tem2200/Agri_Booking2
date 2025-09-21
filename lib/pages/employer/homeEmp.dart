@@ -82,7 +82,7 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
               Container(
                 width: double.infinity, // กว้างพอดีกับจอ
                 height: MediaQuery.of(context).size.height *
-                    0.50, // ประมาณ 35% ของจอ
+                    0.40, // ประมาณ 35% ของจอ
                 decoration: const BoxDecoration(
                   color: Color.fromARGB(255, 18, 143, 9),
                   borderRadius: BorderRadius.vertical(
@@ -242,7 +242,7 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                   },
                                   child: buildMenuItem(
                                     'https://cdn-icons-png.flaticon.com/512/854/854878.png',
-                                    'แก้ไขข้อมูลไร่นา',
+                                    'ไร่นาของฉัน',
                                   ),
                                 ),
                                 GestureDetector(

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/GenaralUser/tabbar.dart';
 import 'package:agri_booking2/pages/contactor/Tabbar.dart';
-import 'package:agri_booking2/pages/employer/addFarm.dart';
+import 'package:agri_booking2/pages/employer/addFarm3.dart';
 import 'package:agri_booking2/pages/map_register.dart';
 
 import 'package:flutter/material.dart';
@@ -449,22 +449,14 @@ class _RegisterState extends State<Register> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         elevation: 0,
+        automaticallyImplyLeading: false,
+        centerTitle: true,
         title: Text(
           'สมัครสมาชิก',
           style: GoogleFonts.prompt(
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const TabbarGenaralUser(value: 1)),
-            );
-          },
         ),
       ),
       body: Stack(
@@ -618,7 +610,7 @@ class _RegisterState extends State<Register> {
                             focusNode: phoneFocus,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'กรุณากรอกเบอร์โทร';
+                                return 'กรุณากรอกเบอร์โทร *';
                               }
                               if (value.length != 10) {
                                 return 'เบอร์โทรต้องมี 10 หลัก';
@@ -814,7 +806,7 @@ class _RegisterState extends State<Register> {
 
     // 1. ตรวจสอบว่ามีข้อมูลหรือไม่
     if (password.isEmpty) {
-      return 'กรุณากรอกรหัสผ่าน';
+      return 'กรุณากรอกรหัสผ่าน *';
     }
 
     // 2. ตรวจสอบความยาว
