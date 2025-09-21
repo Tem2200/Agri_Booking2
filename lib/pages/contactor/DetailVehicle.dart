@@ -539,6 +539,7 @@ Column(
         : '0.00';
     final totalReviews = reviewList.length;
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
                               final reviewList = snapshot.data!;
                               final totalPoints = reviewList.fold<num>(
@@ -753,6 +754,32 @@ FutureBuilder<List<dynamic>>(
       );
     }
 
+=======
+    final int displayCount = _showAllReviews
+        ? totalReviews
+        : (totalReviews > 3 ? 3 : totalReviews);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+
+FutureBuilder<List<dynamic>>(
+  future: _reviewFuture,
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (snapshot.hasError) {
+      return Center(
+        child: Text('เกิดข้อผิดพลาดในการโหลดรีวิว: ${snapshot.error}'),
+      );
+    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+      return const Text(
+        'รีวิว (ไม่มีข้อมูล)',
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      );
+    }
+
+>>>>>>> Whan
     final reviewList = snapshot.data!;
     final totalPoints = reviewList.fold<num>(
       0,
@@ -856,7 +883,10 @@ FutureBuilder<List<dynamic>>(
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
+<<<<<<< HEAD
 >>>>>>> Stashed changes
+=======
+>>>>>>> Whan
                           ),
                         ),
                       ],

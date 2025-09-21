@@ -44,7 +44,10 @@ class _TabbarCarState extends State<TabbarCar> {
     fetchData(); // fetch ครั้งแรก
     _startLongPolling();
 <<<<<<< HEAD
+<<<<<<< HEAD
     //connectWebSocket(); // เชื่อม WS
+=======
+>>>>>>> Whan
 =======
 >>>>>>> Whan
     _saveLastPage();

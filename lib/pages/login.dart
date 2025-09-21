@@ -213,7 +213,11 @@ class _LoginState extends State<Login> {
         });
       } else {
         setState(() {
+<<<<<<< HEAD
           message = 'เข้าสู่ระบบไม่สำเร็จ ${wrong['message'] ?? ''}';
+=======
+            message = 'เข้าสู่ระบบไม่สำเร็จ ${wrong['message'] ?? ''}';
+>>>>>>> Whan
         });
       }
     } catch (e) {
@@ -375,6 +379,7 @@ class _LoginState extends State<Login> {
                           ),
                         ),
 // แสดงข้อความผิดพลาด ถ้ามี
+<<<<<<< HEAD
                         if (message.isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(top: 16),
@@ -386,6 +391,19 @@ class _LoginState extends State<Login> {
                               ),
                             ),
                           ),
+=======
+if (message.isNotEmpty)
+  Padding(
+    padding: const EdgeInsets.only(top: 16),
+    child: Text(
+      message,
+      style: const TextStyle(
+        color: Colors.red,
+        fontSize: 16,
+      ),
+    ),
+  ),
+>>>>>>> Whan
 
                         const SizedBox(height: 20),
 
@@ -399,6 +417,7 @@ class _LoginState extends State<Login> {
                                       const TabbarGenaralUser(value: 1)),
                             );
                           },
+
                           child: const Text(
                             'สมัครสมาชิก',
                             style: TextStyle(

@@ -277,6 +277,7 @@ class _SearchEnterState extends State<SearchEnter> {
       });
     }
   }
+<<<<<<< HEAD
 
   void _toggleDistanceOrder() {
     setState(() {
@@ -294,6 +295,8 @@ class _SearchEnterState extends State<SearchEnter> {
       });
     }
   }
+=======
+>>>>>>> Whan
 
   void _sortByDistance() {
     setState(() {
@@ -459,7 +462,50 @@ class _SearchEnterState extends State<SearchEnter> {
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
+<<<<<<< HEAD
                             backgroundColor: currentSortBy == "distance"
+=======
+                            backgroundColor:
+                                currentSortBy == "review" ? Colors.green : null,
+                            foregroundColor:
+                                currentSortBy == "review" ? Colors.white : null,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: (widget.selectedFarmLat != null &&
+                                  widget.selectedFarmLng != null)
+                              ? _toggleDistanceOrder
+                              : null,
+                          label: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              currentSortBy == "distance" &&
+                                      currentOrder == "desc"
+                                  ? "ระยะทาง: ไกล → ใกล้"
+                                  : "ระยะทาง: ใกล้ → ไกล",
+                              maxLines: 1,
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: currentSortBy == "distance"
+                                ? Colors.green
+                                : null,
+                            foregroundColor: currentSortBy == "distance"
+                                ? Colors.white
+                                : null,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          ),
+                        ),
+>>>>>>> Whan
                       ),
                     ],
                   ),

@@ -580,6 +580,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
         final scheduleList = snapshot.data!;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         // 💡 แก้ไขเงื่อนไขการกรองข้อมูลใน filteredList
         // List<dynamic> filteredList = scheduleList.where((item) {
         //   final dateStart = DateTime.parse(item['date_start']).toLocal();
@@ -617,6 +618,8 @@ class _PlanAndHistoryState extends State<PlanPage> {
         //   return false;
         // }).toList();
 
+=======
+>>>>>>> Whan
 =======
 >>>>>>> Whan
         List<dynamic> filteredList = scheduleList.where((item) {

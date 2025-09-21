@@ -21,6 +21,7 @@ class _NontiPageState extends State<NontiPage> {
   int _newJobsCount = 0; // จำนวนงานใหม่ (progress_status = null)
   int _cancelledJobsCount = 0; // จำนวนงานที่ถูกยกเลิก (progress_status = 5)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   // @override
   // void initState() {
@@ -33,6 +34,8 @@ class _NontiPageState extends State<NontiPage> {
   //     // ✅ ไม่ใช้ month/year แล้ว
   //   });
   // }
+=======
+>>>>>>> Whan
 =======
 >>>>>>> Whan
 

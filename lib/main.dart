@@ -7,7 +7,10 @@ import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> Whan
 =======
 >>>>>>> Whan
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -15,7 +18,10 @@ List<dynamic> bookings = [];
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 <<<<<<< HEAD
+<<<<<<< HEAD
   await Firebase.initializeApp();
+=======
+>>>>>>> Whan
 =======
 >>>>>>> Whan
   await initializeDateFormatting('th_TH', null);
@@ -98,6 +104,10 @@ class _CheckSessionPageState extends State<CheckSessionPage> {
         if (lastPage == 'TabbarCar') {
           Navigator.pushAndRemoveUntil(
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+            // ignore: use_build_context_synchronously
+>>>>>>> Whan
 =======
             // ignore: use_build_context_synchronously
 >>>>>>> Whan
@@ -115,6 +125,10 @@ class _CheckSessionPageState extends State<CheckSessionPage> {
         } else {
           Navigator.pushAndRemoveUntil(
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+            // ignore: use_build_context_synchronously
+>>>>>>> Whan
 =======
             // ignore: use_build_context_synchronously
 >>>>>>> Whan
