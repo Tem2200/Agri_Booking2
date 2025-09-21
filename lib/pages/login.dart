@@ -58,7 +58,7 @@ class _LoginState extends State<Login> {
           'password': passwordController.text,
         }),
       );
-
+      final wrong = jsonDecode(response.body);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final msg = data['message'];
@@ -208,145 +208,12 @@ class _LoginState extends State<Login> {
           );
         }
 
-        // if (type == 3) {
-        //   // แสดง pop-up ให้เลือก
-        //   showDialog(
-        //     context: context,
-        //     builder: (context) {
-        //       return AlertDialog(
-        //         shape: RoundedRectangleBorder(
-        //             borderRadius: BorderRadius.circular(16)),
-        //         title: const Text(
-        //           'ประเภทผู้ใช้งาน',
-        //           textAlign: TextAlign.center,
-        //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-        //         ),
-        //         content: const Text(
-        //           'กรุณาเลือกประเภทผู้ใช้งานที่ต้องการเข้าสู่ระบบ',
-        //           textAlign: TextAlign.center,
-        //           style: TextStyle(fontSize: 16, color: Colors.black87),
-        //         ),
-        //         contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
-        //         actionsPadding:
-        //             const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        //         actions: [
-        //           Row(
-        //             children: [
-        //               Expanded(
-        //                 child: ElevatedButton(
-        //                   style: ElevatedButton.styleFrom(
-        //                     backgroundColor: const Color(0xFF0DA128),
-        //                     foregroundColor: Colors.white,
-        //                     minimumSize: const Size.fromHeight(48),
-        //                   ),
-        //                   onPressed: () {
-        //                     int currentMonth = DateTime.now().month;
-        //                     int currentYear = DateTime.now().year;
-        //                     Navigator.pop(context);
-        //                     Navigator.pushReplacement(
-        //                       context,
-        //                       MaterialPageRoute(
-        //                         builder: (context) => Tabbar(
-        //                           mid: mid,
-        //                           value: 0,
-        //                           month: currentMonth,
-        //                           year: currentYear,
-        //                         ),
-        //                       ),
-        //                     );
-        //                   },
-        //                   child: const Text(
-        //                     'ผู้จ้าง',
-        //                     style: TextStyle(
-        //                         fontSize: 18, fontWeight: FontWeight.w600),
-        //                   ),
-        //                 ),
-        //               ),
-        //               const SizedBox(width: 16),
-        //               Expanded(
-        //                 child: ElevatedButton(
-        //                   style: ElevatedButton.styleFrom(
-        //                     backgroundColor: const Color(0xFF0DA128),
-        //                     foregroundColor: Colors.white,
-        //                     minimumSize: const Size.fromHeight(48),
-        //                   ),
-        //                   onPressed: () {
-        //                     int currentMonth = DateTime.now().month;
-        //                     int currentYear = DateTime.now().year;
-        //                     Navigator.pop(context);
-        //                     Navigator.pushReplacement(
-        //                       context,
-        //                       MaterialPageRoute(
-        //                         builder: (context) => TabbarCar(
-        //                           mid: mid,
-        //                           value: 0,
-        //                           month: currentMonth,
-        //                           year: currentYear,
-        //                         ),
-        //                       ),
-        //                     );
-        //                   },
-        //                   child: const Text(
-        //                     'ผู้รับจ้าง',
-        //                     style: TextStyle(
-        //                         fontSize: 18, fontWeight: FontWeight.w600),
-        //                   ),
-        //                 ),
-        //               ),
-        //             ],
-        //           ),
-        //           const SizedBox(height: 16),
-        //           Center(
-        //             child: TextButton(
-        //               style: TextButton.styleFrom(
-        //                 foregroundColor: Colors.grey[700],
-        //                 textStyle: const TextStyle(
-        //                     fontSize: 16, fontWeight: FontWeight.w500),
-        //               ),
-        //               onPressed: () => Navigator.pop(context),
-        //               child: const Text('ปิด'),
-        //             ),
-        //           ),
-        //         ],
-        //       );
-        //     },
-        //   );
-        // } else if (type == 1) {
-        //   int currentMonth = DateTime.now().month;
-        //   int currentYear = DateTime.now().year;
-        //   Navigator.pushReplacement(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) => TabbarCar(
-        //         mid: mid,
-        //         value: 0,
-        //         month: currentMonth,
-        //         year: currentYear,
-        //       ),
-        //     ),
-        //   );
-        // } else if (type == 2) {
-        //   int currentMonth = DateTime.now().month;
-        //   int currentYear = DateTime.now().year;
-        //   Navigator.pushReplacement(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) => Tabbar(
-        //         mid: mid,
-        //         value: 0,
-        //         month: currentMonth,
-        //         year: currentYear,
-        //       ),
-        //     ),
-        //   );
-        // }
-
         setState(() {
           message = msg;
         });
       } else {
         setState(() {
-          message = 'เข้าสู่ระบบล้มเหลว ข้อมูลผิดพลาด';
+            message = 'เข้าสู่ระบบไม่สำเร็จ ${wrong['message'] ?? ''}';
         });
       }
     } catch (e) {
@@ -507,6 +374,18 @@ class _LoginState extends State<Login> {
                             ),
                           ),
                         ),
+// แสดงข้อความผิดพลาด ถ้ามี
+if (message.isNotEmpty)
+  Padding(
+    padding: const EdgeInsets.only(top: 16),
+    child: Text(
+      message,
+      style: const TextStyle(
+        color: Colors.red,
+        fontSize: 16,
+      ),
+    ),
+  ),
 
                         const SizedBox(height: 20),
 
@@ -520,6 +399,7 @@ class _LoginState extends State<Login> {
                                       const TabbarGenaralUser(value: 1)),
                             );
                           },
+
                           child: const Text(
                             'สมัครสมาชิก',
                             style: TextStyle(
@@ -533,35 +413,6 @@ class _LoginState extends State<Login> {
                       ],
                     ),
                   ),
-
-                  // แสดงข้อความผิดพลาด ถ้ามี
-                  if (message.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(6),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: Text(
-                          message,
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -571,6 +422,7 @@ class _LoginState extends State<Login> {
     );
   }
 
+<<<<<<< HEAD
   // Widget buildInnerShadowTextField({
   //   required TextEditingController controller,
   //   required String label,
@@ -598,6 +450,8 @@ class _LoginState extends State<Login> {
   //   );
   // }
 
+=======
+>>>>>>> Whan
   bool _isConfirmPasswordVisible = false;
 
   Widget buildInnerShadowTextField({

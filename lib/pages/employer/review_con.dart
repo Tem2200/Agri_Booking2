@@ -156,55 +156,6 @@ class _ReviewConState extends State<ReviewCon> {
   }
 
   @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(title: const Text('ให้คะแนนรีวิว')),
-  //     body: SingleChildScrollView(
-  //       padding: const EdgeInsets.all(16.0),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           const Text('ให้คะแนน', style: TextStyle(fontSize: 18)),
-  //           Row(
-  //             children: List.generate(5, (index) => buildStar(index + 1)),
-  //           ),
-  //           const SizedBox(height: 20),
-  //           TextField(
-  //             controller: reviewController,
-  //             maxLines: 5,
-  //             decoration: const InputDecoration(
-  //               labelText: 'เขียนรีวิว',
-  //               border: OutlineInputBorder(),
-  //             ),
-  //           ),
-  //           const SizedBox(height: 20),
-  //           if (imageUrl != null)
-  //             Column(
-  //               children: [
-  //                 Image.network(imageUrl!, height: 150),
-  //                 const SizedBox(height: 10),
-  //                 Text('อัปโหลดเรียบร้อย',
-  //                     style: TextStyle(color: Colors.green)),
-  //               ],
-  //             ),
-  //           ElevatedButton.icon(
-  //             onPressed: isLoading ? null : uploadImageFromImageBB,
-  //             icon: const Icon(Icons.image),
-  //             label: Text(
-  //                 isLoading ? 'กำลังอัปโหลด...' : 'เลือกรูปรีวิว (ไม่บังคับ)'),
-  //           ),
-  //           const SizedBox(height: 20),
-  //           ElevatedButton.icon(
-  //             onPressed: isSubmitting ? null : submitReview,
-  //             icon: const Icon(Icons.send),
-  //             label: Text(isSubmitting ? 'กำลังส่ง...' : 'ส่งรีวิว'),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -334,7 +285,37 @@ class _ReviewConState extends State<ReviewCon> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
-                  onPressed: isSubmitting ? null : submitReview,
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('ยืนยันการรีวิว'),
+                              content: const Text(
+                                  'คุณแน่ใจหรือไม่ว่าต้องการส่งรีวิวนี้?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('ยกเลิก'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color.fromARGB(
+                                        255, 255, 255, 255),
+                                  ),
+                                  child: const Text('ตกลง'),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (confirm == true) {
+                            submitReview();
+                          }
+                        },
                   icon: const Icon(Icons.send),
                   label: Text(isSubmitting ? 'กำลังส่ง...' : 'ส่งรีวิว'),
                   style: ElevatedButton.styleFrom(

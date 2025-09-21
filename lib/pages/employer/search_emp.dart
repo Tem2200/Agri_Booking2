@@ -155,6 +155,7 @@ class _SearchEmpState extends State<SearchEmp> {
     filteredVehicles = allVehicles;
   }
 
+<<<<<<< HEAD
   // Future<void> _calculateDistances() async {
   //   if (selectedFarm == null ||
   //       selectedFarmLat == null ||
@@ -234,6 +235,8 @@ class _SearchEmpState extends State<SearchEmp> {
   //     setState(() => isLoading = false);
   //   }
   // }
+=======
+>>>>>>> Whan
   Future<void> _calculateDistances({bool forceReload = false}) async {
     if (selectedFarm == null ||
         selectedFarmLat == null ||
@@ -625,21 +628,6 @@ class _SearchEmpState extends State<SearchEmp> {
                                     padding:
                                         const EdgeInsets.fromLTRB(0, 0, 0, 25),
                                     child: Container(
-                                      // decoration: BoxDecoration(
-                                      //   color: Colors.orange[50],
-                                      //   border:
-                                      //       Border.all(color: Colors.orange),
-                                      //   borderRadius: BorderRadius.circular(12),
-                                      //   boxShadow: [
-                                      //     BoxShadow(
-                                      //       color:
-                                      //           Colors.orange.withOpacity(0.3),
-                                      //       spreadRadius: 1,
-                                      //       blurRadius: 8,
-                                      //       offset: const Offset(0, 4),
-                                      //     ),
-                                      //   ],
-                                      // ),
                                       decoration: BoxDecoration(
                                         color: Colors.orange[50],
                                         border:
@@ -704,7 +692,6 @@ class _SearchEmpState extends State<SearchEmp> {
 
                                           const SizedBox(width: 12),
 
-                                          // ✅ ข้อมูล
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment:

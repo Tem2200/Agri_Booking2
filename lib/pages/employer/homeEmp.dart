@@ -82,7 +82,7 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
               Container(
                 width: double.infinity, // กว้างพอดีกับจอ
                 height: MediaQuery.of(context).size.height *
-                    0.50, // ประมาณ 35% ของจอ
+                    0.40, // ประมาณ 35% ของจอ
                 decoration: const BoxDecoration(
                   color: Color.fromARGB(255, 18, 143, 9),
                   borderRadius: BorderRadius.vertical(
@@ -201,13 +201,20 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                     try {
                                       final data = await fetchCon(widget.mid);
                                       if (!context.mounted) return;
-                                      Navigator.push(
+                                      final result = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
                                               EditMemberPage(memberData: data),
                                         ),
                                       );
+                                      // ✅ ถ้าหน้าแก้ไขส่ง true กลับมา ให้รีเฟรช
+                                      if (result == true) {
+                                        setState(() {
+                                          // โหลดข้อมูลใหม่
+                                          fetchCon(widget.mid);
+                                        });
+                                      }
                                     } catch (e) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
@@ -235,24 +242,9 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                   },
                                   child: buildMenuItem(
                                     'https://cdn-icons-png.flaticon.com/512/854/854878.png',
-                                    'แก้ไขข้อมูลไร่นา',
+                                    'ไร่นาของฉัน',
                                   ),
                                 ),
-                                // GestureDetector(
-                                //   onTap: () {
-                                //     Navigator.push(
-                                //       context,
-                                //       MaterialPageRoute(
-                                //           builder: (context) =>
-                                //               const TabbarGenaralUser(
-                                //                   value: 0)),
-                                //     );
-                                //   },
-                                //   child: buildMenuItem(
-                                //     'https://cdn-icons-png.flaticon.com/512/4400/4400828.png',
-                                //     'ออกจากระบบ',
-                                //   ),
-                                // ),
                                 GestureDetector(
                                   onTap: () async {
                                     // เคลียร์ SharedPreferences
@@ -260,6 +252,7 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                         await SharedPreferences.getInstance();
                                     await prefs
                                         .clear(); // ลบ mid และ type_member
+<<<<<<< HEAD
 
                                     // กลับไปหน้า Login และเคลียร์ stack ทั้งหมด
                                     // Navigator.pushAndRemoveUntil(
@@ -268,6 +261,8 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                     //       builder: (context) => const Login()),
                                     //   (route) => false,
                                     // );
+=======
+>>>>>>> Whan
                                     Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(
@@ -282,6 +277,7 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                     'ออกจากระบบ',
                                   ),
                                 ),
+<<<<<<< HEAD
 
                                 // GestureDetector(
                                 //   onTap: () async {
@@ -458,6 +454,8 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                                 //   ),
                                 // )
 
+=======
+>>>>>>> Whan
                                 GestureDetector(
                                   onTap: () async {
                                     int currentMonth = DateTime.now().month;
@@ -657,6 +655,7 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
     );
   }
 
+<<<<<<< HEAD
   // Widget buildMenuItem(String iconUrl, String label) {
   //   return Column(
   //     mainAxisAlignment: MainAxisAlignment.center,
@@ -673,6 +672,8 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
   //   );
   // }
 
+=======
+>>>>>>> Whan
   Widget buildMenuItem(String iconUrl, String label, {double iconSize = 50}) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,

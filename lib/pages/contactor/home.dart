@@ -5,8 +5,10 @@ import 'package:agri_booking2/pages/contactor/DetailVehicle.dart';
 import 'package:agri_booking2/pages/contactor/addvehcle.dart';
 import 'package:agri_booking2/pages/editMem.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
+import 'package:agri_booking2/pages/employer/addFarm3.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -409,7 +411,9 @@ class _HomePageState extends State<HomePage> {
     );
 
     if (response.statusCode == 200) {
+
       return jsonDecode(response.body);
+      
     } else {
       throw Exception('การอัปเดตล้มเหลว: ${response.statusCode}');
     }
@@ -490,8 +494,13 @@ class _HomePageState extends State<HomePage> {
         );
 
         if (response.statusCode == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('รายงานรีวิวสำเร็จ!')),
+          Fluttertoast.showToast(
+            msg: 'รายงานรีวิวเรียบร้อย',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
           );
           // รีเฟรชข้อมูลรีวิวเพื่ออัปเดต UI (ปุ่มรายงานจะหายไป)
           _reviewFuture = fetchReviews(_currentMid);
@@ -499,8 +508,13 @@ class _HomePageState extends State<HomePage> {
           throw Exception('Failed to report review: ${response.body}');
         }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('เกิดข้อผิดพลาดในการรายงาน: $e')),
+        Fluttertoast.showToast(
+          msg: 'เกิดข้อผิดพลาดในการรายงาน',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       } finally {
         setState(() {
@@ -536,6 +550,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+<<<<<<< HEAD
   // // ฟังก์ชันสำหรับดึงข้อมูลรีวิว
   // Future<List<dynamic>> fetchReviews(int mid) async {
   //   final url = Uri.parse(
@@ -564,6 +579,8 @@ class _HomePageState extends State<HomePage> {
   //   }
   // }
 
+=======
+>>>>>>> Whan
   Future<List<dynamic>> fetchReviews(int mid) async {
     final url = Uri.parse(
         'http://projectnodejs.thammadalok.com/AGribooking/get_reviewed/$mid');
@@ -642,6 +659,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
+<<<<<<< HEAD
           // actions: [
           //   PopupMenuButton<String>(
           //     icon: const Icon(Icons.menu, color: Colors.white),
@@ -820,6 +838,8 @@ class _HomePageState extends State<HomePage> {
           //     ],
           //   ),
           // ],
+=======
+>>>>>>> Whan
           actions: [
             PopupMenuButton<String>(
               icon: const Icon(Icons.menu, color: Colors.white),
@@ -831,12 +851,21 @@ class _HomePageState extends State<HomePage> {
                   try {
                     final data = await fetchCon(widget.mid);
                     if (!context.mounted) return;
-                    Navigator.push(
+
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => EditMemberPage(memberData: data),
                       ),
                     );
+
+                    // ✅ ถ้าหน้าแก้ไขส่ง true กลับมา ให้รีเฟรช
+                    if (result == true) {
+                      setState(() {
+                        // โหลดข้อมูลใหม่
+                        _memberDataFuture = fetchCon(widget.mid);
+                      });
+                    }
                   } catch (e) {
                     print('เกิดข้อผิดพลาดในการโหลดข้อมูลสมาชิก: $e');
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -981,7 +1010,11 @@ class _HomePageState extends State<HomePage> {
                         return Row(
                           children: [
                             Icon(
+<<<<<<< HEAD
                               type == 3 ? Icons.work : Icons.person_add,
+=======
+                              type == 3 ? Icons.person : Icons.person_add,
+>>>>>>> Whan
                               color:
                                   type == 3 ? Colors.green : Colors.deepPurple,
                             ),
@@ -1881,6 +1914,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               );
             }
+<<<<<<< HEAD
 
             final review = reviews[index - 1];
             final reportedList =
@@ -1995,67 +2029,15 @@ class _HomePageState extends State<HomePage> {
         //           final reportedList =
         //               jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
         //           final isReported = reportedList.contains(_currentMid);
+=======
+>>>>>>> Whan
 
-        //           return Card(
-        //             margin: const EdgeInsets.symmetric(vertical: 8),
-        //             child: Padding(
-        //               padding: const EdgeInsets.all(12),
-        //               child: Column(
-        //                 crossAxisAlignment: CrossAxisAlignment.start,
-        //                 children: [
-        //                   // รูปภาพรีวิว (ถ้ามี)
-        //                   if (review['image_url'] != null &&
-        //                       review['image_url'].toString().isNotEmpty)
-        //                     Padding(
-        //                       padding: const EdgeInsets.only(bottom: 8),
-        //                       child: Image.network(
-        //                         review['image_url'],
-        //                         height: 150,
-        //                         width: double.infinity,
-        //                         fit: BoxFit.cover,
-        //                         errorBuilder: (context, error, stackTrace) =>
-        //                             const Text('โหลดรูปไม่สำเร็จ'),
-        //                       ),
-        //                     ),
-        //                   Row(
-        //                     mainAxisSize: MainAxisSize.min,
-        //                     children: [
-        //                       const Icon(
-        //                         Icons.person, // ไอคอนไม่ระบุตัวตน
-        //                         color: Colors.grey,
-        //                         size: 20,
-        //                       ),
-        //                       const SizedBox(
-        //                           width: 6), // ช่องว่างระหว่างไอคอนกับดาว
-        //                       Row(
-        //                         mainAxisSize: MainAxisSize.min,
-        //                         children: List.generate(5, (index) {
-        //                           return Icon(
-        //                             index < (review['point'] ?? 0)
-        //                                 ? Icons.star
-        //                                 : Icons.star_border,
-        //                             color: Colors.amber,
-        //                             size: 20,
-        //                           );
-        //                         }),
-        //                       ),
-        //                       const SizedBox(width: 8),
-        //                       Text(
-        //                         '${review['point'] ?? '-'} / 5',
-        //                         style: const TextStyle(
-        //                           fontSize: 14,
-        //                           fontWeight: FontWeight.bold,
-        //                           color: Colors.black87,
-        //                         ),
-        //                       ),
-        //                     ],
-        //                   ),
-        //                   // ข้อความรีวิว
-        //                   Text(
-        //                     review['text'] ?? '-',
-        //                     style: const TextStyle(fontSize: 16),
-        //                   ),
+            final review = reviews[index - 1];
+            final reportedList =
+                jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
+            final isReported = reportedList.contains(_currentMid);
 
+<<<<<<< HEAD
         //                   const SizedBox(height: 6),
         //                   if (review['image'] != null &&
         //                       review['image'].isNotEmpty)
@@ -2114,3 +2096,87 @@ class _HomePageState extends State<HomePage> {
         // );
 
         
+=======
+            return Card(
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ดาว + คะแนน
+                    Row(
+                      children: [
+                        const Icon(Icons.person, color: Colors.grey, size: 20),
+                        const SizedBox(width: 6),
+                        Row(
+                          children: List.generate(5, (i) {
+                            return Icon(
+                              i < (review['point'] ?? 0)
+                                  ? Icons.star
+                                  : Icons.star_border,
+                              color: Colors.amber,
+                              size: 20,
+                            );
+                          }),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${review['point'] ?? '-'} / 5',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // ข้อความ
+                    Text(
+                      review['text'] ?? '-',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // วันที่
+                    Text(
+                      'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text('จำนวนรายงาน: ${reportedList.length} คน',
+                            style: const TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                        onPressed: isReported
+                            ? null
+                            : () => _reportReview(review['rid']),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              isReported ? Colors.grey : Colors.red,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: Text(isReported ? 'รายงานแล้ว' : 'รายงานรีวิว'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+>>>>>>> Whan

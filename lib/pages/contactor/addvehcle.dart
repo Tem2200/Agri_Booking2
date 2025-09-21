@@ -4,6 +4,7 @@ import 'package:agri_booking2/pages/contactor/Tabbar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
@@ -85,15 +86,25 @@ class _AddVehicleState extends State<AddVehicle> {
         setState(() {
           imageUrl = data['data']['url'];
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('อัปโหลดรูปภาพสำเร็จ')),
+        Fluttertoast.showToast(
+          msg: 'อัปโหลดรูปภาพสำเร็จ',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       } else {
         throw Exception('อัปโหลดรูปภาพล้มเหลว');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+      Fluttertoast.showToast(
+        msg: 'เกิดข้อผิดพลาด: $e',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
       );
     } finally {
       setState(() => isLoading = false);
@@ -232,15 +243,6 @@ class _AddVehicleState extends State<AddVehicle> {
       ),
       body: Stack(
         children: [
-          // // ✅ พื้นหลังเต็มหน้าจอ
-          // Positioned.fill(
-          //   child: Image.network(
-          //     'https://i.ibb.co/FbG6mQrF/Rectangle-33-1.png',
-          //     fit: BoxFit.cover,
-          //   ),
-          // ),
-
-          // ✅ เนื้อหาแบบ Scroll ได้
           SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Center(
@@ -323,15 +325,14 @@ class _AddVehicleState extends State<AddVehicle> {
 
                         const SizedBox(height: 24),
 
-                        // ✅ ชื่อรถ
+                        // ชื่อรถ
                         Text('ชื่อรถ *', style: labelStyle),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: nameController,
                           decoration: const InputDecoration(
-                            filled: true, // ✅ เปิดการเติมสีพื้นหลัง
-                            fillColor:
-                                Colors.white, // ✅ กำหนดสีพื้นหลังเป็นสีขาว
+                            filled: true, // เปิดการเติมสีพื้นหลัง
+                            fillColor: Colors.white, // กำหนดสีพื้นหลังเป็นสีขาว
                             border: OutlineInputBorder(),
                             //hintText: 'ชื่อรถ',
                             contentPadding: EdgeInsets.symmetric(
@@ -344,7 +345,7 @@ class _AddVehicleState extends State<AddVehicle> {
 
                         const SizedBox(height: 16),
 
-                        // ✅ ราคาต่อหน่วย
+                        //ราคาต่อหน่วย
                         Text('ราคาต่อพื้นที่จ้างงาน(เช่น100บาท/ไร่)*',
                             style: labelStyle),
                         const SizedBox(height: 8),
@@ -357,9 +358,9 @@ class _AddVehicleState extends State<AddVehicle> {
                                 controller: priceController,
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
-                                  filled: true, // ✅ เปิดการเติมสีพื้นหลัง
-                                  fillColor: Colors
-                                      .white, // ✅ กำหนดสีพื้นหลังเป็นสีขาว
+                                  filled: true, //เปิดการเติมสีพื้นหลัง
+                                  fillColor:
+                                      Colors.white, // กำหนดสีพื้นหลังเป็นสีขาว
                                   border: OutlineInputBorder(),
                                   //hintText: 'จำนวนเงิน',
                                   contentPadding: EdgeInsets.symmetric(
@@ -420,9 +421,9 @@ class _AddVehicleState extends State<AddVehicle> {
                           TextFormField(
                             controller: customUnitController,
                             decoration: const InputDecoration(
-                              filled: true, // ✅ เปิดการเติมสีพื้นหลัง
+                              filled: true, // เปิดการเติมสีพื้นหลัง
                               fillColor:
-                                  Colors.white, // ✅ กำหนดสีพื้นหลังเป็นสีขาว
+                                  Colors.white, //กำหนดสีพื้นหลังเป็นสีขาว
                               border: OutlineInputBorder(),
                               hintText: 'กรอกหน่วยเอง เช่น เมตร',
                               contentPadding: EdgeInsets.symmetric(
@@ -443,16 +444,14 @@ class _AddVehicleState extends State<AddVehicle> {
 
                         const SizedBox(height: 16),
 
-                        // ✅ รายละเอียด
                         Text('รายละเอียดรถ', style: labelStyle),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: detailController,
                           maxLines: 1,
                           decoration: const InputDecoration(
-                            filled: true, // ✅ เปิดการเติมสีพื้นหลัง
-                            fillColor:
-                                Colors.white, // ✅ กำหนดสีพื้นหลังเป็นสีขาว
+                            filled: true, // เปิดการเติมสีพื้นหลัง
+                            fillColor: Colors.white, // กำหนดสีพื้นหลังเป็นสีขาว
                             border: OutlineInputBorder(),
                             //hintText: 'อธิบายการใช้งานรถ เช่น ขุดดิน ไถนา',
                             contentPadding: EdgeInsets.symmetric(
@@ -465,15 +464,14 @@ class _AddVehicleState extends State<AddVehicle> {
 
                         const SizedBox(height: 16),
 
-                        // ✅ ทะเบียน (ไม่บังคับ)
+                        //ทะเบียน (ไม่บังคับ)
                         Text('ป้ายทะเบียนรถ', style: labelStyle),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: plateController,
                           decoration: const InputDecoration(
-                            filled: true, // ✅ เปิดการเติมสีพื้นหลัง
-                            fillColor:
-                                Colors.white, // ✅ กำหนดสีพื้นหลังเป็นสีขาว
+                            filled: true, //เปิดการเติมสีพื้นหลัง
+                            fillColor: Colors.white, //กำหนดสีพื้นหลังเป็นสีขาว
                             border: OutlineInputBorder(),
                             //hintText: 'ไม่บังคับ',
                             contentPadding: EdgeInsets.symmetric(
@@ -483,7 +481,7 @@ class _AddVehicleState extends State<AddVehicle> {
 
                         const SizedBox(height: 32),
 
-                        // ✅ ปุ่มยกเลิก/เพิ่มรถ
+                        //ปุ่มยกเลิก/เพิ่มรถ
                         Row(
                           children: [
                             Expanded(
@@ -508,7 +506,39 @@ class _AddVehicleState extends State<AddVehicle> {
                             const SizedBox(width: 16),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: _isSubmitting ? null : submitVehicle,
+                                onPressed: _isSubmitting
+                                    ? null
+                                    : () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title:
+                                                const Text('ยืนยันการเพิ่มรถ'),
+                                            content: const Text(
+                                                'คุณแน่ใจหรือไม่ว่าต้องการเพิ่มรถคันนี้?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(
+                                                    context, false),
+                                                child: const Text('ยกเลิก'),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () => Navigator.pop(
+                                                    context, true),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.green,
+                                                  foregroundColor: Colors.white,
+                                                ),
+                                                child: const Text('ตกลง'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+
+                                        if (confirm == true) {
+                                          submitVehicle();
+                                        }
+                                      },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
                                   padding:
@@ -526,8 +556,10 @@ class _AddVehicleState extends State<AddVehicle> {
                                           color: Colors.white,
                                         ),
                                       )
-                                    : const Text('เพิ่มรถ',
-                                        style: submitButtonTextStyle),
+                                    : const Text(
+                                        'เพิ่มรถ',
+                                        style: submitButtonTextStyle,
+                                      ),
                               ),
                             ),
                           ],

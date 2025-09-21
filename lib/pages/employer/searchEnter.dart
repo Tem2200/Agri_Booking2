@@ -261,6 +261,7 @@ class _SearchEnterState extends State<SearchEnter> {
     }
   }
 
+<<<<<<< HEAD
   // Future<void> _calculateDistances() async {
   //   if (widget.selectedFarmLat == null || widget.selectedFarmLng == null)
   //     return;
@@ -330,6 +331,24 @@ class _SearchEnterState extends State<SearchEnter> {
   //     setState(() => isLoading = false);
   //   }
   // }
+=======
+  void _toggleDistanceOrder() {
+    setState(() {
+      currentSortBy = "distance";
+      currentOrder = currentOrder == "asc" ? "desc" : "asc";
+    });
+
+    if (filteredVehicles.isNotEmpty) {
+      filteredVehicles.sort((a, b) {
+        final aVal = a['distance_value'] ?? double.infinity;
+        final bVal = b['distance_value'] ?? double.infinity;
+        return currentOrder == "asc"
+            ? aVal.compareTo(bVal)
+            : bVal.compareTo(aVal);
+      });
+    }
+  }
+>>>>>>> Whan
 
   void _toggleDistanceOrder() {
     setState(() {
@@ -447,20 +466,28 @@ class _SearchEnterState extends State<SearchEnter> {
                     ],
                   ),
                 ),
+<<<<<<< HEAD
 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
+=======
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+>>>>>>> Whan
                   child: Row(
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: _togglePriceOrder,
+<<<<<<< HEAD
                           // icon: Icon(
                           //   currentSortBy == "price" && currentOrder == "desc"
                           //       ? Icons.arrow_upward
                           //       : Icons.arrow_downward,
                           //   size: 12,
                           // ),
+=======
+>>>>>>> Whan
                           label: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
@@ -486,12 +513,15 @@ class _SearchEnterState extends State<SearchEnter> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: _toggleReviewOrder,
+<<<<<<< HEAD
                           // icon: Icon(
                           //   currentSortBy == "review" && currentOrder == "desc"
                           //       ? Icons.arrow_upward
                           //       : Icons.arrow_downward,
                           //   size: 12,
                           // ),
+=======
+>>>>>>> Whan
                           label: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
@@ -521,6 +551,7 @@ class _SearchEnterState extends State<SearchEnter> {
                                   widget.selectedFarmLng != null)
                               ? _toggleDistanceOrder
                               : null,
+<<<<<<< HEAD
                           // icon: Icon(
                           //   currentSortBy == "distance" &&
                           //           currentOrder == "desc"
@@ -528,6 +559,8 @@ class _SearchEnterState extends State<SearchEnter> {
                           //       : Icons.arrow_downward,
                           //   size: 12,
                           // ),
+=======
+>>>>>>> Whan
                           label: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
@@ -556,6 +589,7 @@ class _SearchEnterState extends State<SearchEnter> {
                     ],
                   ),
                 ),
+<<<<<<< HEAD
                 // Padding(
                 //   padding: const EdgeInsets.all(10.0),
                 //   child: Row(
@@ -659,6 +693,12 @@ class _SearchEnterState extends State<SearchEnter> {
                 Expanded(
                   child: filteredVehicles.isEmpty
                       ? const Center(child: Text('ไม่พบผลลัพธ์'))
+=======
+                const SizedBox(height: 16),
+                Expanded(
+                  child: filteredVehicles.isEmpty
+                      ? const Center(child: Text('ไม่พบข้อมูลรถ'))
+>>>>>>> Whan
                       : ListView.builder(
                           itemCount: filteredVehicles.length,
                           itemBuilder: (context, index) {

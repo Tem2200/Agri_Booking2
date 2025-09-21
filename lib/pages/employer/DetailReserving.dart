@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'package:agri_booking2/main.dart';
 import 'package:agri_booking2/pages/employer/ProfileCon.dart';
 import 'package:another_flushbar/flushbar.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
@@ -399,41 +397,6 @@ class _DetailReservingState extends State<DetailReserving> {
                       subdomains: const ['a', 'b', 'c'],
                       userAgentPackageName: 'com.example.yourapp',
                     ),
-                    // MarkerLayer(
-                    //   markers: [
-                    //     Marker(
-                    //       point: LatLng(data!['contractor_latitude'],
-                    //           data!['contractor_longitude']),
-                    //       width: 40, // ต้องกำหนดความกว้าง
-                    //       height: 40, // และความสูง
-                    //       child: const Column(
-                    //         children: [
-                    //           Text('ผู้รับจ้าง',
-                    //               style: TextStyle(
-                    //                   color: Colors.white,
-                    //                   backgroundColor: Colors.green)),
-                    //           Icon(Icons.person_pin_circle,
-                    //               color: Colors.green, size: 40),
-                    //         ],
-                    //       ),
-                    //     ),
-                    //     Marker(
-                    //       point: LatLng(data!['latitude'], data!['longitude']),
-                    //       width: 40, // ต้องกำหนดความกว้าง
-                    //       height: 40, // และความสูง
-                    //       child: const Column(
-                    //         children: [
-                    //           Text('ผู้จ้าง',
-                    //               style: TextStyle(
-                    //                   color: Colors.white,
-                    //                   backgroundColor: Colors.green)),
-                    //           Icon(Icons.person_pin_circle,
-                    //               color: Colors.green, size: 40),
-                    //         ],
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
 
                     //สัญลักษณ์ใหม่
                     MarkerLayer(
@@ -870,33 +833,6 @@ class _DetailReservingState extends State<DetailReserving> {
                                   ],
                                 ),
                                 const SizedBox(height: 6),
-
-                                // //ที่อยู่
-                                // Row(
-                                //   crossAxisAlignment: CrossAxisAlignment.start,
-                                //   children: [
-                                //     const Icon(Icons.location_on,
-                                //         size: 18, color: Colors.redAccent),
-                                //     const SizedBox(width: 8),
-                                //     const SizedBox(
-                                //       width: 45,
-                                //       child: Text(
-                                //         'ราย:',
-                                //         style: TextStyle(
-                                //             fontSize: 15,
-                                //             fontWeight: FontWeight.bold),
-                                //       ),
-                                //     ),
-                                //     Expanded(
-                                //       child: Text(
-                                //         '${(data!['detail']?.toString().trim().isEmpty ?? true) ? 'ไม่มี' : data!['detail']}',
-                                //         style: const TextStyle(fontSize: 15),
-                                //       ),
-                                //     ),
-                                //   ],
-                                // ),
-                                //const SizedBox(height: 6),
-
                                 // ราคา
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:agri_booking2/pages/assets/location_data.dart';
 import 'package:agri_booking2/pages/map_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart'; // Assuming you have a file with location data
 import 'package:google_fonts/google_fonts.dart';
@@ -182,32 +182,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
     }
   }
 
-  // Future<void> _pickAndUploadImage() async {
-  //   final picker = ImagePicker();
-  //   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-  //   if (pickedFile != null) {
-  //     final imageFile = File(pickedFile.path);
-  //     final imageUrl = await uploadImageToImgbb(imageFile);
-
-  //     if (imageUrl != null) {
-  //       setState(() {
-  //         _imageUrl = imageUrl;
-  //         widget.memberData['image'] = imageUrl;
-  //         _imageUploaded = true;
-  //       });
-
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('อัปโหลดรูปสำเร็จ')),
-  //       );
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('อัปโหลดรูปไม่สำเร็จ')),
-  //       );
-  //     }
-  //   }
-  // }
-
   bool _isUploadingImage = false;
 
   Future<void> _pickAndUploadImage() async {
@@ -248,7 +222,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
           ? _imageUrl
           : null, // ใช้ null ถ้าไม่มีรูป
       "province": selectedProvince,
-      "province": selectedProvince,
       "district": selectedAmphoe,
       "subdistrict": selectedDistrict,
       "detail_address":
@@ -269,22 +242,38 @@ class _EditMemberPageState extends State<EditMemberPage> {
       );
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('อัปเดตข้อมูลสำเร็จ')),
+        Fluttertoast.showToast(
+          msg: 'อัปเดตข้อมูลสำเร็จ',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
         Navigator.pop(context, true);
       } else {
         print(jsonEncode(updatedData));
         print(response.statusCode);
         print(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('อัปเดตข้อมูลล้มเหลว: ${response.body}')),
+        Fluttertoast.showToast(
+          msg: 'อัปเดตข้อมูลล้มเหลว: ${response.body}',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('เกิดข้อผิดพลาดในการเชื่อมต่อ: $e')),
+      Fluttertoast.showToast(
+        msg: 'เกิดข้อผิดพลาด: $e',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
       );
+      print('เกิดข้อผิดพลาด: $e');
     }
   }
 
@@ -738,7 +727,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
           ),
           const SizedBox(height: 6),
           DropdownButtonFormField<String>(
-            value: value,
+            initialValue: value,
             items: items
                 .map((e) => DropdownMenuItem(
                       value: e,

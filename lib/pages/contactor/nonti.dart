@@ -20,6 +20,7 @@ class _NontiPageState extends State<NontiPage> {
   Future<List<dynamic>>? _scheduleFuture;
   int _newJobsCount = 0; // จำนวนงานใหม่ (progress_status = null)
   int _cancelledJobsCount = 0; // จำนวนงานที่ถูกยกเลิก (progress_status = 5)
+<<<<<<< HEAD
 
   // @override
   // void initState() {
@@ -32,6 +33,8 @@ class _NontiPageState extends State<NontiPage> {
   //     // ✅ ไม่ใช้ month/year แล้ว
   //   });
   // }
+=======
+>>>>>>> Whan
 
   @override
   void initState() {
@@ -41,48 +44,6 @@ class _NontiPageState extends State<NontiPage> {
     _pollProgress();
     //connectWebSocket(); // ✅ เพิ่มบรรทัดนี้เพื่อเชื่อมต่อ WS
   }
-
-  // @override
-  // void dispose() {
-  //   if (_ws.readyState == WebSocket.open) {
-  //     // ✅ เพิ่มการปิดการเชื่อมต่อ
-  //     _ws.close();
-  //   }
-  //   super.dispose();
-  // }
-
-  // void connectWebSocket() async {
-  //   try {
-  //     _ws = await WebSocket.connect(
-  //         'ws://projectnodejs.thammadalok.com:80/AGribooking'); // ✅ แก้ไขตรงนี้
-
-  //     _ws.listen(
-  //       (message) {
-  //         final data = jsonDecode(message);
-  //         // ตรวจสอบ event ที่เกี่ยวข้องกับการแจ้งเตือน
-  //         if (data['event'] == 'con_reserving_update' &&
-  //             data['mid'].toString() == widget.mid.toString()) {
-  //           print("Received WebSocket update, fetching data...");
-  //           // เรียกฟังก์ชันเพื่อดึงข้อมูลใหม่ทันที
-  //           setState(() {
-  //             _scheduleFuture = fetchAndCountSchedule(widget.mid);
-  //           });
-  //         }
-  //       },
-  //       onDone: () {
-  //         print('WebSocket closed, retry in 5 sec');
-  //         Future.delayed(const Duration(seconds: 5), connectWebSocket);
-  //       },
-  //       onError: (e) {
-  //         print('WebSocket error: $e, retry in 5 sec');
-  //         Future.delayed(const Duration(seconds: 5), connectWebSocket);
-  //       },
-  //     );
-  //   } catch (e) {
-  //     print('ฮือๆๆๆๆๆWebSocket connection error: $e, retry in 5 sec');
-  //     Future.delayed(const Duration(seconds: 5), connectWebSocket);
-  //   }
-  // }
 
   Future<void> _pollProgress() async {
     final url =
@@ -174,11 +135,6 @@ class _NontiPageState extends State<NontiPage> {
             fontSize: 16.0,
           );
         }
-
-        // // รีเฟรชข้อมูล
-        // setState(() {
-        //   _scheduleFuture = fetchSchedule(widget.mid);
-        // });
 
         Navigator.pushAndRemoveUntil(
           context,
@@ -619,158 +575,6 @@ class _NontiPageState extends State<NontiPage> {
     );
   }
 
-  // Widget _buildVehicleQueueList({required bool includeHistory}) {
-  //   return FutureBuilder<List<dynamic>>(
-  //     future: _scheduleFuture,
-  //     builder: (context, snapshot) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         return const Center(child: CircularProgressIndicator());
-  //       } else if (snapshot.hasError) {
-  //         return const Center(child: Text('ขณะนี้ยังไม่มีการแจ้งเตือนค่ะ'));
-  //       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-  //         return const Center(child: Text('ไม่มีคิวงาน'));
-  //       }
-
-  //       final scheduleList = snapshot.data!.where((item) {
-  //         final status = item['progress_status'];
-  //         if (includeHistory) {
-  //           return status == 4;
-  //         } else {
-  //           return status != 4 && status != 5; // ✅ ยกเว้น 5 ออกไป
-  //         }
-  //       }).toList();
-
-  //       return ListView.builder(
-  //         padding: const EdgeInsets.all(8.0),
-  //         itemCount: scheduleList.length,
-  //         itemBuilder: (context, index) {
-  //           final item = scheduleList[index];
-  //           return GestureDetector(
-  //             onTap: () {
-  //               Navigator.push(
-  //                 context,
-  //                 MaterialPageRoute(
-  //                   builder: (context) => DetailWorkPage(rsid: item['rsid']),
-  //                 ),
-  //               );
-  //             },
-  //             child: Card(
-  //               margin: const EdgeInsets.symmetric(vertical: 8.0),
-  //               elevation: 2.0,
-  //               shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(8.0),
-  //               ),
-  //               child: Padding(
-  //                 padding: const EdgeInsets.all(16.0),
-  //                 child: Column(
-  //                   crossAxisAlignment: CrossAxisAlignment.start,
-  //                   children: [
-  //                     Text(
-  //                       'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
-  //                       style: const TextStyle(
-  //                         fontSize: 18,
-  //                         fontWeight: FontWeight.bold,
-  //                         color: Color.fromARGB(255, 216, 103, 27),
-  //                       ),
-  //                     ),
-  //                     const SizedBox(height: 8.0),
-  //                     Text(
-  //                       '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
-  //                       style: const TextStyle(fontSize: 16),
-  //                     ),
-  //                     Text(
-  //                       'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
-  //                       style: const TextStyle(fontSize: 16),
-  //                     ),
-  //                     Text(
-  //                       'ฟาร์ม: ${item['name_farm'] ?? '-'}, ${item['farm_district'] ?? '-'}, ${item['farm_province'] ?? '-'}',
-  //                       style: const TextStyle(fontSize: 16),
-  //                     ),
-  //                     Text(
-  //                       'จำนวนการจ้างงาน: ${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
-  //                       style: const TextStyle(fontSize: 16),
-  //                     ),
-  //                     if (item['employee_username'] != null)
-  //                       Text(
-  //                         'ผู้รับจ้าง: ${item['employee_username']} (${item['employee_phone'] ?? '-'})',
-  //                         style: const TextStyle(fontSize: 16),
-  //                       ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ),
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
-  // Widget _buildCancelVehicleQueue() {
-  //   return FutureBuilder<List<dynamic>>(
-  //     future: _scheduleFuture,
-  //     builder: (context, snapshot) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         return const Center(child: CircularProgressIndicator());
-  //       } else if (snapshot.hasError) {
-  //         return const Center(child: Text('ขณะนี้ยังไม่มีการแจ้งเตือนค่ะ'));
-  //       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-  //         return const Center(child: Text('ไม่มีคิวที่ถูกยกเลิก'));
-  //       }
-
-  //       final cancelList = snapshot.data!
-  //           .where(
-  //             (item) => item['progress_status'] == 5,
-  //           )
-  //           .toList();
-
-  //       if (cancelList.isEmpty) {
-  //         return const Center(child: Text('ไม่มีคิวที่ถูกยกเลิก'));
-  //       }
-
-  //       return ListView.builder(
-  //         padding: const EdgeInsets.all(8.0),
-  //         itemCount: cancelList.length,
-  //         itemBuilder: (context, index) {
-  //           final item = cancelList[index];
-  //           return Card(
-  //             margin: const EdgeInsets.symmetric(vertical: 8.0),
-  //             elevation: 2.0,
-  //             shape: RoundedRectangleBorder(
-  //               borderRadius: BorderRadius.circular(8.0),
-  //             ),
-  //             child: Padding(
-  //               padding: const EdgeInsets.all(16.0),
-  //               child: Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   Text(
-  //                     'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
-  //                     style: const TextStyle(
-  //                       fontSize: 18,
-  //                       fontWeight: FontWeight.bold,
-  //                       color: Color.fromARGB(255, 216, 103, 27),
-  //                     ),
-  //                   ),
-  //                   const SizedBox(height: 8.0),
-  //                   Text(
-  //                     '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
-  //                     style: const TextStyle(fontSize: 16),
-  //                   ),
-  //                   Text(
-  //                     'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
-  //                     style: const TextStyle(fontSize: 16),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
   Widget _buildVehicleQueueList({required bool includeHistory}) {
     return FutureBuilder<List<dynamic>>(
       future: _scheduleFuture,
@@ -1159,10 +963,6 @@ class _NontiPageState extends State<NontiPage> {
                             ],
                           ),
                         const SizedBox(height: 8.0),
-                        // Text(
-                        //   '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
-                        //   style: const TextStyle(fontSize: 16),
-                        // ),
 
                         // รถ
                         Row(
@@ -1351,194 +1151,4 @@ class _NontiPageState extends State<NontiPage> {
       },
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
-  //     appBar: AppBar(
-  //       //backgroundColor: const Color(0xFF006000),
-  //       //backgroundColor: const Color.fromARGB(255, 255, 158, 60),
-  //       backgroundColor: const Color.fromARGB(255, 18, 143, 9),
-  //       centerTitle: true,
-  //       automaticallyImplyLeading: false, // ✅ ลบปุ่มย้อนกลับ
-  //       title: const Text(
-  //         'การแจ้งเตือน',
-  //         style: TextStyle(
-  //           fontSize: 22,
-  //           fontWeight: FontWeight.bold,
-  //           color: Color.fromARGB(255, 255, 255, 255),
-  //           //letterSpacing: 1,
-  //           shadows: [
-  //             Shadow(
-  //               color: Color.fromARGB(115, 253, 237, 237),
-  //               blurRadius: 3,
-  //               offset: Offset(1.5, 1.5),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //     body: Column(
-  //         children: [
-  //           // ✅ แถบแท็บนูนด้วย Card
-  //           Padding(
-  //             padding: const EdgeInsets.all(16),
-  //             child: Card(
-  //               shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(16),
-  //               ),
-  //               elevation: 6,
-  //               child: Padding(
-  //                 padding:
-  //                     const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-  //                 child: TabBar(
-
-  //                   indicator: BoxDecoration(
-  //                     borderRadius: BorderRadius.circular(8),
-  //                     gradient: LinearGradient(
-  //                       colors: [
-  //                         Color.fromARGB(255, 190, 255, 189)!,
-  //                         Color.fromARGB(255, 37, 189, 35)!,
-  //                         Colors.green[800]!,
-
-  //                       ],
-  //                       begin: Alignment.topLeft,
-  //                       end: Alignment.bottomRight,
-  //                     ),
-  //                     boxShadow: [
-  //                       BoxShadow(
-  //                         color: Colors.black26,
-  //                         blurRadius: 4,
-  //                         offset: Offset(0, 2),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                   labelColor: Colors.white,
-  //                   unselectedLabelColor: Colors.black87,
-  //                   indicatorSize: TabBarIndicatorSize.tab,
-  //                   labelStyle: const TextStyle(
-  //                     fontSize: 14,
-  //                     fontWeight: FontWeight.bold,
-  //                   ),
-  //                   tabs: const [
-  //                     Tab(
-  //                       child: SizedBox(
-  //                         width: 120,
-  //                         child: Center(child: Text('ตารางงาน')),
-  //                       ),
-  //                     ),
-  //                     Tab(
-  //                       child: SizedBox(
-  //                         width: 120,
-  //                         child: Center(child: Text('ประวัติการรับงาน')),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-
-  //           Expanded(
-  //             child: TabBarView(
-  //               children: [
-  //                 //การแจ้งเตือน
-  //                 Center(
-  //                   child: (),
-  //                 ),
-
-  //                 // แจ้งเตือนยกเลิกการจองคิวรถ
-  //                 Center(
-  //                   child: (includeHistory: true),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-
-  //     body: FutureBuilder<List<dynamic>>(
-  //       future: _scheduleFuture,
-  //       builder: (context, snapshot) {
-  //         if (snapshot.connectionState == ConnectionState.waiting) {
-  //           return const Center(child: CircularProgressIndicator());
-  //         } else if (snapshot.hasError) {
-  //           //return Center(child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'));
-  //           return Center(child: Text('ขณะนี้ยังไม่มีการแจ้งเตือนค่ะ'));
-  //         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-  //           return const Center(child: Text('ไม่มีคิวงาน'));
-  //         }
-
-  //         final scheduleList = snapshot.data!
-  //             .where((item) => item['progress_status'] != 4)
-  //             .toList();
-
-  //         return ListView.builder(
-  //           padding: const EdgeInsets.all(8.0),
-  //           itemCount: scheduleList.length,
-  //           itemBuilder: (context, index) {
-  //             final item = scheduleList[index];
-  //             return GestureDetector(
-  //               // 👈 เปลี่ยนตรงนี้
-  //               onTap: () {
-  //                 Navigator.push(
-  //                   context,
-  //                   MaterialPageRoute(
-  //                     builder: (context) => DetailWorkPage(rsid: item['rsid']),
-  //                   ),
-  //                 );
-  //               },
-  //               child: Card(
-  //                 margin: const EdgeInsets.symmetric(vertical: 8.0),
-  //                 elevation: 2.0,
-  //                 shape: RoundedRectangleBorder(
-  //                   borderRadius: BorderRadius.circular(8.0),
-  //                 ),
-  //                 child: Padding(
-  //                   padding: const EdgeInsets.all(16.0),
-  //                   child: Column(
-  //                     crossAxisAlignment: CrossAxisAlignment.start,
-  //                     children: [
-  //                       Text(
-  //                         'ชื่อการจอง: ${item['name_rs'] ?? '-'}',
-  //                         style: const TextStyle(
-  //                             fontSize: 18,
-  //                             fontWeight: FontWeight.bold,
-  //                             color: Color.fromARGB(255, 216, 103, 27)),
-  //                       ),
-  //                       const SizedBox(height: 8.0),
-  //                       Text(
-  //                         '${_formatDateRange(item['date_reserve'], item['date_start'], item['date_end'])}',
-  //                         style: const TextStyle(fontSize: 16),
-  //                       ),
-  //                       Text(
-  //                         'รถที่ใช้: ${item['name_vehicle'] ?? '-'}',
-  //                         style: const TextStyle(fontSize: 16),
-  //                       ),
-  //                       Text(
-  //                         'ฟาร์ม: ${item['name_farm'] ?? '-'}, ${item['farm_district'] ?? '-'}, ${item['farm_province'] ?? '-'}',
-  //                         style: const TextStyle(fontSize: 16),
-  //                       ),
-  //                       Text(
-  //                         'จำนวนการจ้างงาน: ${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
-  //                         style: const TextStyle(fontSize: 16),
-  //                       ),
-  //                       if (item['employee_username'] != null)
-  //                         Text(
-  //                           'ผู้รับจ้าง: ${item['employee_username']} (${item['employee_phone'] ?? '-'})',
-  //                           style: const TextStyle(fontSize: 16),
-  //                         ),
-  //                       // ลบปุ่มออก
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ),
-  //             );
-  //           },
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
 }

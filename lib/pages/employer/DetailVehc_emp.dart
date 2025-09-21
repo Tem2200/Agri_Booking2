@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:agri_booking2/pages/employer/ProfileCon.dart';
 import 'package:agri_booking2/pages/employer/plan_con.dart';
 import 'package:agri_booking2/pages/employer/reservingForNF.dart';
-import 'package:agri_booking2/pages/employer/reserving_emp.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/painting.dart';
@@ -32,6 +32,10 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
   late int _currentMid; // ตัวแปรสำหรับเก็บ mid
   Future<List<dynamic>>? _reviewFuture; // Future สำหรับข้อมูลรีวิว
   List<int> countReporter = [];
+<<<<<<< HEAD
+=======
+  bool _showAllReviews = false;
+>>>>>>> Whan
   @override
   void initState() {
     super.initState();
@@ -233,8 +237,18 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
       );
 
       if (response.statusCode == 200) {
+<<<<<<< HEAD
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('รายงานรีวิวสำเร็จ!')),
+=======
+        Fluttertoast.showToast(
+          msg: 'รายงานรีวิวสำเร็จ!',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+>>>>>>> Whan
         );
         _reviewFuture = fetchReviews(_currentMid); // รีเฟรชรีวิว
         return true; // คืนค่า success
@@ -242,8 +256,18 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
         throw Exception('Failed to report review: ${response.body}');
       }
     } catch (e) {
+<<<<<<< HEAD
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('เกิดข้อผิดพลาดในการรายงาน: $e')),
+=======
+      Fluttertoast.showToast(
+        msg: 'เกิดข้อผิดพลาดในการรายงาน: $e',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+>>>>>>> Whan
       );
       return false;
     } finally {
@@ -511,16 +535,6 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                       ),
                       const SizedBox(height: 8),
 
-                      // const SizedBox(height: 8),
-                      // Text(
-                      //   'สถานะ: ${vehicleData?['status_vehicle'] == 1 ? 'พร้อมใช้งาน' : 'ไม่พร้อม'}',
-                      //   style: TextStyle(
-                      //     color: vehicleData?['status_vehicle'] == 1
-                      //         ? Colors.green
-                      //         : Colors.red,
-                      //     fontWeight: FontWeight.bold,
-                      //   ),
-                      // ),
                       const Divider(height: 32),
 
                       // --- ข้อมูลเจ้าของรถ ---
@@ -681,23 +695,106 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                       ),
 
                       const SizedBox(height: 16),
-                      const Divider(height: 32),
 
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          FutureBuilder<List<dynamic>>(
-                            future: _reviewFuture,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              } else if (snapshot.hasError) {
-                                return Center(
-                                  child: Text(
-                                      'เกิดข้อผิดพลาดในการโหลดรีวิว: ${snapshot.error}'),
+const Divider(height: 32),
+Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    FutureBuilder<List<dynamic>>(
+      future: _reviewFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('เกิดข้อผิดพลาดในการโหลดรีวิว: ${snapshot.error}'),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Text(
+            'รีวิว (ไม่มีข้อมูล)',
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold),
+          );
+        }
+
+        final reviewList = snapshot.data!;
+        final totalPoints = reviewList.fold<num>(
+          0,
+          (sum, review) => sum + ((review['point'] ?? 0) as num),
+        );
+        final average = (reviewList.isNotEmpty)
+            ? (totalPoints / reviewList.length).toStringAsFixed(2)
+            : '0.00';
+        final totalReviews = reviewList.length;
+
+        // ✨ เพิ่มตัวแปรสถานะเพื่อจัดการการแสดงผล
+        final int displayCount = _showAllReviews
+            ? totalReviews // ถ้า _showAllReviews เป็น true ให้แสดงทั้งหมด
+            : (totalReviews > 3 ? 3 : totalReviews); // ถ้าเป็น false ให้แสดง 3 รีวิวแรก หรือทั้งหมดถ้ามีน้อยกว่า 3
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'รีวิว $average ($totalReviews รีวิว)',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // ✨ แก้ไข ListView.builder
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: displayCount, // 👈 ใช้ตัวแปรที่แก้ไขแล้ว
+              itemBuilder: (context, index) {
+                final review = reviewList[index];
+                List<int> reporters = [];
+                if (review['reporters'] != null && review['reporters'] is String) {
+                  try {
+                    final decoded = jsonDecode(review['reporters']);
+                    reporters = decoded
+                        .map<int>((e) => int.parse(e.toString()))
+                        .toList();
+                  } catch (e) {
+                    print(
+                        'Error parsing reporters JSON for review ${review['rid']}: $e');
+                  }
+                }
+
+                bool hasReported = reporters.contains(this.widget.mid);
+
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 4.0),
+                  elevation: 1.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.person,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 6),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: List.generate(5, (index) {
+                                return Icon(
+                                  index < (review['point'] ?? 0)
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.amber,
+                                  size: 20,
                                 );
+<<<<<<< HEAD
                               } else if (!snapshot.hasData ||
                                   snapshot.data!.isEmpty) {
                                 return const Text(
@@ -1094,49 +1191,123 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                                 ],
                               );
                             },
+=======
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${review['point'] ?? '-'} / 5',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text('ข้อความ: ${review['text'] ?? '-'}'),
+                        if (review['image'] != null && review['image'].isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Image.network(
+                              review['image'],
+                              height: 100,
+                              width: 100,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Icon(Icons.image_not_supported),
+                            ),
+>>>>>>> Whan
                           ),
-                        ],
-                      ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'วันที่รีวิว: ${_formatReviewDate(review['date'])}',
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.grey),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              'จำนวนคนรายงาน: ${reporters.length} คน',
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const SizedBox(height: 4),
+                            ElevatedButton(
+                              onPressed: (isLoading || hasReported || _currentMid == 0)
+                                  ? null
+                                  : () async {
+                                      bool success = await _reportReview(review['rid']);
+                                      if (success) {
+                                        setState(() {
+                                          reporters.add(_currentMid);
+                                        });
+                                      }
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: hasReported ? Colors.grey : Colors.red,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                'รายงานรีวิว',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
 
-                      // ElevatedButton(
-                      //   onPressed: () {
-                      //     if (widget.farm != null &&
-                      //         widget.farm is Map &&
-                      //         widget.farm.isNotEmpty) {
-                      //       Navigator.push(
-                      //         context,
-                      //         MaterialPageRoute(
-                      //           builder: (context) => ReservingEmp(
-                      //             mid: widget.mid,
-                      //             vid: widget.vid,
-                      //             fid: widget.fid,
-                      //             farm: widget.farm,
-                      //           ),
-                      //         ),
-                      //       );
-                      //     } else {
-                      //       Navigator.push(
-                      //         context,
-                      //         MaterialPageRoute(
-                      //           builder: (context) => ReservingForNF(
-                      //             mid: widget.mid,
-                      //             vid: widget.vid,
-                      //           ),
-                      //         ),
-                      //       );
-                      //     }
-                      //   },
-                      //   style: ElevatedButton.styleFrom(
-                      //     backgroundColor: Colors.blue,
-                      //     foregroundColor: Colors.white,
-                      //     padding: const EdgeInsets.symmetric(
-                      //         horizontal: 16, vertical: 8),
-                      //     shape: RoundedRectangleBorder(
-                      //         borderRadius: BorderRadius.circular(8)),
-                      //     textStyle: const TextStyle(fontSize: 12),
-                      //   ),
-                      //   child: const Text('จองคิวรถ'),
-                      // ),
+            // ✨ เพิ่มปุ่ม "ดูทั้งหมด" / "แสดงแบบย่อ" ถ้ามีรีวิวมากกว่า 3
+            if (totalReviews > 3)
+  Row(
+    mainAxisAlignment: MainAxisAlignment.end, // ✨ เพิ่มบรรทัดนี้เพื่อจัดให้อยู่ขวาสุด
+    children: [
+      TextButton(
+        onPressed: () {
+          setState(() {
+            _showAllReviews = !_showAllReviews; // สลับค่าสถานะ
+          });
+        },
+        child: Text(
+          _showAllReviews ? '▲ แสดงแบบย่อ' : '▼ ดูรีวิวทั้งหมด',
+          style: const TextStyle(
+            color: Colors.blue,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    ],
+  ),
+
+          ],
+        );
+      },
+    ),
+  ],
+)
                     ],
                   ),
                 ),
