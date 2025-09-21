@@ -50,25 +50,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
   DateTime _selectedDay = DateTime.now();
   Map<DateTime, List<dynamic>> eventsByDay = {};
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _displayMonth = widget.month;
-  //   _displayYear = widget.year;
-  //   print("vihicleData: ${widget.vihicleData}");
-  //   _conFuture = fetchCon(widget.mid);
-  //   initializeDateFormatting('th', null).then((_) {
-  //     setState(() {
-  //       _isLocaleInitialized = true;
-  //       _scheduleFuture =
-  //           fetchSchedule(widget.mid, _displayMonth, _displayYear).then((list) {
-  //         groupEventsByDay(list);
-  //         return list;
-  //       });
-  //     });
-  //     _startLongPolling();
-  //   });
-  // }
+
 
   @override
   void initState() {

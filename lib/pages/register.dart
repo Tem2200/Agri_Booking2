@@ -97,21 +97,8 @@ class _RegisterState extends State<Register> {
         scrollToFocus(confirmPasswordFocus);
         return;
       }
-<<<<<<< HEAD
-      // if (phoneController.text.length < 10) {
-      //   scrollToFocus(phoneFocus);
-      //   return;
-      // }
-      if (!_formKey.currentState!.validate()) {
-        // focus ไปยังช่องแรกที่มี error
-        if (phoneController.text.length < 10) {
-          scrollToFocus(phoneFocus);
-          return;
-        }
-=======
       if (phoneController.text.length < 10) {
         scrollToFocus(phoneFocus);
->>>>>>> Whan
         return;
       }
 
@@ -150,27 +137,6 @@ class _RegisterState extends State<Register> {
 
     setState(() => isLoading = true);
 
-<<<<<<< HEAD
-    // // final email = emailController.text;
-    // // final emailIsValid = await isRealEmail(email);
-    // final email = emailController.text.trim();
-    // final emailIsValid = await isRealEmail(email);
-
-    // if (!emailIsValid) {
-    //   setState(() {
-    //     isLoading = false;
-    //     emailError = 'อีเมลนี้ไม่ใช่อีเมลจริงหรือเคยใช้สมัครแล้ว?';
-    //   });
-    //   scrollToFocus(emailFocus); // เลื่อนโฟกัสมาช่องอีเมล
-    //   return;
-    // } else {
-    //   setState(() {
-    //     emailError = null; // เคลียร์ error ถ้าอีเมลถูกต้อง
-    //   });
-    // }
-
-=======
->>>>>>> Whan
     if (typeMember == null) {
       setState(() => isLoading = false);
       showDialog(
@@ -194,26 +160,6 @@ class _RegisterState extends State<Register> {
       );
       return;
     }
-<<<<<<< HEAD
-    final email = emailController.text.trim();
-    final emailIsValid = await isRealEmail(email);
-
-    if (emailIsValid == false) {
-      setState(() {
-        isLoading = false;
-        emailError = 'อีเมลนี้ไม่สามารถใช้งานได้';
-      });
-      scrollToFocus(emailFocus);
-      return;
-    } else if (emailIsValid == null) {
-      setState(() {
-        emailError = '⚠️ ตรวจสอบอีเมลไม่สำเร็จ (จะลองสมัครต่อไป)';
-      });
-    } else {
-      setState(() {
-        emailError = null; // ถูกต้อง
-      });
-=======
     if (emailController.text.isEmpty) {
       scrollToFocus(emailFocus);
       return;
@@ -240,7 +186,6 @@ class _RegisterState extends State<Register> {
         );
         return;
       }
->>>>>>> Whan
     }
 
     final url =
@@ -393,19 +338,10 @@ class _RegisterState extends State<Register> {
     }
   }
 
-<<<<<<< HEAD
-  String? lastValidatedEmail;
-  bool lastValidationResult = false;
-
-  Future<bool?> isRealEmail(String email) async {
-    email = email.trim();
-    const apiKey = 'f1be6dd55f1043dd9fb0794725d344a1';
-=======
 // ฟังก์ชันตรวจสอบอีเมลจริงด้วย Abstract API
   Future<bool> isRealEmail(String email) async {
     final apiKey = 'b489d4f11245410a863b38cc325077bc';
     //const apiKey = 'f1be6dd55f1043dd9fb0794725d344a1';
->>>>>>> Whan
     final url = Uri.parse(
         'https://emailreputation.abstractapi.com/v1/?api_key=b489d4f11245410a863b38cc325077bc&email=$email');
 
@@ -413,42 +349,17 @@ class _RegisterState extends State<Register> {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-<<<<<<< HEAD
-        return data['deliverability'] == 'DELIVERABLE';
-      } else {
-        return null; // API ตอบผิดปกติ
-=======
         // เช็คค่า deliverability ว่าส่งได้จริงไหม
         print(data);
         return data['email_deliverability']['status']
                 .toString()
                 .toLowerCase() ==
             'deliverable';
->>>>>>> Whan
       }
     } catch (e) {
       return null; // API ล่ม
     }
   }
-
-// // ฟังก์ชันตรวจสอบอีเมลจริงด้วย Abstract API
-//   Future<bool> isRealEmail(String email) async {
-//     const apiKey = 'f1be6dd55f1043dd9fb0794725d344a1';
-//     final url = Uri.parse(
-//         'https://emailvalidation.abstractapi.com/v1/?api_key=$apiKey&email=$email');
-
-//     try {
-//       final response = await http.get(url);
-//       if (response.statusCode == 200) {
-//         final data = jsonDecode(response.body);
-//         // เช็คค่า deliverability ว่าส่งได้จริงไหม
-//         return data['deliverability'] == 'DELIVERABLE';
-//       }
-//     } catch (e) {
-//       print("Error validating email: $e");
-//     }
-//     return false;
-//   }
 
   void goToMapPage() async {
     // ไปหน้าแผนที่เพื่อเลือกพิกัด (สร้างหน้า MapPage ไว้แยก)
@@ -541,10 +452,7 @@ class _RegisterState extends State<Register> {
         automaticallyImplyLeading: false,
         backgroundColor: const Color.fromARGB(255, 18, 143, 9),
         elevation: 0,
-<<<<<<< HEAD
-=======
         automaticallyImplyLeading: false,
->>>>>>> Whan
         centerTitle: true,
         title: Text(
           'สมัครสมาชิก',
@@ -553,19 +461,6 @@ class _RegisterState extends State<Register> {
             color: Colors.white,
           ),
         ),
-<<<<<<< HEAD
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back, color: Colors.white),
-        //   onPressed: () {
-        //     Navigator.pushReplacement(
-        //       context,
-        //       MaterialPageRoute(
-        //           builder: (context) => const TabbarGenaralUser(value: 1)),
-        //     );
-        //   },
-        // ),
-=======
->>>>>>> Whan
       ),
       body: Stack(
         children: [
@@ -678,22 +573,7 @@ class _RegisterState extends State<Register> {
                             maxLength: 30,
                             focusNode: usernameFocus,
                           ),
-                          // _buildTextField(
-                          //     "อีเมล *", emailController, 'กรุณากรอก email *',
-                          //     focusNode: emailFocus),
-                          // _buildTextField(
-                          //   "อีเมล *",
-                          //   emailController,
-                          //   'กรุณากรอก email *',
-                          //   focusNode: emailFocus,
-                          //   validator: (value) {
-                          //     if (value == null || value.isEmpty)
-                          //       return 'กรุณากรอก email *';
-                          //     if (emailError != null)
-                          //       return emailError; // แสดง error จาก API
-                          //     return null;
-                          //   },
-                          // ),
+
                           _buildTextField(
                             "อีเมล *",
                             emailController,
@@ -752,17 +632,6 @@ class _RegisterState extends State<Register> {
                               if (value == null || value.isEmpty) {
                                 return 'กรุณากรอกเบอร์โทร *';
                               }
-<<<<<<< HEAD
-                              if (value.length < 10) {
-                                return 'เบอร์โทรต้องมีอย่างน้อย 10 ตัวอักษร';
-                              }
-                              return null;
-                            },
-                            onChanged: (value) {
-                              _formKey.currentState
-                                  ?.validate(); // ตรวจสอบใหม่ทุกครั้งที่เปลี่ยน
-                            },
-=======
                               if (value.length != 10) {
                                 return 'เบอร์โทรต้องมี 10 หลัก';
                               }
@@ -774,7 +643,6 @@ class _RegisterState extends State<Register> {
                               }
                               return null;
                             },
->>>>>>> Whan
                           ),
 
                           _buildDropdown(
