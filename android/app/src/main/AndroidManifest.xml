@@ -51,9 +51,6 @@
         android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
         android:exported="false"/>
 
-    <service
-        android:name="com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin"
-        android:exported="false"/>
     </application>
 
     <queries>

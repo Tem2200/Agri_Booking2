@@ -296,7 +296,7 @@ class _DetailReservingState extends State<DetailReserving> {
     try {
       DateTime utcDate = DateTime.parse(dateStr);
       DateTime localDate = utcDate.toUtc().add(const Duration(hours: 7));
-      final formatter = DateFormat("d MMM yyyy 'เวลา' HH:mm", "th_TH");
+      final formatter = DateFormat("d MMM yyyy 'เวลา' HH:mm น.", "th_TH");
       String formatted = formatter.format(localDate);
       // แปลงปี ค.ศ. → พ.ศ.
       String yearString = localDate.year.toString();
@@ -708,7 +708,7 @@ class _DetailReservingState extends State<DetailReserving> {
 
                                 // ปุ่มข้อมูลผู้จ้าง
                                 ElevatedButton(
-                                  child: const Text('ข้อมูลผู้รับจ้าง'),
+                                  child: const Text('ดูข้อมูลผู้รับจ้าง'),
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -721,6 +721,11 @@ class _DetailReservingState extends State<DetailReserving> {
                                       ),
                                     );
                                   },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 22, 132, 8),
+                                    foregroundColor: Colors.white,
+                                  ),
                                 ),
                               ],
                             ),
@@ -773,67 +778,11 @@ class _DetailReservingState extends State<DetailReserving> {
                               thickness: 1, // ความหนา
                               height: 20, // ความสูงของพื้นที่รอบเส้น
                             ),
-                            const SizedBox(height: 8),
+                            // const SizedBox(height: 8),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const SizedBox(height: 10),
-
-                                // พื้นที่
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Icon(Icons.landscape,
-                                        size: 18, color: Colors.green),
-                                    const SizedBox(width: 8),
-                                    const SizedBox(
-                                      width: 45,
-                                      child: Text(
-                                        'พื้นที่:',
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        '${data!['area_amount']} ${data!['unit_area']}',
-                                        style: const TextStyle(fontSize: 15),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-
-                                // ฟาร์ม
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Icon(Icons.agriculture,
-                                        size: 18, color: Colors.brown),
-                                    const SizedBox(width: 8),
-                                    const SizedBox(
-                                      width: 45,
-                                      child: Text(
-                                        'ที่นา:',
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        '${data!['name_farm']} (หมู่บ้าน${data!['village']} ต.${data!['subdistrict']} อ.${data!['district']} จ.${data!['province']})\n' +
-                                            (data!['detail']?.isNotEmpty == true
-                                                ? data!['detail']
-                                                : ''),
-                                        style: const TextStyle(fontSize: 15),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                // ราคา
+                                // const SizedBox(height: 10),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -851,13 +800,77 @@ class _DetailReservingState extends State<DetailReserving> {
                                     ),
                                     Expanded(
                                       child: Text(
-                                        '${data!['price']} ${data!['unit_price']}',
+                                        '${data!['price']} บาท/${data!['unit_price']}',
                                         style: const TextStyle(fontSize: 15),
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 12),
+                                
+
+                                const SizedBox(height: 6),
+
+                                // ฟาร์ม
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.location_on,
+                                        size: 20, color: Colors.orange),
+                                    const SizedBox(width: 8),
+                                    const SizedBox(
+                                      width: 40,
+                                      child: Text(
+                                        'ที่นา:',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // ชื่อฟาร์ม + หมู่บ้าน
+                                          Text(
+                                            '${data!['name_farm']} หมู่บ้าน${data!['village']}',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight
+                                                  .bold, // เน้นชื่อฟาร์ม
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+
+                                          // ที่อยู่
+                                          Text(
+                                            'ต.${data!['subdistrict']} อ.${data!['district']} จ.${data!['province']}',
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+
+                                          // รายละเอียดเพิ่มเติม
+                                          if (data!['detail']?.isNotEmpty ==
+                                              true)
+                                            Text(
+                                              data!['detail'],
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.blueGrey,
+                                                height: 1.3,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                
+                                const SizedBox(height: 6),
 
                                 // เบอร์โทร (ไม่มี SizedBox กว้าง)
                                 Row(
@@ -881,7 +894,36 @@ class _DetailReservingState extends State<DetailReserving> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 6),
+                                // พื้นที่
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.numbers,
+                                        size: 20, color: Colors.green),
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      'จำนวนที่จ้าง:',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        '${data!['reserving_area_amount']} ${data!['reserving_unit_area']}',
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                
+                                const SizedBox(height: 6),
+
 
                                 // รายละเอียดงาน (ไม่มี SizedBox กว้าง)
                                 Row(
@@ -922,14 +964,13 @@ class _DetailReservingState extends State<DetailReserving> {
                                 )
                               ],
                             ),
-                            const SizedBox(height: 8),
-                            const Divider(
-                              color: Colors.grey, // สีของเส้น
-                              thickness: 1, // ความหนา
-                              height: 20, // ความสูงของพื้นที่รอบเส้น
-                            ),
+                            // const Divider(
+                            //   color: Colors.grey, // สีของเส้น
+                            //   thickness: 1, // ความหนา
+                            //   height: 20, // ความสูงของพื้นที่รอบเส้น
+                            // ),
 
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 40),
                           ],
                         ),
                       ),

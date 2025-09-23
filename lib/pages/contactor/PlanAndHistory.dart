@@ -435,9 +435,10 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
                   ),
                   const SizedBox(height: 4),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(
-                        width: 65,
+                        width: 65, // เพิ่มความกว้างให้พออ่าน label + icon
                         child: Row(
                           children: [
                             Icon(Icons.location_on,
@@ -454,13 +455,24 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
                         ),
                       ),
                       Expanded(
-                        child: Text(
-                          '${item['name_farm'] ?? ''} (ต.${item['subdistrict'] ?? ''} อ.${item['district'] ?? ''} จ.${item['province'] ?? ''})',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${item['name_farm']} ${item['village'] ?? '-'}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              'ต.${item['subdistrict'] ?? '-'} อ.${item['district'] ?? '-'} จ.${item['province'] ?? '-'}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -898,38 +910,48 @@ class _PlanAndHistoryState extends State<PlanAndHistory> with RouteAware {
                         ),
                         const SizedBox(height: 8),
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        width: 65, // เพิ่มความกว้างให้พออ่าน label + icon
+                        child: Row(
                           children: [
-                            const SizedBox(
-                              width: 65,
-                              child: Row(
-                                children: [
-                                  Icon(Icons.location_on,
-                                      size: 16, color: Colors.orange),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'ที่นา:',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '${item['name_farm'] ?? ''} (ต.${item['subdistrict'] ?? ''} อ.${item['district'] ?? ''} จ.${item['province'] ?? ''})',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                ),
-                                maxLines: 1, // จำกัด 1 บรรทัด
-                                overflow: TextOverflow
-                                    .ellipsis, // ถ้าเกินความกว้าง ตัดด้วย ...
+                            Icon(Icons.location_on,
+                                size: 16, color: Colors.orange),
+                            SizedBox(width: 4),
+                            Text(
+                              'ที่นา:',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${item['name_farm']} ${item['village'] ?? '-'}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              'ต.${item['subdistrict'] ?? '-'} อ.${item['district'] ?? '-'} จ.${item['province'] ?? '-'}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                       ],
                     ),
                     const Divider(

@@ -582,14 +582,34 @@ class _NontiPageState extends State<NontiPage> {
                           ),
                         ),
                         const SizedBox(height: 6),
-
+                        // รถ
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 40,
+                              child: Text(
+                                'รถ:',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                '${item['name_vehicle'] ?? '-'}',
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
                         // ผู้จ้าง (ถ้ามี)
                         if (item['employee_username'] != null)
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(
-                                width: 50,
+                                width: 40,
                                 child: Text(
                                   'ผู้จ้าง:',
                                   style: TextStyle(
@@ -606,76 +626,73 @@ class _NontiPageState extends State<NontiPage> {
                             ],
                           ),
                         const SizedBox(height: 6),
-                        // รถ
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              width: 50,
-                              child: Text(
-                                'รถ:',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 13),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '${item['name_vehicle'] ?? '-'}',
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
 
-                        // ที่นา
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              width: 50,
-                              child: Text(
-                                'ที่นา:',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 13),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '${item['name_farm'] ?? '-'} (ต.${item['farm_subdistrict'] ?? '-'}, อ.${item['farm_district'] ?? '-'}, จ.${item['farm_province'] ?? '-'})',
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
+// ที่นา
+Row(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    const SizedBox(
+      width: 40,
+      child: Text(
+        'ที่นา:',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+      ),
+    ),
+    Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${item['name_farm']} ${item['village']}' ?? '-',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            'ต.${item['farm_subdistrict'] ?? '-'} อ.${item['farm_district'] ?? '-'} จ.${item['farm_province'] ?? '-'}',
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    ),
+  ],
+),
+const SizedBox(height: 8),
 
-                        // พื้นที่
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              width: 50,
-                              child: Text(
-                                'พื้นที่:',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 13),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            ),
-                          ],
-                        ),
+// พื้นที่
+Row(
+  children: [
+    const SizedBox(
+      width: 80,
+      child: Text(
+        'จำนวนที่จ้าง:',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+      ),
+    ),
+    Expanded(
+      child: Text(
+        '${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
+        style: const TextStyle(fontSize: 13),
+      ),
+    ),
+  ],
+),
 
-                        const Divider(
-                          color: Colors.grey,
-                          thickness: 1,
-                          height: 24,
-                        ),
+const Divider(
+  color: Colors.grey,
+  thickness: 1,
+  height: 24,
+),
                         Row(
                           children: [
                             const SizedBox(
@@ -890,7 +907,7 @@ class _NontiPageState extends State<NontiPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(
-                                width: 50,
+                                width: 40,
                                 child: Text(
                                   'ผู้จ้าง:',
                                   style: TextStyle(
@@ -913,7 +930,7 @@ class _NontiPageState extends State<NontiPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(
-                              width: 50,
+                              width: 40,
                               child: Text(
                                 'รถ:',
                                 style: TextStyle(
@@ -930,76 +947,96 @@ class _NontiPageState extends State<NontiPage> {
                         ),
                         const SizedBox(height: 6),
 
-                        // ที่นา
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              width: 50,
-                              child: Text(
-                                'ที่นา:',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 13),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '${item['name_farm'] ?? '-'} (ต.${item['farm_subdistrict'] ?? '-'}, อ.${item['farm_district'] ?? '-'}, จ.${item['farm_province'] ?? '-'})',
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
+                       // ที่นา
+Row(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    const SizedBox(
+      width: 40,
+      child: Text(
+        'ที่นา:',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+      ),
+    ),
+    Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${item['name_farm']} ${item['village']}' ?? '-',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            'ต.${item['farm_subdistrict'] ?? '-'} อ.${item['farm_district'] ?? '-'} จ.${item['farm_province'] ?? '-'}',
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    ),
+  ],
+),
+const SizedBox(height: 8),
 
-                        // พื้นที่
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              width: 50,
-                              child: Text(
-                                'พื้นที่:',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 13),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            ),
-                          ],
-                        ),
+// พื้นที่
+Row(
+  children: [
+    const SizedBox(
+      width: 80,
+      child: Text(
+        'จำนวนที่จ้าง:',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+      ),
+    ),
+    Expanded(
+      child: Text(
+        '${item['area_amount'] ?? '-'} ${item['unit_area'] ?? '-'}',
+        style: const TextStyle(fontSize: 13),
+      ),
+    ),
+  ],
+),
 
-                        const Divider(
-                          color: Colors.grey,
-                          thickness: 1,
-                          height: 24,
-                        ),
-                        Row(
-                          children: [
-                            const SizedBox(
-                              width: 65,
-                              child: Text(
-                                'วันที่จอง:',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey, // กำหนดสีเทา
-                                ),
-                              ),
-                            ),
-                            Text(
-                              formatDateReserveThai(item['date_reserve']),
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey, // กำหนดสีเทา
-                              ),
-                            ),
-                          ],
-                        ),
+const Divider(
+  color: Colors.grey,
+  thickness: 1,
+  height: 24,
+),
+
+// วันที่จอง
+Row(
+  children: [
+    const SizedBox(
+      width: 60,
+      child: Text(
+        'วันที่จอง:',
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey,
+        ),
+      ),
+    ),
+    Text(
+      formatDateReserveThai(item['date_reserve']),
+      style: const TextStyle(
+        fontSize: 13,
+        color: Colors.grey,
+      ),
+    ),
+  ],
+),
 
                         Row(
                           children: [

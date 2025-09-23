@@ -757,7 +757,7 @@ class _HomePageState extends State<HomePage> {
                               Row(
                                 children: [
                                   const Icon(Icons.phone,
-                                      size: 20, color: Colors.green),
+                                      size: 20, color: Colors.blue),
                                   const SizedBox(width: 6),
                                   Text(member['phone'] ?? '-'),
                                 ],
@@ -779,8 +779,8 @@ class _HomePageState extends State<HomePage> {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Icon(Icons.description,
-                                      size: 20, color: Colors.redAccent),
+                                  const Icon(Icons.chat,
+                                      size: 20, color: Colors.deepOrange),
                                   const SizedBox(width: 6),
                                   Expanded(
                                     child: Text(

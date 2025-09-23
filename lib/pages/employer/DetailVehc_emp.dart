@@ -376,7 +376,7 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                       const SizedBox(height: 8),
                       const SizedBox(height: 8),
                       Text(
-                          'ราคา: ${vehicleData?['price'] ?? '-'} / ${vehicleData?['unit_price'] ?? '-'}',
+                          'ราคา: ${vehicleData?['price'] ?? '-'} บาท/${vehicleData?['unit_price'] ?? '-'}',
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.green,
@@ -559,10 +559,10 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.phone, color: Colors.black54),
+                                const Icon(Icons.phone, color: Colors.blue),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'โทรศัพท์: ${vehicleData?['phone'] ?? '-'}',
+                                  'เบอร์โทร: ${vehicleData?['phone'] ?? '-'}',
                                   style: const TextStyle(fontSize: 16),
                                 ),
                               ],

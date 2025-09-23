@@ -479,10 +479,10 @@ class _DetailvehicleState extends State<Detailvehicle> {
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.phone, color: Colors.black54),
+                                const Icon(Icons.phone, color: Colors.blue),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'โทรศัพท์: ${vehicleData?['phone'] ?? '-'}',
+                                  'เบอร์โทร: ${vehicleData?['phone'] ?? '-'}',
                                   style: const TextStyle(fontSize: 16),
                                 ),
                               ],

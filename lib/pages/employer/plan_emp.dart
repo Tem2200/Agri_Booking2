@@ -297,7 +297,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
     try {
       DateTime date =
           DateTime.parse(dateReserve).toUtc().add(const Duration(hours: 7));
-      final formatter = DateFormat("d MMMM yyyy", "th_TH");
+      final formatter = DateFormat("d MMMM yyyy 'เวลา' HH:mm น.", "th_TH");
       String formatted = formatter.format(date);
       formatted = formatted.replaceFirst(
           date.year.toString(), (date.year + 543).toString());
@@ -565,8 +565,8 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                                     width: 65,
                                     child: Row(
                                       children: [
-                                        Icon(Icons.agriculture,
-                                            size: 16, color: Colors.green),
+                                        Icon(Icons.location_on,
+                                size: 16, color: Colors.orange),
                                         SizedBox(width: 6),
                                         Text(
                                           'ที่นา:',
@@ -579,13 +579,20 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
                                     ),
                                   ),
                                   Expanded(
-                                    child: Text(
-                                      '${rs['name_farm'] ?? '-'} (ต.${rs['farm_subdistrict'] ?? '-'}, อ.${rs['farm_district'] ?? '-'}, จ.${rs['farm_province'] ?? '-'})',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                      ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${rs['name_farm']} ${rs['village']}' ?? '-',
+                                          style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold,),
+                                        ),
+                                        Text(
+                                          'ต.${rs['farm_subdistrict'] ?? '-'} อ.${rs['farm_district'] ?? '-'} จ.${rs['farm_province'] ?? '-'}',
+                                          style: const TextStyle(fontSize: 14),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
