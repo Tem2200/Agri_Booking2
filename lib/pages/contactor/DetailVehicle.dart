@@ -306,7 +306,7 @@ class _DetailvehicleState extends State<Detailvehicle> {
 
                       const SizedBox(height: 8),
                       Text(
-                          'ราคา: ${vehicleData?['price'] ?? '-'} / ${vehicleData?['unit_price'] ?? '-'}',
+                          'ราคา: ${vehicleData?['price'] ?? '-'} บาท/${vehicleData?['unit_price'] ?? '-'}',
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.green,

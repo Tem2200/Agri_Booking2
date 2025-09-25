@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:agri_booking2/pages/employer/DetailVehc_emp.dart';
+import 'package:agri_booking2/pages/employer/plan_con_all.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -281,28 +282,58 @@ class _ProfileConState extends State<ProfileCon> {
                     child: ExpansionTile(
                       tilePadding: const EdgeInsets.all(12),
                       title: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ClipOval(
-                            child: Image.network(
-                              member['image'] ?? '',
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.person, size: 48),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            member['username'] ?? '-',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
+  children: [
+    ClipOval(
+      child: Image.network(
+        member['image'] ?? '',
+        width: 60,
+        height: 60,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.person, size: 48),
+      ),
+    ),
+    const SizedBox(width: 12),
+    Expanded(
+      child: Text(
+        member['username'] ?? '-',
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+        overflow: TextOverflow.ellipsis,
+      ),
+    ),
+    const SizedBox(width: 8),
+    ElevatedButton.icon(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlanPage(
+          mid: member['mid'],
+          month: DateTime.now().month,
+          year: DateTime.now().year,
+        ),
+      ),
+    );
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.green.shade600,
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+  ),
+  label: const Text(
+    "ตารางงาน",
+    style: TextStyle(fontSize: 14, color: Colors.white),
+  ),
+)
+
+  ],
+),
+
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(
@@ -679,141 +710,161 @@ class _ProfileConState extends State<ProfileCon> {
         }
 
         final reviews = snapshot.data!;
+        final points = reviews.map((r) => (r['point'] ?? 0) as num).toList();
+        final avg = points.isNotEmpty
+            ? (points.reduce((a, b) => a + b) / points.length)
+                .toStringAsFixed(2)
+            : '0.00';
+
+        final reviewCount = reviews.length;
+
+        //final reviews = snapshot.data!;
 
         return ListView.builder(
-          itemCount: reviews.length,
-          itemBuilder: (context, index) {
-            final review = reviews[index];
+  itemCount: reviews.length + 1, // บวก 1 สำหรับหัวข้อสรุป
+  itemBuilder: (context, index) {
+    if (index == 0) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Text(
+            'คะแนนรีวิว: $avg ($reviewCount รีวิว)',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2E7D32),
+            ),
+          ),
+        ),
+      );
+    }
 
-            final reportedList =
-                jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
-            final isReported = reportedList.contains(this.widget.mid_emp);
+    final review = reviews[index - 1]; // ← รีวิวย้ายมาเริ่มจาก index-1
 
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 8), // เว้นขอบซ้ายขวา
-              child: Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+    final reportedList =
+        jsonDecode(review['reporters'] ?? '[]') as List<dynamic>;
+    final isReported = reportedList.contains(this.widget.mid_emp);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (review['image_url'] != null &&
+                  review['image_url'].toString().isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Image.network(
+                    review['image_url'],
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Text('โหลดรูปไม่สำเร็จ'),
+                  ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // รูปภาพรีวิว (ถ้ามี)
-                      if (review['image_url'] != null &&
-                          review['image_url'].toString().isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Image.network(
-                            review['image_url'],
-                            height: 150,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Text('โหลดรูปไม่สำเร็จ'),
-                          ),
-                        ),
 
-                      // ผู้รีวิว + ดาว
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.person,
-                              color: Colors.grey, size: 20),
-                          const SizedBox(width: 6),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: List.generate(5, (i) {
-                              return Icon(
-                                i < (review['point'] ?? 0)
-                                    ? Icons.star
-                                    : Icons.star_border,
-                                color: Colors.amber,
-                                size: 20,
-                              );
-                            }),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${review['point'] ?? '-'} / 5',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
+              // ผู้รีวิว + ดาว
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.person, color: Colors.grey, size: 20),
+                  const SizedBox(width: 6),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(5, (i) {
+                      return Icon(
+                        i < (review['point'] ?? 0)
+                            ? Icons.star
+                            : Icons.star_border,
+                        color: Colors.amber,
+                        size: 20,
+                      );
+                    }),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${review['point'] ?? '-'} / 5',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
 
-                      // ข้อความรีวิว
-                      Text(
-                        review['text'] ?? '-',
-                        style: const TextStyle(fontSize: 16),
-                      ),
+              // ข้อความรีวิว
+              Text(
+                review['text'] ?? '-',
+                style: const TextStyle(fontSize: 16),
+              ),
 
-                      const SizedBox(height: 6),
+              const SizedBox(height: 6),
 
-                      if (review['image'] != null && review['image'].isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Image.network(
-                            review['image'],
-                            height: 100,
-                            width: 100,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.image_not_supported),
-                          ),
-                        ),
+              if (review['image'] != null && review['image'].isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Image.network(
+                    review['image'],
+                    height: 100,
+                    width: 100,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.image_not_supported),
+                  ),
+                ),
 
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}',
-                            style:
-                                const TextStyle(color: Colors.grey), // ใส่สีเทา
-                          ),
-                          Text('จำนวนรายงาน: ${reportedList.length} คน',
-                              style: const TextStyle(
-                                  color: Colors.grey)), // ใส่สีเทา
-                        ],
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'วันที่รีวิว: ${review['date'].toString().substring(0, 10)}',
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                  Text(
+                    'จำนวนรายงาน: ${reportedList.length} คน',
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
 
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton(
-                          onPressed: isReported
-                              ? null
-                              : () => _reportReview(review['rid']),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                isReported ? Colors.grey : Colors.red,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Text(
-                            isReported ? 'รายงานแล้ว' : 'รายงานรีวิว',
-                            style: const TextStyle(
-                                fontSize:
-                                    14), // กำหนดขนาดถ้าต้องการ แต่ไม่กำหนด fontFamily
-                          ),
-                        ),
-                      ),
-                    ],
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: isReported
+                      ? null
+                      : () => _reportReview(review['rid']),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isReported ? Colors.grey : Colors.red,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    isReported ? 'รายงานแล้ว' : 'รายงานรีวิว',
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ),
               ),
-            );
-          },
-        );
+            ],
+          ),
+        ),
+      ),
+    );
+  },
+);
+
       },
     );
   }

@@ -87,7 +87,7 @@ class _ForgetpasswordState extends State<Forgetpassword> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const TabbarGenaralUser(
-                      value: 3,
+                      value: 2,
                     ),
                   ),
                 );
@@ -389,22 +389,26 @@ class _ForgetpasswordState extends State<Forgetpassword> {
         ),
         const SizedBox(height: 30),
         TextField(
-          controller: newPassController,
-          obscureText: _obscureNew,
-          decoration: InputDecoration(
-            labelText: "รหัสผ่านใหม่",
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscureNew ? Icons.visibility_off : Icons.visibility,
-              ),
-              onPressed: () {
-                setState(() {
-                  _obscureNew = !_obscureNew;
-                });
-              },
-            ),
-          ),
-        ),
+  controller: newPassController,
+  obscureText: _obscureNew,
+  decoration: InputDecoration(
+    labelText: "รหัสผ่านใหม่",
+    helperText: 
+      "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร มีทั้งอักษรพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และอักขระพิเศษ !@#\$&*~.",
+    helperMaxLines: 5, // กันข้อความตัด
+    suffixIcon: IconButton(
+      icon: Icon(
+        _obscureNew ? Icons.visibility_off : Icons.visibility,
+      ),
+      onPressed: () {
+        setState(() {
+          _obscureNew = !_obscureNew;
+        });
+      },
+    ),
+  ),
+),
+
         const SizedBox(height: 20),
         TextField(
           controller: confirmPassController,

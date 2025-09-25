@@ -304,7 +304,7 @@ class _EditVehicleState extends State<EditVehicle> {
                             const SizedBox(height: 16),
 
                             // ราคา + หน่วย
-                            Text('ราคาต่อพื้นที่ที่จ้างงาน (เช่น 100 บาท/ไร่)',
+                            Text('ราคาต่อการจ้าง (เช่น 100 บาท/ไร่)',
                                 style: labelStyle),
                             const SizedBox(height: 8),
                             Row(

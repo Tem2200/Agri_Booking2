@@ -14,22 +14,12 @@ class PlanPage extends StatefulWidget {
   final int mid;
   final int month;
   final int year;
-  final int mid_employer;
-  final int vid;
-  final int? fid;
-  final dynamic farm;
-  final dynamic vihicleData;
 
   const PlanPage({
     super.key,
     required this.mid,
     required this.month,
-    required this.year,
-    required this.mid_employer,
-    required this.vid,
-    this.fid,
-    this.farm,
-    this.vihicleData,
+    required this.year
   });
 
   @override
@@ -54,7 +44,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
     super.initState();
     _displayMonth = widget.month;
     _displayYear = widget.year;
-    print("vihicleData: ${widget.vihicleData}");
 
     // โหลดข้อมูลเจ้าของรถ
     _conFuture = fetchCon(widget.mid);
@@ -136,8 +125,7 @@ class _PlanAndHistoryState extends State<PlanPage> {
 
           final filteredData = data.where((item) {
             final status = item['progress_status'];
-            final vid = item['vid'];
-            return status != 4 && status != 0 && vid == widget.vihicleData['vid'] ; // กรองไม่เอา 0 และ 4
+            return status != 4 && status != 0; // กรองไม่เอา 0 และ 4
           }).toList();
 
           return filteredData;
@@ -259,164 +247,10 @@ class _PlanAndHistoryState extends State<PlanPage> {
       fontWeight: FontWeight.w600,
     ),
   );
-//   Widget _buildConAndVehicleInfo() {
-//     return FutureBuilder<Map<String, dynamic>>(
-//       future: _conFuture,
-//       builder: (context, snapshot) {
-//         if (snapshot.connectionState == ConnectionState.waiting) {
-//           return const Center(child: CircularProgressIndicator());
-//         }
-//         if (snapshot.hasError) {
-//           return const Center(child: Text('ไม่สามารถโหลดข้อมูลเจ้าของรถได้'));
-//         }
-//         if (!snapshot.hasData) {
-//           return const Center(child: Text('ไม่พบข้อมูลเจ้าของรถ'));
-//         }
-
-//         final conData = snapshot.data!;
-//         final vihicleData = widget.vihicleData;
-
-//         return Container(
-//           margin: const EdgeInsets.symmetric(horizontal: 16),
-//           padding: const EdgeInsets.all(16),
-//           decoration: BoxDecoration(
-//             color: Colors.white,
-//             borderRadius: BorderRadius.circular(15),
-//             boxShadow: [
-//               BoxShadow(
-//                 color: Colors.grey.withOpacity(0.2),
-//                 spreadRadius: 2,
-//                 blurRadius: 5,
-//                 offset: const Offset(0, 3),
-//               ),
-//             ],
-//           ),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               // รูปเจ้าของรถ
-//               Row(
-//                 children: [
-//                   CircleAvatar(
-//                     radius: 30,
-//                     backgroundImage:
-//                         conData['image'] != null && conData['image'] != ''
-//                             ? NetworkImage(conData['image'])
-//                             : null,
-//                     backgroundColor: Colors.grey.shade300,
-//                     child: (conData['image'] == null || conData['image'] == '')
-//                         ? const Icon(Icons.person,
-//                             size: 30, color: Colors.white)
-//                         : null,
-//                   ),
-//                   const SizedBox(width: 12),
-//                   Expanded(
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Text(
-//                           '${conData['username']}' ?? 'ไม่ระบุชื่อ',
-//                           style: TextStyle(
-//                             fontSize: 18,
-//                             fontWeight: FontWeight.bold,
-//                             color: Colors.green.shade800,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 4),
-//                         Row(
-//   crossAxisAlignment: CrossAxisAlignment.start, // ให้ข้อความหลายบรรทัดชิดบนไอคอน
-//   children: [
-//     const Icon(
-//       Icons.location_on,
-//       size: 20,
-//       color: Colors.orange,
-//     ),
-//     const SizedBox(width: 3), // ระยะห่างระหว่างไอคอนกับข้อความ
-//     Expanded(
-//       child: Text(
-//         'ที่อยู่: ${conData['detail_address'] ?? ''} ต.${conData['subdistrict'] ?? ''} อ.${conData['district'] ?? ''} จ.${conData['province'] ?? ''}',
-//         style: const TextStyle(
-//           fontSize: 12,
-//           color: Colors.black87,
-//         ),
-//       ),
-//     ),
-//   ],
-// ),
-
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 16),
-
-//               // ข้อมูลรถ
-//               Row(
-//                 children: [
-//                   vihicleData?['image_vehicle'] != null && vihicleData!['image_vehicle'].toString().isNotEmpty
-//                       ? ClipRRect(
-//                           borderRadius: BorderRadius.circular(10),
-//                           child: Image.network(
-//                             vihicleData!['image_vehicle'],
-//                             width: 80,
-//                             height: 80,
-//                             fit: BoxFit.cover,
-//                           ),
-//                         )
-//                       : Container(
-//                           width: 80,
-//                           height: 80,
-//                           decoration: BoxDecoration(
-//                             color: Colors.grey.shade200,
-//                             borderRadius: BorderRadius.circular(10),
-//                           ),
-//                           child: const Icon(
-//                             Icons.image_not_supported,
-//                             size: 40,
-//                             color: Colors.grey,
-//                           ),
-//                         ),
-//                   const SizedBox(width: 15),
-//                   Expanded(
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Text(
-//                           vihicleData?['name_vehicle'] ?? 'ไม่ระบุชื่อรถ',
-//                           style: const TextStyle(
-//                             fontSize: 16,
-//                             fontWeight: FontWeight.w600,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 4),
-//                         Text(
-//                           vihicleData?['detail'] ?? 'ไม่มีรายละเอียด',
-//                           style: const TextStyle(
-//                             fontSize: 14,
-//                             color: Colors.grey,
-//                           ),
-//                           maxLines: 2,
-//                           overflow: TextOverflow.ellipsis,
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ],
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-  // สร้าง Widget ใหม่สำหรับแสดงข้อมูลเจ้าของรถและข้อมูลรถ
   Widget _buildConAndVehicleInfo() {
     return FutureBuilder<Map<String, dynamic>>(
       future: _conFuture,
       builder: (context, snapshot) {
-        // โค้ดแสดงสถานะการโหลดหรือข้อผิดพลาด
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -428,7 +262,6 @@ class _PlanAndHistoryState extends State<PlanPage> {
         }
 
         final conData = snapshot.data!;
-        final vihicleData = widget.vihicleData;
 
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -448,102 +281,229 @@ class _PlanAndHistoryState extends State<PlanPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const SizedBox(height: 10),
-Row(
-  children: [
-    CircleAvatar(
-      radius: 20,
-      backgroundImage:
-          conData['image'] != null && conData['image'] != ''
-              ? NetworkImage(conData['image'])
-              : null,
-      backgroundColor: Colors.grey.shade300,
-      child: (conData['image'] == null || conData['image'] == '')
-          ? const Icon(Icons.person, size: 20, color: Colors.white)
-          : null,
-    ),
-    const SizedBox(width: 12), // เว้นระยะระหว่างรูปกับข้อความ
-    Text(
-      conData['username'] ?? 'ไม่ระบุชื่อ',
-      style: TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: Colors.green.shade800,
-      ),
-    ),
-  ],
-),
-
-              const SizedBox(height: 10),
+              // รูปเจ้าของรถ
               Row(
                 children: [
-                  vihicleData?['image_vehicle'] != null &&
-                          vihicleData!['image_vehicle'].toString().isNotEmpty
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            vihicleData!['image_vehicle'],
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.image_not_supported,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
-                        ),
-                  const SizedBox(width: 15),
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage:
+                        conData['image'] != null && conData['image'] != ''
+                            ? NetworkImage(conData['image'])
+                            : null,
+                    backgroundColor: Colors.grey.shade300,
+                    child: (conData['image'] == null || conData['image'] == '')
+                        ? const Icon(Icons.person,
+                            size: 30, color: Colors.white)
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          vihicleData?['name_vehicle'] ?? 'ไม่ระบุชื่อรถ',
-                          style: const TextStyle(
+                          '${conData['username']}' ?? 'ไม่ระบุชื่อ',
+                          style: TextStyle(
                             fontSize: 18,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade800,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          vihicleData?['detail'] ?? 'ไม่มีรายละเอียด',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          "${vihicleData?['price'].toString()} บาท/${vihicleData?['unit_price'] ?? 'ไม่ระบุหน่วย'}",
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.green,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        Row(
+  crossAxisAlignment: CrossAxisAlignment.start, // ให้ข้อความหลายบรรทัดชิดบนไอคอน
+  children: [
+    const Icon(
+      Icons.location_on,
+      size: 20,
+      color: Colors.orange,
+    ),
+    const SizedBox(width: 3), // ระยะห่างระหว่างไอคอนกับข้อความ
+    Expanded(
+      child: Text(
+        'ที่อยู่: ${conData['detail_address'] ?? ''} ต.${conData['subdistrict'] ?? ''} อ.${conData['district'] ?? ''} จ.${conData['province'] ?? ''}',
+        style: const TextStyle(
+          fontSize: 15,
+          color: Colors.black87,
+        ),
+      ),
+    ),
+  ],
+),
+
                       ],
                     ),
                   ),
-                  
                 ],
               ),
+              const SizedBox(height: 16),
+
+              // // ข้อมูลรถ
+              // Row(
+              //   children: [
+              //     vihicleData?['image_vehicle'] != null && vihicleData!['image_vehicle'].toString().isNotEmpty
+              //         ? ClipRRect(
+              //             borderRadius: BorderRadius.circular(10),
+              //             child: Image.network(
+              //               vihicleData!['image_vehicle'],
+              //               width: 80,
+              //               height: 80,
+              //               fit: BoxFit.cover,
+              //             ),
+              //           )
+              //         : Container(
+              //             width: 80,
+              //             height: 80,
+              //             decoration: BoxDecoration(
+              //               color: Colors.grey.shade200,
+              //               borderRadius: BorderRadius.circular(10),
+              //             ),
+              //             child: const Icon(
+              //               Icons.image_not_supported,
+              //               size: 40,
+              //               color: Colors.grey,
+              //             ),
+              //           ),
+              //     const SizedBox(width: 15),
+              //     Expanded(
+              //       child: Column(
+              //         crossAxisAlignment: CrossAxisAlignment.start,
+              //         children: [
+              //           Text(
+              //             vihicleData?['name_vehicle'] ?? 'ไม่ระบุชื่อรถ',
+              //             style: const TextStyle(
+              //               fontSize: 16,
+              //               fontWeight: FontWeight.w600,
+              //             ),
+              //           ),
+              //           const SizedBox(height: 4),
+              //           Text(
+              //             vihicleData?['detail'] ?? 'ไม่มีรายละเอียด',
+              //             style: const TextStyle(
+              //               fontSize: 14,
+              //               color: Colors.grey,
+              //             ),
+              //             maxLines: 2,
+              //             overflow: TextOverflow.ellipsis,
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         );
       },
     );
   }
+
+  // // สร้าง Widget ใหม่สำหรับแสดงข้อมูลเจ้าของรถและข้อมูลรถ
+  // Widget _buildConAndVehicleInfo() {
+  //   return FutureBuilder<Map<String, dynamic>>(
+  //     future: _conFuture,
+  //     builder: (context, snapshot) {
+  //       // โค้ดแสดงสถานะการโหลดหรือข้อผิดพลาด
+  //       if (snapshot.connectionState == ConnectionState.waiting) {
+  //         return const Center(child: CircularProgressIndicator());
+  //       }
+  //       if (snapshot.hasError) {
+  //         return const Center(child: Text('ไม่สามารถโหลดข้อมูลเจ้าของรถได้'));
+  //       }
+  //       if (!snapshot.hasData) {
+  //         return const Center(child: Text('ไม่พบข้อมูลเจ้าของรถ'));
+  //       }
+
+  //       final conData = snapshot.data!;
+  //       final vihicleData = widget.vihicleData;
+
+  //       return Container(
+  //         margin: const EdgeInsets.symmetric(horizontal: 16),
+  //         padding: const EdgeInsets.all(16),
+  //         decoration: BoxDecoration(
+  //           color: Colors.white,
+  //           borderRadius: BorderRadius.circular(15),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: Colors.grey.withOpacity(0.2),
+  //               spreadRadius: 2,
+  //               blurRadius: 5,
+  //               offset: const Offset(0, 3),
+  //             ),
+  //           ],
+  //         ),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             // const SizedBox(height: 10),
+  //             Text(
+  //               conData['username'] ?? 'ไม่ระบุชื่อ',
+  //               style: TextStyle(
+  //                 fontSize: 20,
+  //                 fontWeight: FontWeight.bold,
+  //                 color: Colors.green.shade800,
+  //               ),
+  //             ),
+  //             const SizedBox(height: 10),
+  //             Row(
+  //               children: [
+  //                 vihicleData?['image_vehicle'] != null &&
+  //                         vihicleData!['image_vehicle'].toString().isNotEmpty
+  //                     ? ClipRRect(
+  //                         borderRadius: BorderRadius.circular(10),
+  //                         child: Image.network(
+  //                           vihicleData!['image_vehicle'],
+  //                           width: 80,
+  //                           height: 80,
+  //                           fit: BoxFit.cover,
+  //                         ),
+  //                       )
+  //                     : Container(
+  //                         width: 80,
+  //                         height: 80,
+  //                         decoration: BoxDecoration(
+  //                           color: Colors.grey.shade200,
+  //                           borderRadius: BorderRadius.circular(10),
+  //                         ),
+  //                         child: const Icon(
+  //                           Icons.image_not_supported,
+  //                           size: 40,
+  //                           color: Colors.grey,
+  //                         ),
+  //                       ),
+  //                 const SizedBox(width: 15),
+  //                 Expanded(
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       Text(
+  //                         vihicleData?['name_vehicle'] ?? 'ไม่ระบุชื่อรถ',
+  //                         style: const TextStyle(
+  //                           fontSize: 18,
+  //                           fontWeight: FontWeight.w600,
+  //                         ),
+  //                       ),
+  //                       const SizedBox(height: 4),
+  //                       Text(
+  //                         vihicleData?['detail'] ?? 'ไม่มีรายละเอียด',
+  //                         style: const TextStyle(
+  //                           fontSize: 14,
+  //                           color: Colors.grey,
+  //                         ),
+  //                         maxLines: 2,
+  //                         overflow: TextOverflow.ellipsis,
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   // 💡 แก้ไข _buildPlanTab
   Widget _buildPlanTab() {
@@ -1079,7 +1039,7 @@ Row(
             color: Colors.white,
           ),
           title: const Text(
-            'ตารางงาน',
+            'ตารางงานทั้งหมด',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -1098,47 +1058,6 @@ Row(
           children: [
             _buildPlanTab(),
           ],
-        ),
-        bottomNavigationBar: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (widget.farm != null &&
-                      widget.farm is Map &&
-                      widget.farm.isNotEmpty) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ReservingForNF(
-                          mid: widget.mid_employer,
-                          vid: widget.vid,
-                          fid: widget.fid,
-                          farm: widget.farm,
-                          vihicleData: widget.vihicleData,
-                        ),
-                      ),
-                    );
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ReservingForNF(
-                          mid: widget.mid_employer,
-                          vid: widget.vid,
-                          vihicleData: widget.vihicleData,
-                        ),
-                      ),
-                    );
-                  }
-                },
-                style: bookingButtonStyle,
-                child: const Text('จองคิวรถ'),
-              ),
-            ),
-          ),
         ),
       ),
     );

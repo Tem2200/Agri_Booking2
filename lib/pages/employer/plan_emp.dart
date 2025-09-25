@@ -742,7 +742,7 @@ class _PlanEmpState extends State<PlanEmp> with SingleTickerProviderStateMixin {
 
                               // กรณีสถานะเสร็จสิ้น ให้ปุ่มรีวิวแสดงข้างปุ่มรายละเอียด
                               if (progressStatusText(rs['progress_status']) ==
-                                  "เสร็จสิ้น") ...[
+                                  "เสร็จสิ้น" && rs['mid_contractor'] != widget.mid) ...[
                                 ElevatedButton.icon(
                                   onPressed: () {
                                     Navigator.push(

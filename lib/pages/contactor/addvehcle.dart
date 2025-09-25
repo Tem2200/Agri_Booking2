@@ -345,8 +345,8 @@ class _AddVehicleState extends State<AddVehicle> {
 
                         const SizedBox(height: 16),
 
-                        //ราคาต่อหน่วย
-                        Text('ราคาต่อพื้นที่จ้างงาน(เช่น100บาท/ไร่)*',
+                        //ราคาต่อการจ้าง
+                        Text('ราคาต่อการจ้าง(เช่น100บาท/ไร่)*',
                             style: labelStyle),
                         const SizedBox(height: 8),
                         // เก็บค่า dropdown ที่เลือ

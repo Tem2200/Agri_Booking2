@@ -363,18 +363,56 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                         ),
                       // --- รายละเอียดรถ ---
                       const SizedBox(height: 16),
-                      Center(
-                        child: Text(
-                          'ชื่อรถ: ${vehicleData?['name_vehicle'] ?? '-'}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 8),
-                      const SizedBox(height: 8),
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    Text(
+      'ชื่อรถ: ${vehicleData?['name_vehicle'] ?? '-'}',
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    ElevatedButton(
+      onPressed: () {
+        if (vehicleData != null && _currentMid != 0) {
+          final now = DateTime.now();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PlanPage(
+                mid: _currentMid,
+                month: now.month,
+                year: now.year,
+                mid_employer: widget.mid,
+                vid: widget.vid,
+                fid: widget.fid,
+                farm: widget.farm,
+                vihicleData: vehicleData,
+              ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'ไม่สามารถเข้าถึงตารางงานได้ เนื่องจากข้อมูลยังไม่พร้อม'),
+            ),
+          );
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8)),
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.white,
+        minimumSize: const Size(70, 36),
+      ),
+      child: const Text('ตารางงานรถ'),
+    ),
+  ],
+),
                       Text(
                           'ราคา: ${vehicleData?['price'] ?? '-'} บาท/${vehicleData?['unit_price'] ?? '-'}',
                           style: const TextStyle(
@@ -470,48 +508,48 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
 
                           const SizedBox(width: 12), // ช่องว่างก่อนปุ่ม
 
-                          // ปุ่มตารางงาน
-                          ElevatedButton(
-                            onPressed: () {
-                              if (vehicleData != null && _currentMid != 0) {
-                                final now = DateTime.now();
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PlanPage(
-                                      mid: _currentMid,
-                                      month: now.month,
-                                      year: now.year,
-                                      mid_employer: widget.mid,
-                                      vid: widget.vid,
-                                      fid: widget.fid,
-                                      farm: widget.farm,
-                                      vihicleData: vehicleData,
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'ไม่สามารถเข้าถึงตารางงานได้ เนื่องจากข้อมูลยังไม่พร้อม'),
-                                  ),
-                                );
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              // ลดขนาดตัวหนังสือ
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                              backgroundColor: Colors.green,
-                              foregroundColor: Colors.white,
-                              minimumSize:
-                                  const Size(70, 36), // กำหนดขนาดปุ่มให้เล็กลง
-                            ),
-                            child: const Text('ตารางงาน'),
-                          ),
+                          // // ปุ่มตารางงาน
+                          // ElevatedButton(
+                          //   onPressed: () {
+                          //     if (vehicleData != null && _currentMid != 0) {
+                          //       final now = DateTime.now();
+                          //       Navigator.push(
+                          //         context,
+                          //         MaterialPageRoute(
+                          //           builder: (context) => PlanPage(
+                          //             mid: _currentMid,
+                          //             month: now.month,
+                          //             year: now.year,
+                          //             mid_employer: widget.mid,
+                          //             vid: widget.vid,
+                          //             fid: widget.fid,
+                          //             farm: widget.farm,
+                          //             vihicleData: vehicleData,
+                          //           ),
+                          //         ),
+                          //       );
+                          //     } else {
+                          //       ScaffoldMessenger.of(context).showSnackBar(
+                          //         const SnackBar(
+                          //           content: Text(
+                          //               'ไม่สามารถเข้าถึงตารางงานได้ เนื่องจากข้อมูลยังไม่พร้อม'),
+                          //         ),
+                          //       );
+                          //     }
+                          //   },
+                          //   style: ElevatedButton.styleFrom(
+                          //     padding: const EdgeInsets.symmetric(
+                          //         horizontal: 16, vertical: 8),
+                          //     // ลดขนาดตัวหนังสือ
+                          //     shape: RoundedRectangleBorder(
+                          //         borderRadius: BorderRadius.circular(8)),
+                          //     backgroundColor: Colors.green,
+                          //     foregroundColor: Colors.white,
+                          //     minimumSize:
+                          //         const Size(70, 36), // กำหนดขนาดปุ่มให้เล็กลง
+                          //   ),
+                          //   child: const Text('ตารางงาน'),
+                          // ),
 
                           const SizedBox(width: 5),
                           OutlinedButton(
