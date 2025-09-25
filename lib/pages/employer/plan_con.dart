@@ -463,81 +463,88 @@ Row(
           : null,
     ),
     const SizedBox(width: 12), // เว้นระยะระหว่างรูปกับข้อความ
-    Text(
-      conData['username'] ?? 'ไม่ระบุชื่อ',
-      style: TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: Colors.green.shade800,
+
+    // ข้อความผู้ใช้
+    Expanded(
+      child: Text(
+        conData['username'] ?? 'ไม่ระบุชื่อ',
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.green.shade800,
+        ),
+        softWrap: true, // ขึ้นบรรทัดใหม่เมื่อยาว
       ),
     ),
   ],
 ),
 
+
               const SizedBox(height: 10),
               Row(
-                children: [
-                  vihicleData?['image_vehicle'] != null &&
-                          vihicleData!['image_vehicle'].toString().isNotEmpty
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            vihicleData!['image_vehicle'],
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.image_not_supported,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
-                        ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          vihicleData?['name_vehicle'] ?? 'ไม่ระบุชื่อรถ',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          vihicleData?['detail'] ?? 'ไม่มีรายละเอียด',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          "${vihicleData?['price'].toString()} บาท/${vihicleData?['unit_price'] ?? 'ไม่ระบุหน่วย'}",
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.green,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                ],
-              ),
+  crossAxisAlignment: CrossAxisAlignment.start, // ✅ ตั้งให้รูปอยู่ด้านบน
+  children: [
+    vihicleData?['image_vehicle'] != null &&
+            vihicleData!['image_vehicle'].toString().isNotEmpty
+        ? ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.network(
+              vihicleData!['image_vehicle'],
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+            ),
+          )
+        : Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.image_not_supported,
+              size: 40,
+              color: Colors.grey,
+            ),
+          ),
+    const SizedBox(width: 15),
+    Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start, // ✅ ชื่อ + รายละเอียดชิดซ้าย
+        children: [
+          Text(
+            vihicleData?['name_vehicle'] ?? 'ไม่ระบุชื่อรถ',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            vihicleData?['detail'] ?? 'ไม่มีรายละเอียด',
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            "${vihicleData?['price'].toString()} บาท/${vihicleData?['unit_price'] ?? 'ไม่ระบุหน่วย'}",
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.green,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    ),
+  ],
+),
+
             ],
           ),
         );

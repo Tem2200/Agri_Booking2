@@ -326,22 +326,23 @@ class _AddVehicleState extends State<AddVehicle> {
                         const SizedBox(height: 24),
 
                         // ชื่อรถ
-                        Text('ชื่อรถ *', style: labelStyle),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: nameController,
-                          decoration: const InputDecoration(
-                            filled: true, // เปิดการเติมสีพื้นหลัง
-                            fillColor: Colors.white, // กำหนดสีพื้นหลังเป็นสีขาว
-                            border: OutlineInputBorder(),
-                            //hintText: 'ชื่อรถ',
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                          ),
-                          validator: (v) => v == null || v.isEmpty
-                              ? 'กรุณากรอกชื่อรถ*'
-                              : null,
-                        ),
+Text('ชื่อรถ *', style: labelStyle),
+const SizedBox(height: 8),
+TextFormField(
+  controller: nameController,
+  maxLength: 255,
+  decoration: const InputDecoration(
+    filled: true, // เปิดการเติมสีพื้นหลัง
+    fillColor: Colors.white, // กำหนดสีพื้นหลังเป็นสีขาว
+    border: OutlineInputBorder(),
+    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    counterText: '', // ซ่อนตัวนับจำนวนตัวอักษร
+  ),
+  validator: (v) => v == null || v.isEmpty
+      ? 'กรุณากรอกชื่อรถ*'
+      : null,
+),
+
 
                         const SizedBox(height: 16),
 
@@ -356,12 +357,14 @@ class _AddVehicleState extends State<AddVehicle> {
                             Expanded(
                               child: TextFormField(
                                 controller: priceController,
+                                maxLength: 10,
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
                                   filled: true, //เปิดการเติมสีพื้นหลัง
                                   fillColor:
                                       Colors.white, // กำหนดสีพื้นหลังเป็นสีขาว
                                   border: OutlineInputBorder(),
+                                  counterText: '',
                                   //hintText: 'จำนวนเงิน',
                                   contentPadding: EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 8),
@@ -382,6 +385,7 @@ class _AddVehicleState extends State<AddVehicle> {
                                   fillColor: Colors
                                       .white, // ✅ กำหนดสีพื้นหลังเป็นสีขาว
                                   border: OutlineInputBorder(),
+                                  
                                   contentPadding: EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 8),
                                 ),
@@ -420,11 +424,13 @@ class _AddVehicleState extends State<AddVehicle> {
                           const SizedBox(height: 16),
                           TextFormField(
                             controller: customUnitController,
+                            maxLength: 20,
                             decoration: const InputDecoration(
                               filled: true, // เปิดการเติมสีพื้นหลัง
                               fillColor:
                                   Colors.white, //กำหนดสีพื้นหลังเป็นสีขาว
                               border: OutlineInputBorder(),
+                              counterText: '',
                               hintText: 'กรอกหน่วยเอง เช่น เมตร',
                               contentPadding: EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 8),
@@ -448,12 +454,14 @@ class _AddVehicleState extends State<AddVehicle> {
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: detailController,
+                          maxLength: 500,
                           maxLines: 1,
                           decoration: const InputDecoration(
                             filled: true, // เปิดการเติมสีพื้นหลัง
                             fillColor: Colors.white, // กำหนดสีพื้นหลังเป็นสีขาว
                             border: OutlineInputBorder(),
-                            //hintText: 'อธิบายการใช้งานรถ เช่น ขุดดิน ไถนา',
+                            counterText: '',
+                            hintText: 'อธิบายการใช้งานรถ เช่น ขุดดิน ไถนา',
                             contentPadding: EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
                           ),
@@ -469,10 +477,12 @@ class _AddVehicleState extends State<AddVehicle> {
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: plateController,
+                          maxLength: 20,
                           decoration: const InputDecoration(
                             filled: true, //เปิดการเติมสีพื้นหลัง
                             fillColor: Colors.white, //กำหนดสีพื้นหลังเป็นสีขาว
                             border: OutlineInputBorder(),
+                            counterText: '',
                             //hintText: 'ไม่บังคับ',
                             contentPadding: EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
@@ -506,8 +516,17 @@ class _AddVehicleState extends State<AddVehicle> {
                             const SizedBox(width: 16),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: _isSubmitting
-                                    ? null
+                                onPressed: (_isSubmitting || isLoading)
+                                    ? isLoading
+                                        ? () {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('กรุณารอให้การอัปโหลดรูปเสร็จก่อน'),
+                                                backgroundColor: Colors.orange,
+                                              ),
+                                            );
+                                          }
+                                        : null
                                     : () async {
                                         final confirm = await showDialog<bool>(
                                           context: context,
@@ -547,7 +566,7 @@ class _AddVehicleState extends State<AddVehicle> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                child: _isSubmitting
+                                child: (_isSubmitting || isLoading)
                                     ? const SizedBox(
                                         width: 20,
                                         height: 20,

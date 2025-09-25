@@ -286,6 +286,12 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
                 decoration: customInputDecoration('ชื่อไร่นา*'),
                 validator: (val) =>
                     val == null || val.isEmpty ? 'กรุณากรอกชื่อไร่นา*' : null,
+                maxLength: 100, // กำหนดสูงสุด 100 ตัวอักษร
+                buildCounter: (context,
+                        {required currentLength,
+                        required maxLength,
+                        required isFocused}) =>
+                    null, // ซ่อนตัวนับ
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -293,6 +299,12 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
                 decoration: customInputDecoration('หมู่บ้าน*'),
                 validator: (val) =>
                     val == null || val.isEmpty ? 'กรุณากรอกหมู่บ้าน*' : null,
+                maxLength: 50, // กำหนดสูงสุด 100 ตัวอักษร
+                buildCounter: (context,
+                        {required currentLength,
+                        required maxLength,
+                        required isFocused}) =>
+                    null, // ซ่อนตัวนับ
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
@@ -373,6 +385,12 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
                 keyboardType: TextInputType.number,
                 validator: (val) =>
                     val == null || val.isEmpty ? 'กรุณากรอกขนาดพื้นที่*' : null,
+                maxLength: 10, 
+                buildCounter: (context,
+                        {required currentLength,
+                        required maxLength,
+                        required isFocused}) =>
+                    null, // ซ่อนตัวนับ
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
@@ -400,15 +418,23 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
               const SizedBox(height: 16),
               if (showOtherUnitField)
                 TextFormField(
-                  controller: unitAreaOtherCtrl,
-                  decoration: customInputDecoration('กรุณาระบุหน่วยพื้นที่*'),
-                  validator: (val) {
-                    if (showOtherUnitField && (val == null || val.isEmpty)) {
-                      return 'กรุณากรอกหน่วยพื้นที่*';
-                    }
-                    return null;
-                  },
-                ),
+  controller: unitAreaOtherCtrl,
+  decoration: customInputDecoration('กรุณาระบุหน่วยพื้นที่*'),
+  maxLength: 20, // กำหนดไม่เกิน 20 ตัวอักษร
+  buildCounter: (
+    BuildContext context, {
+    required int currentLength,
+    required int? maxLength,
+    required bool isFocused,
+  }) => null, // ปิดตัวนับ
+  validator: (val) {
+    if (showOtherUnitField && (val == null || val.isEmpty)) {
+      return 'กรุณากรอกหน่วยพื้นที่*';
+    }
+    return null;
+  },
+),
+
               const SizedBox(height: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -478,6 +504,14 @@ class _UpdateFarmPageState extends State<UpdateFarmPage> {
               TextFormField(
                 controller: detailCtrl,
                 decoration: customInputDecoration('รายละเอียด (ไม่บังคับ)'),
+                  maxLength: 500, // ไม่เกิน 500 ตัวอักษร
+  maxLines: null, // รองรับหลายบรรทัด
+    buildCounter: (
+    BuildContext context, {
+    required int currentLength,
+    required int? maxLength,
+    required bool isFocused,
+  }) => null, // ซ่อนตัวนับ
               ),
               const SizedBox(height: 20),
               ElevatedButton(

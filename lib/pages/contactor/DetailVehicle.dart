@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:agri_booking2/pages/contactor/Tabbar.dart';
+import 'package:agri_booking2/pages/contactor/home.dart';
+import 'package:agri_booking2/pages/employer/homeEmp.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -230,31 +233,40 @@ class _DetailvehicleState extends State<Detailvehicle> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        //title: Text(vehicleData?['name_vehicle'] ?? 'รายละเอียดรถ'),
-        backgroundColor: const Color.fromARGB(255, 18, 143, 9),
-        //backgroundColor: Color.fromARGB(255, 255, 158, 60),
-        centerTitle: true,
-        iconTheme: const IconThemeData(
-          color: Colors.white, // ✅ ลูกศรย้อนกลับสีขาว
+appBar: AppBar(
+  backgroundColor: const Color.fromARGB(255, 18, 143, 9),
+  centerTitle: true,
+  leading: IconButton(
+    icon: const Icon(Icons.arrow_back, color: Colors.white),
+    onPressed: () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => TabbarCar(
+          value: 2,
+          mid: _currentMid,
+          month: DateTime.now().month,
+          year: DateTime.now().year,
+        )), // ✅ ระบุหน้าที่ต้องการ
+      );
+    },
+  ),
+  title: const Text(
+    'รายละเอียดรถ',
+    style: TextStyle(
+      fontSize: 22,
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+      shadows: [
+        Shadow(
+          color: Color.fromARGB(115, 253, 237, 237),
+          blurRadius: 3,
+          offset: Offset(1.5, 1.5),
         ),
-        title: const Text(
-          'รายละเอียดรถ',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Color.fromARGB(255, 255, 255, 255),
-            //letterSpacing: 1,
-            shadows: [
-              Shadow(
-                color: Color.fromARGB(115, 253, 237, 237),
-                blurRadius: 3,
-                offset: Offset(1.5, 1.5),
-              ),
-            ],
-          ),
-        ),
-      ),
+      ],
+    ),
+  ),
+),
+
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : error != null

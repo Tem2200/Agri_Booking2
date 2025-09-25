@@ -204,7 +204,7 @@ class _EditVehicleState extends State<EditVehicle> {
           onPressed: () => Navigator.pop(context, true),
         ),
         title: const Text(
-          'เพิ่มรถรับจ้าง',
+          'แก้ไขรถรับจ้าง',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -288,11 +288,13 @@ class _EditVehicleState extends State<EditVehicle> {
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: nameController,
+                              maxLength: 255,
                               decoration: const InputDecoration(
                                 filled: true, // เปิดการเติมสีพื้นหลัง
                                 fillColor:
                                     Colors.white, //กำหนดสีพื้นหลังเป็นสีขาว
                                 border: OutlineInputBorder(),
+                                counterText: '',
                                 hintText: 'ชื่อรถ',
                                 contentPadding: EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 8),
@@ -312,8 +314,10 @@ class _EditVehicleState extends State<EditVehicle> {
                                 Expanded(
                                   child: TextFormField(
                                     controller: priceController,
+                                    maxLength: 10,
                                     keyboardType: TextInputType.number,
                                     decoration: const InputDecoration(
+                                      counterText: '',
                                       filled: true, //เปิดการเติมสีพื้นหลัง
                                       fillColor: Colors
                                           .white, //กำหนดสีพื้นหลังเป็นสีขาว
@@ -378,11 +382,13 @@ class _EditVehicleState extends State<EditVehicle> {
                               const SizedBox(height: 16),
                               TextFormField(
                                 controller: customUnitController,
+                                maxLength: 20,
                                 decoration: const InputDecoration(
                                   filled: true, //ปิดการเติมสีพื้นหลัง
                                   fillColor:
                                       Colors.white, // กำหนดสีพื้นหลังเป็นสีขาว
                                   border: OutlineInputBorder(),
+                                  counterText: '',
                                   hintText: 'กรอกหน่วยเอง เช่น เมตร',
                                   contentPadding: EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 8),
@@ -407,8 +413,10 @@ class _EditVehicleState extends State<EditVehicle> {
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: detailController,
+                              maxLength: 500,
                               maxLines: 3,
                               decoration: const InputDecoration(
+                                counterText: '',
                                 filled: true, // ✅ เปิดการเติมสีพื้นหลัง
                                 fillColor:
                                     Colors.white, // ✅ กำหนดสีพื้นหลังเป็นสีขาว
@@ -429,7 +437,9 @@ class _EditVehicleState extends State<EditVehicle> {
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: plateController,
+                              maxLength: 20,
                               decoration: const InputDecoration(
+                                counterText: '',
                                 filled: true, // ✅ เปิดการเติมสีพื้นหลัง
                                 fillColor:
                                     Colors.white, // ✅ กำหนดสีพื้นหลังเป็นสีขาว

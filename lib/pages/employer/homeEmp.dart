@@ -98,21 +98,23 @@ class _HomeEmpPageState extends State<HomeEmpPage> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      member['username'] ?? '-',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: 1.2,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 3.0,
-                            color: Colors.black45,
-                            offset: Offset(1.5, 1.5),
-                          ),
-                        ],
-                      ),
-                    ),
+  member['username'] ?? '-',
+  textAlign: TextAlign.center, // ✅
+  style: const TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.w900,
+    color: Colors.white,
+    letterSpacing: 1.2,
+    shadows: [
+      Shadow(
+        blurRadius: 3.0,
+        color: Colors.black45,
+        offset: Offset(1.5, 1.5),
+      ),
+    ],
+  ),
+),
+
 
                     const SizedBox(height: 4), // ระยะห่างเล็กน้อย
                     Text(

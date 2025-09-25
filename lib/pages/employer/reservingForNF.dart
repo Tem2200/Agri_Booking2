@@ -1165,32 +1165,65 @@ class _ReservingForNFState extends State<ReservingForNF> {
   TextStyle get _sectionTitleStyle =>
       const TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 
+  // Widget _buildTextField({
+  //   required String label,
+  //   required TextEditingController controller,
+  //   TextInputType? inputType,
+  //   String? Function(String?)? validator,
+  //   int maxLines = 1,
+  //   bool isOptional = false, // ✅ เพิ่มตรงนี้
+  // }) {
+  //   return TextFormField(
+  //     controller: controller,
+  //     keyboardType: inputType,
+  //     maxLines: maxLines,
+  //     decoration: InputDecoration(
+  //       labelText: label,
+  //       hintText: isOptional ? 'ไม่จำเป็นต้องกรอก' : null, // แนะนำผู้ใช้
+  //       border: const OutlineInputBorder(),
+  //       contentPadding:
+  //           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  //     ),
+  //     validator: validator ??
+  //         (value) {
+  //           if (isOptional) return null; // ✅ ไม่ตรวจสอบหากไม่บังคับ
+  //           return value == null || value.isEmpty ? 'กรุณากรอก $label' : null;
+  //         },
+  //   );
+  // }
   Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    TextInputType? inputType,
-    String? Function(String?)? validator,
-    int maxLines = 1,
-    bool isOptional = false, // ✅ เพิ่มตรงนี้
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: inputType,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: isOptional ? 'ไม่จำเป็นต้องกรอก' : null, // แนะนำผู้ใช้
-        border: const OutlineInputBorder(),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      validator: validator ??
-          (value) {
-            if (isOptional) return null; // ✅ ไม่ตรวจสอบหากไม่บังคับ
-            return value == null || value.isEmpty ? 'กรุณากรอก $label' : null;
-          },
-    );
-  }
+  required String label,
+  required TextEditingController controller,
+  TextInputType? inputType,
+  String? Function(String?)? validator,
+  int maxLines = 1,
+  bool isOptional = false,
+  int? maxLength, // ✅ เพิ่มตรงนี้
+}) {
+  return TextFormField(
+    controller: controller,
+    keyboardType: inputType,
+    maxLines: maxLines,
+    maxLength: maxLength,
+    buildCounter: (BuildContext context,
+            {int? currentLength, bool? isFocused, int? maxLength}) =>
+        null, // ✅ ปิดตัวนับตัวอักษร
+    decoration: InputDecoration(
+      labelText: label,
+      hintText: isOptional ? 'ไม่จำเป็นต้องกรอก' : null,
+      border: const OutlineInputBorder(),
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    ),
+    validator: validator ??
+        (value) {
+          if (isOptional) return null;
+          return value == null || value.isEmpty ? 'กรุณากรอก $label' : null;
+        },
+  );
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -1323,11 +1356,16 @@ class _ReservingForNFState extends State<ReservingForNF> {
                     )),
                     const SizedBox(height: 16),
                     _buildTextField(
-                        label: 'ชื่อการจอง*', controller: nameController),
+  label: 'ชื่อการจอง*',
+  controller: nameController,
+  maxLength: 100,
+),
+
                     const SizedBox(height: 16),
                     _buildTextField(
                        label: 'จำนวน (${widget.vihicleData['unit_price']}) *',
                       controller: areaAmountController,
+                      maxLength: 11,
                       inputType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -1368,7 +1406,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                       const SizedBox(height: 16),
                       _buildTextField(
                           label: 'ระบุหน่วยเอง*',
-                          controller: customUnitController),
+                          controller: customUnitController, maxLength: 20),
                     ],
                     const SizedBox(height: 20),
                     Text("เลือกวันและเวลาทำงาน*", style: _sectionTitleStyle),
@@ -1430,27 +1468,34 @@ class _ReservingForNFState extends State<ReservingForNF> {
                     ),
                     const SizedBox(height: 24),
                     DropdownButtonFormField<dynamic>(
-                      value: selectedFarm,
-                      decoration: InputDecoration(
-                        labelText: 'เลือกที่นา*',
-                        border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                        errorText: farmError, // แสดง error ใต้ dropdown
-                      ),
-                      items: farmList.map<DropdownMenuItem<dynamic>>((farm) {
-                        return DropdownMenuItem<dynamic>(
-                          value: farm,
-                          child: Text(farm['name_farm'] ?? "-"),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedFarm = value;
-                          farmError = null; // เคลียร์ error เมื่อเลือกแล้ว
-                        });
-                      },
-                    ),
+  value: selectedFarm,
+  decoration: InputDecoration(
+    labelText: 'เลือกที่นา*',
+    border: const OutlineInputBorder(),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    errorText: farmError, // แสดง error ใต้ dropdown
+  ),
+  isExpanded: true, // ทำให้ dropdown กว้างเต็มพื้นที่
+  items: farmList.map<DropdownMenuItem<dynamic>>((farm) {
+    return DropdownMenuItem<dynamic>(
+      value: farm,
+      child: Text(farm['name_farm'] ?? "-"),
+    );
+  }).toList(),
+  onChanged: (value) {
+    setState(() {
+      selectedFarm = value;
+      farmError = null; // เคลียร์ error เมื่อเลือกแล้ว
+    });
+  },
+  validator: (value) {
+    if (value == null) {
+      return 'กรุณาเลือกที่นา'; // แสดงข้อความ error
+    }
+    return null;
+  },
+),
+
 
                     if (selectedFarm != null) ...[
                       Center(
@@ -1562,6 +1607,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                     _buildTextField(
                       label: 'รายละเอียดงาน',
                       controller: detailController,
+                      maxLength: 500,
                       maxLines: 2,
                       isOptional: true,
                     ),

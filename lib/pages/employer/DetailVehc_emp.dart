@@ -362,17 +362,22 @@ class _DetailvehcEmpState extends State<DetailvehcEmp> {
                               const Icon(Icons.image_not_supported, size: 48),
                         ),
                       // --- รายละเอียดรถ ---
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
 Row(
   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  crossAxisAlignment: CrossAxisAlignment.start, // ชิดบน
   children: [
-    Text(
-      'ชื่อรถ: ${vehicleData?['name_vehicle'] ?? '-'}',
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
+    // ชื่อรถ
+    Expanded(
+      child: Text(
+        'ชื่อรถ: ${vehicleData?['name_vehicle'] ?? '-'}',
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     ),
+    // ปุ่มตารางงานรถ
     ElevatedButton(
       onPressed: () {
         if (vehicleData != null && _currentMid != 0) {
@@ -404,7 +409,8 @@ Row(
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8)),
+          borderRadius: BorderRadius.circular(8),
+        ),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
         minimumSize: const Size(70, 36),
@@ -413,6 +419,8 @@ Row(
     ),
   ],
 ),
+
+
                       Text(
                           'ราคา: ${vehicleData?['price'] ?? '-'} บาท/${vehicleData?['unit_price'] ?? '-'}',
                           style: const TextStyle(

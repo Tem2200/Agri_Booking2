@@ -197,10 +197,10 @@ class _EditMemberPageState extends State<EditMemberPage> {
       "district": selectedAmphoe,
       "subdistrict": selectedDistrict,
       "detail_address":
-          addressController.text.isNotEmpty ? addressController.text : "-",
+          addressController.text.isNotEmpty ? addressController.text : "",
       "latitude": _selectedLat,
       "longitude": _selectedLng,
-      "other": otherController.text.isNotEmpty ? otherController.text : "-",
+      "other": otherController.text.isNotEmpty ? otherController.text : "",
       "type_member": widget.memberData['type_member'],
     };
 
@@ -452,6 +452,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
               buildInput(
                 addressController,
                 'รายละเอียดที่อยู่',
+                
                 validator: (value) {
                   // if (value == null || value.isEmpty) {
                   //   return 'กรุณากรอกรายละเอียดที่อยู่';
@@ -465,9 +466,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
                 'ข้อมูลติดต่อเพิ่มเติม (ถ้ามี)',
                 readOnly: false,
                 validator: (value) {
-                  if (value != null && value.isNotEmpty && value.length > 255) {
-                    return 'ข้อมูลเพิ่มเติมต้องไม่เกิน 255 ตัวอักษร';
-                  }
                   return null;
                 },
               ),
@@ -541,64 +539,70 @@ class _EditMemberPageState extends State<EditMemberPage> {
       ),
     );
   }
-
   Widget buildInput(
-    TextEditingController controller,
-    String label, {
-    bool readOnly = false,
-    String? Function(String?)? validator,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ชื่อช่องอยู่บนสุด
-          Text(
-            label,
-            style: GoogleFonts.mitr(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: const Color.fromARGB(255, 0, 0, 0),
-            ),
+  TextEditingController controller,
+  String label, {
+  bool readOnly = false,
+  String? Function(String?)? validator,
+}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ชื่อช่องอยู่บนสุด
+        Text(
+          label,
+          style: GoogleFonts.mitr(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: const Color.fromARGB(255, 0, 0, 0),
           ),
-          const SizedBox(height: 6),
-          TextFormField(
-            controller: controller,
-            readOnly: readOnly,
-            style: GoogleFonts.mitr(
-              fontSize: 16,
-              color: Colors.black,
-            ),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: const Color(0xFFE0E0E0),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.black),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.black),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(
-                  color: Color.fromARGB(255, 255, 170, 0),
-                  width: 2,
-                ),
-              ),
-              contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
-              // ไม่ใส่ labelText หรือ floatingLabelBehavior ใด ๆ
-            ),
-            validator: validator,
-            maxLines: label == 'รายละเอียดที่อยู่' ? 1 : 1,
-            maxLength: label == 'รายละเอียดที่อยู่' ? 255 : null,
+        ),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          readOnly: readOnly,
+          style: GoogleFonts.mitr(
+            fontSize: 16,
+            color: Colors.black,
           ),
-        ],
-      ),
-    );
-  }
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: const Color(0xFFE0E0E0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.black),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.black),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(
+                color: Color.fromARGB(255, 255, 170, 0),
+                width: 2,
+              ),
+            ),
+            contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+          ),
+          validator: validator,
+          maxLines: 1,
+          maxLength: label == 'รายละเอียดที่อยู่' ? 500 : (label == 'ข้อมูลติดต่อเพิ่มเติม (ถ้ามี)' ? 500 : null),
+          buildCounter: label == 'รายละเอียดที่อยู่' || label == 'ข้อมูลติดต่อเพิ่มเติม (ถ้ามี)'
+              ? (BuildContext context,
+                      {required int currentLength,
+                      required bool isFocused,
+                      required int? maxLength}) =>
+                  null // ปิดตัวนับ
+              : null,
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget buildDropdownInput({
     required String label,

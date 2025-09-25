@@ -232,180 +232,185 @@ class _ProfileConState extends State<ProfileCon> {
         ),
         body: Column(
           children: [
-            // 🔹 FutureBuilder: แสดงข้อมูลผู้รับจ้าง
-            FutureBuilder<Map<String, dynamic>>(
-              future: _memberDataFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Padding(
-                    padding: EdgeInsets.all(12),
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (snapshot.hasError) {
-                  return Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'),
-                  );
-                } else if (!snapshot.hasData || snapshot.data == null) {
-                  return const Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Text('ไม่พบข้อมูลสมาชิก'),
-                  );
-                }
+FutureBuilder<Map<String, dynamic>>(
+  future: _memberDataFuture,
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Padding(
+        padding: EdgeInsets.all(12),
+        child: CircularProgressIndicator(),
+      );
+    } else if (snapshot.hasError) {
+      return Padding(
+        padding: const EdgeInsets.all(12),
+        child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'),
+      );
+    } else if (!snapshot.hasData || snapshot.data == null) {
+      return const Padding(
+        padding: EdgeInsets.all(12),
+        child: Text('ไม่พบข้อมูลสมาชิก'),
+      );
+    }
 
-                final member = snapshot.data!;
-                return Container(
-                  margin: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 255, 255,
-                        255), // สีพื้นอ่อนๆ เพื่อให้เห็นความนูนชัดเจน
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      // เงาสว่างด้านบนซ้าย
-                      BoxShadow(
-                        color: Color.fromARGB(209, 67, 66, 66),
-                        offset: Offset(-4, -4),
-                        blurRadius: 8,
-                        spreadRadius: 1,
+    final member = snapshot.data!;
+
+    return Container(
+      margin: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromARGB(209, 67, 66, 66),
+            offset: Offset(-4, -4),
+            blurRadius: 8,
+            spreadRadius: 1,
+          ),
+          BoxShadow(
+            color: Color.fromARGB(209, 67, 66, 66),
+            offset: Offset(4, 4),
+            blurRadius: 8,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.all(12),
+          title: Row(
+            children: [
+              ClipOval(
+                child: Image.network(
+                  member['image'] ?? '',
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.person, size: 48),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  member['username'] ?? '-',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PlanPage(
+                        mid: member['mid'],
+                        month: DateTime.now().month,
+                        year: DateTime.now().year,
                       ),
-                      // เงามืดด้านล่างขวา
-                      BoxShadow(
-                        color: Color.fromARGB(209, 67, 66, 66),
-                        offset: Offset(4, 4),
-                        blurRadius: 8,
-                        spreadRadius: 1,
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green.shade600,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                label: const Text(
+                  "ตารางงาน",
+                  style: TextStyle(fontSize: 14, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          children: [
+            // เพิ่ม SingleChildScrollView และกำหนด maxHeight ให้เลื่อนได้
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.5,
+              ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.phone,
+                              size: 20, color: Colors.blue),
+                          const SizedBox(width: 6),
+                          Text(member['phone'] ?? '-'),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.email,
+                              size: 20, color: Colors.redAccent),
+                          const SizedBox(width: 6),
+                          Expanded(
+                              child: Text(member['email'] ?? '-',
+                                  softWrap: true)),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.chat,
+                              size: 20, color: Colors.deepOrange),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              (member['other'] != null &&
+                                      member['other']
+                                          .toString()
+                                          .trim()
+                                          .isNotEmpty)
+                                  ? member['other']
+                                  : '-',
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.location_on,
+                              size: 20, color: Colors.orange),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'ที่อยู่: ${member['detail_address'] ?? '-'} ต.${member['subdistrict'] ?? '-'} อ.${member['district'] ?? '-'} จ.${member['province'] ?? '-'}',
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: ExpansionTile(
-                      tilePadding: const EdgeInsets.all(12),
-                      title: Row(
-  children: [
-    ClipOval(
-      child: Image.network(
-        member['image'] ?? '',
-        width: 60,
-        height: 60,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) =>
-            const Icon(Icons.person, size: 48),
-      ),
-    ),
-    const SizedBox(width: 12),
-    Expanded(
-      child: Text(
-        member['username'] ?? '-',
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-        overflow: TextOverflow.ellipsis,
-      ),
-    ),
-    const SizedBox(width: 8),
-    ElevatedButton.icon(
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PlanPage(
-          mid: member['mid'],
-          month: DateTime.now().month,
-          year: DateTime.now().year,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.green.shade600,
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8),
-    ),
-  ),
-  label: const Text(
-    "ตารางงาน",
-    style: TextStyle(fontSize: 14, color: Colors.white),
-  ),
 )
 
-  ],
-),
-
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.phone,
-                                      size: 20, color: Colors.blue),
-                                  const SizedBox(width: 6),
-                                  Text(member['phone'] ?? '-'),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(Icons.email,
-                                      size: 20, color: Colors.redAccent),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(member['email'] ?? '-',
-                                        softWrap: true),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(Icons.chat,
-                                      size: 20, color: Colors.deepOrange),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      (member['other'] != null &&
-                                              member['other']
-                                                  .toString()
-                                                  .trim()
-                                                  .isNotEmpty)
-                                          ? member['other']
-                                          : '-',
-                                      softWrap: true,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(Icons.location_on,
-                                      size: 20, color: Colors.orange),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      'ที่อยู่: ${member['detail_address'] ?? '-'} ต.${member['subdistrict'] ?? '-'} อ.${member['district'] ?? '-'} จ.${member['province'] ?? '-'}',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+,
 
             Expanded(
               child: Column(
@@ -575,118 +580,120 @@ class _ProfileConState extends State<ProfileCon> {
 
                     const SizedBox(width: 12),
 
-                    // ✅ ข้อมูลทางขวา
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min, // ขนาดพอดีกับเนื้อหา
-                        children: [
-                          Text(
-                            vehicle['name_vehicle'] ?? 'ไม่มีชื่อรถ',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
+Expanded(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      // 🔹 ชื่อรถ
+      Text(
+        vehicle['name_vehicle'] ?? 'ไม่มีชื่อรถ',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis, // ถ้ายาวเกิน 1 บรรทัดตัดด้วย ...
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      const SizedBox(height: 4),
 
-                          // 🔹 รายละเอียดพร้อมไอคอน
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(Icons.description,
-                                  size: 18, color: Colors.orange),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(
-                                  '${vehicle['detail']}',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+      // 🔹 รายละเอียดรถ พร้อมไอคอน
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.description, size: 18, color: Colors.orange),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              vehicle['detail'] ?? '-',
+              maxLines: 2, // สูงสุด 2 บรรทัด
+              overflow: TextOverflow.ellipsis, // ตัดด้วย ...
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 4),
 
-                          const SizedBox(height: 4),
+      // 🔹 ราคา ขึ้นบรรทัดใหม่
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.attach_money, size: 18, color: Colors.green),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              '${vehicle['price']} บาท / ${vehicle['unit_price']}',
+              style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
 
-                          // 🔹 ราคา พร้อมไอคอน
-                          Row(
-                            children: [
-                              const Icon(Icons.attach_money,
-                                  size: 18, color: Colors.green),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${vehicle['price']} บาท / ${vehicle['unit_price']}',
-                                style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          // ✅ ปุ่ม + สวิตช์ + สถานะด้านล่าง
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // 🔹 ปุ่มรายละเอียดเพิ่มเติมแบบนูน
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.white,
-                                      offset: Offset(-2, -2),
-                                      blurRadius: 4,
-                                      spreadRadius: 1,
-                                    ),
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      offset: Offset(2, 2),
-                                      blurRadius: 4,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    elevation:
-                                        0, // ปิดเงา ElevatedButton เพื่อใช้เงาจาก Container แทน
-                                    backgroundColor: const Color(0xFFF8A100),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5, vertical: 5),
+      const SizedBox(height: 4),
 
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => DetailvehcEmp(
-                                          vid: vehicle['vid'] ?? 0,
-                                          mid: widget.mid_emp,
-                                          fid: widget.farm?['fid'] ?? 0,
-                                          farm: widget.farm,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: const Text('รายละเอียดเพิ่มเติม'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+      // 🔹 ปุ่ม + สวิตช์ + สถานะด้านล่าง
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // ปุ่มรายละเอียดเพิ่มเติม
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.white,
+                  offset: Offset(-2, -2),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+                BoxShadow(
+                  color: Colors.black26,
+                  offset: Offset(2, 2),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: const Color(0xFFF8A100),
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailvehcEmp(
+                      vid: vehicle['vid'] ?? 0,
+                      mid: widget.mid_emp,
+                      fid: widget.farm?['fid'] ?? 0,
+                      farm: widget.farm,
                     ),
+                  ),
+                );
+              },
+              child: const Text('รายละเอียดเพิ่มเติม'),
+            ),
+          ),
+        ],
+      ),
+    ],
+  ),
+),
+
                   ],
                 ),
               ),

@@ -603,22 +603,24 @@ class _DetailReservingState extends State<DetailReserving> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   // ชื่องาน + สถานะรถ (แสดงในแถวเดียว)
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      // ชื่องาน
-                                      Text(
-                                        data!['name_rs'] ?? 'ไม่ระบุชื่อการจอง',
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                    ],
-                                  ),
+Row(
+  crossAxisAlignment: CrossAxisAlignment.center,
+  children: [
+    // ชื่องาน
+    Expanded(
+      child: Text(
+        data!['name_rs'] ?? 'ไม่ระบุชื่อการจอง',
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+        softWrap: true, // ขึ้นบรรทัดใหม่
+      ),
+    ),
+    const SizedBox(width: 10),
+  ],
+),
+
 
                                   const SizedBox(height: 10),
 
@@ -675,60 +677,69 @@ class _DetailReservingState extends State<DetailReserving> {
                             ),
 
                             const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                // รูปผู้จ้างหรือไอคอน
-                                data!['contractor_image'] != null &&
-                                        data!['contractor_image'] != ''
-                                    ? CircleAvatar(
-                                        radius: 25,
-                                        backgroundImage: NetworkImage(
-                                            data!['contractor_image']),
-                                        backgroundColor: const Color.fromARGB(
-                                            255, 238, 238, 238),
-                                      )
-                                    : const CircleAvatar(
-                                        radius: 25,
-                                        backgroundColor: Colors.amber,
-                                        child: Icon(
-                                          Icons.person,
-                                          size: 30,
-                                          color: Colors.white,
-                                        ),
-                                      ),
+                           Row(
+  children: [
+    // รูปผู้จ้างหรือไอคอน
+    data!['contractor_image'] != null && data!['contractor_image'] != ''
+        ? CircleAvatar(
+            radius: 25,
+            backgroundImage: NetworkImage(data!['contractor_image']),
+            backgroundColor: const Color.fromARGB(255, 238, 238, 238),
+          )
+        : const CircleAvatar(
+            radius: 25,
+            backgroundColor: Colors.amber,
+            child: Icon(
+              Icons.person,
+              size: 30,
+              color: Colors.white,
+            ),
+          ),
 
-                                const SizedBox(width: 8),
+    const SizedBox(width: 8),
 
-                                // ชื่อผู้จ้าง
-                                Text(
-                                  data!['contractor_username'] ?? '-',
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                const Spacer(),
+    // ชื่อผู้จ้าง (Flexible ให้ขึ้นบรรทัดใหม่)
+    Flexible(
+      child: Text(
+        data!['contractor_username'] ?? '-',
+        style: const TextStyle(fontSize: 16),
+        softWrap: true, // ขึ้นบรรทัดใหม่ถ้ายาว
+      ),
+    ),
 
-                                // ปุ่มข้อมูลผู้จ้าง
-                                ElevatedButton(
-                                  child: const Text('ดูข้อมูลผู้รับจ้าง'),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ProfileCon(
-                                          mid_con: data!['contractor_mid'] ?? 0,
-                                          mid_emp: data!['mid'] ?? 0,
-                                          farm: data!['farm'] ?? {},
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color.fromARGB(255, 22, 132, 8),
-                                    foregroundColor: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
+    const SizedBox(width: 8), // ช่องว่างระหว่างชื่อกับปุ่ม
+
+    // ปุ่มข้อมูลผู้จ้าง
+    ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 150), // กำหนด max width
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfileCon(
+                mid_con: data!['contractor_mid'] ?? 0,
+                mid_emp: data!['mid'] ?? 0,
+                farm: data!['farm'] ?? {},
+              ),
+            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 22, 132, 8),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          textStyle: const TextStyle(fontSize: 14),
+        ),
+        child: const Text(
+          'ดูข้อมูลผู้รับจ้าง',
+          overflow: TextOverflow.ellipsis, // ตัดข้อความถ้ายาวเกิน
+        ),
+      ),
+    ),
+  ],
+),
+
 
                             //วันที่และเวลาจ้างงาน
                             const SizedBox(height: 16),

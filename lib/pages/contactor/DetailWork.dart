@@ -628,23 +628,21 @@ class _DetailWorkPageState extends State<DetailWorkPage> {
                                         CrossAxisAlignment.center,
                                     children: [
                                       // ✅ ชื่องาน (แสดง 1 บรรทัด + ...)
-                                      Expanded(
-                                        child: Text(
-                                          data!['name_rs'] ??
-                                              'ไม่ระบุชื่อการจอง',
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          textAlign: TextAlign
-                                              .center, // ✅ ข้อความอยู่กลางในตัวมันเอง
-                                          style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w700,
-                                            color: Color(
-                                                0xFF006400), // เขียวเข้ม ดูสุขุม
-                                            letterSpacing: 0.5,
-                                          ),
-                                        ),
-                                      ),
+Expanded(
+  child: Text(
+    data!['name_rs'] ?? 'ไม่ระบุชื่อการจอง',
+    textAlign: TextAlign.center, // ✅ ข้อความจัดกลาง
+    style: const TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.w700,
+      color: Color(0xFF006400), // เขียวเข้ม ดูสุขุม
+      letterSpacing: 0.5,
+    ),
+    softWrap: true,        // ✅ อนุญาตให้ตัดบรรทัด
+    overflow: TextOverflow.visible, // ✅ ไม่ตัดข้อความ
+  ),
+),
+
                                       const SizedBox(width: 10),
                                     ],
                                   ),
