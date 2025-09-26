@@ -262,66 +262,78 @@ class _AddVehicleState extends State<AddVehicle> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Center(
-                          child: Column(
-                            children: [
-                              Stack(
-                                children: [
-                                  Container(
-                                    width: 100, // 2 x radius
-                                    height: 100,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Color.fromARGB(255, 245, 255, 243),
-                                          Color.fromARGB(255, 80, 211, 54),
-                                          Color.fromARGB(255, 38, 103, 8),
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                    ),
-                                    child: CircleAvatar(
-                                      radius: 50,
-                                      backgroundColor: Colors
-                                          .transparent, // โปร่งใสเพื่อให้เห็น gradient ด้านหลัง
-                                      backgroundImage: imageUrl != null &&
-                                              imageUrl!.isNotEmpty
-                                          ? NetworkImage(imageUrl!)
-                                          : null,
-                                      child: (imageUrl == null ||
-                                              imageUrl!.isEmpty)
-                                          ? const Icon(
-                                              Icons.directions_car,
-                                              size: 60,
-                                              color: Color.fromARGB(
-                                                  255, 255, 255, 255),
-                                            )
-                                          : null,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: CircleAvatar(
-                                      backgroundColor: Colors.green[700],
-                                      radius: 18,
-                                      child: IconButton(
-                                        icon: const Icon(Icons.edit,
-                                            color: Colors.white, size: 20),
-                                        onPressed: isLoading
-                                            ? null
-                                            : pickAndUploadImage,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text('เพิ่มรูปรถ', style: labelStyle),
-                            ],
-                          ),
-                        ),
+  child: Column(
+    children: [
+      Stack(
+        children: [
+          Container(
+            width: 100,
+            height: 100,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromARGB(255, 245, 255, 243),
+                  Color.fromARGB(255, 80, 211, 54),
+                  Color.fromARGB(255, 38, 103, 8),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.transparent,
+              backgroundImage: imageUrl != null && imageUrl!.isNotEmpty
+                  ? NetworkImage(imageUrl!)
+                  : null,
+              child: (imageUrl == null || imageUrl!.isEmpty)
+                  ? const Icon(
+                      Icons.directions_car,
+                      size: 60,
+                      color: Colors.white,
+                    )
+                  : null,
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: CircleAvatar(
+              backgroundColor: Colors.green[700],
+              radius: 18,
+              child: IconButton(
+                icon: Icon(
+                  imageUrl != null && imageUrl!.isNotEmpty
+                      ? Icons.close // 👉 มีรูป → แสดงกากบาท
+                      : Icons.edit, // 👉 ไม่มีรูป → แสดงดินสอ
+                  color: Colors.white,
+                  size: 20,
+                ),
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        if (imageUrl != null && imageUrl!.isNotEmpty) {
+                          // 👉 ลบรูป
+                          setState(() {
+                            imageUrl = null;
+                          });
+                        } else {
+                          // 👉 อัปโหลดรูป
+                          pickAndUploadImage();
+                        }
+                      },
+              ),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      Text('เพิ่มรูปรถ', style: labelStyle),
+    ],
+  ),
+),
+
 
                         const SizedBox(height: 24),
 
@@ -584,11 +596,11 @@ TextFormField(
                           ],
                         ),
 
-                        if (isLoading)
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Center(child: CircularProgressIndicator()),
-                          ),
+                        // if (isLoading)
+                        //   const Padding(
+                        //     padding: EdgeInsets.all(8.0),
+                        //     child: Center(child: CircularProgressIndicator()),
+                        //   ),
                         const SizedBox(width: 50),
                       ],
                     ),

@@ -288,30 +288,47 @@ class _EditMemberPageState extends State<EditMemberPage> {
           key: _formKey,
           child: Column(
             children: [
-              Center(
-                child: Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage:
-                          _imageUrl != null && _imageUrl!.isNotEmpty
-                              ? NetworkImage(_imageUrl!)
-                              : const AssetImage('assets/profile.png')
-                                  as ImageProvider,
-                    ),
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundColor: Colors.white,
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        icon: const Icon(Icons.edit, size: 16),
-                        onPressed: _pickAndUploadImage,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+Center(
+  child: Stack(
+    alignment: Alignment.bottomRight,
+    children: [
+      CircleAvatar(
+        radius: 50,
+        backgroundImage: _imageUrl != null && _imageUrl!.isNotEmpty
+            ? NetworkImage(_imageUrl!)
+            : const AssetImage('assets/profile.png') as ImageProvider,
+      ),
+      CircleAvatar(
+        radius: 16,
+        backgroundColor: Colors.white,
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          icon: Icon(
+            _imageUrl != null && _imageUrl!.isNotEmpty
+                ? Icons.close // ถ้ามีรูป → แสดงกากบาท
+                : Icons.edit, // ถ้าไม่มีรูป → แสดงดินสอ
+            size: 16,
+            color: _imageUrl != null && _imageUrl!.isNotEmpty
+                ? Colors.red
+                : Colors.green,
+          ),
+          onPressed: () {
+            setState(() {
+              if (_imageUrl != null && _imageUrl!.isNotEmpty) {
+                // 👉 ถ้ามีรูปแล้วกด = ลบรูป
+                _imageUrl = null;
+              } else {
+                // 👉 ถ้ายังไม่มีรูป = อัปโหลดรูปใหม่
+                _pickAndUploadImage();
+              }
+            });
+          },
+        ),
+      ),
+    ],
+  ),
+),
+
               const SizedBox(height: 10),
 
               // Input fields
@@ -705,8 +722,10 @@ class _EditMemberPageState extends State<EditMemberPage> {
               fillColor: const Color(0xFFE0E0E0),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
+                
                 borderSide: const BorderSide(color: Colors.black),
               ),
+              counterText: '',
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(color: Colors.black),

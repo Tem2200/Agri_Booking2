@@ -1603,7 +1603,7 @@ class _ReservingForNFState extends State<ReservingForNF> {
                       ),
                       const Divider(height: 32, thickness: 1),
                     ],
-                    //const SizedBox(height: 16),
+                    const SizedBox(height: 10),
                     _buildTextField(
                       label: 'รายละเอียดงาน',
                       controller: detailController,

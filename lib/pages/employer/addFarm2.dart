@@ -49,7 +49,7 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
 
   final focusedBorder = OutlineInputBorder(
     borderRadius: BorderRadius.circular(12),
-    borderSide: const BorderSide(color: Colors.blue, width: 2),
+    borderSide: const BorderSide(color: Colors.grey, width: 2),
   );
 
   final errorBorder = OutlineInputBorder(
@@ -210,25 +210,85 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
               ),
               const SizedBox(height: 20),
-              TextFormField(
+                            TextFormField(
                 controller: nameFarmCtrl,
-                decoration: inputDecoration.copyWith(labelText: 'ชื่อไร่นา*'),
+                decoration: InputDecoration(
+                  labelText: 'ชื่อไร่นา *',
+                  hintText: 'เช่น ไร่นาสวนผักยายนาดี',
+                  filled: true,
+                  fillColor: const Color.fromARGB(248, 255, 249, 221)
+                      .withOpacity(0.15),
+                  labelStyle: const TextStyle(
+                      color: Color.fromARGB(255, 7, 7, 7),
+                      fontWeight: FontWeight.w600),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  border: inputBorder,
+                  enabledBorder: enabledBorder,
+                  focusedBorder: focusedBorder,
+                  errorBorder: errorBorder,
+                  focusedErrorBorder: errorBorder,
+                ),
                 validator: (val) =>
                     val == null || val.isEmpty ? 'กรุณากรอกชื่อไร่นา*' : null,
+                maxLength: 100, // กำหนดสูงสุด 100 ตัวอักษร
+                buildCounter: (context,
+                        {required currentLength,
+                        required maxLength,
+                        required isFocused}) =>
+                    null, // ซ่อนตัวนับ
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: villageCtrl,
-                decoration: inputDecoration.copyWith(labelText: 'หมู่บ้าน*'),
+                decoration: InputDecoration(
+                  labelText: 'หมู่บ้าน *',
+                  filled: true,
+                  fillColor: const Color.fromARGB(248, 255, 249, 221)
+                      .withOpacity(0.15),
+                  labelStyle: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.w600),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  border: inputBorder,
+                  enabledBorder: enabledBorder,
+                  focusedBorder: focusedBorder,
+                  errorBorder: errorBorder,
+                  focusedErrorBorder: errorBorder,
+                ),
                 validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกหมู่บ้าน*' : null,
+      val == null || val.isEmpty ? 'กรุณากรอกหมู่บ้าน*' : null,
+  maxLength: 50,
+  buildCounter: (
+    BuildContext context, {
+    required int currentLength,
+    required int? maxLength,
+    required bool isFocused,
+  }) => null,
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: selectedProvince,
-                decoration: inputDecoration.copyWith(labelText: 'จังหวัด*'),
+                decoration: InputDecoration(
+                  labelText: 'จังหวัด *',
+                  filled: true,
+                  fillColor: const Color.fromARGB(248, 255, 249, 221)
+                      .withOpacity(0.15),
+                  labelStyle: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.w600),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  border: inputBorder,
+                  enabledBorder: enabledBorder,
+                  focusedBorder: focusedBorder,
+                  errorBorder: errorBorder,
+                  focusedErrorBorder: errorBorder,
+                ),
                 items: provinces
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .map((e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(e),
+                        ))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -251,9 +311,26 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: selectedAmphoe,
-                decoration: inputDecoration.copyWith(labelText: 'อำเภอ*'),
+                decoration: InputDecoration(
+                  labelText: 'อำเภอ *',
+                  filled: true,
+                  fillColor: const Color.fromARGB(248, 255, 249, 221)
+                      .withOpacity(0.15),
+                  labelStyle: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.w600),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  border: inputBorder,
+                  enabledBorder: enabledBorder,
+                  focusedBorder: focusedBorder,
+                  errorBorder: errorBorder,
+                  focusedErrorBorder: errorBorder,
+                ),
                 items: amphoes
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .map((e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(e),
+                        ))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -275,64 +352,8 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: selectedDistrict,
-                decoration: inputDecoration.copyWith(labelText: 'ตำบล*'),
-                items: districts
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedDistrict = value;
-                  });
-                },
-                validator: (v) => v == null ? 'กรุณาเลือกตำบล*' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: areaAmountCtrl,
-                decoration: inputDecoration.copyWith(labelText: 'ขนาดพื้นที่*'),
-                keyboardType: TextInputType.number,
-                validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกขนาดพื้นที่*' : null,
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                value: selectedUnit,
-                decoration:
-                    inputDecoration.copyWith(labelText: 'หน่วยพื้นที่*'),
-                items: unitOptions
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedUnit = value;
-                  });
-                },
-                validator: (val) =>
-                    val == null ? 'กรุณาเลือกหน่วยพื้นที่*' : null,
-              ),
-              if (selectedUnit == 'อื่นๆ')
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: TextFormField(
-                    controller: customUnitCtrl,
-                    decoration: inputDecoration.copyWith(
-                        labelText: 'ระบุหน่วยพื้นที่เอง*'),
-                    validator: (val) => val == null || val.isEmpty
-                        ? 'กรุณาระบุหน่วยพื้นที่*'
-                        : null,
-                  ),
-                ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: detailCtrl,
-                maxLength: 500,
-                maxLines: null,
-                // เพิ่มบรรทัดนี้: อัปเดต UI ทุกครั้งที่มีการเปลี่ยนแปลงข้อความ
-                onChanged: (text) {
-                  setState(() {});
-                },
                 decoration: InputDecoration(
-                  labelText: 'รายละเอียดที่อยู่ (ไม่บังคับ)',
+                  labelText: 'ตำบล *',
                   filled: true,
                   fillColor: const Color.fromARGB(248, 255, 249, 221)
                       .withOpacity(0.15),
@@ -345,11 +366,130 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                   focusedBorder: focusedBorder,
                   errorBorder: errorBorder,
                   focusedErrorBorder: errorBorder,
-                  // counterText ที่ถูกต้อง
-                  counterText: '${detailCtrl.text.length}/500',
                 ),
+                items: districts
+                    .map((e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(e),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedDistrict = value;
+                  });
+                },
+                validator: (v) => v == null ? 'กรุณาเลือกตำบล*' : null,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: areaAmountCtrl,
+                decoration: InputDecoration(
+                  labelText: 'ขนาดพื้นที่ *',
+                  filled: true,
+                  fillColor: const Color.fromARGB(248, 255, 249, 221)
+                      .withOpacity(0.15),
+                  labelStyle: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.w600),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  border: inputBorder,
+                  enabledBorder: enabledBorder,
+                  focusedBorder: focusedBorder,
+                  errorBorder: errorBorder,
+                  focusedErrorBorder: errorBorder,
+                ),
+                keyboardType: TextInputType.number,
+                  validator: (val) =>
+      val == null || val.isEmpty ? 'กรุณากรอกขนาดพื้นที่*' : null,
+  maxLength: 10,
+  buildCounter: (
+    BuildContext context, {
+    required int currentLength,
+    required int? maxLength,
+    required bool isFocused,
+  }) =>
+      null,
+              ),
+              const SizedBox(height: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: selectedUnit,
+                    decoration: InputDecoration(
+                      labelText: 'หน่วยพื้นที่ *',
+                      filled: true,
+                      fillColor: const Color.fromARGB(248, 255, 249, 221)
+                          .withOpacity(0.15),
+                      labelStyle: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.w600),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      border: inputBorder,
+                      enabledBorder: enabledBorder,
+                      focusedBorder: focusedBorder,
+                      errorBorder: errorBorder,
+                      focusedErrorBorder: errorBorder,
+                    ),
+                    items: unitOptions
+                        .map((unit) => DropdownMenuItem(
+                              value: unit,
+                              child: Text(unit),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedUnit = value;
+                      });
+                    },
+                    validator: (v) =>
+                        v == null ? 'กรุณาเลือกหน่วยพื้นที่*' : null,
+                  ),
+
+                  // ✅ ถ้าเลือก "อื่นๆ" ให้แสดงช่องกรอก
+                  if (selectedUnit == 'อื่นๆ')
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: TextFormField(
+                        controller: customUnitCtrl,
+                        decoration: InputDecoration(
+                          labelText: 'กรุณาระบุหน่วยอื่นๆ *',
+                          filled: true,
+                          fillColor: const Color.fromARGB(248, 255, 249, 221)
+                              .withOpacity(0.15),
+                          labelStyle: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                          border: inputBorder,
+                          enabledBorder: enabledBorder,
+                          focusedBorder: focusedBorder,
+                          errorBorder: errorBorder,
+                          focusedErrorBorder: errorBorder,
+                        ),
+                         validator: (v) {
+        if (selectedUnit == 'อื่นๆ' && (v == null || v.isEmpty)) {
+          return 'กรุณาระบุหน่วยอื่นๆ';
+        }
+        return null;
+      },
+      maxLength: 20,
+      buildCounter: (
+        BuildContext context, {
+        required int currentLength,
+        required int? maxLength,
+        required bool isFocused,
+      }) =>
+          null, // ซ่อนตัวนับตัวอักษร
+                      ),
+                    ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+              // ปุ่มเลือกตำแหน่งบนแผนที่ พร้อมไอคอน และ gradient UI
               ElevatedButton(
                 onPressed: _pickLocation,
                 style: ElevatedButton.styleFrom(
@@ -396,18 +536,56 @@ class _AddFarmPage2State extends State<AddFarmPage2> {
                   ),
                 ),
               ),
+
               // แสดงข้อความตำแหน่งที่เลือก (ถ้ามี)
-              if (markerMessage.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    markerMessage,
-                    style: const TextStyle(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+if (markerMessage.isNotEmpty)
+  Padding(
+    padding: const EdgeInsets.only(top: 8),
+    child: Center(
+      child: Text(
+        markerMessage,
+        style: const TextStyle(
+          color: Colors.green,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  ),
+
+
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: detailCtrl,
+                maxLength: 500,
+                maxLines: null,
+                // เพิ่มบรรทัดนี้: อัปเดต UI ทุกครั้งที่มีการเปลี่ยนแปลงข้อความ
+                onChanged: (text) {
+                  setState(() {});
+                },
+                decoration: InputDecoration(
+                  labelText: 'รายละเอียดที่อยู่ (ไม่บังคับ)',
+                  filled: true,
+                  fillColor: const Color.fromARGB(248, 255, 249, 221)
+                      .withOpacity(0.15),
+                  labelStyle: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.w600),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  border: inputBorder,
+                  enabledBorder: enabledBorder,
+                  focusedBorder: focusedBorder,
+                  errorBorder: errorBorder,
+                  focusedErrorBorder: errorBorder,
+                  // counterText ที่ถูกต้อง
+                  // counterText: '${detailCtrl.text.length}/500',
+                ),  buildCounter: (
+    BuildContext context, {
+    required int currentLength,
+    required int? maxLength,
+    required bool isFocused,
+  }) =>
+      null, 
+              ),
               const SizedBox(height: 24),
               Center(
                 child: SizedBox(

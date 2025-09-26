@@ -480,41 +480,58 @@ class _RegisterState extends State<Register> {
               key: _formKey,
               child: Column(
                 children: [
-                  Center(
-                    child: Stack(
-                      children: [
-                        ClipOval(
-                          child: imageUrl != null
-                              ? Image.network(
-                                  imageUrl!,
-                                  height: 100,
-                                  width: 100,
-                                  fit: BoxFit.cover,
-                                )
-                              : const Icon(
-                                  Icons.person_outline,
-                                  size: 100,
-                                  color: Colors.white,
-                                ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: IconButton(
-                              icon: const Icon(Icons.edit,
-                                  color: Color.fromARGB(255, 5, 122, 40)),
-                              onPressed: uploadImageFromImageBB,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+Center(
+  child: Stack(
+    children: [
+      ClipOval(
+        child: imageUrl != null
+            ? Image.network(
+                imageUrl!,
+                height: 100,
+                width: 100,
+                fit: BoxFit.cover,
+              )
+            : const Icon(
+                Icons.person_outline,
+                size: 100,
+                color: Colors.white,
+              ),
+      ),
+      // ปุ่ม edit / delete
+      Positioned(
+        bottom: 0,
+        right: 0,
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: Icon(
+              imageUrl == null ? Icons.edit : Icons.close, // เปลี่ยนไอคอนตามเงื่อนไข
+              color: imageUrl == null
+                  ? const Color.fromARGB(255, 5, 122, 40) // ดินสอ → เขียว
+                  : Colors.red, // กากบาท → แดง
+            ),
+            onPressed: () {
+              if (imageUrl == null) {
+                // ยังไม่มีรูป → อัปโหลด
+                uploadImageFromImageBB();
+              } else {
+                // มีรูปแล้ว → ลบ
+                setState(() {
+                  imageUrl = null;
+                });
+              }
+            },
+          ),
+        ),
+      ),
+    ],
+  ),
+)
+,
+
                   const SizedBox(height: 20),
 
                   Text(

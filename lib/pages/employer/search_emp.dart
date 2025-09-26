@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:agri_booking2/pages/employer/DetailVehc_emp.dart';
 import 'package:agri_booking2/pages/employer/Tabbar.dart';
+import 'package:agri_booking2/pages/employer/addFarm2.dart';
 import 'package:agri_booking2/pages/employer/farms.dart';
 import 'package:agri_booking2/pages/employer/searchEnter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -422,24 +423,68 @@ class _SearchEmpState extends State<SearchEmp> {
                 const SizedBox(width: 8), // ระยะห่างระหว่างช่อง
 
                 // 🏞️ ปุ่มเลือกฟาร์ม
-                Expanded(
-                  flex: 1, // สัดส่วน 1 ส่วน
-                  child: ElevatedButton(
-                    onPressed: farmList.isEmpty ? null : _showFarmPicker,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: const Color.fromARGB(255, 251, 160, 76),
-                      foregroundColor: const Color.fromARGB(255, 34, 31, 31),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      selectedFarm?['name_farm'] ?? 'เลือกที่นา',
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
+                // Expanded(
+                //   flex: 1, // สัดส่วน 1 ส่วน
+                //   child: ElevatedButton(
+                //     onPressed: farmList.isEmpty ? null : _showFarmPicker,
+                //     style: ElevatedButton.styleFrom(
+                //       padding: const EdgeInsets.symmetric(vertical: 16),
+                //       backgroundColor: const Color.fromARGB(255, 251, 160, 76),
+                //       foregroundColor: const Color.fromARGB(255, 34, 31, 31),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(12),
+                //       ),
+                //     ),
+                //     child: Text(
+                //       selectedFarm?['name_farm'] ?? 'เลือกที่นา',
+                //       overflow: TextOverflow.ellipsis,
+                //     ),
+                //   ),
+                // ),
+Expanded(
+  flex: 1,
+  child: ElevatedButton(
+    onPressed: () async {
+      if (farmList.isEmpty) {
+        // 👉 ถ้าไม่มีฟาร์ม → ไปหน้า AddFarmPage2
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddFarmPage2(
+              mid: widget.mid,
+            ),
+          ),
+        );
+
+        // ✅ ถ้ากลับมาพร้อม result == true → โหลดข้อมูลใหม่
+        if (result == true) {
+          setState(() {
+            _loadData();
+          });
+        }
+      } else {
+        // 👉 ถ้ามีฟาร์มแล้ว → แสดง picker
+        _showFarmPicker();
+      }
+    },
+    style: ElevatedButton.styleFrom(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      backgroundColor: const Color.fromARGB(255, 251, 160, 76),
+      foregroundColor: const Color.fromARGB(255, 34, 31, 31),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    child: Text(
+      farmList.isEmpty
+          ? 'เพิ่มข้อมูลที่นา' // ถ้าไม่มีฟาร์ม → ขึ้นปุ่มเพิ่มแทน
+          : (selectedFarm?['name_farm'] ?? 'เลือกที่นา'),
+      overflow: TextOverflow.ellipsis,
+    ),
+  ),
+)
+
+
               ],
             ),
             const SizedBox(height: 16),

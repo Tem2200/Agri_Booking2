@@ -206,6 +206,7 @@ class _AddFarmPageState extends State<AddFarmPage> {
                 controller: nameFarmCtrl,
                 decoration: InputDecoration(
                   labelText: 'ชื่อไร่นา *',
+                  hintText: 'เช่น ไร่นาสวนผักยายนาดี',
                   filled: true,
                   fillColor: const Color.fromARGB(248, 255, 249, 221)
                       .withOpacity(0.15),
@@ -222,6 +223,12 @@ class _AddFarmPageState extends State<AddFarmPage> {
                 ),
                 validator: (val) =>
                     val == null || val.isEmpty ? 'กรุณากรอกชื่อไร่นา*' : null,
+                maxLength: 100, // กำหนดสูงสุด 100 ตัวอักษร
+                buildCounter: (context,
+                        {required currentLength,
+                        required maxLength,
+                        required isFocused}) =>
+                    null, // ซ่อนตัวนับ
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -242,7 +249,14 @@ class _AddFarmPageState extends State<AddFarmPage> {
                   focusedErrorBorder: errorBorder,
                 ),
                 validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกหมู่บ้าน*' : null,
+      val == null || val.isEmpty ? 'กรุณากรอกหมู่บ้าน*' : null,
+  maxLength: 50,
+  buildCounter: (
+    BuildContext context, {
+    required int currentLength,
+    required int? maxLength,
+    required bool isFocused,
+  }) => null,
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
@@ -359,7 +373,7 @@ class _AddFarmPageState extends State<AddFarmPage> {
                 validator: (v) => v == null ? 'กรุณาเลือกตำบล*' : null,
               ),
               const SizedBox(height: 12),
-              TextFormField(
+                            TextFormField(
                 controller: areaAmountCtrl,
                 decoration: InputDecoration(
                   labelText: 'ขนาดพื้นที่ *',
@@ -377,8 +391,16 @@ class _AddFarmPageState extends State<AddFarmPage> {
                   focusedErrorBorder: errorBorder,
                 ),
                 keyboardType: TextInputType.number,
-                validator: (val) =>
-                    val == null || val.isEmpty ? 'กรุณากรอกขนาดพื้นที่*' : null,
+                  validator: (val) =>
+      val == null || val.isEmpty ? 'กรุณากรอกขนาดพื้นที่*' : null,
+  maxLength: 10,
+  buildCounter: (
+    BuildContext context, {
+    required int currentLength,
+    required int? maxLength,
+    required bool isFocused,
+  }) =>
+      null,
               ),
               const SizedBox(height: 12),
               Column(
@@ -439,18 +461,24 @@ class _AddFarmPageState extends State<AddFarmPage> {
                           errorBorder: errorBorder,
                           focusedErrorBorder: errorBorder,
                         ),
-                        validator: (v) {
-                          if (selectedUnit == 'อื่นๆ' &&
-                              (v == null || v.isEmpty)) {
-                            return 'กรุณาระบุหน่วยอื่นๆ';
-                          }
-                          return null;
-                        },
+                         validator: (v) {
+        if (selectedUnit == 'อื่นๆ' && (v == null || v.isEmpty)) {
+          return 'กรุณาระบุหน่วยอื่นๆ';
+        }
+        return null;
+      },
+      maxLength: 20,
+      buildCounter: (
+        BuildContext context, {
+        required int currentLength,
+        required int? maxLength,
+        required bool isFocused,
+      }) =>
+          null, // ซ่อนตัวนับตัวอักษร
                       ),
                     ),
                 ],
               ),
-
               const SizedBox(height: 16),
               // ปุ่มเลือกตำแหน่งบนแผนที่ พร้อมไอคอน และ gradient UI
               ElevatedButton(
@@ -537,8 +565,14 @@ class _AddFarmPageState extends State<AddFarmPage> {
                   errorBorder: errorBorder,
                   focusedErrorBorder: errorBorder,
                   // counterText ที่ถูกต้อง
-                  counterText: '${detailCtrl.text.length}/500',
-                ),
+                  // counterText: '${detailCtrl.text.length}/500',
+                ),  buildCounter: (
+    BuildContext context, {
+    required int currentLength,
+    required int? maxLength,
+    required bool isFocused,
+  }) =>
+      null, 
               ),
               const SizedBox(height: 40),
 // นำปุ่มทั้งสองไปไว้ใน Widget Row และจัดให้มีช่องว่างระหว่างกัน

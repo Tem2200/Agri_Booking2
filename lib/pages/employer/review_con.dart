@@ -218,6 +218,7 @@ class _ReviewConState extends State<ReviewCon> {
                 TextField(
                   controller: reviewController,
                   maxLines: 5,
+                  maxLength: 255,
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.orange[50],
@@ -226,6 +227,7 @@ class _ReviewConState extends State<ReviewCon> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    counterText: '',
                     focusedBorder: OutlineInputBorder(
                       borderSide: const BorderSide(color: Colors.orange),
                       borderRadius: BorderRadius.circular(12),

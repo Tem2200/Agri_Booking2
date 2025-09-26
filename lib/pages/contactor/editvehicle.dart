@@ -142,45 +142,121 @@ class _EditVehicleState extends State<EditVehicle> {
           plateController.text.isEmpty ? null : plateController.text,
     };
 
-    try {
-      final url = Uri.parse(
-          'http://projectnodejs.thammadalok.com/AGribooking/update_vehicle');
-      final response = await http.put(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(data),
-      );
+  //   try {
+  //     final url = Uri.parse(
+  //         'http://projectnodejs.thammadalok.com/AGribooking/update_vehicle');
+  //     final response = await http.put(
+  //       url,
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode(data),
+  //     );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+  //     print('Response status: ${response.statusCode}');
+  //     print('Response body: ${response.body}');
 
-      if (response.statusCode == 200) {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('อัปเดตข้อมูลรถสำเร็จ'),
-            content: const Text('ข้อมูลรถของคุณได้รับการอัปเดตแล้ว'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // ปิด Dialog ก่อน
-                  Navigator.pop(
-                      context, true); // กลับไปหน้าก่อนหน้า พร้อมส่งค่า true
-                },
-                child: const Text('ตกลง'),
-              ),
-            ],
+  //     if (response.statusCode == 200) {
+  //       showDialog(
+  //         context: context,
+  //         builder: (_) => AlertDialog(
+  //           title: const Text('อัปเดตข้อมูลรถสำเร็จ'),
+  //           content: const Text('ข้อมูลรถของคุณได้รับการอัปเดตแล้ว'),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.pop(context); // ปิด Dialog ก่อน
+  //                 Navigator.pop(
+  //                     context, true); // กลับไปหน้าก่อนหน้า พร้อมส่งค่า true
+  //               },
+  //               child: const Text('ตกลง'),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     } else {
+  //       throw Exception('ผิดพลาดในการอัปเดต: ${response.body}');
+  //     }
+  //   } catch (e) {
+  //     print('Error updating vehicle: $e');
+  // showDialog(
+  //   context: context,
+  //   builder: (BuildContext context) {
+  //     return AlertDialog(
+  //       title: const Text('เกิดข้อผิดพลาด'),
+  //       content: Text('ไม่สามารถอัปเดตข้อมูลรถได้: $e'),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () {
+  //             Navigator.of(context).pop(); // ปิด dialog
+  //           },
+  //           child: const Text('ตกลง'),
+  //         ),
+  //       ],
+  //     );
+  //   },
+  // );
+  //   } 
+  try {
+  final url = Uri.parse(
+      'http://projectnodejs.thammadalok.com/AGribooking/update_vehicle');
+  final response = await http.put(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode(data),
+  );
+
+  if (response.statusCode == 200) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('อัปเดตข้อมูลรถสำเร็จ'),
+        content: const Text('ข้อมูลรถของคุณได้รับการอัปเดตแล้ว'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // ปิด Dialog ก่อน
+              Navigator.pop(context, true); // กลับไปหน้าก่อนหน้า พร้อมส่งค่า true
+            },
+            child: const Text('ตกลง'),
           ),
-        );
-      } else {
-        throw Exception('ผิดพลาดในการอัปเดต: ${response.body}');
-      }
-    } catch (e) {
-      print('Error updating vehicle: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('ไม่สามารถอัปเดตข้อมูลรถได้: $e')),
-      );
-    } finally {
+        ],
+      ),
+    );
+  } else {
+    // แปลง JSON เพื่อนำ message มาแสดง
+    final Map<String, dynamic> errorBody = jsonDecode(response.body);
+    final String message = errorBody['message'] ?? 'เกิดข้อผิดพลาดไม่ทราบสาเหตุ';
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('เกิดข้อผิดพลาด'),
+        content: Text(message), // แสดงเฉพาะข้อความ
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('ตกลง'),
+          ),
+        ],
+      ),
+    );
+  }
+} catch (e) {
+  // กรณี error เช่น network
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('เกิดข้อผิดพลาด'),
+      content: Text('ไม่สามารถอัปเดตข้อมูลรถได้: $e'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('ตกลง'),
+        ),
+      ],
+    ),
+  );
+}
+  finally {
       setState(() => isLoading = false);
     }
   }
@@ -240,46 +316,77 @@ class _EditVehicleState extends State<EditVehicle> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Center(
-                              child: Column(
-                                children: [
-                                  Stack(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 50,
-                                        backgroundColor: Colors.grey[300],
-                                        backgroundImage: imageUrl != null &&
-                                                imageUrl!.isNotEmpty
-                                            ? NetworkImage(imageUrl!)
-                                            : null,
-                                        child: imageUrl == null ||
-                                                imageUrl!.isEmpty
-                                            ? Icon(Icons.directions_car,
-                                                size: 60,
-                                                color: Colors.grey[600])
-                                            : null,
-                                      ),
-                                      Positioned(
-                                        bottom: 0,
-                                        right: 0,
-                                        child: CircleAvatar(
-                                          backgroundColor: Colors.green[700],
-                                          radius: 18,
-                                          child: IconButton(
-                                            icon: const Icon(Icons.edit,
-                                                color: Colors.white, size: 20),
-                                            onPressed: isLoading
-                                                ? null
-                                                : pickAndUploadImage,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text('เปลี่ยนรูปรถ', style: labelStyle),
-                                ],
-                              ),
-                            ),
+  child: Column(
+    children: [
+      Stack(
+        children: [
+          Container(
+            width: 100,
+            height: 100,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromARGB(255, 245, 255, 243),
+                  Color.fromARGB(255, 80, 211, 54),
+                  Color.fromARGB(255, 38, 103, 8),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.transparent,
+              backgroundImage: imageUrl != null && imageUrl!.isNotEmpty
+                  ? NetworkImage(imageUrl!)
+                  : null,
+              child: (imageUrl == null || imageUrl!.isEmpty)
+                  ? const Icon(
+                      Icons.directions_car,
+                      size: 60,
+                      color: Colors.white,
+                    )
+                  : null,
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: CircleAvatar(
+              backgroundColor: Colors.green[700],
+              radius: 18,
+              child: IconButton(
+                icon: Icon(
+                  imageUrl != null && imageUrl!.isNotEmpty
+                      ? Icons.close // 👉 มีรูป → แสดงกากบาท
+                      : Icons.edit, // 👉 ไม่มีรูป → แสดงดินสอ
+                  color: Colors.white,
+                  size: 20,
+                ),
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        if (imageUrl != null && imageUrl!.isNotEmpty) {
+                          // 👉 ลบรูป
+                          setState(() {
+                            imageUrl = null;
+                          });
+                        } else {
+                          // 👉 อัปโหลดรูป
+                          pickAndUploadImage();
+                        }
+                      },
+              ),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      Text('แก้ไขรูปรถ', style: labelStyle),
+    ],
+  ),
+),
 
                             const SizedBox(height: 24),
 
@@ -474,30 +581,36 @@ class _EditVehicleState extends State<EditVehicle> {
                                 ),
                                 const SizedBox(width: 16),
                                 // ตกลง
-                                Expanded(
-                                  child: ElevatedButton.icon(
-                                    label: const Text('ตกลง',
-                                        style: submitButtonTextStyle),
-                                    onPressed: isLoading ? null : updateVehicle,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green[700],
-                                      elevation: 3,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 14),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+Expanded(
+  child: ElevatedButton(
+    onPressed: isLoading ? null : updateVehicle,
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.green[700],
+      elevation: 3,
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    child: isLoading
+        ? const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 2,
+            ),
+          )
+        : const Text(
+            'ตกลง',
+            style: submitButtonTextStyle,
+          ),
+  ),
+),
+
                               ],
                             ),
-                            if (isLoading)
-                              const Padding(
-                                padding: EdgeInsets.all(8),
-                                child:
-                                    Center(child: CircularProgressIndicator()),
-                              ),
+                           
                           ],
                         ),
                       ),
